@@ -1,0 +1,49 @@
+Regole di Base della Tombola Italiana
+La Tombola è essenzialmente una lotteria casalinga.
+
+Giocatori:
+Minimo: 2 giocatori (uno fa da banditore/tabellone e l'altro gioca con la cartella).
+Massimo: Non c'è un limite massimo, è limitato solo dal numero di cartelle disponibili e dalla capacità di tutti i partecipanti di seguire il gioco.
+Il Materiale
+1. 
+Tabellone: 
+Contiene i 90 numeri da 1 a 90.
+Cartelle: 
+Ogni cartella è divisa in tre righe e nove colonne e contiene 15 numeri univoci, disposti in modo sparso tra le nove colonne. 
+3. 
+Montepremi: Una somma di denaro o piccoli premi che vengono assegnati per le diverse combinazioni vincenti.
+
+Il Ruolo del Tabellone (Banditore)
+Il banditore è colui che si occupa dell'estrazione e della gestione del gioco.
+Estrae i Numeri: 
+Mescola i 90 numeri  e ne estrae uno alla volta, annunciandolo a voce alta.
+Segna i Numeri: 
+Segna il numero estratto sul tabellone di controllo.
+Verifica le Vincite: 
+Quando un giocatore dichiara una vincita, il banditore deve verificare immediatamente la cartella del giocatore confrontando i numeri coperti con quelli estratti sul tabellone. Se la vincita è valida, il premio viene assegnato e si continua il gioco.
+
+Regole di Vittoria per i Giocatori (Le Combinazioni)
+L'obiettivo dei giocatori è coprire i numeri sulle proprie cartelle man mano che vengono estratti. Le vincite si ottengono coprendo un certo numero di caselle sulla stessa riga di una cartella.
+1. Ambo (2 Punti)
+Vincita: Si ottiene coprendo due numeri presenti sulla stessa riga di una cartella.
+Nota: 
+Generalmente è il primo premio in ordine di tempo, ma è il meno pagato.
+2. Terno (3 Punti)
+Vincita: 
+Si ottiene coprendo tre numeri presenti sulla stessa riga di una cartella.
+3. Quaterna (4 Punti)
+Vincita: 
+Si ottiene coprendo quattro numeri presenti sulla stessa riga di una cartella.
+4. Cinquina (5 Punti)
+Vincita: 
+Si ottiene coprendo cinque numeri presenti sulla stessa riga di una cartella.
+Importanza: Dopo l'estrazione della Cinquina, si gioca solo per la Tombola. 
+Il premio della Cinquina è generalmente il secondo più consistente.
+5. Tombola (15 Punti)
+Vincita: 
+Si ottiene coprendo tutti i 15 numeri presenti sulla cartella.
+Importanza: 
+È la vincita più importante e assegna il premio maggiore. Con la Tombola, il gioco finisce.
+Regola Fondamentale: 
+Il Premio è Divisibile
+Se due o più giocatori vincono contemporaneamente (ad esempio, più giocatori fanno Ambo con la stessa estrazione, o due giocatori fanno Tombola), il premio viene diviso in parti uguali tra tutti i vincitori.

@@ -1,0 +1,9 @@
+Comandi da terminale utili:
+
+#comando per effettuare unitests 
+python -m unittest discover -s tests -p "*.py"
+#comando per attivare l'ambiente virtuale su windows 
+.\venv\Scripts\activate
+python tests/test_cartella_generazione.py
+comando per eseguire i test solo del file su cui si stà lavorando o comunque un file di stest specifico:
+python -m unittest -v tests.test_cartella

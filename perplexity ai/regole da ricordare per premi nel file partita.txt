@@ -1,0 +1,19 @@
+## Modello logico che suggerisco (da salvare in un file “regole”)
+### Stato in Partita (autorità globale)
+- `premio_corrente`: uno tra `["ambo", "terno", "quaterna", "cinquina", "tombola"]` in ordine.[1]
+- `premi_assegnati`: per ogni premio, lista vincitori (o vuota se non ancora assegnato).
+- (Opzionale) `premi_bloccati`: se vuoi impedire reclami tardivi dopo assegnazione.
+
+### Regola di validazione reclamo
+Quando arriva un reclamo da un giocatore:
+1) Se `tipo_reclamo != premio_corrente` → reclamo non valido (niente “salti”).  
+2) Se `premio_corrente` è già stato chiuso (assegnato in un turno precedente) → reclamo non valido.  
+3) Se la cartella/riga indicata non soddisfa davvero la combinazione (delegato a `Cartella`) → reclamo non valido.  
+4) Se più giocatori reclamano **lo stesso premio corrente nello stesso turno** e sono validi → tutti vincono ex-aequo e il premio si divide (come hai detto).[1]
+
+Alla fine del processamento del turno:
+- se almeno un reclamo valido per `premio_corrente` è stato accettato → quel premio diventa “assegnato” e `premio_corrente` avanza al successivo.  
+- se nessun reclamo valido → `premio_corrente` resta uguale.
+
+Questo soddisfa esattamente: “non puoi reclamare ambo due turni dopo se l’ambo è già stato assegnato”, e “non puoi reclamare quaterna se è già stata assegnata una cinquina” perché la progressione avanza e i premi precedenti risultano chiusi.[1]
+

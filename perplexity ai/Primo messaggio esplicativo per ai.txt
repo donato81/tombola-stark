@@ -1,0 +1,39 @@
+Benissimo, sono veramente felice che ti ricordi il mio progetto della tombola versione italiana ed accessibile.
+Come ben saprai, ho già sviluppato una parte del progetto in altre conversazioni che però sono arrivate ad essere tropo piene.
+Prima di passare allo sviluppo vero e proprio dei metodi e delle funzionalità che mancano, volevo farti una rinfrescata di quello che ho già fatto.
+Ti descrivo brevemente la struttura e come ho organizzato il progetto nella mia cartella di programmazione.
+La radice del progetto è:
+cartella: bingo_accessibile.
+Al suo interno, ci sono sia file che sottocartelle:
+Sottocartella 1: bingo_game;
+questa cartella contiene i file del motore di gioco:
+File: cartella.py: che contiene i metodi che gestiscono la generazione della cartella della tombola seguendo le regole base della tombola italiana.
+File: init.py: classico file di init, per ora vuoto, ma utile per l'avvio dei moduli di questa cartella.
+File: partita.py: questo file gestirà i metodi che serviranno allo sviluppo della partita vera e propria.
+File: tabellone.py: questo file contiene i metodi utili alla generazione del tabellone coi suoi 90 numeri, e tutti i metodi utili al gioco, tipo l'estrazione di un numero.
+File: utils.py: dove ci saranno eventualmente metodi di utilizzo comune.
+Questi sono i file contenuti nella cartella "bingo_game".
+Passiamo adesso alla seconda cartella:
+Cartella: my_lib.
+Al suo interno al momento troviamo un solo file.
+File: vocalizzatore.py. In questo file come si evince dal nome, ho abbozzato la struttura per la vocalizzazione futura del mio progetto, per renderlo accessibile anche ai privi di vista.
+Passiamo ora alla terza cartella.
+Cartella: tests: in questa cartella sono contenuti i file per testare le varie funzionalità con unittest di python.
+File: init.py: come prima utile per avviare i file della directory, ma al momento vuoto.
+File: test_cartella.py: questo file gestisce direttamente i test con unittest riguardanti i metodi contenuti nel file cartella.py.
+File temporaneo: test_cartella_generazione.py. Ho creato questo file di test, nel quale ho testato da terminale con chiamate a metodi e print la generazione della cartella con la quale ho avuto qualche grattacapo. Quindi prima di passare a fare i test necessari e specifici per i metodi del file cartella.py, ho voluto vedere praticamente la generazione finale.
+File: test_partita.py. Questo file è attualmente vuoto, inquanto ancora non sono arrivato allo sviluppo della partita, ma in futuro conterrà i metodi per testare le varie funzionalità della partita sempre da effettuare con unittest.
+File: test_tabellone.py. Questo file contiene i test che ho già creato per il file tabelone.py. Fino a quelche giorno fa tutto funzionava bene, ma avendo riscontrato problemi con la generazione della cartella, mi sono un attimino fermato dal continuare ad usare unittest, ma ci torneremo presto.
+Qui finisce la cartella tests.
+Ne progetto c'è anche una cartella venv, che è utile perchè ho creato un ambiente virtuale apposta per questo progetto.
+Queste sono le cartelle contenute nella mia cartella bingo_accessibile.
+Ora passiamo ai file che sono contenuti direttamente in radice:
+File: main.py. Non credo che abbia bisogno di molte spiegazioni, ma al momento non avendo ancora sviluppato una bozza di gioco vera e propira non viene utilizzato. Sviluppo futuro.
+File readme.md. che contiene la documentazione del gioco.
+File: requirements.txt: che contiene tutte le librerie da integrare nel progetto e nell'ambiente virtuale.
+Con questo ho finito anche l'elenco attuale dei file contenuti nel mio progetto.
+dopo che leggi questo e mi dai conferma che tutto sia chiaro, ti caricherò i file su cui dobbiamo continuare a lavorare da ora in poi.
+Eviterò per il momento di caricarti i file che non ci servono attualmente per evitare di sovraccaricare la tua memoria.
+Pronto a leggere i miei file?
+
+

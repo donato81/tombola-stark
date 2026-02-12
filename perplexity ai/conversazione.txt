@@ -1,0 +1,56 @@
+Questo è il prossimo metodo a cui creare i test.
+Prima come sempre facciamo ragionamento sui test necessari per coprire tutte le casistiche e che non generi errori come successo poco fa.
+Spiegami quali metodi dovremo creare per coprire i test utili e completi per questo metodo.
+Dammi risposta discorsiva e semplice da capire, senza codice.
+
+
+    def get_coordinate_numero(self, numero: int) -> tuple[int, int] | None:
+        """
+        Ritorna le coordinate (riga, colonna) del numero nella matrice interna della cartella.
+
+        Scopo:
+        - Fornire un dato grezzo e stabile (senza stringhe) per eventi/renderer.
+        - Evitare che i livelli più alti (giocatore umano/UI) debbano conoscere la struttura interna 3x9.
+        - Supportare feedback come: "numero segnato in riga X colonna Y" (conversione 1-based demandata al renderer).
+
+        Formato di ritorno:
+        - tuple (indice_riga, indice_colonna) 0-based se il numero è presente nella cartella.
+        - None se il numero non è presente nella cartella.
+
+        Parametri:
+        - numero: int (1..90)
+
+        Eccezioni:
+        - CartellaNumeroTypeException: se numero non è un int.
+        - CartellaNumeroValueException: se numero non è nel range 1..90.
+
+        Note:
+        - Questo metodo NON modifica lo stato della cartella.
+        - Usa un controllo rapido su self.numericartella per evitare scansioni inutili quando il numero non appartiene
+          alla cartella.
+        """
+
+        # 1) Validazioni difensive coerenti con gli altri metodi pubblici (segnatura / check segnato)
+        if not isinstance(numero, int):
+            raise CartellaNumeroTypeException(numero)
+
+        if numero < 1 or numero > self.maxnumero:
+            raise CartellaNumeroValueException(numero)
+
+        # 2) Check rapido: se il numero non appartiene alla cartella, non può avere coordinate
+        # (Questo evita di scansionare la matrice 3x9 inutilmente)
+        if numero not in self.numericartella:
+            return None
+
+        # 3) Scansione della matrice interna per trovare le coordinate reali
+        # Nota: per regole di generazione/validazione i numeri sono unici, quindi la prima occorrenza è l'unica.
+        for indice_riga in range(self.righe):
+            for indice_colonna in range(self.colonne):
+                valore = self.cartella[indice_riga][indice_colonna]
+                if valore == numero:
+                    return indice_riga, indice_colonna
+
+        # 4) Caso di sicurezza: se il numero è nel set ma non si trova nella matrice, lo stato è incoerente.
+        # Qui non si sollevano errori tecnici per non rompere il flusso: ritorniamo None e lasciamo che test/log
+        # intercettino l'incoerenza (è comunque un caso limite che non dovrebbe mai accadere).
+        return None
