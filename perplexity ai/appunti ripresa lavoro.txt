@@ -1,2 +1,0 @@
-Riprendere il lavoro con il costruire le frasi per i nuovi eventi per i reclami vittoria e per i metodi di supporto creati.
-Creare metodo di renderer per il metodo per reclamare vittoria.
