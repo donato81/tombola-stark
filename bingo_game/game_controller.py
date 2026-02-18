@@ -21,6 +21,7 @@ from __future__ import annotations
 from typing import List, Optional, Dict, Any
 #import della libreria random per la generazione di numeri casuali.
 import random
+import logging
 # Import delle classi di gioco
 from bingo_game.tabellone import Tabellone
 from bingo_game.cartella import Cartella
@@ -47,26 +48,45 @@ from bingo_game.logging import GameLogger
 
 
 # =========================
+# Sub-logger per categoria
+# =========================
+
+# Sub-logger per categoria — figli del logger radice tombola_stark
+# Nessuna configurazione necessaria: ereditano handler e livello dal padre
+_logger_game   = logging.getLogger("tombola_stark.game")
+_logger_prizes = logging.getLogger("tombola_stark.prizes")
+_logger_system = logging.getLogger("tombola_stark.system")
+_logger_errors = logging.getLogger("tombola_stark.errors")
+
+# Stato di sessione — variabili di modulo (reset in crea_partita_standard)
+_turno_corrente: int = 0
+_premi_totali: int = 0
+
+
+# =========================
 # Helper interno per logging sicuro
 # =========================
 
 # Track se abbiamo già loggato la terminazione per evitare duplicati
 _partita_terminata_logged: bool = False
 
-def _log_safe(message: str, level: str = "info", *args) -> None:
+def _log_safe(message: str, level: str = "info", *args,
+              logger: logging.Logger | None = None) -> None:
     """Scrive nel log senza mai propagare eccezioni al chiamante.
 
     Args:
         message: Messaggio da registrare.
         level: Livello logging ('info', 'warning', 'debug', 'error').
         *args: Argomenti per il formato stringa del logger.
+        logger: Sub-logger specifico. Se None, usa il logger radice.
 
     Version:
         v0.4.0: Helper interno per logging sicuro nel controller
+        v0.5.0: Aggiunto parametro logger per supporto sub-logger
     """
     try:
-        logger = GameLogger.get_instance()
-        getattr(logger, level)(message, *args)
+        target = logger or GameLogger.get_instance()
+        getattr(target, level)(message, *args)
     except Exception:  # noqa: BLE001
         pass
 
@@ -272,10 +292,12 @@ def crea_partita_standard(
     - ControllerBotNegativeException: Se num_bot < 0.
     - ControllerBotExcessException: Se num_bot > 7.
     """
-    global _partita_terminata_logged
+    global _partita_terminata_logged, _turno_corrente, _premi_totali
     
-    # Reset flag terminazione per nuova partita
+    # Reset flag terminazione e contatori per nuova partita
     _partita_terminata_logged = False
+    _turno_corrente = 0
+    _premi_totali = 0
     
     # 1. VALIDAZIONE PARAMETRI DI INPUT
     # Controlli di sicurezza per garantire coerenza della partita
