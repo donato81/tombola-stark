@@ -115,8 +115,8 @@ def test_turni_loggati_in_debug(temp_log_dir):
     log_content_info = log_file.read_text(encoding="utf-8")
     
     # In INFO mode, turn details should NOT be logged
-    # The "Turno eseguito" is logged at DEBUG level
-    assert "Turno eseguito" not in log_content_info, \
+    # The "[GAME] Turno" message is logged at DEBUG level
+    assert "[GAME] Turno" not in log_content_info, \
         "Turn execution should NOT be logged in INFO mode"
     
     # Reset for DEBUG mode test
@@ -144,5 +144,5 @@ def test_turni_loggati_in_debug(temp_log_dir):
     log_content_debug = log_file.read_text(encoding="utf-8")
     
     # In DEBUG mode, turn details SHOULD be logged
-    assert "Turno eseguito" in log_content_debug, \
+    assert "[GAME] Turno #" in log_content_debug, \
         "Turn execution SHOULD be logged in DEBUG mode"
