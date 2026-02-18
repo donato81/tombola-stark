@@ -119,6 +119,52 @@ def _log_prize_event(evento: dict) -> None:
         )
 
 
+def _log_game_summary(partita: Partita) -> None:
+    """Logga il riepilogo finale della partita al termine.
+
+    Scrive un blocco INFO con le statistiche essenziali:
+    turni giocati, numeri estratti, premi assegnati, vincitore (se tombola).
+
+    Args:
+        partita: L'istanza Partita terminata da cui leggere lo stato finale.
+
+    Version:
+        v0.5.0: Prima implementazione
+    """
+    try:
+        stato = ottieni_stato_sintetico(partita)
+        giocatori = stato.get("giocatori", [])
+        vincitore = next(
+            (g["nome"] for g in giocatori if g.get("ha_tombola")), None
+        )
+
+        _log_safe(
+            "[GAME] === RIEPILOGO PARTITA ===",
+            "info", logger=_logger_game
+        )
+        _log_safe(
+            "[GAME] Turni giocati: %d | Numeri estratti: %d/90",
+            "info", _turno_corrente, len(stato.get("numeri_estratti", [])),
+            logger=_logger_game
+        )
+        _log_safe(
+            "[PRIZE] Riepilogo premi: %d premi totali assegnati",
+            "info", _premi_totali, logger=_logger_prizes
+        )
+        if vincitore:
+            _log_safe(
+                "[PRIZE] Vincitore TOMBOLA: '%s'",
+                "info", vincitore, logger=_logger_prizes
+            )
+        else:
+            _log_safe(
+                "[GAME] Partita senza vincitore (numeri esauriti)",
+                "info", logger=_logger_game
+            )
+    except Exception:
+        pass  # Il riepilogo non deve mai interrompere la chiusura
+
+
 # =========================
 # Sezione 1: Creazione oggetti
 # =========================
@@ -577,6 +623,7 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
                 "[GAME] Partita terminata per TOMBOLA al turno #%d",
                 "info", _turno_corrente, logger=_logger_game
             )
+            _log_game_summary(partita)
         
         # Fine partita per numeri esauriti
         elif risultato_turno.get("partita_terminata"):
@@ -588,6 +635,7 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
                 "[ERR] Numeri esauriti al turno #%d",
                 "warning", _turno_corrente, logger=_logger_errors
             )
+            _log_game_summary(partita)
         
         return risultato_turno
         
