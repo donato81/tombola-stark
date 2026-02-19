@@ -24,7 +24,7 @@ L'architettura è strutturata a livelli (Dominio → Controller → Interfaccia)
 - 🎴 **Cartelle automatiche** — Generazione automatica di cartelle (3 righe × 5 numeri) con verifica in tempo reale di ambo, terno, quaterna, cinquina e tombola
 - 👥 **Multiplayer locale** — Da 2 a 8 giocatori, con supporto simultaneo a 1 giocatore umano e fino a 7 bot automatici
 - 🤖 **Bot Attivi (v0.6.0+)** — I bot dichiarano autonomamente i premi conseguiti in tempo reale, simulando il comportamento di giocatori umani. I reclami sono loggati e pronti per vocalizzazione TTS
-- ♿ **Accessibilità nativa** — Output strutturato compatibile con screen reader; ogni evento di gioco produce dati semantici pronti per la vocalizzazione TTS
+- ♿️ **Accessibilità nativa** — Output strutturato compatibile con screen reader; ogni evento di gioco produce dati semantici pronti per la vocalizzazione TTS
 - ⌨️ **Navigazione da tastiera** — Zero dipendenza dal mouse nell'architettura di controllo
 - 🔊 **TTS integrato** — Supporto a Google TTS (`gTTS`) e `playsound` per feedback audio
 - 🛡️ **Gestione errori robusta** — Gerarchia di eccezioni personalizzate per ogni modulo; controller fail-safe che non propaga mai crash all'interfaccia
@@ -173,6 +173,7 @@ tombola-stark/
 ├── documentations/
 │   ├── API.md                   # 📚 Riferimento API pubblico
 │   ├── ARCHITECTURE.md          # 🏗️ Documentazione architetturale
+│   ├── CHANGELOG.md             # 📝 Cronologia versioni e modifiche
 │   └── templates/               # Template per nuovi documenti
 ├── main.py                      # ▶️ Entry point dell'applicazione
 ├── requirements.txt             # Dipendenze Python
@@ -189,6 +190,7 @@ La documentazione tecnica completa è disponibile nella cartella [`documentation
 |---|---|
 | [`API.md`](documentations/API.md) | Riferimento completo di tutte le classi pubbliche, metodi, parametri e valori di ritorno |
 | [`ARCHITECTURE.md`](documentations/ARCHITECTURE.md) | Architettura del software, suddivisione a livelli, pattern chiave e flusso dei dati |
+| [`CHANGELOG.md`](documentations/CHANGELOG.md) | Cronologia delle versioni e modifiche apportate in ogni release |
 
 ---
 
@@ -238,7 +240,7 @@ I contributi sono benvenuti! Per contribuire al progetto:
 - Mantieni il **domain layer privo di dipendenze UI** (vedi regola d'oro in `ARCHITECTURE.md`)
 - Ogni nuovo modulo deve avere il proprio file `*_exceptions.py`
 - I messaggi in italiano vanno **solo** nel livello interfaccia o in `bingo_game/events/`, mai nel dominio
-- Aggiorna `API.md` per ogni nuova API pubblica
+- Aggiorna `API.md` e `CHANGELOG.md` per ogni nuova API pubblica o release
 
 ---
 
