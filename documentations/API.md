@@ -1,8 +1,8 @@
 # 📚 API.md - Tombola Stark
 
 > **Riferimento API pubblico per tombola-stark**  
-> Versione: v0.1.0  
-> Ultimo aggiornamento: 2026-02-18
+> Versione: v0.6.0  
+> Ultimo aggiornamento: 2026-02-19
 
 ---
 
@@ -1016,7 +1016,7 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
 - `Dict[str, Any]`: Dizionario risultato turno se successo
 - `None`: Se errore
 
-**Chiavi garantite**: `numero_estratto`, `stato_partita_prima`, `stato_partita_dopo`, `tombola_rilevata`, `partita_terminata`, `premi_nuovi`
+**Chiavi garantite**: `numero_estratto`, `stato_partita_prima`, `stato_partita_dopo`, `tombola_rilevata`, `partita_terminata`, `premi_nuovi`, `reclami_bot` (v0.6.0+)
 
 ---
 
@@ -1169,6 +1169,9 @@ while not partita_terminata(partita):
         print(f"Estratto: {turno['numero_estratto']}")
         for evento in turno["premi_nuovi"]:
             print(f"🎉 {evento['giocatore']} ha fatto {evento['premio']}!")
+        for reclamo in turno.get("reclami_bot", []):
+            stato = "✅" if reclamo["successo"] else "❌"
+            print(f"{stato} {reclamo['nome_giocatore']} dichiara {reclamo['reclamo'].tipo}!")
         if turno["tombola_rilevata"]:
             print("🏆 TOMBOLA!")
 ```
@@ -1377,6 +1380,7 @@ def _log_safe(message: str, level: str = "info", *args,
 
 ## 🔄 Note di Versione
 
+- **v0.6.0** – Bot Attivo: `GiocatoreAutomatico` valuta autonomamente i premi e li dichiara tramite `ReclamoVittoria`. Nuova chiave `reclami_bot` in `Partita.esegui_turno()` (backward-compatible). Campo `id_giocatore` aggiunto agli eventi premio per matching robusto con nomi duplicati. Metodi `is_automatico()` e `reset_reclamo_turno()` documentati in `GiocatoreBase`.
 - **v0.5.0** – Sistema di logging Fase 2: copertura completa eventi di gioco (18 eventi distinti), sub-logger per categoria, riepilogo finale partita
 - **v0.4.0** – Sistema di logging Fase 1: GameLogger singleton, file cumulativo con flush immediato, marcatori di sessione, flag `--debug`
 - **v0.1.0** – Rilascio iniziale: Tabellone, Cartella, GiocatoreBase, GiocatoreUmano, GiocatoreAutomatico, Partita, game_controller
@@ -1385,4 +1389,4 @@ def _log_safe(message: str, level: str = "info", *args,
 
 ---
 
-*Ultimo aggiornamento: 2026-02-19*
+*Ultimo aggiornamento: 2026-02-19 (v0.6.0)*
