@@ -21,6 +21,7 @@ from __future__ import annotations
 from typing import List, Optional, Dict, Any
 #import della libreria random per la generazione di numeri casuali.
 import random
+import logging
 # Import delle classi di gioco
 from bingo_game.tabellone import Tabellone
 from bingo_game.cartella import Cartella
@@ -41,6 +42,127 @@ from bingo_game.exceptions import (
     ControllerBotNegativeException,
     ControllerBotExcessException,
 )
+
+# Import sistema di logging centralizzato
+from bingo_game.logging import GameLogger
+
+
+# =========================
+# Sub-logger per categoria
+# =========================
+
+# Sub-logger per categoria — figli del logger radice tombola_stark
+# Nessuna configurazione necessaria: ereditano handler e livello dal padre
+_logger_game   = logging.getLogger("tombola_stark.game")
+_logger_prizes = logging.getLogger("tombola_stark.prizes")
+_logger_system = logging.getLogger("tombola_stark.system")
+_logger_errors = logging.getLogger("tombola_stark.errors")
+
+# Stato di sessione — variabili di modulo (reset in crea_partita_standard)
+_turno_corrente: int = 0
+_premi_totali: int = 0
+
+
+# =========================
+# Helper interno per logging sicuro
+# =========================
+
+# Track se abbiamo già loggato la terminazione per evitare duplicati
+_partita_terminata_logged: bool = False
+
+def _log_safe(message: str, level: str = "info", *args,
+              logger: logging.Logger | None = None) -> None:
+    """Scrive nel log senza mai propagare eccezioni al chiamante.
+
+    Args:
+        message: Messaggio da registrare.
+        level: Livello logging ('info', 'warning', 'debug', 'error').
+        *args: Argomenti per il formato stringa del logger.
+        logger: Sub-logger specifico. Se None, usa il logger radice.
+
+    Version:
+        v0.4.0: Helper interno per logging sicuro nel controller
+        v0.5.0: Aggiunto parametro logger per supporto sub-logger
+    """
+    try:
+        target = logger or GameLogger.get_instance()
+        getattr(target, level)(message, *args)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _log_prize_event(evento: dict) -> None:
+    """Logga un singolo evento di vincita dalla lista premi_nuovi.
+
+    Args:
+        evento: Dizionario con chiavi 'giocatore', 'cartella', 'premio', 'riga'.
+                Formato come da API Partita.verifica_premi().
+
+    Version:
+        v0.5.0: Prima implementazione
+    """
+    premio = evento.get("premio", "sconosciuto")
+    giocatore = evento.get("giocatore", "?")
+    cartella = evento.get("cartella", "?")
+    riga = evento.get("riga")
+
+    if premio == "tombola":
+        _log_safe(
+            "[PRIZE] TOMBOLA! — giocatore='%s', cartella=%s",
+            "info", giocatore, cartella, logger=_logger_prizes
+        )
+    else:
+        _log_safe(
+            "[PRIZE] %s — giocatore='%s', cartella=%s, riga=%s",
+            "info", premio.upper(), giocatore, cartella, riga,
+            logger=_logger_prizes
+        )
+
+
+def _log_game_summary(partita: Partita) -> None:
+    """Logga il riepilogo finale della partita al termine.
+
+    Scrive un blocco INFO con le statistiche essenziali:
+    turni giocati, numeri estratti, premi assegnati, vincitore (se tombola).
+
+    Args:
+        partita: L'istanza Partita terminata da cui leggere lo stato finale.
+
+    Version:
+        v0.5.0: Prima implementazione
+    """
+    try:
+        stato = ottieni_stato_sintetico(partita)
+        giocatori = stato.get("giocatori", [])
+        vincitore = next(
+            (g["nome"] for g in giocatori if g.get("ha_tombola")), None
+        )
+
+        _log_safe(
+            "[GAME] === RIEPILOGO PARTITA ===",
+            "info", logger=_logger_game
+        )
+        _log_safe(
+            "[GAME] Turni giocati: %d | Numeri estratti: %d/90",
+            "info", _turno_corrente, len(stato.get("numeri_estratti", [])),
+            logger=_logger_game
+        )
+        _log_safe(
+            "[PRIZE] Riepilogo premi: %d premi totali assegnati",
+            "info", _premi_totali, logger=_logger_prizes
+        )
+        if vincitore:
+            _log_safe(
+                "[PRIZE] Vincitore TOMBOLA: '%s'",
+                "info", vincitore, logger=_logger_prizes
+            )
+        else:
+            _log_safe(
+                "[GAME] Partita senza vincitore (numeri esauriti)",
+                "info", logger=_logger_game
+            )
+    except Exception:
+        pass  # Il riepilogo non deve mai interrompere la chiusura
 
 
 # =========================
@@ -244,6 +366,13 @@ def crea_partita_standard(
     - ControllerBotNegativeException: Se num_bot < 0.
     - ControllerBotExcessException: Se num_bot > 7.
     """
+    global _partita_terminata_logged, _turno_corrente, _premi_totali
+    
+    # Reset flag terminazione e contatori per nuova partita
+    _partita_terminata_logged = False
+    _turno_corrente = 0
+    _premi_totali = 0
+    
     # 1. VALIDAZIONE PARAMETRI DI INPUT
     # Controlli di sicurezza per garantire coerenza della partita
     if not nome_giocatore_umano or not nome_giocatore_umano.strip():
@@ -296,6 +425,15 @@ def crea_partita_standard(
         raise RuntimeError("Errore critico: giocatori non inizializzati nella partita")
 
     print("✅ Partita standard creata con successo!")
+    
+    # Log creazione partita riuscita con sub-logger
+    _log_safe(
+        "[GAME] Partita creata — giocatore='%s', cartelle=%d, bot=%d, tot_giocatori=%d",
+        "info", nome_giocatore_umano, num_cartelle_umano, num_bot_effettivi,
+        len(tutti_i_giocatori),
+        logger=_logger_game
+    )
+    
     # 6. RITORNO PARTITA PRONTA
     return partita
 
@@ -339,6 +477,11 @@ def avvia_partita_sicura(partita: Partita) -> bool:
         # 3. Verifica POST-avvio: stato effettivamente cambiato
         if partita.get_stato_partita() == "in_corso":
             print("✅ Partita avviata con successo!")
+            _log_safe(
+                "[GAME] Partita avviata — stato: %s, giocatori: %d",
+                "info", partita.get_stato_partita(), partita.get_numero_giocatori(),
+                logger=_logger_game
+            )
             return True
         else:
             print("⚠️  Avvio completato ma stato inatteso:", partita.get_stato_partita())
@@ -348,21 +491,45 @@ def avvia_partita_sicura(partita: Partita) -> bool:
     except PartitaGiocatoriInsufficientiException as exc:
         print(f"❌ Impossibile avviare: {exc}")
         print(f"   Serve almeno {Partita.MIN_GIOCATORI} giocatori, presenti: {partita.get_numero_giocatori()}")
+        _log_safe("[GAME] Avvio fallito: %s", "warning", str(exc), logger=_logger_game)
+        _log_safe(
+            "[ERR] Eccezione avvio partita: %s — tipo: %s",
+            "warning", str(exc), type(exc).__name__,
+            logger=_logger_errors
+        )
         return False
         
     except PartitaGiaIniziataException as exc:
         print(f"❌ Partita già avviata: {exc}")
         print(f"   Stato attuale: '{partita.get_stato_partita()}'")
+        _log_safe("[GAME] Avvio fallito: %s", "warning", str(exc), logger=_logger_game)
+        _log_safe(
+            "[ERR] Eccezione avvio partita: %s — tipo: %s",
+            "warning", str(exc), type(exc).__name__,
+            logger=_logger_errors
+        )
         return False
         
     # 5. QUALSIASI altra eccezione di Partita
     except PartitaException as exc:
         print(f"❌ Errore partita generico: {exc}")
+        _log_safe("[GAME] Avvio fallito: %s", "warning", str(exc), logger=_logger_game)
+        _log_safe(
+            "[ERR] Eccezione avvio partita: %s — tipo: %s",
+            "warning", str(exc), type(exc).__name__,
+            logger=_logger_errors
+        )
         return False
         
     # 6. Eccezioni IMATTESA (propagate per debug)
     except Exception as exc:
         print(f"💥 Errore critico imprevisto: {exc}")
+        _log_safe("[GAME] Avvio fallito (errore imprevisto): %s", "warning", str(exc), logger=_logger_game)
+        _log_safe(
+            "[ERR] Eccezione imprevista avvio: %s — tipo: %s",
+            "warning", str(exc), type(exc).__name__,
+            logger=_logger_errors
+        )
         raise  # Ri-lancia per debug completo
 
 
@@ -404,9 +571,11 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
         return None
     
     # 2. ESECUZIONE TURNO CON GESTIONE ECCEZIONI COMPLETE
+    global _turno_corrente, _premi_totali
     try:
         # Chiamata centrale: esegue TUTTO il ciclo del turno
         risultato_turno = partita.esegui_turno()
+        _turno_corrente += 1
         
         # 3. VERIFICA RISULTATO VALIDO
         if not isinstance(risultato_turno, dict):
@@ -426,25 +595,87 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
         print(f"✅ Turno #{partita.tabellone.get_conteggio_estratti()}: {risultato_turno['numero_estratto']}")
         if risultato_turno["premi_nuovi"]:
             print(f"   🎉 {len(risultato_turno['premi_nuovi'])} nuovi premi!")
+        
+        # Log turno (solo DEBUG)
+        _log_safe(
+            "[GAME] Turno #%d — estratto: %d, avanzamento: %.1f%%",
+            "debug", _turno_corrente,
+            risultato_turno["numero_estratto"],
+            ((_turno_corrente / 90) * 100),
+            logger=_logger_game
+        )
+        
+        # Snapshot stato (solo DEBUG)
+        _log_safe(
+            "[GAME] Stato: estratti=%d/90, premi_sessione=%d",
+            "debug", partita.tabellone.get_conteggio_estratti(), _premi_totali,
+            logger=_logger_game
+        )
+        
+        # Premi nuovi (INFO per tutti i premi)
+        for evento in risultato_turno.get("premi_nuovi", []):
+            _premi_totali += 1
+            _log_prize_event(evento)
+        
+        # Fine partita per tombola
+        if risultato_turno.get("tombola_rilevata"):
+            _log_safe(
+                "[GAME] Partita terminata per TOMBOLA al turno #%d",
+                "info", _turno_corrente, logger=_logger_game
+            )
+            _log_game_summary(partita)
+        
+        # Fine partita per numeri esauriti
+        elif risultato_turno.get("partita_terminata"):
+            _log_safe(
+                "[GAME] Partita terminata per NUMERI ESAURITI al turno #%d",
+                "info", _turno_corrente, logger=_logger_game
+            )
+            _log_safe(
+                "[ERR] Numeri esauriti al turno #%d",
+                "warning", _turno_corrente, logger=_logger_errors
+            )
+            _log_game_summary(partita)
+        
         return risultato_turno
         
     # 4. ECCEZIONI SPECIFICHE DEL CICLO DI GIOCO
     except PartitaNonInCorsoException as exc:
         print(f"❌ Turno fallito - Partita non in corso: {exc}")
+        _log_safe(
+            "[ERR] Eccezione turno #%d: %s — tipo: %s",
+            "warning", _turno_corrente, str(exc), type(exc).__name__,
+            logger=_logger_errors
+        )
         return None
         
     except PartitaNumeriEsauritiException as exc:
         print(f"🏁 Partita finita - Numeri esauriti: {exc}")
+        _log_safe(
+            "[ERR] Numeri esauriti al turno #%d — %s",
+            "warning", _turno_corrente, str(exc),
+            logger=_logger_errors
+        )
         return None
         
     # 5. QUALSIASI ALTRA ECCEZIONE PARTITA
     except PartitaException as exc:
         print(f"❌ Errore partita durante turno: {exc}")
+        _log_safe(
+            "[ERR] Eccezione turno #%d: %s — tipo: %s",
+            "warning", _turno_corrente, str(exc), type(exc).__name__,
+            logger=_logger_errors
+        )
         return None
         
     # 6. ECCEZIONI CRITICHE (propagate per debug)
     except Exception as exc:
         print(f"💥 Errore critico imprevisto nel turno: {exc}")
+        _log_safe(
+            "[ERR] Eccezione imprevista turno #%d: %s — tipo: %s",
+            "warning", _turno_corrente, str(exc), type(exc).__name__,
+            logger=_logger_errors
+        )
         raise  # Rilancia per analisi completa
 
 
@@ -616,6 +847,8 @@ def partita_terminata(partita: Partita) -> bool:
     Raises:
     - ValueError: parametro non-Partita o stato invalido
     """
+    global _partita_terminata_logged
+    
     # 1. VALIDAZIONE PARAMETRO INPUT
     if not isinstance(partita, Partita):
         raise ValueError(
@@ -647,6 +880,10 @@ def partita_terminata(partita: Partita) -> bool:
     # 6. LOG RISULTATO
     if is_terminata:
         print("🏁 Partita TERMINATA - esci dal loop")
+        # Log solo la prima volta che rileva la terminazione
+        if not _partita_terminata_logged:
+            _log_safe("Partita terminata.", "info")
+            _partita_terminata_logged = True
     else:
         print("▶️  Partita in corso - continua il loop")
     

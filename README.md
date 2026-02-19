@@ -84,8 +84,24 @@ pip install -r requirements.txt
 
 ### Avvio del gioco
 
+**Modalità normale** (solo eventi INFO):
 ```bash
 python main.py
+```
+
+**Modalità debug** (include log dettagliato di ogni turno):
+```bash
+python main.py --debug
+```
+
+Il sistema di logging crea automaticamente la cartella `logs/` e scrive un file cumulativo `logs/tombola_stark.log` con tutti gli eventi di gioco. Ogni sessione è separata da marcatori con timestamp. Il file è leggibile in tempo reale durante l'esecuzione.
+
+**Esempio di output del log**:
+```
+2026-02-19 12:30:45 | INFO  | tombola_stark.game   | [GAME] Partita creata — giocatore='Mario'
+2026-02-19 12:30:46 | INFO  | tombola_stark.game   | [GAME] Partita avviata — giocatori: 2
+2026-02-19 12:30:47 | DEBUG | tombola_stark.game   | [GAME] Turno #1 — estratto: 42
+2026-02-19 12:30:55 | INFO  | tombola_stark.prizes | [PRIZE] AMBO — giocatore='Mario', cartella=1
 ```
 
 ### Utilizzo del motore di gioco via codice

@@ -56,7 +56,6 @@ from bingo_game.events.eventi_partita import (
     EventoReclamoVittoria,
     EventoFineTurno,
 )
-)
 
 #definizione della classe giocatore umano che eredita dal giocatore base
 class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):

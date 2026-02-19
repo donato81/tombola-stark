@@ -1098,12 +1098,175 @@ print(f"Turno: {risultato['numero_estratto']}, premi: {risultato['premi_nuovi']}
 
 ---
 
+## 🔧 Infrastruttura di Logging
+
+### GameLogger
+
+**File**: `bingo_game/logging/game_logger.py`
+
+**Scopo**: Sistema di logging centralizzato per Tombola Stark. Fornisce un Singleton che scrive su un file cumulativo con flush immediato e marcatori di sessione. Supporta modalità normale (INFO+) e dettagliata (DEBUG+).
+
+**Pattern**: Singleton - una sola istanza per l'intera applicazione.
+
+**Architettura**: Il logger è un'infrastruttura trasversale (cross-cutting concern) accessibile solo dal Controller e dall'Interfaccia. Il Dominio NON importa mai il logger (ADR-001, ADR-003).
+
+---
+
+#### initialize()
+
+```python
+@classmethod
+def initialize(cls, debug_mode: bool = False) -> None:
+```
+
+**Scopo**: Inizializza il sistema di logging. Deve essere chiamato una sola volta all'avvio dell'applicazione, prima di qualsiasi altra operazione di logging.
+
+**Parametri**:
+- `debug_mode` (`bool`, opzionale): Se `True`, imposta il livello a DEBUG (modalità dettagliata con log di ogni turno). Se `False` (default), imposta il livello a INFO (solo eventi significativi).
+
+**Side Effects**:
+- Crea la directory `logs/` se non esiste
+- Configura un `FlushingFileHandler` che scrive su `logs/tombola_stark.log` in modalità append
+- Ogni riga è scritta immediatamente su disco (flush dopo ogni `emit()`)
+- Scrive un marcatore di sessione AVVIATA con timestamp
+
+**Raises**: Nessuna eccezione. Chiamate successive sono idempotenti (noop).
+
+**Esempio**:
+```python
+from bingo_game.logging import GameLogger
+
+# All'avvio dell'applicazione
+GameLogger.initialize(debug_mode=False)  # Modalità normale
+
+# Oppure modalità debug
+GameLogger.initialize(debug_mode=True)   # Modalità dettagliata
+```
+
+---
+
+#### get_instance()
+
+```python
+@classmethod
+def get_instance(cls) -> logging.Logger:
+```
+
+**Scopo**: Restituisce il logger configurato per scrivere eventi.
+
+**Parametri**: Nessuno
+
+**Ritorna**:
+- `logging.Logger`: L'istanza del logger `tombola_stark` configurato
+
+**Raises**:
+- `RuntimeError`: Se `initialize()` non è stato ancora chiamato
+
+**Esempio**:
+```python
+logger = GameLogger.get_instance()
+logger.info("Partita avviata")
+logger.debug("Turno #1 — estratto: 42")
+```
+
+**Note**: 
+- Nel codice di produzione, usare sempre il pattern `_log_safe()` per evitare che errori di logging interrompano il gioco
+- I sub-logger (`tombola_stark.game`, `tombola_stark.prizes`, `tombola_stark.system`, `tombola_stark.errors`) ereditano automaticamente la configurazione
+
+---
+
+#### shutdown()
+
+```python
+@classmethod
+def shutdown(cls) -> None:
+```
+
+**Scopo**: Scrive il marcatore di chiusura sessione e chiude correttamente tutti gli handler.
+
+**Parametri**: Nessuno
+
+**Side Effects**:
+- Scrive un messaggio INFO di chiusura
+- Scrive un marcatore di sessione CHIUSA con timestamp
+- Chiama `logging.shutdown()` per chiudere tutti gli handler
+- Resetta lo stato interno
+
+**Esempio**:
+```python
+try:
+    GameLogger.initialize(debug_mode=args.debug)
+    # ... logica di gioco ...
+finally:
+    GameLogger.shutdown()  # Assicura chiusura pulita
+```
+
+---
+
+### Sub-Logger per Categoria
+
+Il sistema di logging utilizza una gerarchia di sub-logger per organizzare gli eventi per categoria:
+
+- `tombola_stark.game` — Eventi del ciclo di vita della partita (`[GAME]`)
+- `tombola_stark.prizes` — Eventi di premi assegnati (`[PRIZE]`)
+- `tombola_stark.system` — Eventi di sistema e configurazione (`[SYS]`)
+- `tombola_stark.errors` — Eccezioni e anomalie (`[ERR]`)
+
+**Esempio**:
+```python
+import logging
+
+logger_game = logging.getLogger("tombola_stark.game")
+logger_game.info("[GAME] Partita creata — giocatore='Mario', cartelle=2")
+
+logger_prizes = logging.getLogger("tombola_stark.prizes")
+logger_prizes.info("[PRIZE] AMBO — giocatore='Mario', cartella=1, riga=0")
+```
+
+---
+
+### Formato Log File
+
+Il file `logs/tombola_stark.log` usa il formato:
+
+```
+YYYY-MM-DD HH:MM:SS | LEVEL    | LOGGER_NAME           | MESSAGE
+```
+
+**Esempio**:
+```
+2026-02-18 19:54:47 | INFO     | tombola_stark.game    | [GAME] Partita creata — giocatore='Mario'
+2026-02-18 19:54:48 | DEBUG    | tombola_stark.game    | [GAME] Turno #1 — estratto: 42, avanzamento: 1.1%
+2026-02-18 19:54:49 | INFO     | tombola_stark.prizes  | [PRIZE] AMBO — giocatore='Mario', cartella=1
+```
+
+---
+
+### Pattern _log_safe()
+
+Il controller utilizza un helper privato `_log_safe()` che garantisce che il logging non interrompa mai il gioco:
+
+```python
+def _log_safe(message: str, level: str = "info", *args,
+              logger: logging.Logger | None = None) -> None:
+    """Scrive nel log senza mai propagare eccezioni al chiamante."""
+    try:
+        target = logger or GameLogger.get_instance()
+        getattr(target, level)(message, *args)
+    except Exception:
+        pass  # Silenzioso in caso di errore
+```
+
+---
+
 ## 🔄 Note di Versione
 
+- **v0.5.0** – Sistema di logging Fase 2: copertura completa eventi di gioco (18 eventi distinti), sub-logger per categoria, riepilogo finale partita
+- **v0.4.0** – Sistema di logging Fase 1: GameLogger singleton, file cumulativo con flush immediato, marcatori di sessione, flag `--debug`
 - **v0.1.0** – Rilascio iniziale: Tabellone, Cartella, GiocatoreBase, GiocatoreUmano, GiocatoreAutomatico, Partita, game_controller
 - Gerarchia eccezioni personalizzate per tutti i moduli
 - Sistema eventi (`bingo_game/events/`) per vocalizzazione UI e reclami di vittoria
 
 ---
 
-*Ultimo aggiornamento: 2026-02-18*
+*Ultimo aggiornamento: 2026-02-19*

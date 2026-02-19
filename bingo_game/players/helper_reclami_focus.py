@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from bingo_game.events.eventi import EsitoAzione
 from bingo_game.events.eventi_partita import (
-    TipoVittoria,
+    Tipo_Vittoria,
     ReclamoVittoria,
     EventoReclamoVittoria,
 )
@@ -114,7 +114,7 @@ class ReclamiFocusMixin:
 
 
     #metodo 3.
-    def _esito_crea_evento_reclamo_da_focus(self, tipo: TipoVittoria) -> EsitoAzione:
+    def _esito_crea_evento_reclamo_da_focus(self, tipo: Tipo_Vittoria) -> EsitoAzione:
         """
         Crea un EventoReclamoVittoria (fase ANTE_TURNO) usando esclusivamente i focus interni.
 
