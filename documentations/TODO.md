@@ -274,13 +274,13 @@
 
 - [x] Aggiungere o aggiornare la sezione "Avvio" con il comando: `python main.py`
 - [x] Aggiungere descrizione breve del flusso di configurazione (nome → bot → cartelle)
-- [ ] Aggiungere nota accessibilità: compatibile con screen reader NVDA/JAWS/Orca
+- [x] Aggiungere nota accessibilità: compatibile con screen reader NVDA/JAWS/Orca
 - [x] Verificare che la versione indicata nel README sia allineata a `v0.7.0`
 
 ### Task — `CHANGELOG.md`
 
 - [x] Aggiungere nuova sezione `## [v0.7.0] - 2026-xx-xx` in cima alla lista versioni
-- [ ] Sezione `### Aggiunto`:
+- [x] Sezione `### Aggiunto`:
   - `TerminalUI`: interfaccia da terminale, flusso configurazione pre-partita (Fase 1)
   - `codici_configurazione.py`: 9 costanti-chiave per localizzazione configurazione
   - `MESSAGGI_CONFIGURAZIONE` in `it.py`: 9 chiavi con testi italiani
@@ -294,7 +294,7 @@
 - [x] Aggiungere sezione dedicata `TerminalUI` (Interface Layer)
 - [x] Documentare il metodo pubblico: `TerminalUI.avvia() -> None`
 - [x] Includere: descrizione, side effects (avvia la partita), dipendenze (GameController), note di accessibilità
-- [ ] Specificare che è l’unico metodo pubblico consumabile da `main.py`
+- [x] Specificare che è l’unico metodo pubblico consumabile da `main.py`
 
 ### Task — `ARCHITECTURE.md`
 
