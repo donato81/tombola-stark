@@ -1,8 +1,8 @@
 # 📚 API.md - Tombola Stark
 
 > **Riferimento API pubblico per tombola-stark**  
-> Versione: v0.1.0  
-> Ultimo aggiornamento: 2026-02-18
+> Versione: v0.6.0  
+> Ultimo aggiornamento: 2026-02-19
 
 ---
 
@@ -555,12 +555,16 @@ def verifica_premi() -> List[Dict[str, Any]]:
 - `List[dict]`: Lista di eventi di vincita. Ogni evento ha la forma:
 ```python
 {
-    "giocatore": str,   # nome del giocatore
-    "cartella": int,    # indice della cartella
-    "premio": str,      # "ambo" | "terno" | "quaterna" | "cinquina" | "tombola"
-    "riga": int | None  # indice riga (0-2), None per tombola
+    "giocatore": str,        # nome del giocatore
+    "id_giocatore": int | None,  # id del giocatore (v0.6.0+, per matching robusto)
+    "cartella": int,         # indice della cartella
+    "premio": str,           # "ambo" | "terno" | "quaterna" | "cinquina" | "tombola"
+    "riga": int | None       # indice riga (0-2), None per tombola
 }
 ```
+
+**Nota (v0.6.0+)**: Il campo `id_giocatore` è stato aggiunto per consentire un matching robusto 
+tra reclami bot e premi reali, anche quando più giocatori hanno lo stesso nome.
 
 ---
 
@@ -582,6 +586,14 @@ def esegui_turno() -> dict[str, Any]:
 
 **Scopo**: Esegue un singolo passo del ciclo di gioco: estrazione + aggiornamento giocatori + verifica premi + eventuale fine partita.
 
+**Flusso (v0.6.0+)**:
+1. Estrae numero dal tabellone e aggiorna giocatori
+2. **[NUOVO v0.6.0]** I bot valutano autonomamente i premi e costruiscono reclami
+3. Verifica premi ufficiale (rimane l'unico arbitro)
+4. **[NUOVO v0.6.0]** Confronta reclami bot con premi reali e costruisce esiti
+5. **[NUOVO v0.6.0]** Reset reclami bot per il turno successivo
+6. Verifica tombola e eventuale fine partita
+
 **Ritorna**:
 ```python
 {
@@ -590,13 +602,36 @@ def esegui_turno() -> dict[str, Any]:
     "stato_partita_dopo": str,
     "tombola_rilevata": bool,
     "partita_terminata": bool,
-    "premi_nuovi": List[dict]
+    "premi_nuovi": List[dict],
+    "reclami_bot": List[dict]  # v0.6.0+ - Lista esiti reclami bot
 }
 ```
+
+**Struttura `reclami_bot` (v0.6.0+)**:
+```python
+[
+    {
+        "nome_giocatore": str,          # Nome del bot
+        "id_giocatore": int | None,     # ID del bot
+        "reclamo": ReclamoVittoria,     # Oggetto reclamo costruito dal bot
+        "successo": bool                # True se il reclamo coincide con un premio reale
+    },
+    ...
+]
+```
+
+**Note**:
+- La chiave `reclami_bot` è **backward-compatible**: è sempre presente (lista vuota se nessun bot o nessun reclamo)
+- I reclami bot sono una sovrastruttura UX/log: `verifica_premi()` rimane l'unico arbitro dei premi reali
+- Un reclamo può avere `successo=False` se il premio è già stato assegnato ad altro giocatore nello stesso turno
 
 **Raises**:
 - `PartitaNonInCorsoException`: Se la partita non è in `"in_corso"`
 - `PartitaNumeriEsauritiException`: Se il tabellone è esaurito
+
+**Versione**:
+- v0.1.0: Implementazione iniziale
+- v0.6.0: Aggiunta chiave `reclami_bot` e fase reclami bot nel ciclo di turno
 
 ---
 
@@ -764,6 +799,24 @@ def reset_reclamo_turno() -> None:
 
 ---
 
+#### is_automatico()
+
+```python
+def is_automatico() -> bool:
+```
+
+**Scopo**: Indica se il giocatore è un bot automatico.
+
+**Ritorna**:
+- `bool`: `False` per `GiocatoreBase` e `GiocatoreUmano`, `True` per `GiocatoreAutomatico`
+
+**Nota**: Questo metodo permette a `Partita` di distinguere i bot dai giocatori umani
+mantenendo il pattern "programma verso l'interfaccia", evitando l'uso di `isinstance()`.
+
+**Versione**: v0.6.0+
+
+---
+
 ### GiocatoreUmano
 
 **File**: `bingo_game/players/giocatore_umano.py`
@@ -783,9 +836,72 @@ GiocatoreUmano(nome: str, id_giocatore: Optional[int] = None)
 
 **Scopo**: Bot di gioco. Eredita da `GiocatoreBase`, non richiede interazione umana.
 
+**Funzionalità Bot Attivo (v0.6.0+)**: A partire dalla versione 0.6.0, il bot valuta autonomamente 
+i premi conseguiti sulle proprie cartelle dopo ogni estrazione e li dichiara alla Partita tramite 
+un `ReclamoVittoria`, esattamente come farebbe un giocatore umano.
+
 **Costruttore**:
 ```python
 GiocatoreAutomatico(nome: str, id_giocatore: Optional[int] = None)
+```
+
+---
+
+#### is_automatico()
+
+```python
+def is_automatico() -> bool:
+```
+
+**Scopo**: Indica che questo giocatore è un bot automatico.
+
+**Ritorna**:
+- `bool`: Sempre `True` per `GiocatoreAutomatico`
+
+**Nota**: Override di `GiocatoreBase.is_automatico()`. Permette a `Partita` di distinguere 
+i bot dai giocatori umani senza usare `isinstance()`.
+
+**Versione**: v0.6.0+
+
+---
+
+#### _valuta_potenziale_reclamo()
+
+```python
+def _valuta_potenziale_reclamo(premi_gia_assegnati: set[str]) -> Optional[ReclamoVittoria]:
+```
+
+**Scopo**: Valuta se il bot può reclamare un premio in base allo stato attuale delle sue cartelle.
+Questo è un **metodo interno** (prefissato con `_`), non fa parte dell'API pubblica.
+
+**Parametri**:
+- `premi_gia_assegnati` (set[str]): Snapshot dei premi già assegnati nei turni precedenti.
+  Formato chiavi: `"cartella_{idx}_tombola"` o `"cartella_{idx}_riga_{r}_{tipo}"`
+
+**Ritorna**:
+- `ReclamoVittoria`: Il reclamo del premio di rango più alto trovato
+- `None`: Se nessun premio è reclamabile (tutti già assegnati o nessuno disponibile)
+
+**Algoritmo**:
+1. Analizza tutte le cartelle del bot
+2. Per ogni cartella, verifica tombola e premi di riga (cinquina, quaterna, terno, ambo)
+3. Seleziona il premio di rango più alto secondo la gerarchia: tombola > cinquina > quaterna > terno > ambo
+4. Esclude premi già presenti in `premi_gia_assegnati`
+5. Ritorna il miglior reclamo disponibile
+
+**Nota**: Il metodo non modifica lo stato del bot. La validazione finale del reclamo è sempre
+demandata a `Partita.verifica_premi()`, che rimane l'unico arbitro dei premi reali.
+
+**Versione**: v0.6.0+
+
+**Esempio**:
+```python
+# All'interno di Partita.esegui_turno()
+for giocatore in self.giocatori:
+    if giocatore.is_automatico():
+        reclamo = giocatore._valuta_potenziale_reclamo(self.premi_gia_assegnati)
+        if reclamo is not None:
+            giocatore.reclamo_turno = reclamo
 ```
 
 ---
@@ -900,7 +1016,7 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
 - `Dict[str, Any]`: Dizionario risultato turno se successo
 - `None`: Se errore
 
-**Chiavi garantite**: `numero_estratto`, `stato_partita_prima`, `stato_partita_dopo`, `tombola_rilevata`, `partita_terminata`, `premi_nuovi`
+**Chiavi garantite**: `numero_estratto`, `stato_partita_prima`, `stato_partita_dopo`, `tombola_rilevata`, `partita_terminata`, `premi_nuovi`, `reclami_bot` (v0.6.0+)
 
 ---
 
@@ -1053,6 +1169,9 @@ while not partita_terminata(partita):
         print(f"Estratto: {turno['numero_estratto']}")
         for evento in turno["premi_nuovi"]:
             print(f"🎉 {evento['giocatore']} ha fatto {evento['premio']}!")
+        for reclamo in turno.get("reclami_bot", []):
+            stato = "✅" if reclamo["successo"] else "❌"
+            print(f"{stato} {reclamo['nome_giocatore']} dichiara {reclamo['reclamo'].tipo}!")
         if turno["tombola_rilevata"]:
             print("🏆 TOMBOLA!")
 ```
@@ -1261,6 +1380,7 @@ def _log_safe(message: str, level: str = "info", *args,
 
 ## 🔄 Note di Versione
 
+- **v0.6.0** – Bot Attivo: `GiocatoreAutomatico` valuta autonomamente i premi e li dichiara tramite `ReclamoVittoria`. Nuova chiave `reclami_bot` in `Partita.esegui_turno()` (backward-compatible). Campo `id_giocatore` aggiunto agli eventi premio per matching robusto con nomi duplicati. Metodi `is_automatico()` e `reset_reclamo_turno()` documentati in `GiocatoreBase`.
 - **v0.5.0** – Sistema di logging Fase 2: copertura completa eventi di gioco (18 eventi distinti), sub-logger per categoria, riepilogo finale partita
 - **v0.4.0** – Sistema di logging Fase 1: GameLogger singleton, file cumulativo con flush immediato, marcatori di sessione, flag `--debug`
 - **v0.1.0** – Rilascio iniziale: Tabellone, Cartella, GiocatoreBase, GiocatoreUmano, GiocatoreAutomatico, Partita, game_controller
@@ -1269,4 +1389,4 @@ def _log_safe(message: str, level: str = "info", *args,
 
 ---
 
-*Ultimo aggiornamento: 2026-02-19*
+*Ultimo aggiornamento: 2026-02-19 (v0.6.0)*

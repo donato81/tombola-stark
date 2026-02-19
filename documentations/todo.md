@@ -94,94 +94,107 @@ Fase 2: GiocatoreAutomatico._valuta_potenziale_reclamo()
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "Decisione aperta" + "FASE 1"
 
-- [ ] Aggiungere `is_automatico() -> bool` in `GiocatoreBase` (default: `return False`)
-- [ ] Override `is_automatico()` in `GiocatoreAutomatico` (return `True`)
-- [ ] Commit: `feat(players): add is_automatico() helper [Phase 1/7]`
-- [ ] Aggiornare questo TODO (spuntare le righe qui sopra)
+- [x] Aggiungere `is_automatico() -> bool` in `GiocatoreBase` (default: `return False`)
+- [x] Override `is_automatico()` in `GiocatoreAutomatico` (return `True`)
+- [x] Commit: `feat(players): add is_automatico() helper [Phase 1/7]`
+- [x] Aggiornare questo TODO (spuntare le righe qui sopra)
 
 ### Fase 2 — Logica di reclamo del Bot
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "FASE 1 — Task 1.1"
 
-- [ ] Aggiungere import di `ReclamoVittoria` in `giocatore_automatico.py`
-- [ ] Implementare `_valuta_potenziale_reclamo(premi_gia_assegnati: set[str]) -> Optional[ReclamoVittoria]`
-  - [ ] Gerarchia premi decrescente: `tombola > cinquina > quaterna > terno > ambo`
-  - [ ] Logica tombola: controlla `verifica_cartella_completa()` + chiave `"cartella_{idx}_tombola"`
-  - [ ] Logica riga: controlla `verifica_<tipo>_riga(riga)` + chiave `"cartella_{idx}_riga_{r}_{tipo}"`
-  - [ ] Scelta del `best_claim` per rango più alto tra tutte le cartelle
-  - [ ] Usa factory `ReclamoVittoria.tombola()` e `ReclamoVittoria.vittoria_di_riga()`
-  - [ ] Ritorna `None` se nessun premio reclamabile
-- [ ] Commit: `feat(players): add _valuta_potenziale_reclamo() to GiocatoreAutomatico [Phase 2/7]`
-- [ ] Aggiornare questo TODO
+- [x] Aggiungere import di `ReclamoVittoria` in `giocatore_automatico.py`
+- [x] Implementare `_valuta_potenziale_reclamo(premi_gia_assegnati: set[str]) -> Optional[ReclamoVittoria]`
+  - [x] Gerarchia premi decrescente: `tombola > cinquina > quaterna > terno > ambo`
+  - [x] Logica tombola: controlla `verifica_cartella_completa()` + chiave `"cartella_{idx}_tombola"`
+  - [x] Logica riga: controlla `verifica_<tipo>_riga(riga)` + chiave `"cartella_{idx}_riga_{r}_{tipo}"`
+  - [x] Scelta del `best_claim` per rango più alto tra tutte le cartelle
+  - [x] Usa costruttore diretto `ReclamoVittoria()` (factory methods non disponibili per bug esistente)
+  - [x] Ritorna `None` se nessun premio reclamabile
+- [x] Commit: `feat(players): add _valuta_potenziale_reclamo() to GiocatoreAutomatico [Phase 2/7]`
+- [x] Aggiornare questo TODO
 
 ### Fase 3 — Test unitari GiocatoreAutomatico
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "Test da implementare — Test unitari"
 
-- [ ] Creare `tests/unit/test_giocatore_automatico_bot_attivo.py`
-- [ ] `test_bot_reclama_ambo_disponibile`
-- [ ] `test_bot_non_reclama_premio_gia_assegnato`
-- [ ] `test_bot_sceglie_premio_piu_alto`
-- [ ] `test_bot_reclama_tombola`
-- [ ] `test_bot_nessun_premio_disponibile`
-- [ ] `test_bot_sceglie_tra_piu_cartelle`
-- [ ] Tutti i test passano ✅
-- [ ] Commit: `test(players): add unit tests for bot _valuta_potenziale_reclamo [Phase 3/7]`
-- [ ] Aggiornare questo TODO
+- [x] Creare `tests/unit/test_giocatore_automatico_bot_attivo.py`
+- [x] `test_bot_reclama_ambo_disponibile`
+- [x] `test_bot_non_reclama_premio_gia_assegnato`
+- [x] `test_bot_sceglie_premio_piu_alto`
+- [x] `test_bot_reclama_tombola`
+- [x] `test_bot_nessun_premio_disponibile`
+- [x] `test_bot_sceglie_tra_piu_cartelle`
+- [x] Tutti i test passano ✅
+- [x] Commit: `test(players): add unit tests for bot _valuta_potenziale_reclamo [Phase 3/7]`
+- [x] Aggiornare questo TODO
 
 ### Fase 4 — Estensione Partita.esegui_turno()
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "FASE 2 — Task 2.1, 2.2, 2.3"
 
-- [ ] Inserire ciclo reclami bot **dopo** `estrai_prossimo_numero()` e **prima** di `verifica_premi()`
-  - [ ] Iterare su `self.giocatori` filtrando con `giocatore.is_automatico()`
-  - [ ] Chiamare `bot._valuta_potenziale_reclamo(self.premi_gia_assegnati)` (passare snapshot pre-turno)
-  - [ ] Se reclamo presente: `bot.reclamo_turno = reclamo`
-- [ ] Eseguire `verifica_premi()` invariato (rimane l'unico arbitro)
-- [ ] Inserire ciclo confronto reclami vs `premi_nuovi` **dopo** `verifica_premi()`
-  - [ ] Matching per `(cartella, tipo, riga)`
-  - [ ] Costruire lista `reclami_bot` con struttura `{nome, id, reclamo, successo}`
-- [ ] Inserire reset `bot.reset_reclamo_turno()` per tutti i bot
-- [ ] Aggiungere chiave `"reclami_bot"` al dizionario `risultato_turno`
-- [ ] Commit: `feat(partita): integrate bot reclamo phase in esegui_turno [Phase 4/7]`
-- [ ] Aggiornare questo TODO
+- [x] Inserire ciclo reclami bot **dopo** `estrai_prossimo_numero()` e **prima** di `verifica_premi()`
+  - [x] Iterare su `self.giocatori` filtrando con `giocatore.is_automatico()`
+  - [x] Chiamare `bot._valuta_potenziale_reclamo(self.premi_gia_assegnati)` (passare snapshot pre-turno)
+  - [x] Se reclamo presente: `bot.reclamo_turno = reclamo`
+- [x] Eseguire `verifica_premi()` invariato (rimane l'unico arbitro)
+- [x] Inserire ciclo confronto reclami vs `premi_nuovi` **dopo** `verifica_premi()`
+  - [x] Matching per `(cartella, tipo, riga)`
+  - [x] Costruire lista `reclami_bot` con struttura `{nome, id, reclamo, successo}`
+- [x] Inserire reset `bot.reset_reclamo_turno()` per tutti i bot
+- [x] Aggiungere chiave `"reclami_bot"` al dizionario `risultato_turno`
+- [x] Commit: `feat(partita): integrate bot reclamo phase in esegui_turno [Phase 4/7]`
+- [x] Aggiornare questo TODO
 
 ### Fase 5 — Test di integrazione Partita
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "Test da implementare — Test di integrazione"
 
-- [ ] Creare `tests/integration/test_partita_bot_attivo.py`
-- [ ] `test_partita_reclami_bot_nel_risultato`
-- [ ] `test_reclamo_bot_rigettato_premio_gia_preso`
-- [ ] `test_bot_tombola_termina_partita`
-- [ ] `test_reclami_bot_vuoto_se_nessun_premio`
-- [ ] `test_reset_reclamo_dopo_turno`
-- [ ] Tutti i test esistenti ancora passano (no regressioni) ✅
-- [ ] Commit: `test(partita): add integration tests for bot attivo [Phase 5/7]`
-- [ ] Aggiornare questo TODO
+- [x] Creare `tests/integration/test_partita_bot_attivo.py`
+- [x] `test_partita_reclami_bot_nel_risultato`
+- [x] `test_reclamo_bot_rigettato_premio_gia_preso`
+- [x] `test_bot_tombola_termina_partita`
+- [x] `test_reclami_bot_vuoto_se_nessun_premio`
+- [x] `test_reset_reclamo_dopo_turno`
+- [x] Tutti i test esistenti ancora passano (no regressioni) ✅
+- [x] Commit: `test(partita): add integration tests for bot attivo [Phase 5/7]`
+- [x] Aggiornare questo TODO
 
 ### Fase 6 — Logging nel Controller
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "FASE 3 — Task 3.1"
 
-- [ ] In `game_controller.py`, in `esegui_turno_sicuro()`, leggere `risultato.get("reclami_bot", [])`
-- [ ] Per reclamo con `successo=True`: log su `tombola_stark.prizes` con `_log_safe()`
-- [ ] Per reclamo con `successo=False`: log su `tombola_stark.game` con `_log_safe()`
-- [ ] Verificare che il logging non interrompa mai il flusso (wrap in `try/except Exception: pass`)
-- [ ] Commit: `feat(controller): log bot reclami in esegui_turno_sicuro [Phase 6/7]`
-- [ ] Aggiornare questo TODO
+- [x] In `game_controller.py`, in `esegui_turno_sicuro()`, leggere `risultato.get("reclami_bot", [])`
+- [x] Per reclamo con `successo=True`: log su `tombola_stark.prizes` con `_log_safe()`
+- [x] Per reclamo con `successo=False`: log su `tombola_stark.game` con `_log_safe()`
+- [x] Verificare che il logging non interrompa mai il flusso (wrap in `try/except Exception: pass`)
+- [x] Commit: `feat(controller): log bot reclami in esegui_turno_sicuro [Phase 6/7]`
+- [x] Aggiornare questo TODO
 
 ### Fase 7 — Documentazione e aggiornamenti finali
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "Aggiornamenti documentazione"
 
-- [ ] `API.md`: aggiungere sezione `GiocatoreAutomatico` con nuova logica Bot Attivo
-- [ ] `API.md`: aggiornare contratto `Partita.esegui_turno()` con chiave `reclami_bot`
-- [ ] `ARCHITECTURE.md`: aggiornare diagramma "Flusso Tipico: Esecuzione di un Turno"
-- [ ] `ARCHITECTURE.md`: incrementare versione documento a `v0.6.0`
-- [ ] `README.md`: aggiornare descrizione funzionale (bot reclamano premi automaticamente)
-- [ ] Commit: `docs: update API.md, ARCHITECTURE.md, README.md for bot attivo [Phase 7/7]`
-- [ ] Aggiornare questo TODO
+- [x] `API.md`: aggiungere sezione `GiocatoreAutomatico` con nuova logica Bot Attivo
+- [x] `API.md`: aggiornare contratto `Partita.esegui_turno()` con chiave `reclami_bot`
+- [x] `ARCHITECTURE.md`: aggiornare diagramma "Flusso Tipico: Esecuzione di un Turno"
+- [x] `ARCHITECTURE.md`: incrementare versione documento a `v0.6.0`
+- [x] `README.md`: aggiornare descrizione funzionale (bot reclamano premi automaticamente)
+- [x] Commit: `docs: update API.md, ARCHITECTURE.md, README.md for bot attivo [Phase 7/7]`
+- [x] Aggiornare questo TODO
+
+---
+
+### 🔧 Correzioni Post Code Review
+
+> Fix applicati in risposta al code review di @donato81
+
+- [x] **Fix Problema 1 (CRITICO)**: Verificato che `reset_reclamo_turno()` e `is_automatico()` esistono in `GiocatoreBase` ✅ (nessuna azione necessaria)
+- [x] **Fix Problema 2 (Bug latente)**: Aggiunto `id_giocatore` agli eventi di premio in `verifica_premi()`
+- [x] **Fix Problema 2 (Bug latente)**: Migliorato matching in `esegui_turno()` per usare `id_giocatore` come discriminatore primario
+- [x] **Ottimizzazione**: Aggiunto `break` nel loop di `_valuta_potenziale_reclamo()` dopo aver trovato il tipo più alto per riga
+- [x] **Documentazione**: Aggiornato `API.md` per documentare il nuovo campo `id_giocatore` negli eventi premio
+- [x] Commit: `fix(partita): robust matching by id_giocatore + loop optimization`
 
 ---
 
@@ -189,11 +202,11 @@ Fase 2: GiocatoreAutomatico._valuta_potenziale_reclamo()
 
 L'implementazione è considerata completa quando:
 
-- [ ] Tutte le checklist sopra sono spuntate
-- [ ] Tutti i test passano (unit + integration)
-- [ ] Nessuna regressione funzionale sui test esistenti
-- [ ] Nessuna violazione delle regole architetturali (ARCHITECTURE.md)
-- [ ] Versione incrementata a `v0.6.0` (MINOR: nuova feature retrocompatibile)
+- [x] Tutte le checklist sopra sono spuntate
+- [x] Tutti i test passano (unit + integration)
+- [x] Nessuna regressione funzionale sui test esistenti
+- [x] Nessuna violazione delle regole architetturali (ARCHITECTURE.md)
+- [x] Versione incrementata a `v0.6.0` (MINOR: nuova feature retrocompatibile)
 
 ---
 
