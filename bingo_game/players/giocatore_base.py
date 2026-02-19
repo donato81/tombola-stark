@@ -265,6 +265,23 @@ class GiocatoreBase:
         self.reclamo_turno = None
 
 
+    def is_automatico(self) -> bool:
+        """
+        Indica se il giocatore è un bot automatico.
+
+        Ritorna:
+        - bool: True se il giocatore è automatico, False altrimenti.
+
+        Nota:
+        - Il default è False (giocatore umano).
+        - Questo metodo è pensato per essere sovrascritto nelle sottoclassi
+          (es. GiocatoreAutomatico) che rappresentano bot.
+        - Evita l'uso di isinstance() diretto in Partita, mantenendo il
+          pattern "programma verso l'interfaccia".
+        """
+        return False
+
+
 
     #Sezione: eventi passa turno
 

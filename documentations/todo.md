@@ -94,10 +94,10 @@ Fase 2: GiocatoreAutomatico._valuta_potenziale_reclamo()
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "Decisione aperta" + "FASE 1"
 
-- [ ] Aggiungere `is_automatico() -> bool` in `GiocatoreBase` (default: `return False`)
-- [ ] Override `is_automatico()` in `GiocatoreAutomatico` (return `True`)
-- [ ] Commit: `feat(players): add is_automatico() helper [Phase 1/7]`
-- [ ] Aggiornare questo TODO (spuntare le righe qui sopra)
+- [x] Aggiungere `is_automatico() -> bool` in `GiocatoreBase` (default: `return False`)
+- [x] Override `is_automatico()` in `GiocatoreAutomatico` (return `True`)
+- [x] Commit: `feat(players): add is_automatico() helper [Phase 1/7]`
+- [x] Aggiornare questo TODO (spuntare le righe qui sopra)
 
 ### Fase 2 — Logica di reclamo del Bot
 

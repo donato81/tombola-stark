@@ -51,6 +51,15 @@ class GiocatoreAutomatico(GiocatoreBase):
 
     """metodi relativi alla classe giocatoreAutomatico"""
 
+    def is_automatico(self) -> bool:
+        """
+        Override di GiocatoreBase: indica che questo giocatore è un bot.
+
+        Ritorna:
+        - bool: sempre True per GiocatoreAutomatico.
+        """
+        return True
+
     #metodo per aggiornare il giocatore automatico in seguito all'estrazione di un numero
     def aggiorna_da_tabellone(self, numero: int) -> None:
         """
