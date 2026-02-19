@@ -207,6 +207,34 @@ L'implementazione è considerata completa quando:
 
 ---
 
+## 🔧 Correzioni Post-Review PR#4 (Issue #5)
+
+Branch: `copilot/fix-giocatorebase-attributes`
+Riferimento: Issue donato81/tombola-stark#5
+
+### Fix 1 — CRITICO: metodi GiocatoreBase
+- [x] Verificato `self.reclamo_turno = None` nel `__init__` (già presente)
+- [x] Verificato metodo `is_automatico()` (già presente)
+- [x] Verificato metodo `reset_reclamo_turno()` (già presente)
+- [x] Aggiunti test unitari per i metodi sopra
+- [x] Commit: `fix(giocatore_base): add tests for is_automatico(), reset_reclamo_turno(), reclamo_turno init [Fix 1/3]`
+
+### Fix 2 — Bug latente: matching per ID
+- [x] Aggiunto `"id_giocatore"` agli eventi premio in `verifica_premi()` (tombola + righe)
+- [x] Sostituito matching per nome con matching robusto (ID + fallback nome) in `esegui_turno()`
+- [x] Test esistenti ancora passano (no regressioni)
+- [x] Commit: `fix(partita): add id_giocatore to prize events, robust bot claim matching [Fix 2/3]`
+
+### Fix 3 — Ottimizzazione loop
+- [x] Aggiunto `break` dopo il primo tipo trovato per riga in `_valuta_potenziale_reclamo()`
+- [x] Test manuali confermano che l'ottimizzazione funziona correttamente
+- [x] Commit: `perf(giocatore_automatico): add break in _valuta_potenziale_reclamo loop [Fix 3/3]`
+
+### Status
+✅ **Tutte e 3 le correzioni completate e testate**
+
+---
+
 ## 📌 Note
 
 - **Decisione aperta risolta**: si usa `is_automatico()` in `GiocatoreBase` (Opzione B del piano).
