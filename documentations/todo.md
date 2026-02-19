@@ -150,15 +150,15 @@ Fase 2: GiocatoreAutomatico._valuta_potenziale_reclamo()
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "Test da implementare — Test di integrazione"
 
-- [ ] Creare `tests/integration/test_partita_bot_attivo.py`
-- [ ] `test_partita_reclami_bot_nel_risultato`
-- [ ] `test_reclamo_bot_rigettato_premio_gia_preso`
-- [ ] `test_bot_tombola_termina_partita`
-- [ ] `test_reclami_bot_vuoto_se_nessun_premio`
-- [ ] `test_reset_reclamo_dopo_turno`
-- [ ] Tutti i test esistenti ancora passano (no regressioni) ✅
-- [ ] Commit: `test(partita): add integration tests for bot attivo [Phase 5/7]`
-- [ ] Aggiornare questo TODO
+- [x] Creare `tests/integration/test_partita_bot_attivo.py`
+- [x] `test_partita_reclami_bot_nel_risultato`
+- [x] `test_reclamo_bot_rigettato_premio_gia_preso`
+- [x] `test_bot_tombola_termina_partita`
+- [x] `test_reclami_bot_vuoto_se_nessun_premio`
+- [x] `test_reset_reclamo_dopo_turno`
+- [x] Tutti i test esistenti ancora passano (no regressioni) ✅
+- [x] Commit: `test(partita): add integration tests for bot attivo [Phase 5/7]`
+- [x] Aggiornare questo TODO
 
 ### Fase 6 — Logging nel Controller
 
