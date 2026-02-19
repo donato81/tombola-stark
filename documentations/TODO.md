@@ -186,13 +186,13 @@
 
 ### Task
 
-- [ ] Leggere il contenuto attuale di `main.py` prima di modificare
-- [ ] Aggiungere import: `from bingo_game.ui.ui_terminale import TerminalUI`
-- [ ] Verificare se esiste già una funzione `main()`: in caso sì, integrare senza sovrascrivere
-- [ ] Aggiungere istanziazione e avvio: `tui = TerminalUI()` + `tui.avvia()`
-- [ ] Assicurarsi che il blocco `if __name__ == "__main__":` chiami `main()`
-- [ ] Verificare sintassi: `python -m py_compile main.py`
-- [ ] Test rapido di avvio manuale: `python main.py` → compare il messaggio di benvenuto
+- [x] Leggere il contenuto attuale di `main.py` prima di modificare
+- [x] Aggiungere import: `from bingo_game.ui.ui_terminale import TerminalUI`
+- [x] Verificare se esiste già una funzione `main()`: in caso sì, integrare senza sovrascrivere
+- [x] Aggiungere istanziazione e avvio: `tui = TerminalUI()` + `tui.avvia()`
+- [x] Assicurarsi che il blocco `if __name__ == "__main__":` chiami `main()`
+- [x] Verificare sintassi: `python -m py_compile main.py`
+- [x] Test rapido di avvio manuale: `python main.py` → compare il messaggio di benvenuto
 
 ### Criterio di Successo
 
