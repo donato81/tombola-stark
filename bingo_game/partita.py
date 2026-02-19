@@ -701,6 +701,12 @@ class Partita:
           - "tombola_rilevata": bool, True se dopo l'estrazione risulta almeno una tombola.
           - "partita_terminata": bool, True se la partita risulta terminata dopo il turno.
           - "premi_nuovi": List[Dict], lista degli eventi di vincita rilevati in questo turno.
+          - "reclami_bot": List[Dict], lista degli esiti dei reclami bot (v0.6.0+).
+            Ogni elemento contiene:
+            - "nome_giocatore": str, nome del bot
+            - "id_giocatore": int, id del bot
+            - "reclamo": ReclamoVittoria, oggetto reclamo costruito dal bot
+            - "successo": bool, True se il reclamo coincide con un premio reale
 
         Eccezioni:
         - PartitaNonInCorsoException: se si tenta di eseguire un turno quando la partita non è "in_corso".
@@ -720,11 +726,59 @@ class Partita:
         # Questo metodo aggiorna anche self.ultimo_numero_estratto e notifica tutti i giocatori.
         numero_estratto = self.estrai_prossimo_numero()
 
-        # 2. Verifica i premi (Ambo, Terno, Quaterna, Cinquina, Tombola)
+        # 2. [NUOVO] Fase reclami bot: i bot valutano se hanno premi reclamabili
+        # Questa fase avviene DOPO l'estrazione e PRIMA della verifica ufficiale dei premi.
+        # I bot analizzano lo stato delle proprie cartelle e costruiscono un reclamo se appropriato.
+        for giocatore in self.giocatori:
+            # Filtra solo i bot automatici usando il metodo is_automatico()
+            if giocatore.is_automatico():
+                # Passa lo snapshot dei premi già assegnati (prima di questo turno)
+                # Il bot valuterà se ha un premio reclamabile che non è già stato assegnato
+                reclamo = giocatore._valuta_potenziale_reclamo(self.premi_gia_assegnati)
+                
+                # Se il bot ha trovato un reclamo valido, lo memorizza
+                if reclamo is not None:
+                    giocatore.reclamo_turno = reclamo
+
+        # 3. Verifica i premi (Ambo, Terno, Quaterna, Cinquina, Tombola)
         # Chiama il metodo che scansiona tutti i giocatori e ritorna solo le NOVITÀ rispetto al passato.
+        # Questo metodo rimane l'UNICO ARBITRO dei premi reali.
         premi_nuovi = self.verifica_premi()
 
-        # 3. Verifica se è stata fatta tombola (condizione di fine partita)
+        # 4. [NUOVO] Confronto reclami bot vs premi reali
+        # Per ogni bot che ha fatto un reclamo, verifica se il reclamo corrisponde a un premio reale.
+        # Costruisce una lista di esiti per il logging e l'interfaccia.
+        reclami_bot = []
+        for giocatore in self.giocatori:
+            if giocatore.is_automatico() and giocatore.reclamo_turno is not None:
+                reclamo = giocatore.reclamo_turno
+                
+                # Determina se il reclamo è corretto confrontandolo con i premi reali
+                successo = False
+                for evento in premi_nuovi:
+                    # Matching per (nome giocatore, cartella, tipo premio, riga)
+                    if (evento["giocatore"] == giocatore.get_nome() and
+                        evento["cartella"] == reclamo.indice_cartella and
+                        evento["premio"] == reclamo.tipo and
+                        evento["riga"] == reclamo.indice_riga):
+                        successo = True
+                        break
+                
+                # Aggiungi l'esito del reclamo alla lista
+                reclami_bot.append({
+                    "nome_giocatore": giocatore.get_nome(),
+                    "id_giocatore": giocatore.get_id_giocatore(),
+                    "reclamo": reclamo,
+                    "successo": successo
+                })
+
+        # 5. [NUOVO] Reset reclami bot
+        # Dopo aver processato i reclami, resettiamo lo stato per il turno successivo
+        for giocatore in self.giocatori:
+            if giocatore.is_automatico():
+                giocatore.reset_reclamo_turno()
+
+        # 6. Verifica se è stata fatta tombola (condizione di fine partita)
         # Nota: La tombola sarà già presente anche dentro "premi_nuovi", ma qui serve per
         # decidere se chiudere la partita.
         tombola_rilevata = self.has_tombola()
@@ -744,6 +798,7 @@ class Partita:
             "tombola_rilevata": tombola_rilevata,
             "partita_terminata": self.is_terminata(),
             "premi_nuovi": premi_nuovi,  # Qui ora passiamo i premi reali!
+            "reclami_bot": reclami_bot,  # [NUOVO] Lista degli esiti dei reclami bot (backward-compatible: lista vuota se nessun bot)
         }
 
         return risultato_turno

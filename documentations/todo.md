@@ -133,18 +133,18 @@ Fase 2: GiocatoreAutomatico._valuta_potenziale_reclamo()
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "FASE 2 — Task 2.1, 2.2, 2.3"
 
-- [ ] Inserire ciclo reclami bot **dopo** `estrai_prossimo_numero()` e **prima** di `verifica_premi()`
-  - [ ] Iterare su `self.giocatori` filtrando con `giocatore.is_automatico()`
-  - [ ] Chiamare `bot._valuta_potenziale_reclamo(self.premi_gia_assegnati)` (passare snapshot pre-turno)
-  - [ ] Se reclamo presente: `bot.reclamo_turno = reclamo`
-- [ ] Eseguire `verifica_premi()` invariato (rimane l'unico arbitro)
-- [ ] Inserire ciclo confronto reclami vs `premi_nuovi` **dopo** `verifica_premi()`
-  - [ ] Matching per `(cartella, tipo, riga)`
-  - [ ] Costruire lista `reclami_bot` con struttura `{nome, id, reclamo, successo}`
-- [ ] Inserire reset `bot.reset_reclamo_turno()` per tutti i bot
-- [ ] Aggiungere chiave `"reclami_bot"` al dizionario `risultato_turno`
-- [ ] Commit: `feat(partita): integrate bot reclamo phase in esegui_turno [Phase 4/7]`
-- [ ] Aggiornare questo TODO
+- [x] Inserire ciclo reclami bot **dopo** `estrai_prossimo_numero()` e **prima** di `verifica_premi()`
+  - [x] Iterare su `self.giocatori` filtrando con `giocatore.is_automatico()`
+  - [x] Chiamare `bot._valuta_potenziale_reclamo(self.premi_gia_assegnati)` (passare snapshot pre-turno)
+  - [x] Se reclamo presente: `bot.reclamo_turno = reclamo`
+- [x] Eseguire `verifica_premi()` invariato (rimane l'unico arbitro)
+- [x] Inserire ciclo confronto reclami vs `premi_nuovi` **dopo** `verifica_premi()`
+  - [x] Matching per `(cartella, tipo, riga)`
+  - [x] Costruire lista `reclami_bot` con struttura `{nome, id, reclamo, successo}`
+- [x] Inserire reset `bot.reset_reclamo_turno()` per tutti i bot
+- [x] Aggiungere chiave `"reclami_bot"` al dizionario `risultato_turno`
+- [x] Commit: `feat(partita): integrate bot reclamo phase in esegui_turno [Phase 4/7]`
+- [x] Aggiornare questo TODO
 
 ### Fase 5 — Test di integrazione Partita
 
