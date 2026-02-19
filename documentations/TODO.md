@@ -26,21 +26,21 @@
 
 ### Task
 
-- [ ] Creare il file `bingo_game/events/codici_configurazione.py`
-- [ ] Aggiungere docstring modulo con descrizione, pattern di riferimento e `Version: v0.7.0`
-- [ ] Definire `from __future__ import annotations`
-- [ ] Definire il tipo alias `Codici_Configurazione = str`
-- [ ] Aggiungere costante `CONFIG_BENVENUTO: Codici_Configurazione = "CONFIG_BENVENUTO"`
-- [ ] Aggiungere costante `CONFIG_CONFERMA_AVVIO: Codici_Configurazione = "CONFIG_CONFERMA_AVVIO"`
-- [ ] Aggiungere costante `CONFIG_RICHIESTA_NOME: Codici_Configurazione = "CONFIG_RICHIESTA_NOME"`
-- [ ] Aggiungere costante `CONFIG_RICHIESTA_BOT: Codici_Configurazione = "CONFIG_RICHIESTA_BOT"`
-- [ ] Aggiungere costante `CONFIG_RICHIESTA_CARTELLE: Codici_Configurazione = "CONFIG_RICHIESTA_CARTELLE"`
-- [ ] Aggiungere costante `CONFIG_ERRORE_NOME_VUOTO: Codici_Configurazione = "CONFIG_ERRORE_NOME_VUOTO"`
-- [ ] Aggiungere costante `CONFIG_ERRORE_NOME_TROPPO_LUNGO: Codici_Configurazione = "CONFIG_ERRORE_NOME_TROPPO_LUNGO"`
-- [ ] Aggiungere costante `CONFIG_ERRORE_BOT_RANGE: Codici_Configurazione = "CONFIG_ERRORE_BOT_RANGE"`
-- [ ] Aggiungere costante `CONFIG_ERRORE_CARTELLE_RANGE: Codici_Configurazione = "CONFIG_ERRORE_CARTELLE_RANGE"`
-- [ ] Verificare coerenza di stile con `bingo_game/events/codici_errori.py` (pattern di riferimento)
-- [ ] Verificare: `python -m py_compile bingo_game/events/codici_configurazione.py` → nessun errore
+- [x] Creare il file `bingo_game/events/codici_configurazione.py`
+- [x] Aggiungere docstring modulo con descrizione, pattern di riferimento e `Version: v0.7.0`
+- [x] Definire `from __future__ import annotations`
+- [x] Definire il tipo alias `Codici_Configurazione = str`
+- [x] Aggiungere costante `CONFIG_BENVENUTO: Codici_Configurazione = "CONFIG_BENVENUTO"`
+- [x] Aggiungere costante `CONFIG_CONFERMA_AVVIO: Codici_Configurazione = "CONFIG_CONFERMA_AVVIO"`
+- [x] Aggiungere costante `CONFIG_RICHIESTA_NOME: Codici_Configurazione = "CONFIG_RICHIESTA_NOME"`
+- [x] Aggiungere costante `CONFIG_RICHIESTA_BOT: Codici_Configurazione = "CONFIG_RICHIESTA_BOT"`
+- [x] Aggiungere costante `CONFIG_RICHIESTA_CARTELLE: Codici_Configurazione = "CONFIG_RICHIESTA_CARTELLE"`
+- [x] Aggiungere costante `CONFIG_ERRORE_NOME_VUOTO: Codici_Configurazione = "CONFIG_ERRORE_NOME_VUOTO"`
+- [x] Aggiungere costante `CONFIG_ERRORE_NOME_TROPPO_LUNGO: Codici_Configurazione = "CONFIG_ERRORE_NOME_TROPPO_LUNGO"`
+- [x] Aggiungere costante `CONFIG_ERRORE_BOT_RANGE: Codici_Configurazione = "CONFIG_ERRORE_BOT_RANGE"`
+- [x] Aggiungere costante `CONFIG_ERRORE_CARTELLE_RANGE: Codici_Configurazione = "CONFIG_ERRORE_CARTELLE_RANGE"`
+- [x] Verificare coerenza di stile con `bingo_game/events/codici_errori.py` (pattern di riferimento)
+- [x] Verificare: `python -m py_compile bingo_game/events/codici_configurazione.py` → nessun errore
 
 ### Criterio di Successo
 
@@ -56,23 +56,23 @@
 
 ### Task
 
-- [ ] Aprire `bingo_game/ui/locales/it.py` e leggere il contenuto attuale
-- [ ] Aggiungere in testa al file (insieme agli altri import di `codici_*`):
+- [x] Aprire `bingo_game/ui/locales/it.py` e leggere il contenuto attuale
+- [x] Aggiungere in testa al file (insieme agli altri import di `codici_*`):
   `from bingo_game.events.codici_configurazione import Codici_Configurazione`
-- [ ] Verificare che `MappingProxyType` e `Mapping` siano già importati (lo sono)
-- [ ] Aggiungere in **coda al file** (dopo tutti gli altri dizionari esistenti) il dizionario:
+- [x] Verificare che `MappingProxyType` e `Mapping` siano già importati (lo sono)
+- [x] Aggiungere in **coda al file** (dopo tutti gli altri dizionari esistenti) il dizionario:
   `MESSAGGI_CONFIGURAZIONE: Mapping[Codici_Configurazione, tuple[str, ...]] = MappingProxyType({...})`
-- [ ] Inserire la chiave `"CONFIG_BENVENUTO": ("Benvenuto in Tombola Stark!",)`
-- [ ] Inserire la chiave `"CONFIG_CONFERMA_AVVIO": ("Configurazione completata. Avvio partita...",)`
-- [ ] Inserire la chiave `"CONFIG_RICHIESTA_NOME": ("Inserisci il tuo nome (max 15 caratteri): ",)`
-- [ ] Inserire la chiave `"CONFIG_RICHIESTA_BOT": ("Inserisci il numero di bot (1-7): ",)`
-- [ ] Inserire la chiave `"CONFIG_RICHIESTA_CARTELLE": ("Inserisci il numero di cartelle (1-6): ",)`
-- [ ] Inserire la chiave `"CONFIG_ERRORE_NOME_VUOTO": ("Errore: Nome non valido.", "Inserisci almeno un carattere.",)`
-- [ ] Inserire la chiave `"CONFIG_ERRORE_NOME_TROPPO_LUNGO": ("Errore: Nome troppo lungo.", "Inserisci al massimo 15 caratteri.",)`
-- [ ] Inserire la chiave `"CONFIG_ERRORE_BOT_RANGE": ("Errore: Numero bot non valido.", "Inserisci un valore tra 1 e 7.",)`
-- [ ] Inserire la chiave `"CONFIG_ERRORE_CARTELLE_RANGE": ("Errore: Numero cartelle non valido.", "Inserisci un valore tra 1 e 6.",)`
-- [ ] Verificare che i dizionari esistenti non siano stati modificati
-- [ ] Verificare: `python -m py_compile bingo_game/ui/locales/it.py` → nessun errore
+- [x] Inserire la chiave `"CONFIG_BENVENUTO": ("Benvenuto in Tombola Stark!",)`
+- [x] Inserire la chiave `"CONFIG_CONFERMA_AVVIO": ("Configurazione completata. Avvio partita...",)`
+- [x] Inserire la chiave `"CONFIG_RICHIESTA_NOME": ("Inserisci il tuo nome (max 15 caratteri): ",)`
+- [x] Inserire la chiave `"CONFIG_RICHIESTA_BOT": ("Inserisci il numero di bot (1-7): ",)`
+- [x] Inserire la chiave `"CONFIG_RICHIESTA_CARTELLE": ("Inserisci il numero di cartelle (1-6): ",)`
+- [x] Inserire la chiave `"CONFIG_ERRORE_NOME_VUOTO": ("Errore: Nome non valido.", "Inserisci almeno un carattere.",)`
+- [x] Inserire la chiave `"CONFIG_ERRORE_NOME_TROPPO_LUNGO": ("Errore: Nome troppo lungo.", "Inserisci al massimo 15 caratteri.",)`
+- [x] Inserire la chiave `"CONFIG_ERRORE_BOT_RANGE": ("Errore: Numero bot non valido.", "Inserisci un valore tra 1 e 7.",)`
+- [x] Inserire la chiave `"CONFIG_ERRORE_CARTELLE_RANGE": ("Errore: Numero cartelle non valido.", "Inserisci un valore tra 1 e 6.",)`
+- [x] Verificare che i dizionari esistenti non siano stati modificati
+- [x] Verificare: `python -m py_compile bingo_game/ui/locales/it.py` → nessun errore
 
 ### Criterio di Successo
 

@@ -4,6 +4,7 @@ from collections.abc import Mapping
 from types import MappingProxyType
 
 #import moduli di progetto
+from bingo_game.events.codici_configurazione import Codici_Configurazione
 from bingo_game.events.codici_errori import Codici_Errori
 from bingo_game.events.codici_eventi import Codici_Eventi
 from bingo_game.events.codici_messaggi_sistema import Codici_Messaggi_Sistema
@@ -610,5 +611,43 @@ MESSAGGI_SISTEMA: Mapping[Codici_Messaggi_Sistema, tuple[str, ...]] = MappingPro
     "SISTEMA_EVENTO_NON_SUPPORTATO_DEBUG": (
         "Evento non supportato dal renderer.",
         "Dettaglio tecnico: tipo evento -> {tipo_evento}.",
+    ),
+})
+
+
+# Messaggi per il flusso di configurazione della partita (TUI Start Menu).
+# Chiavi definite in bingo_game/events/codici_configurazione.py.
+# Ogni entry è una tupla di righe: il renderer chiama print() su ciascuna riga.
+MESSAGGI_CONFIGURAZIONE: Mapping[Codici_Configurazione, tuple[str, ...]] = MappingProxyType({
+    "CONFIG_BENVENUTO": (
+        "Benvenuto in Tombola Stark!",
+    ),
+    "CONFIG_CONFERMA_AVVIO": (
+        "Configurazione completata. Avvio partita...",
+    ),
+    "CONFIG_RICHIESTA_NOME": (
+        "Inserisci il tuo nome (max 15 caratteri): ",
+    ),
+    "CONFIG_RICHIESTA_BOT": (
+        "Inserisci il numero di bot (1-7): ",
+    ),
+    "CONFIG_RICHIESTA_CARTELLE": (
+        "Inserisci il numero di cartelle (1-6): ",
+    ),
+    "CONFIG_ERRORE_NOME_VUOTO": (
+        "Errore: Nome non valido.",
+        "Inserisci almeno un carattere.",
+    ),
+    "CONFIG_ERRORE_NOME_TROPPO_LUNGO": (
+        "Errore: Nome troppo lungo.",
+        "Inserisci al massimo 15 caratteri.",
+    ),
+    "CONFIG_ERRORE_BOT_RANGE": (
+        "Errore: Numero bot non valido.",
+        "Inserisci un valore tra 1 e 7.",
+    ),
+    "CONFIG_ERRORE_CARTELLE_RANGE": (
+        "Errore: Numero cartelle non valido.",
+        "Inserisci un valore tra 1 e 6.",
     ),
 })
