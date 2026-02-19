@@ -175,13 +175,13 @@ Fase 2: GiocatoreAutomatico._valuta_potenziale_reclamo()
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "Aggiornamenti documentazione"
 
-- [ ] `API.md`: aggiungere sezione `GiocatoreAutomatico` con nuova logica Bot Attivo
-- [ ] `API.md`: aggiornare contratto `Partita.esegui_turno()` con chiave `reclami_bot`
-- [ ] `ARCHITECTURE.md`: aggiornare diagramma "Flusso Tipico: Esecuzione di un Turno"
-- [ ] `ARCHITECTURE.md`: incrementare versione documento a `v0.6.0`
-- [ ] `README.md`: aggiornare descrizione funzionale (bot reclamano premi automaticamente)
-- [ ] Commit: `docs: update API.md, ARCHITECTURE.md, README.md for bot attivo [Phase 7/7]`
-- [ ] Aggiornare questo TODO
+- [x] `API.md`: aggiungere sezione `GiocatoreAutomatico` con nuova logica Bot Attivo
+- [x] `API.md`: aggiornare contratto `Partita.esegui_turno()` con chiave `reclami_bot`
+- [x] `ARCHITECTURE.md`: aggiornare diagramma "Flusso Tipico: Esecuzione di un Turno"
+- [x] `ARCHITECTURE.md`: incrementare versione documento a `v0.6.0`
+- [x] `README.md`: aggiornare descrizione funzionale (bot reclamano premi automaticamente)
+- [x] Commit: `docs: update API.md, ARCHITECTURE.md, README.md for bot attivo [Phase 7/7]`
+- [x] Aggiornare questo TODO
 
 ---
 
@@ -189,11 +189,11 @@ Fase 2: GiocatoreAutomatico._valuta_potenziale_reclamo()
 
 L'implementazione è considerata completa quando:
 
-- [ ] Tutte le checklist sopra sono spuntate
-- [ ] Tutti i test passano (unit + integration)
-- [ ] Nessuna regressione funzionale sui test esistenti
-- [ ] Nessuna violazione delle regole architetturali (ARCHITECTURE.md)
-- [ ] Versione incrementata a `v0.6.0` (MINOR: nuova feature retrocompatibile)
+- [x] Tutte le checklist sopra sono spuntate
+- [x] Tutti i test passano (unit + integration)
+- [x] Nessuna regressione funzionale sui test esistenti
+- [x] Nessuna violazione delle regole architetturali (ARCHITECTURE.md)
+- [x] Versione incrementata a `v0.6.0` (MINOR: nuova feature retrocompatibile)
 
 ---
 

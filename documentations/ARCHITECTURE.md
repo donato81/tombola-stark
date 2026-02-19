@@ -1,7 +1,7 @@
 # 🏗️ ARCHITECTURE.md - Tombola Stark
 
 > **Documentazione architetturale di tombola-stark**  
-> Ultimo aggiornamento: 2026-02-19 (v0.5.0)
+> Ultimo aggiornamento: 2026-02-19 (v0.6.0)
 
 ---
 
@@ -477,7 +477,7 @@ tombola-stark/
 
 ## 🔄 Flusso dei Dati
 
-### Flusso Tipico: Esecuzione di un Turno
+### Flusso Tipico: Esecuzione di un Turno (v0.6.0)
 
 ```
 1. [Interfaccia] Utente preme tasto "Estrai"
@@ -490,19 +490,31 @@ tombola-stark/
    ↓ chiama
    │
 3. [Dominio] Partita.esegui_turno()
-   │  ├─ Tabellone.estrai_numero()           → int
-   │  ├─ GiocatoreBase.aggiorna_con_numero() → aggiorna cartelle
-   │  └─ Partita.verifica_premi()            → List[dict]
+   │  ├─ STEP 1: Tabellone.estrai_numero()           → int
+   │  ├─ STEP 2: GiocatoreBase.aggiorna_con_numero() → aggiorna cartelle
+   │  ├─ STEP 3: [NUOVO v0.6.0] Fase reclami bot
+   │  │   └─ Per ogni bot: _valuta_potenziale_reclamo()
+   │  │       → Memorizza reclamo in bot.reclamo_turno
+   │  ├─ STEP 4: Partita.verifica_premi()            → List[dict] (arbitro ufficiale)
+   │  ├─ STEP 5: [NUOVO v0.6.0] Confronto reclami vs premi reali
+   │  │   └─ Costruisce lista reclami_bot con esiti (successo/rigetto)
+   │  ├─ STEP 6: [NUOVO v0.6.0] Reset reclami bot
+   │  │   └─ Per ogni bot: reset_reclamo_turno()
+   │  └─ STEP 7: Verifica tombola + costruzione risultato
+   │      → dict con chiave "reclami_bot" (v0.6.0+)
    │
    ↓ ritorna dict
    │
-4. [Controller] Valida dict, ritorna Optional[dict]
+4. [Controller] Valida dict, logga eventi
+   │  ├─ Log premi_nuovi su tombola_stark.prizes
+   │  └─ [NUOVO v0.6.0] Log reclami_bot (ACCETTATO/RIGETTATO)
    │
    ↓ ritorna a interfaccia
    │
 5. [Interfaccia] Legge dict e vocalizza:
    │  ├─ numero_estratto  → "Estratto: 42"
    │  ├─ premi_nuovi      → "Mario ha fatto ambo!"
+   │  ├─ [NUOVO v0.6.0] reclami_bot → "Bot1 dichiara ambo!"
    │  └─ tombola_rilevata → "TOMBOLA!"
 ```
 
@@ -643,6 +655,9 @@ def test_flusso_partita_completa():
 
 ### Storia delle Versioni
 
+- **v0.6.0** (2026-02): Feature Bot Attivo. I `GiocatoreAutomatico` ora valutano autonomamente i premi conseguiti e li dichiarano tramite `ReclamoVittoria`. Nuova chiave `reclami_bot` in `Partita.esegui_turno()` (backward-compatible). Logging reclami bot in `game_controller`. Metodo `is_automatico()` in `GiocatoreBase`.
+- **v0.5.0** (2026-02): Sistema di logging Fase 2: copertura completa eventi di gioco (18 eventi distinti), sub-logger per categoria, riepilogo finale partita
+- **v0.4.0** (2026-02): Sistema di logging Fase 1: GameLogger singleton, file cumulativo con flush immediato, marcatori di sessione, flag `--debug`
 - **v0.1.0** (2026-02): Architettura iniziale. Dominio completo (Tabellone, Cartella, Partita, Players). Controller di alto livello implementato. Sistema eventi e gerarchia eccezioni stabiliti.
 
 ### Aree di Sviluppo Futuro
@@ -694,6 +709,26 @@ def test_flusso_partita_completa():
 
 ---
 
+### ADR-004: Bot Attivo con Reclami Autonomi
+
+- **Status**: Accettato
+- **Data**: 2026-02 (v0.6.0)
+- **Contesto**: I bot devono essere in grado di dichiarare autonomamente i premi conseguiti, esattamente come i giocatori umani, per migliorare l'esperienza di gioco e il feedback UX/TTS
+- **Decisione**: 
+  - Aggiungere metodo `is_automatico()` in `GiocatoreBase` per distinguere bot senza `isinstance()`
+  - Implementare `_valuta_potenziale_reclamo()` in `GiocatoreAutomatico` (metodo interno)
+  - Integrare fase reclami bot in `Partita.esegui_turno()` tra estrazione e verifica premi
+  - Aggiungere chiave `reclami_bot` al dizionario risultato (backward-compatible)
+  - Mantenere `verifica_premi()` come unico arbitro dei premi reali
+- **Conseguenze**:
+  - ✅ I bot dichiarano i premi in modo proattivo (migliore UX/log)
+  - ✅ Zero breaking change: `reclami_bot` è sempre presente (lista vuota se nessun bot)
+  - ✅ Pattern "programma verso l'interfaccia" mantenuto
+  - ✅ Logging automatico dei reclami bot nel controller
+  - ❌ Leggera complessità aggiunta nel ciclo `esegui_turno()`
+
+---
+
 ## 📚 Documentazione Correlata
 
 **Interna**:
@@ -703,5 +738,5 @@ def test_flusso_partita_completa():
 
 ---
 
-*Ultimo aggiornamento: 2026-02-19 (v0.5.0)*  
+*Ultimo aggiornamento: 2026-02-19 (v0.6.0)*  
 *Documento vivente: aggiornare ad ogni cambiamento architetturale significativo.*

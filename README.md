@@ -23,11 +23,13 @@ L'architettura è strutturata a livelli (Dominio → Controller → Interfaccia)
 - 🎯 **Motore di gioco completo** — Gestione di 90 numeri, estrazione casuale certificata, storico estrazioni e percentuale di avanzamento
 - 🎴 **Cartelle automatiche** — Generazione automatica di cartelle (3 righe × 5 numeri) con verifica in tempo reale di ambo, terno, quaterna, cinquina e tombola
 - 👥 **Multiplayer locale** — Da 2 a 8 giocatori, con supporto simultaneo a 1 giocatore umano e fino a 7 bot automatici
+- 🤖 **Bot Attivi (v0.6.0+)** — I bot dichiarano autonomamente i premi conseguiti in tempo reale, simulando il comportamento di giocatori umani. I reclami sono loggati e pronti per vocalizzazione TTS
 - ♿ **Accessibilità nativa** — Output strutturato compatibile con screen reader; ogni evento di gioco produce dati semantici pronti per la vocalizzazione TTS
 - ⌨️ **Navigazione da tastiera** — Zero dipendenza dal mouse nell'architettura di controllo
 - 🔊 **TTS integrato** — Supporto a Google TTS (`gTTS`) e `playsound` per feedback audio
 - 🛡️ **Gestione errori robusta** — Gerarchia di eccezioni personalizzate per ogni modulo; controller fail-safe che non propaga mai crash all'interfaccia
 - 🧩 **Architettura Clean** — Domain layer isolato, testabile indipendentemente da UI e framework esterni
+- 📊 **Sistema di logging completo (v0.4.0+)** — File log cumulativo con marcatori di sessione, sub-logger per categoria (game/prizes/system/errors), modalità debug dettagliata
 
 ---
 
