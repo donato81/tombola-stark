@@ -103,16 +103,16 @@ Fase 2: GiocatoreAutomatico._valuta_potenziale_reclamo()
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "FASE 1 — Task 1.1"
 
-- [ ] Aggiungere import di `ReclamoVittoria` in `giocatore_automatico.py`
-- [ ] Implementare `_valuta_potenziale_reclamo(premi_gia_assegnati: set[str]) -> Optional[ReclamoVittoria]`
-  - [ ] Gerarchia premi decrescente: `tombola > cinquina > quaterna > terno > ambo`
-  - [ ] Logica tombola: controlla `verifica_cartella_completa()` + chiave `"cartella_{idx}_tombola"`
-  - [ ] Logica riga: controlla `verifica_<tipo>_riga(riga)` + chiave `"cartella_{idx}_riga_{r}_{tipo}"`
-  - [ ] Scelta del `best_claim` per rango più alto tra tutte le cartelle
-  - [ ] Usa factory `ReclamoVittoria.tombola()` e `ReclamoVittoria.vittoria_di_riga()`
-  - [ ] Ritorna `None` se nessun premio reclamabile
-- [ ] Commit: `feat(players): add _valuta_potenziale_reclamo() to GiocatoreAutomatico [Phase 2/7]`
-- [ ] Aggiornare questo TODO
+- [x] Aggiungere import di `ReclamoVittoria` in `giocatore_automatico.py`
+- [x] Implementare `_valuta_potenziale_reclamo(premi_gia_assegnati: set[str]) -> Optional[ReclamoVittoria]`
+  - [x] Gerarchia premi decrescente: `tombola > cinquina > quaterna > terno > ambo`
+  - [x] Logica tombola: controlla `verifica_cartella_completa()` + chiave `"cartella_{idx}_tombola"`
+  - [x] Logica riga: controlla `verifica_<tipo>_riga(riga)` + chiave `"cartella_{idx}_riga_{r}_{tipo}"`
+  - [x] Scelta del `best_claim` per rango più alto tra tutte le cartelle
+  - [x] Usa costruttore diretto `ReclamoVittoria()` (factory methods non disponibili per bug esistente)
+  - [x] Ritorna `None` se nessun premio reclamabile
+- [x] Commit: `feat(players): add _valuta_potenziale_reclamo() to GiocatoreAutomatico [Phase 2/7]`
+- [x] Aggiornare questo TODO
 
 ### Fase 3 — Test unitari GiocatoreAutomatico
 
