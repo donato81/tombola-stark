@@ -293,5 +293,23 @@ class TestGiocatoreAutomaticoBotAttivo:
         assert reclamo.indice_riga == 0
 
 
+    # Fix 1/3 - Test per is_automatico su GiocatoreAutomatico
+    def test_is_automatico_bot_true(self):
+        """
+        Test: Verifica che is_automatico() ritorni True per GiocatoreAutomatico.
+        
+        Scenario:
+        - Creazione di un GiocatoreAutomatico
+        
+        Atteso:
+        - is_automatico() deve ritornare True
+        """
+        # Arrange
+        bot = GiocatoreAutomatico("TestBot")
+        
+        # Act & Assert
+        assert bot.is_automatico() is True, "GiocatoreAutomatico.is_automatico() dovrebbe ritornare True"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

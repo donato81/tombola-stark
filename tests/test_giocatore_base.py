@@ -365,3 +365,50 @@ class TestGiocatoreBase(unittest.TestCase):
         # Verifica che has_tombola continui a ritornare True, perché la
         # cartella2 ha già completato, anche se cartella3 non l'ha fatto
         self.assertTrue(self.giocatore.has_tombola())
+
+
+    # Fix 1/3 - Test per reclamo_turno inizializzato a None
+    def test_reclamo_turno_inizializzato_a_none(self) -> None:
+        """
+        Verifica che reclamo_turno sia inizializzato a None alla creazione
+        del giocatore.
+        """
+        from bingo_game.events.eventi_partita import ReclamoVittoria
+        
+        giocatore = GiocatoreBase("Test")
+        self.assertIsNone(giocatore.reclamo_turno)
+
+
+    # Fix 1/3 - Test per reset_reclamo_turno
+    def test_reset_reclamo_turno(self) -> None:
+        """
+        Verifica che reset_reclamo_turno() azzeri correttamente il reclamo
+        del turno corrente.
+        """
+        from bingo_game.events.eventi_partita import ReclamoVittoria
+        
+        giocatore = GiocatoreBase("Test")
+        # Imposta un reclamo
+        giocatore.reclamo_turno = ReclamoVittoria(
+            tipo="ambo", 
+            indice_cartella=0, 
+            indice_riga=0
+        )
+        # Verifica che il reclamo sia stato impostato
+        self.assertIsNotNone(giocatore.reclamo_turno)
+        
+        # Esegui il reset
+        giocatore.reset_reclamo_turno()
+        
+        # Verifica che il reclamo sia None
+        self.assertIsNone(giocatore.reclamo_turno)
+
+
+    # Fix 1/3 - Test per is_automatico su GiocatoreBase
+    def test_is_automatico_base_false(self) -> None:
+        """
+        Verifica che is_automatico() ritorni False per GiocatoreBase
+        (comportamento di default per giocatore umano).
+        """
+        giocatore = GiocatoreBase("Test")
+        self.assertFalse(giocatore.is_automatico())
