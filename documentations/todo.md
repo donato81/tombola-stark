@@ -118,16 +118,16 @@ Fase 2: GiocatoreAutomatico._valuta_potenziale_reclamo()
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "Test da implementare — Test unitari"
 
-- [ ] Creare `tests/unit/test_giocatore_automatico_bot_attivo.py`
-- [ ] `test_bot_reclama_ambo_disponibile`
-- [ ] `test_bot_non_reclama_premio_gia_assegnato`
-- [ ] `test_bot_sceglie_premio_piu_alto`
-- [ ] `test_bot_reclama_tombola`
-- [ ] `test_bot_nessun_premio_disponibile`
-- [ ] `test_bot_sceglie_tra_piu_cartelle`
-- [ ] Tutti i test passano ✅
-- [ ] Commit: `test(players): add unit tests for bot _valuta_potenziale_reclamo [Phase 3/7]`
-- [ ] Aggiornare questo TODO
+- [x] Creare `tests/unit/test_giocatore_automatico_bot_attivo.py`
+- [x] `test_bot_reclama_ambo_disponibile`
+- [x] `test_bot_non_reclama_premio_gia_assegnato`
+- [x] `test_bot_sceglie_premio_piu_alto`
+- [x] `test_bot_reclama_tombola`
+- [x] `test_bot_nessun_premio_disponibile`
+- [x] `test_bot_sceglie_tra_piu_cartelle`
+- [x] Tutti i test passano ✅
+- [x] Commit: `test(players): add unit tests for bot _valuta_potenziale_reclamo [Phase 3/7]`
+- [x] Aggiornare questo TODO
 
 ### Fase 4 — Estensione Partita.esegui_turno()
 
