@@ -617,6 +617,39 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
             _premi_totali += 1
             _log_prize_event(evento)
         
+        # [NUOVO v0.6.0] Logging reclami bot
+        # Per ogni bot che ha fatto un reclamo, logghiamo l'esito
+        reclami_bot = risultato_turno.get("reclami_bot", [])
+        for reclamo_esito in reclami_bot:
+            try:
+                nome_bot = reclamo_esito.get("nome_giocatore", "?")
+                id_bot = reclamo_esito.get("id_giocatore", "?")
+                reclamo = reclamo_esito.get("reclamo")
+                successo = reclamo_esito.get("successo", False)
+                
+                if reclamo is not None:
+                    tipo_premio = reclamo.tipo
+                    cartella = reclamo.indice_cartella
+                    riga = reclamo.indice_riga
+                    
+                    if successo:
+                        # Reclamo accettato: il bot ha correttamente dichiarato un premio
+                        _log_safe(
+                            "[PRIZE] Bot '%s' (id=%s) dichiara %s — cartella=%s, riga=%s → ACCETTATO",
+                            "info", nome_bot, id_bot, tipo_premio.upper(), cartella, riga,
+                            logger=_logger_prizes
+                        )
+                    else:
+                        # Reclamo rigettato: il bot ha dichiarato ma non corrisponde a un premio reale
+                        _log_safe(
+                            "[GAME]  Bot '%s' (id=%s) dichiara %s — cartella=%s, riga=%s → RIGETTATO",
+                            "info", nome_bot, id_bot, tipo_premio.upper(), cartella, riga,
+                            logger=_logger_game
+                        )
+            except Exception:
+                # Il logging dei reclami bot non deve mai interrompere il gioco
+                pass
+        
         # Fine partita per tombola
         if risultato_turno.get("tombola_rilevata"):
             _log_safe(

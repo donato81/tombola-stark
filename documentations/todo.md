@@ -164,12 +164,12 @@ Fase 2: GiocatoreAutomatico._valuta_potenziale_reclamo()
 
 > 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "FASE 3 — Task 3.1"
 
-- [ ] In `game_controller.py`, in `esegui_turno_sicuro()`, leggere `risultato.get("reclami_bot", [])`
-- [ ] Per reclamo con `successo=True`: log su `tombola_stark.prizes` con `_log_safe()`
-- [ ] Per reclamo con `successo=False`: log su `tombola_stark.game` con `_log_safe()`
-- [ ] Verificare che il logging non interrompa mai il flusso (wrap in `try/except Exception: pass`)
-- [ ] Commit: `feat(controller): log bot reclami in esegui_turno_sicuro [Phase 6/7]`
-- [ ] Aggiornare questo TODO
+- [x] In `game_controller.py`, in `esegui_turno_sicuro()`, leggere `risultato.get("reclami_bot", [])`
+- [x] Per reclamo con `successo=True`: log su `tombola_stark.prizes` con `_log_safe()`
+- [x] Per reclamo con `successo=False`: log su `tombola_stark.game` con `_log_safe()`
+- [x] Verificare che il logging non interrompa mai il flusso (wrap in `try/except Exception: pass`)
+- [x] Commit: `feat(controller): log bot reclami in esegui_turno_sicuro [Phase 6/7]`
+- [x] Aggiornare questo TODO
 
 ### Fase 7 — Documentazione e aggiornamenti finali
 
