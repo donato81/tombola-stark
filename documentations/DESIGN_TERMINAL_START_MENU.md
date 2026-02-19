@@ -10,7 +10,7 @@
 
 - **Data Inizio**: 2026-02-19
 - **Ultimo Aggiornamento**: 2026-02-19
-- **Versione Documento**: v1.1
+- **Versione Documento**: v1.2
 - **Stato**: READY
 - **Versione Target**: v0.7.0
 - **Autore**: AI Assistant + Nemex81
@@ -194,6 +194,50 @@ Partita in stato "in_corso"
 
 ---
 
+## 📋 Regole di Validazione
+
+Questa sezione consolida in forma tabellare tutte le regole di validazione per i tre stati di input della Fase 1. Rappresenta la **specifica formale** che il codice in `ui_terminale.py` deve implementare esattamente.
+
+### Stato B — Validazione Nome Giocatore
+
+> **Priorità di controllo**: le regole vengono applicate **nell'ordine indicato**. Al primo fallimento si mostra l'errore e si ri-propone il prompt, senza proseguire con i controlli successivi.
+
+| # | Regola | Operazione | Condizione di Fallimento | Chiave Errore | Dizionario |
+|---|---|---|---|---|---|
+| 1 | Sanitizzazione | `nome = input_raw.strip()` | — (sempre applicata) | — | — |
+| 2 | Non vuoto | Controllo `len(nome) == 0` | Stringa vuota dopo `.strip()` | `CONFIG_ERRORE_NOME_VUOTO` | `MESSAGGI_CONFIGURAZIONE` |
+| 3 | Lunghezza massima | Controllo `len(nome) > 15` | Più di 15 caratteri dopo `.strip()` | `CONFIG_ERRORE_NOME_TROPPO_LUNGO` | `MESSAGGI_CONFIGURAZIONE` |
+
+**Risultato atteso se tutto valido**: `nome` è una stringa non vuota, senza spazi iniziali/finali, di lunghezza compresa tra 1 e 15 caratteri.
+
+---
+
+### Stato C — Validazione Numero Bot
+
+> **Range confermato**: 1–7 (coerente con `ControllerBotExcessException` se `num_bot > 7` e con `MIN_GIOCATORI = 2` che impedisce partite con 0 bot).
+
+| # | Regola | Operazione | Condizione di Fallimento | Chiave Errore | Dizionario |
+|---|---|---|---|---|---|
+| 1 | Tipo intero | `int(input_raw)` | `ValueError` (input non numerico) | `NUMERO_TIPO_NON_VALIDO` | `MESSAGGI_ERRORI` |
+| 2 | Range 1..7 | Controllo `not (1 <= valore <= 7)` | Intero fuori range (es. 0, 8, 9...) | `CONFIG_ERRORE_BOT_RANGE` | `MESSAGGI_CONFIGURAZIONE` |
+
+**Risultato atteso se tutto valido**: `numero_bot` è un `int` nel range 1..7 inclusi.
+
+---
+
+### Stato D — Validazione Numero Cartelle
+
+> **Range fissato**: 1–6. Scelta UX deliberata per evitare eccessiva verbosità con gli screen reader durante la lettura delle cartelle in gioco. Il Controller non impone questo limite (accetta qualsiasi valore `> 0`).
+
+| # | Regola | Operazione | Condizione di Fallimento | Chiave Errore | Dizionario |
+|---|---|---|---|---|---|
+| 1 | Tipo intero | `int(input_raw)` | `ValueError` (input non numerico) | `NUMERO_TIPO_NON_VALIDO` | `MESSAGGI_ERRORI` |
+| 2 | Range 1..6 | Controllo `not (1 <= valore <= 6)` | Intero fuori range (es. 0, 7, 8...) | `CONFIG_ERRORE_CARTELLE_RANGE` | `MESSAGGI_CONFIGURAZIONE` |
+
+**Risultato atteso se tutto valido**: `numero_cartelle` è un `int` nel range 1..6 inclusi.
+
+---
+
 ## 🔀 Stati e Transizioni
 
 ### Stati del Sistema (Flusso di Configurazione)
@@ -206,22 +250,22 @@ Partita in stato "in_corso"
 #### Stato B: ATTESA_NOME
 - **Descrizione**: Sistema attende inserimento del nome giocatore
 - **Può passare a**: ATTESA_BOT (nome valido), ATTESA_NOME (nome non valido → loop)
-- **Trigger**: Input utente + validazione:
-  1. `.strip()` applicato sempre
+- **Trigger**: Input utente + validazione nell'ordine:
+  1. `.strip()` applicato sempre (regola 1, mai fallisce)
   2. Stringa risultante non vuota (`CONFIG_ERRORE_NOME_VUOTO` se fallisce)
   3. Lunghezza ≤ 15 caratteri (`CONFIG_ERRORE_NOME_TROPPO_LUNGO` se fallisce)
 
 #### Stato C: ATTESA_BOT
 - **Descrizione**: Nome acquisito; sistema attende il numero di bot (1-7)
 - **Può passare a**: ATTESA_CARTELLE (bot valido), ATTESA_BOT (bot non valido → loop)
-- **Trigger**: Input utente + validazione:
+- **Trigger**: Input utente + validazione nell'ordine:
   1. Convertibile in `int` (`MESSAGGI_ERRORI["NUMERO_TIPO_NON_VALIDO"]` se fallisce)
   2. Valore in range 1..7 (`CONFIG_ERRORE_BOT_RANGE` se fallisce)
 
 #### Stato D: ATTESA_CARTELLE
 - **Descrizione**: Nome e bot acquisiti; sistema attende il numero di cartelle (1-6)
 - **Può passare a**: AVVIO_PARTITA (cartelle valide), ATTESA_CARTELLE (cartelle non valide → loop)
-- **Trigger**: Input utente + validazione:
+- **Trigger**: Input utente + validazione nell'ordine:
   1. Convertibile in `int` (`MESSAGGI_ERRORI["NUMERO_TIPO_NON_VALIDO"]` se fallisce)
   2. Valore in range 1..6 (`CONFIG_ERRORE_CARTELLE_RANGE` se fallisce)
 
@@ -239,26 +283,26 @@ Partita in stato "in_corso"
         ↓
   [BENVENUTO]  ← stampa CONFIG_BENVENUTO
         ↓
- [ATTESA_NOME]  ←──────────────────────────────────────────────┐
-        ↓ (nome valido: strip ok, non vuoto, len ≤ 15)         │
-        │                                                       │ (stringa vuota dopo strip)
-        │                       CONFIG_ERRORE_NOME_VUOTO ───────┤
-        │                                                       │ (lunghezza > 15 caratteri)
-        │                       CONFIG_ERRORE_NOME_TROPPO_LUNGO ┘
+ [ATTESA_NOME]  ←──────────────────────────────────────────────────────────────┐
+        ↓ (nome valido: strip ok, non vuoto, len ≤ 15)                         │
+        │                                                                       │ (stringa vuota dopo strip)
+        │                                         CONFIG_ERRORE_NOME_VUOTO ────┤
+        │                                                                       │ (lunghezza > 15 caratteri)
+        │                                  CONFIG_ERRORE_NOME_TROPPO_LUNGO ────┘
         ↓
- [ATTESA_BOT]  ←──────────────────────────────────────────────┐
-        ↓ (bot valido: intero in 1..7)                         │
-        │                                                       │ (non intero)
-        │                       MESSAGGI_ERRORI[NUMERO_TIPO_NON_VALIDO] ─┐
-        │                                                       │ (fuori 1..7)│
-        │                       CONFIG_ERRORE_BOT_RANGE ────────┘────────────┘
+ [ATTESA_BOT]  ←──────────────────────────────────────────────────────────────┐
+        ↓ (bot valido: intero in 1..7)                                         │
+        │                                                                       │ (non intero)
+        │                        MESSAGGI_ERRORI[NUMERO_TIPO_NON_VALIDO] ─────┤
+        │                                                                       │ (intero fuori 1..7)
+        │                                        CONFIG_ERRORE_BOT_RANGE ─────┘
         ↓
-[ATTESA_CARTELLE]  ←───────────────────────────────────────────┐
-        ↓ (cartelle valide: intero in 1..6)                    │
-        │                                                       │ (non intero)
-        │                       MESSAGGI_ERRORI[NUMERO_TIPO_NON_VALIDO] ─┐
-        │                                                       │ (fuori 1..6)│
-        │                       CONFIG_ERRORE_CARTELLE_RANGE ───┘────────────┘
+[ATTESA_CARTELLE]  ←──────────────────────────────────────────────────────────┐
+        ↓ (cartelle valide: intero in 1..6)                                    │
+        │                                                                       │ (non intero)
+        │                        MESSAGGI_ERRORI[NUMERO_TIPO_NON_VALIDO] ─────┤
+        │                                                                       │ (intero fuori 1..6)
+        │                                   CONFIG_ERRORE_CARTELLE_RANGE ─────┘
         ↓
  [AVVIO_PARTITA]  ← stampa CONFIG_CONFERMA_AVVIO
         ↓ crea_partita_standard() + avvia_partita_sicura()
@@ -391,11 +435,11 @@ def _chiedi_input(chiave_prompt: str) -> str:
 
 # Flusso di avvio (pseudo-codice stato E):
 #   partita = crea_partita_standard(
-#       nome_giocatore_umano=nome,        # str, già .strip()pato e validato
-#       num_cartelle_umano=numero_cartelle, # int, validato range 1..6
-#       num_bot=numero_bot,               # int, validato range 1..7
+#       nome_giocatore_umano=nome,          # str, già .strip()pato e validato
+#       num_cartelle_umano=numero_cartelle,  # int, validato range 1..6
+#       num_bot=numero_bot,                  # int, validato range 1..7
 #   )
-#   avvia_partita_sicura(partita)         # → True se avvio riuscito
+#   avvia_partita_sicura(partita)            # → True se avvio riuscito
 ```
 
 ### Uso del TerminalRenderer nella Fase 1
@@ -429,8 +473,9 @@ Tutte le domande aperte sono state risolte. Il design è in stato **READY**.
 - ✅ **Riuso MESSAGGI_ERRORI per errori di tipo**: Nessuna duplicazione nel catalogo
 - ✅ **Range cartelle: 1–6**: Limite superiore imposto dalla UI per accessibilità (anti-verbosità screen reader); il Controller non ha questo vincolo
 - ✅ **Lunghezza massima nome: 15 caratteri**: Anti-verbosità per screen reader; validazione UI-side prima della chiamata al Controller
-- ✅ **Sanitizzazione nome con `.strip()`**: Applicata sempre come primo passo; stringa vuota dopo strip = input non valido (`CONFIG_ERRORE_NOME_VUOTO`)
-- ✅ **Metodo Controller corretto**: `crea_partita_standard(nome_giocatore_umano, num_cartelle_umano, num_bot)` + `avvia_partita_sicura(partita)` (da `documentations/API.md`)
+- ✅ **Sanitizzazione nome con `.strip()`**: Applicata sempre come primo passo obbligatorio; stringa vuota dopo strip = `CONFIG_ERRORE_NOME_VUOTO`
+- ✅ **Priorità di validazione**: Sequenza ordinata e non intercambiabile (strip → vuoto → lunghezza per nome; tipo → range per bot/cartelle)
+- ✅ **Metodo Controller corretto**: `crea_partita_standard(nome_giocatore_umano, num_cartelle_umano, num_bot)` + `avvia_partita_sicura(partita)` da `documentations/API.md`
 - ✅ **Nuovo file `codici_configurazione.py`**: Richiesto per mantenere la coerenza del pattern di importazione in `it.py`
 
 ### Assunzioni
@@ -502,8 +547,43 @@ Questo design è pronto per la fase tecnica (PLAN) quando:
 - [x] Nessun "buco logico" evidente nel flusso di validazione
 - [x] Contratto API corretto verificato (crea_partita_standard + avvia_partita_sicura da API.md)
 - [x] Requisito codici_configurazione.py identificato e documentato
+- [x] Regole di validazione formalizzate con priorità di controllo esplicita (tabelle Stato B/C/D)
+- [x] Protocollo di collaudo manuale definito (TC01–TC05 nella sezione Piano di Verifica)
 
-**→ Stato: READY — Procedere con `PLAN_TERMINAL_START_MENU.md`**
+**→ Stato: READY — In attesa di via libera per `PLAN_TERMINAL_START_MENU.md`**
+
+---
+
+## 🧪 Piano di Verifica Manuale
+
+Questa sezione definisce i test case da eseguire **manualmente** dopo l'implementazione di `ui_terminale.py`, prima di considerare la Fase 1 completata. Ogni test verifica un singolo comportamento critico del flusso di configurazione.
+
+> **Come eseguire**: Avviare `python main.py` e seguire le istruzioni. Nessuno strumento automatico richiesto per questi test — sono progettati per essere eseguiti direttamente al terminale, incluso con screen reader attivo per TC05.
+
+| ID | Nome Test | Input da Inserire | Stato di Partenza | Risultato Atteso | Chiave Errore Attivata | Esito |
+|---|---|---|---|---|---|---|
+| **TC01** | Nome Vuoto (solo spazi) | `"   "` (3 spazi + INVIO) | ATTESA_NOME | Errore mostrato, prompt nome riproposto, nessun avanzamento di stato | `CONFIG_ERRORE_NOME_VUOTO` | ☐ |
+| **TC02** | Nome Troppo Lungo | `"NomeMoltoLungoOltreQuindici"` (28 caratteri + INVIO) | ATTESA_NOME | Errore mostrato, prompt nome riproposto, nessun avanzamento di stato | `CONFIG_ERRORE_NOME_TROPPO_LUNGO` | ☐ |
+| **TC03** | Bot Fuori Range (limite inferiore e superiore) | Prima `"0"` poi `"9"` (due tentativi separati) | ATTESA_BOT | Errore mostrato per entrambi, prompt bot riproposto ogni volta | `CONFIG_ERRORE_BOT_RANGE` | ☐ |
+| **TC04** | Cartelle Fuori Range (limite superiore) | `"7"` (un oltre il massimo consentito) | ATTESA_CARTELLE | Errore mostrato, prompt cartelle riproposto, nessun avanzamento di stato | `CONFIG_ERRORE_CARTELLE_RANGE` | ☐ |
+| **TC05** | Accessibilità Screen Reader (flusso completo) | Flusso felice completo con NVDA/JAWS/Orca attivo | BENVENUTO | Ogni riga di output letta in ordine corretto; errori letti prima del re-prompt; nessun artefatto grafico vocalizato | — (verifica strutturale) | ☐ |
+
+### Note per l'Esecuzione dei Test
+
+**TC01** — Verifica che `.strip()` venga applicato **prima** del controllo non-vuoto. Un input di soli spazi deve essere trattato esattamente come un input vuoto.
+
+**TC02** — Il nome `"NomeMoltoLungoOltreQuindici"` ha 28 caratteri. Dopo `.strip()` rimane 28 > 15: deve attivare `CONFIG_ERRORE_NOME_TROPPO_LUNGO` e non `CONFIG_ERRORE_NOME_VUOTO`. Verifica la priorità di controllo (regola 2 prima di regola 3 nello Stato B).
+
+**TC03** — Testare sia il valore `"0"` (sotto il minimo) sia `"9"` (sopra il massimo) per coprire entrambi i bordi del range 1..7. Il valore `"8"` è anch'esso fuori range e può essere usato come test aggiuntivo.
+
+**TC04** — Il valore `"7"` è il primo intero oltre il range 1..6 consentito. Verificare che il sistema NON chiami il Controller con questo valore.
+
+**TC05** — Eseguire l'intero flusso felice (Scenario 1) con lo screen reader attivo. Criteri di accettazione:
+- Il benvenuto viene letto immediatamente all'avvio
+- Ogni prompt viene letto prima che il cursore attenda input
+- In caso di errore (testare almeno un errore durante questo TC), il messaggio di errore viene letto **prima** che il nuovo prompt venga presentato
+- Nessun carattere decorativo (es. emoji, box Unicode) genera output vocalizzato anomalo
+- La conferma di avvio viene letta prima che la Fase 2 inizi
 
 ---
 
@@ -516,6 +596,7 @@ Questo design è pronto per la fase tecnica (PLAN) quando:
 - `_stampa_righe()` e `_chiedi_input()` sono candidati naturali a diventare helper privati nella classe `TerminalUI` — da definire nel PLAN
 - Considerare se `ui_terminale.py` deve essere una classe (`TerminalUI`) o un modulo con funzioni; la classe facilita il testing tramite dependency injection di `input`/`print`
 - Il sistema di logging è già attivo (v0.5.0): la Fase 1 può loggare evento `[SYS]` di avvio configurazione senza rompere nulla
+- I TC di verifica manuale (TC01–TC05) saranno la base per i test automatizzati (unit test con mock) da descrivere nel PLAN
 
 ---
 
@@ -566,6 +647,7 @@ Una volta implementata la Fase 1, l'utente potrà:
 ✅ Ricevere una conferma di avvio partita prima che la fase di gioco inizi
 ✅ Ottenere feedback immediato e correttivo per ogni input non valido senza uscire dall'applicazione
 ✅ Fruire dell'intera esperienza di configurazione tramite screen reader senza barriere
+✅ Verificare la correttezza dell'implementazione tramite il protocollo TC01–TC05 definito in questo documento
 
 ---
 
@@ -575,4 +657,4 @@ Una volta implementata la Fase 1, l'utente potrà:
 
 *Salvato in: `documentations/DESIGN_TERMINAL_START_MENU.md`*
 *Segue il template: `documentations/templates/TEMPLATE_example_DESIGN_DOCUMENT.md`*
-*Versione documento: v1.1 — Ultimo aggiornamento: 2026-02-19*
+*Versione documento: v1.2 — Ultimo aggiornamento: 2026-02-19*
