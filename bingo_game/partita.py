@@ -729,6 +729,12 @@ class Partita:
         # 2. [NUOVO] Fase reclami bot: i bot valutano se hanno premi reclamabili
         # Questa fase avviene DOPO l'estrazione e PRIMA della verifica ufficiale dei premi.
         # I bot analizzano lo stato delle proprie cartelle e costruiscono un reclamo se appropriato.
+        #
+        # Nota architetturale: Chiamiamo _valuta_potenziale_reclamo() anche se è un metodo
+        # interno (prefisso _) perché Partita è il coordinatore naturale del ciclo di gioco
+        # e ha la responsabilità di orchestrare le azioni dei giocatori. Questo pattern
+        # mantiene l'incapsulamento (il bot decide autonomamente cosa reclamare) pur
+        # permettendo a Partita di coordinarle il timing della valutazione.
         for giocatore in self.giocatori:
             # Filtra solo i bot automatici usando il metodo is_automatico()
             if giocatore.is_automatico():
