@@ -7,6 +7,21 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ---
 
+## [0.7.0] - 2026-02-19
+
+### Aggiunto
+- `TerminalUI` in `bingo_game/ui/ui_terminale.py`: interfaccia da terminale accessibile (screen reader) per il flusso di configurazione pre-partita (Fase 1). Macchina a stati A→E con 3 prompt sequenziali (nome, bot, cartelle) e loop di validazione con re-prompt.
+- `bingo_game/events/codici_configurazione.py`: 9 costanti-chiave (`Codici_Configurazione`) per la localizzazione del menu di configurazione.
+- `MESSAGGI_CONFIGURAZIONE` in `bingo_game/ui/locales/it.py`: dizionario con 9 chiavi e testi italiani per il flusso di configurazione.
+- `bingo_game/ui/locales/__init__.py`: modulo di re-export per i dizionari di localizzazione.
+- `tests/unit/test_ui_terminale.py`: 8 unit test con `unittest.mock` (mock di `input()`/`print()` e controller).
+
+### Modificato
+- `main.py`: rimossa stampa placeholder, aggiunto entry point `TerminalUI().avvia()`.
+- `bingo_game/ui/locales/it.py`: esteso con dizionario `MESSAGGI_CONFIGURAZIONE` (9 chiavi).
+
+---
+
 ## [Non Rilasciato]
 
 ### Aggiunto

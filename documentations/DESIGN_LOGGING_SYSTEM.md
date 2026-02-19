@@ -334,6 +334,35 @@ Scelta **Opzione A: Diario Unico** perché Tombola Stark è un'applicazione desk
 
 ---
 
+## 🖥️ Eventi [TUI] — TerminalUI (v0.7.0)
+
+Il modulo `bingo_game/ui/ui_terminale.py` utilizza il prefisso `[TUI]` per tutti i messaggi di log. Il logger è ottenuto con `logging.getLogger(__name__)`.
+
+### Tabella eventi TUI
+
+| Livello | Messaggio (pattern) | Condizione |
+|---------|---------------------|------------|
+| `INFO` | `[TUI] Avvio configurazione partita.` | Chiamata a `avvia()` |
+| `INFO` | `[TUI] Configurazione completata. nome='...', bot=N, cartelle=N.` | Fine stato E, prima di cedere il controllo |
+| `WARNING` | `[TUI] Validazione nome: vuoto dopo strip.` | Nome vuoto dopo `strip()` |
+| `WARNING` | `[TUI] Validazione nome: troppo lungo (N > 15).` | Nome con più di 15 caratteri |
+| `WARNING` | `[TUI] Validazione bot: tipo non valido (input='...').` | Input non convertibile in `int` |
+| `WARNING` | `[TUI] Validazione bot: fuori range (N non in [1, 7]).` | Bot non compreso tra 1 e 7 |
+| `WARNING` | `[TUI] Validazione cartelle: tipo non valido (input='...').` | Input non convertibile in `int` |
+| `WARNING` | `[TUI] Validazione cartelle: fuori range (N non in [1, 6]).` | Cartelle non comprese tra 1 e 6 |
+| `DEBUG` | `[TUI] TerminalUI inizializzata.` | `__init__` completato |
+| `DEBUG` | `[TUI] Stato A: BENVENUTO` | Transizione stato A |
+| `DEBUG` | `[TUI] Stato B: ATTESA_NOME` | Transizione stato B |
+| `DEBUG` | `[TUI] Nome dopo strip: '...' (len=N)` | Dopo ogni `strip()` in stato B |
+| `DEBUG` | `[TUI] Nome valido acquisito: '...'` | Nome superata la validazione |
+| `DEBUG` | `[TUI] Stato C: ATTESA_BOT` | Transizione stato C |
+| `DEBUG` | `[TUI] Numero bot valido: N` | Bot superato la validazione |
+| `DEBUG` | `[TUI] Stato D: ATTESA_CARTELLE` | Transizione stato D |
+| `DEBUG` | `[TUI] Numero cartelle valido: N` | Cartelle superate la validazione |
+| `DEBUG` | `[TUI] Stato E: AVVIO_PARTITA` | Transizione stato E |
+
+---
+
 ## 📝 Note di Brainstorming
 
 - In futuro, se il gioco evolvesse verso una versione multiplayer online, la struttura a diario unico potrebbe non essere più sufficiente — ma è il momento giusto per rivalutarlo, non oggi

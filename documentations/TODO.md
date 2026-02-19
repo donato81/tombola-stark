@@ -272,14 +272,14 @@
 
 ### Task — `README.md`
 
-- [ ] Aggiungere o aggiornare la sezione "Avvio" con il comando: `python main.py`
-- [ ] Aggiungere descrizione breve del flusso di configurazione (nome → bot → cartelle)
+- [x] Aggiungere o aggiornare la sezione "Avvio" con il comando: `python main.py`
+- [x] Aggiungere descrizione breve del flusso di configurazione (nome → bot → cartelle)
 - [ ] Aggiungere nota accessibilità: compatibile con screen reader NVDA/JAWS/Orca
-- [ ] Verificare che la versione indicata nel README sia allineata a `v0.7.0`
+- [x] Verificare che la versione indicata nel README sia allineata a `v0.7.0`
 
 ### Task — `CHANGELOG.md`
 
-- [ ] Aggiungere nuova sezione `## [v0.7.0] - 2026-xx-xx` in cima alla lista versioni
+- [x] Aggiungere nuova sezione `## [v0.7.0] - 2026-xx-xx` in cima alla lista versioni
 - [ ] Sezione `### Aggiunto`:
   - `TerminalUI`: interfaccia da terminale, flusso configurazione pre-partita (Fase 1)
   - `codici_configurazione.py`: 9 costanti-chiave per localizzazione configurazione
@@ -291,23 +291,23 @@
 
 ### Task — `API.md`
 
-- [ ] Aggiungere sezione dedicata `TerminalUI` (Interface Layer)
-- [ ] Documentare il metodo pubblico: `TerminalUI.avvia() -> None`
-- [ ] Includere: descrizione, side effects (avvia la partita), dipendenze (GameController), note di accessibilità
+- [x] Aggiungere sezione dedicata `TerminalUI` (Interface Layer)
+- [x] Documentare il metodo pubblico: `TerminalUI.avvia() -> None`
+- [x] Includere: descrizione, side effects (avvia la partita), dipendenze (GameController), note di accessibilità
 - [ ] Specificare che è l’unico metodo pubblico consumabile da `main.py`
 
 ### Task — `ARCHITECTURE.md`
 
-- [ ] Aggiungere `TerminalUI` nel diagramma del layer Interface
-- [ ] Aggiornare il flusso TUI: `main.py` → `TerminalUI` → `GameController`
-- [ ] Specificare che `TerminalRenderer` è istanziato in `TerminalUI.__init__` ma usato dalla Fase 2+
+- [x] Aggiungere `TerminalUI` nel diagramma del layer Interface
+- [x] Aggiornare il flusso TUI: `main.py` → `TerminalUI` → `GameController`
+- [x] Specificare che `TerminalRenderer` è istanziato in `TerminalUI.__init__` ma usato dalla Fase 2+
 
 ### Task — `DESIGN_LOGGING_SYSTEM.md`
 
-- [ ] Aggiungere sezione o tabella con i nuovi eventi `[TUI]`
-- [ ] Registrare: `INFO` — avvio configurazione, configurazione completata
-- [ ] Registrare: `WARNING` — nome vuoto, nome troppo lungo, bot tipo non valido, bot fuori range, cartelle tipo non valido, cartelle fuori range
-- [ ] Registrare: `DEBUG` — transizioni di stato (A→B→C→D→E), valori dopo `.strip()`, valori validati
+- [x] Aggiungere sezione o tabella con i nuovi eventi `[TUI]`
+- [x] Registrare: `INFO` — avvio configurazione, configurazione completata
+- [x] Registrare: `WARNING` — nome vuoto, nome troppo lungo, bot tipo non valido, bot fuori range, cartelle tipo non valido, cartelle fuori range
+- [x] Registrare: `DEBUG` — transizioni di stato (A→B→C→D→E), valori dopo `.strip()`, valori validati
 
 ### Criterio di Successo
 
