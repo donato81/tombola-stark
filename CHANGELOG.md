@@ -16,6 +16,41 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ---
 
+## [0.5.0] - 2026-02-19
+
+### Aggiunto
+- Modulo `bingo_game/logging/` con `GameLogger` singleton: copertura completa di tutti gli eventi di gioco e di sistema organizzati in 4 categorie (`[GAME]`, `[PRIZE]`, `[SYS]`, `[ERR]`).
+- Sub-logger gerarchici `tombola_stark.game`, `tombola_stark.prizes`, `tombola_stark.system`, `tombola_stark.errors` per filtraggio per categoria.
+- 18 eventi distinti tracciati: ciclo di vita partita, tutti i tipi di premio, snapshot stato, riepilogo finale a fine sessione.
+- `_log_prize_event()` e `_log_game_summary()` come helper privati nel controller.
+- Contatori di sessione `_turno_corrente` e `_premi_totali` in `game_controller.py`.
+- Test suite Fase 2: `tests/unit/test_event_logging.py` (7 test) e `tests/integration/test_event_coverage.py` (5 test).
+- Documentazione completa del sistema di logging in `API.md` e `ARCHITECTURE.md`.
+
+---
+
+## [0.4.0] - 2026-02-19
+
+### Aggiunto
+- Modulo `bingo_game/logging/` con classe `GameLogger` Singleton: file di log cumulativo `logs/tombola_stark.log` in modalità append.
+- `FlushingFileHandler`: ogni riga di log è scritta su disco immediatamente (flush dopo ogni `emit()`).
+- Marcatori di sessione (AVVIATA/CHIUSA) con timestamp che separano visivamente le esecuzioni nel file cumulativo.
+- Flag `--debug` via `argparse` in `main.py`: attiva il livello DEBUG per la tracciatura dettagliata di ogni turno.
+- Aggancio del logger ai punti chiave di `game_controller.py` tramite helper `_log_safe()` (il logging non interrompe mai il gioco).
+- Test suite Fase 1: `tests/unit/test_game_logger.py` (8 test) e `tests/integration/test_logging_integration.py` (3 test).
+
+### Modificato
+- `main.py`: aggiunto `argparse` per il flag `--debug` e blocco `try/finally` per la chiusura pulita del logger.
+- `.gitignore`: aggiunta esclusione della cartella `logs/` e dei file `*.log`.
+- `README.md`: istruzioni d'uso per il flag `--debug` e formato log file.
+
+### Corretto
+- `bingo_game/players/giocatore_umano.py`: rimossa parentesi chiusa duplicata (riga 59).
+- `bingo_game/players/helper_reclami_focus.py`: corretto import `TipoVittoria` → `Tipo_Vittoria`.
+- `bingo_game/events/eventi_output_ui_umani.py`: rimosso import `from __future__ import annotations` duplicato.
+
+---
+
 ## [0.3.0] - 2026-02-18
 
 ### Aggiunto
@@ -73,7 +108,9 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 *Per i dettagli tecnici completi, consulta la [storia dei commit](https://github.com/donato81/tombola-stark/commits/main) o [`documentations/ARCHITECTURE.md`](documentations/ARCHITECTURE.md).*
 
-[Non Rilasciato]: https://github.com/donato81/tombola-stark/compare/v0.3.0...HEAD
+[Non Rilasciato]: https://github.com/donato81/tombola-stark/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/donato81/tombola-stark/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/donato81/tombola-stark/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/donato81/tombola-stark/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/donato81/tombola-stark/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/donato81/tombola-stark/releases/tag/v0.1.0
