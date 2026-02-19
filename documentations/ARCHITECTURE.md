@@ -1,7 +1,7 @@
 # 🏗️ ARCHITECTURE.md - Tombola Stark
 
 > **Documentazione architetturale di tombola-stark**  
-> Ultimo aggiornamento: 2026-02-18 (v0.1.0)
+> Ultimo aggiornamento: 2026-02-19 (v0.5.0)
 
 ---
 
@@ -85,6 +85,13 @@ Il sistema adotta una separazione a tre livelli principali con regole di dipende
 │  (tabellone.py, cartella.py, partita.py,       │
 │   players/, events/, exceptions/, validations/)│
 │  ← ZERO dipendenze da livelli esterni          │
+└───────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────┐
+│   INFRASTRUTTURA TRASVERSALE (Logging)         │
+│  (bingo_game/logging/game_logger.py)           │
+│  Accessibile da: Controller + Interfaccia      │
+│  ← NON accessibile dal Dominio                 │
 └───────────────────────────────────────────────┘
 ```
 
@@ -172,6 +179,71 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 
 **File previsti**:
 - `bingo_game/ui/` (directory presente, da implementare)
+
+---
+
+#### Infrastruttura di Logging (trasversale)
+
+**Scopo**: Sistema di logging centralizzato che traccia eventi di gioco, eccezioni e stato senza accoppiare il dominio a dipendenze esterne. È una **cross-cutting concern** accessibile solo da Controller e Interfaccia.
+
+**Componenti**:
+
+| File / Directory | Ruolo |
+|---|---|
+| `bingo_game/logging/game_logger.py` | Singleton `GameLogger` con file cumulativo e flush immediato |
+| `logs/tombola_stark.log` | File di log cumulativo (append mode, non versionato) |
+
+**Caratteristiche**:
+- **Singleton**: Un'unica istanza condivisa per tutta l'applicazione
+- **Flush immediato**: Ogni riga è scritta su disco immediatamente (leggibile in tempo reale)
+- **Modalità DEBUG/INFO**: Controllata dal flag `--debug` in `main.py`
+- **Marcatori di sessione**: Separano visivamente le esecuzioni nel file cumulativo
+- **Sub-logger per categoria**: 
+  - `tombola_stark.game` → eventi ciclo di vita partita (`[GAME]`)
+  - `tombola_stark.prizes` → premi assegnati (`[PRIZE]`)
+  - `tombola_stark.system` → configurazione e infrastruttura (`[SYS]`)
+  - `tombola_stark.errors` → eccezioni e anomalie (`[ERR]`)
+
+**Regole di Dipendenza** (CRITICHE):
+- ✅ Può essere usato da: Controller (`game_controller.py`), Interfaccia (`main.py`)
+- ❌ **NON può essere usato da**: Dominio (`tabellone.py`, `partita.py`, `cartella.py`, `players/`, `events/`, `exceptions/`)
+- ❌ Il logging **non deve mai interrompere il gioco**: tutte le chiamate sono wrappate in `try/except Exception: pass`
+
+**Esempio di utilizzo corretto**:
+```python
+# game_controller.py - ✅ CORRETTO: Solo il controller logga
+from bingo_game.logging import GameLogger
+
+def _log_safe(message, level="info", *args, logger=None):
+    try:
+        target = logger or GameLogger.get_instance()
+        getattr(target, level)(message, *args)
+    except Exception:
+        pass  # Silenzioso in caso di errore
+
+def avvia_partita_sicura(partita: Partita) -> bool:
+    try:
+        partita.avvia_partita()
+        _log_safe("[GAME] Partita avviata — giocatori: %d", partita.get_numero_giocatori())
+        return True
+    except Exception as exc:
+        _log_safe("[ERR] Avvio fallito: %s", "warning", str(exc))
+        return False
+```
+
+**Esempio di uso errato** (da evitare):
+```python
+# bingo_game/partita.py - ❌ ERRATO: Il dominio NON logga mai
+from bingo_game.logging import GameLogger  # ❌ VIETATO
+
+class Partita:
+    def esegui_turno(self):
+        GameLogger.get_instance().info("Turno")  # ❌ VIETATO
+        # ...
+```
+
+**Motivazione architetturale**:
+Il dominio deve restare puro e privo di dipendenze esterne (ADR-001, ADR-003). Il logging è una concern dell'infrastruttura, non del business. Il controller intercetta già tutti gli eventi rilevanti e può aggiungervi logging senza inquinare il dominio.
 
 ---
 
@@ -631,5 +703,5 @@ def test_flusso_partita_completa():
 
 ---
 
-*Ultimo aggiornamento: 2026-02-18*  
+*Ultimo aggiornamento: 2026-02-19 (v0.5.0)*  
 *Documento vivente: aggiornare ad ogni cambiamento architetturale significativo.*
