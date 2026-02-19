@@ -185,6 +185,19 @@ Fase 2: GiocatoreAutomatico._valuta_potenziale_reclamo()
 
 ---
 
+### 🔧 Correzioni Post Code Review
+
+> Fix applicati in risposta al code review di @donato81
+
+- [x] **Fix Problema 1 (CRITICO)**: Verificato che `reset_reclamo_turno()` e `is_automatico()` esistono in `GiocatoreBase` ✅ (nessuna azione necessaria)
+- [x] **Fix Problema 2 (Bug latente)**: Aggiunto `id_giocatore` agli eventi di premio in `verifica_premi()`
+- [x] **Fix Problema 2 (Bug latente)**: Migliorato matching in `esegui_turno()` per usare `id_giocatore` come discriminatore primario
+- [x] **Ottimizzazione**: Aggiunto `break` nel loop di `_valuta_potenziale_reclamo()` dopo aver trovato il tipo più alto per riga
+- [x] **Documentazione**: Aggiornato `API.md` per documentare il nuovo campo `id_giocatore` negli eventi premio
+- [x] Commit: `fix(partita): robust matching by id_giocatore + loop optimization`
+
+---
+
 ## ✅ Criteri di Completamento
 
 L'implementazione è considerata completa quando:

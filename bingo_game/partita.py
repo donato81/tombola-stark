@@ -610,6 +610,7 @@ class Partita:
                         # 2. Creo l'evento dettagliato
                         evento = {
                             "giocatore": giocatore.get_nome(),
+                            "id_giocatore": giocatore.get_id_giocatore(),  # Aggiunto per matching robusto
                             "cartella": id_cartella,
                             "premio": "tombola",
                             "riga": None  # La tombola non ha riga specifica
@@ -641,6 +642,7 @@ class Partita:
                                 
                                 evento = {
                                     "giocatore": giocatore.get_nome(),
+                                    "id_giocatore": giocatore.get_id_giocatore(),  # Aggiunto per matching robusto
                                     "cartella": id_cartella,
                                     "premio": tipo,
                                     "riga": indice_riga
@@ -761,9 +763,17 @@ class Partita:
                 
                 # Determina se il reclamo è corretto confrontandolo con i premi reali
                 successo = False
+                id_bot = giocatore.get_id_giocatore()
+                
                 for evento in premi_nuovi:
-                    # Matching per (nome giocatore, cartella, tipo premio, riga)
-                    if (evento["giocatore"] == giocatore.get_nome() and
+                    # Matching robusto: usa id_giocatore se disponibile, altrimenti fallback sul nome
+                    giocatore_match = (
+                        (id_bot is not None and evento.get("id_giocatore") == id_bot) or
+                        (id_bot is None and evento["giocatore"] == giocatore.get_nome())
+                    )
+                    
+                    # Verifica completa: giocatore + cartella + tipo + riga
+                    if (giocatore_match and
                         evento["cartella"] == reclamo.indice_cartella and
                         evento["premio"] == reclamo.tipo and
                         evento["riga"] == reclamo.indice_riga):

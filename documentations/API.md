@@ -555,12 +555,16 @@ def verifica_premi() -> List[Dict[str, Any]]:
 - `List[dict]`: Lista di eventi di vincita. Ogni evento ha la forma:
 ```python
 {
-    "giocatore": str,   # nome del giocatore
-    "cartella": int,    # indice della cartella
-    "premio": str,      # "ambo" | "terno" | "quaterna" | "cinquina" | "tombola"
-    "riga": int | None  # indice riga (0-2), None per tombola
+    "giocatore": str,        # nome del giocatore
+    "id_giocatore": int | None,  # id del giocatore (v0.6.0+, per matching robusto)
+    "cartella": int,         # indice della cartella
+    "premio": str,           # "ambo" | "terno" | "quaterna" | "cinquina" | "tombola"
+    "riga": int | None       # indice riga (0-2), None per tombola
 }
 ```
+
+**Nota (v0.6.0+)**: Il campo `id_giocatore` è stato aggiunto per consentire un matching robusto 
+tra reclami bot e premi reali, anche quando più giocatori hanno lo stesso nome.
 
 ---
 

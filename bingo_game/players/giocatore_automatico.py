@@ -178,6 +178,10 @@ class GiocatoreAutomatico(GiocatoreBase):
                             if RANK_PREMI[tipo] > best_rank:
                                 best_claim = reclamo
                                 best_rank = RANK_PREMI[tipo]
+                        
+                        # Ottimizzazione: il tipo più alto per questa riga è stato trovato
+                        # (tipi_premio è già ordinato dal più alto al più basso)
+                        break
 
         # Ritorno il miglior reclamo trovato (o None se nessuno disponibile)
         return best_claim
