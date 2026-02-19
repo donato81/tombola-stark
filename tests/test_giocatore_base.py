@@ -25,6 +25,8 @@ import unittest
 from bingo_game.players.giocatore_base import GiocatoreBase
 # Importa la classe Cartella per creare cartelle di test
 from bingo_game.cartella import Cartella
+# Importa ReclamoVittoria per i test
+from bingo_game.events.eventi_partita import ReclamoVittoria
 # Importa le eccezioni personalizzate per la validazione dei parametri
 from bingo_game.exceptions import (
     GiocatoreNomeTypeException,
@@ -373,8 +375,6 @@ class TestGiocatoreBase(unittest.TestCase):
         Verifica che reclamo_turno sia inizializzato a None alla creazione
         del giocatore.
         """
-        from bingo_game.events.eventi_partita import ReclamoVittoria
-        
         giocatore = GiocatoreBase("Test")
         self.assertIsNone(giocatore.reclamo_turno)
 
@@ -385,8 +385,6 @@ class TestGiocatoreBase(unittest.TestCase):
         Verifica che reset_reclamo_turno() azzeri correttamente il reclamo
         del turno corrente.
         """
-        from bingo_game.events.eventi_partita import ReclamoVittoria
-        
         giocatore = GiocatoreBase("Test")
         # Imposta un reclamo
         giocatore.reclamo_turno = ReclamoVittoria(
