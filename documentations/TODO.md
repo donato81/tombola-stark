@@ -209,38 +209,38 @@
 
 ### Task — Setup File di Test
 
-- [ ] Creare il file `tests/unit/test_ui_terminale.py`
-- [ ] Aggiungere `from __future__ import annotations` e docstring modulo con riferimento ai TC
-- [ ] Importare `from unittest.mock import patch, MagicMock`
-- [ ] Importare `import pytest`
-- [ ] Importare `from bingo_game.ui.ui_terminale import TerminalUI`
+- [x] Creare il file `tests/unit/test_ui_terminale.py`
+- [x] Aggiungere `from __future__ import annotations` e docstring modulo con riferimento ai TC
+- [x] Importare `from unittest.mock import patch, MagicMock`
+- [x] Importare `import pytest`
+- [x] Importare `from bingo_game.ui.ui_terminale import TerminalUI`
 
 ### Task — Classe `TestValidazioneNome` (Stato B)
 
-- [ ] Implementare `test_tc01_nome_vuoto_dopo_strip`: input `["   ", "Marco"]` → verifica errore `"Errore: Nome non valido."` + ritorno `"Marco"`
-- [ ] Implementare `test_tc02_nome_troppo_lungo`: input `["NomeMoltoLungoOltreQuindici", "Marco"]` → verifica errore `"Errore: Nome troppo lungo."`
-- [ ] Implementare `test_strip_applicato_prima_del_check`: input `"  Marco  "` → ritorno `"Marco"` (nessun errore, strip corretto)
+- [x] Implementare `test_tc01_nome_vuoto_dopo_strip`: input `["   ", "Marco"]` → verifica errore `"Errore: Nome non valido."` + ritorno `"Marco"`
+- [x] Implementare `test_tc02_nome_troppo_lungo`: input `["NomeMoltoLungoOltreQuindici", "Marco"]` → verifica errore `"Errore: Nome troppo lungo."`
+- [x] Implementare `test_strip_applicato_prima_del_check`: input `"  Marco  "` → ritorno `"Marco"` (nessun errore, strip corretto)
 
 ### Task — Classe `TestValidazioneBot` (Stato C)
 
-- [ ] Implementare `test_tc03_bot_sotto_range`: input `["0", "3"]` → verifica errore `"Errore: Numero bot non valido."`
-- [ ] Implementare `test_tc03_bot_sopra_range`: input `["9", "3"]` → verifica errore `"Errore: Numero bot non valido."`
-- [ ] Implementare `test_bot_tipo_non_valido`: input `["tre", "3"]` → verifica errore `"Errore: Tipo non valido."` (riuso `MESSAGGI_ERRORI`)
+- [x] Implementare `test_tc03_bot_sotto_range`: input `["0", "3"]` → verifica errore `"Errore: Numero bot non valido."`
+- [x] Implementare `test_tc03_bot_sopra_range`: input `["9", "3"]` → verifica errore `"Errore: Numero bot non valido."`
+- [x] Implementare `test_bot_tipo_non_valido`: input `["tre", "3"]` → verifica errore `"Errore: Tipo non valido."` (riuso `MESSAGGI_ERRORI`)
 
 ### Task — Classe `TestValidazioneCartelle` (Stato D)
 
-- [ ] Implementare `test_tc04_cartelle_fuori_range`: input `["7", "2"]` → verifica errore `"Errore: Numero cartelle non valido."`
+- [x] Implementare `test_tc04_cartelle_fuori_range`: input `["7", "2"]` → verifica errore `"Errore: Numero cartelle non valido."`
 
 ### Task — Classe `TestFlussoFelice`
 
-- [ ] Implementare `test_flusso_felice_completo`: input `["Marco", "3", "2"]` → verifica `crea_partita_standard(nome_giocatore_umano="Marco", num_cartelle_umano=2, num_bot=3)` chiamato correttamente
-- [ ] Verifica `avvia_partita_sicura(mock_partita)` chiamata con l’oggetto restituito da `crea_partita_standard`
+- [x] Implementare `test_flusso_felice_completo`: input `["Marco", "3", "2"]` → verifica `crea_partita_standard(nome_giocatore_umano="Marco", num_cartelle_umano=2, num_bot=3)` chiamato correttamente
+- [x] Verifica `avvia_partita_sicura(mock_partita)` chiamata con l’oggetto restituito da `crea_partita_standard`
 
 ### Task — Esecuzione Unit Test
 
-- [ ] Eseguire: `python -m pytest tests/unit/test_ui_terminale.py -v`
-- [ ] Verificare: **tutti e 7 i test verdi** prima di procedere al Commit 6
-- [ ] In caso di fallimento: consultare sezione "Troubleshooting" del `PLAN_TERMINAL_START_MENU.md`
+- [x] Eseguire: `python -m pytest tests/unit/test_ui_terminale.py -v`
+- [x] Verificare: **tutti e 8 i test verdi** prima di procedere al Commit 6
+- [x] In caso di fallimento: consultare sezione "Troubleshooting" del `PLAN_TERMINAL_START_MENU.md`
 
 ### Task — Protocollo di Verifica Manuale TC01–TC05
 
