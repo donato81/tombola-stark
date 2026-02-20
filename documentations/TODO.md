@@ -1,335 +1,406 @@
-# ✅ TODO — Implementazione Menu Iniziale TUI (v0.7.0)
+# 📋 TODO — Silent Controller (v0.8.0)
 
-> **Basato su**: `documentations/PLAN_TERMINAL_START_MENU.md` v1.0
-> **Design di riferimento**: `documentations/DESIGN_TERMINAL_START_MENU.md` v1.2 (READY)
-> **Branch di lavoro**: `feature/terminal-start-menu`
-> **Versione target**: `v0.7.0`
-> **Ultimo aggiornamento**: 2026-02-19
-
----
-
-## 🚨 Regole Architetturali (ricordare sempre)
-
-> Questi vincoli si applicano a **ogni** commit. Copilot deve rispettarli senza eccezioni.
-
-- **Separazione dei layer**: `TerminalUI` (Interface Layer) consuma **solo** `game_controller.py` (Application Layer). Vietato importare direttamente dal Domain (`partita.py`, `giocatore_base.py`, ecc.).
-- **Zero stringhe hardcoded**: ogni testo visibile all'utente deve provenire da `MESSAGGI_CONFIGURAZIONE` o `MESSAGGI_ERRORI` in `it.py`. Nessun `print("testo")` letterale in `ui_terminale.py`.
-- **Logger centralizzato**: usare sempre `logging.getLogger(__name__)`. Non usare `print()` per debug. Prefisso `[TUI]` per tutti i messaggi di log dell'interfaccia.
-- **Contratto API obbligatorio**: il metodo del Controller è sempre il two-step `crea_partita_standard()` + `avvia_partita_sicura()`. Nessun altro metodo di avvio esiste.
+> **Basato su**: `documentations/PLAN_SILENT_CONTROLLER.md`  
+> **Design di riferimento**: `documentations/DESIGN_SILENT_CONTROLLER.md` (DESIGN FREEZE ✅ 2026-02-20)  
+> **Branch di lavoro**: `feature/silent-controller-v0.8.0`  
+> **Versione target**: `v0.8.0`  
+> **Tipo**: REFACTOR  
+> **Priorità**: HIGH  
+> **Stato**: READY 🔵  
+> **Ultimo aggiornamento**: 2026-02-20
 
 ---
 
-## COMMIT 1 — Infrastruttura Chiavi
+## 📖 Riferimento Documentazione
 
-**File**: `bingo_game/events/codici_configurazione.py` (CREARE)
-**Messaggio commit**: `feat(events): add codici_configurazione.py with 9 config key constants`
+Prima di iniziare qualsiasi implementazione, consultare obbligatoriamente:
+`documentations/PLAN_SILENT_CONTROLLER.md`
 
-### Task
-
-- [x] Creare il file `bingo_game/events/codici_configurazione.py`
-- [x] Aggiungere docstring modulo con descrizione, pattern di riferimento e `Version: v0.7.0`
-- [x] Definire `from __future__ import annotations`
-- [x] Definire il tipo alias `Codici_Configurazione = str`
-- [x] Aggiungere costante `CONFIG_BENVENUTO: Codici_Configurazione = "CONFIG_BENVENUTO"`
-- [x] Aggiungere costante `CONFIG_CONFERMA_AVVIO: Codici_Configurazione = "CONFIG_CONFERMA_AVVIO"`
-- [x] Aggiungere costante `CONFIG_RICHIESTA_NOME: Codici_Configurazione = "CONFIG_RICHIESTA_NOME"`
-- [x] Aggiungere costante `CONFIG_RICHIESTA_BOT: Codici_Configurazione = "CONFIG_RICHIESTA_BOT"`
-- [x] Aggiungere costante `CONFIG_RICHIESTA_CARTELLE: Codici_Configurazione = "CONFIG_RICHIESTA_CARTELLE"`
-- [x] Aggiungere costante `CONFIG_ERRORE_NOME_VUOTO: Codici_Configurazione = "CONFIG_ERRORE_NOME_VUOTO"`
-- [x] Aggiungere costante `CONFIG_ERRORE_NOME_TROPPO_LUNGO: Codici_Configurazione = "CONFIG_ERRORE_NOME_TROPPO_LUNGO"`
-- [x] Aggiungere costante `CONFIG_ERRORE_BOT_RANGE: Codici_Configurazione = "CONFIG_ERRORE_BOT_RANGE"`
-- [x] Aggiungere costante `CONFIG_ERRORE_CARTELLE_RANGE: Codici_Configurazione = "CONFIG_ERRORE_CARTELLE_RANGE"`
-- [x] Verificare coerenza di stile con `bingo_game/events/codici_errori.py` (pattern di riferimento)
-- [x] Verificare: `python -m py_compile bingo_game/events/codici_configurazione.py` → nessun errore
-
-### Criterio di Successo
-
-> Il commit è completo quando:
-> `python -c "from bingo_game.events.codici_configurazione import CONFIG_BENVENUTO; print('OK')"` stampa `OK` senza errori.
+Questo file TODO è solo un sommario operativo da consultare e aggiornare durante ogni fase dell'implementazione.
+Il piano completo contiene analisi, architettura, edge case e dettagli tecnici completi.
 
 ---
 
-## COMMIT 2 — Localizzazione
+## 🤖 Istruzioni per Copilot Agent
 
-**File**: `bingo_game/ui/locales/it.py` (ESTENDERE)
-**Messaggio commit**: `feat(locales): add MESSAGGI_CONFIGURAZIONE dict to it.py (9 keys)`
+Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 
-### Task
+**Workflow per ogni commit:**
 
-- [x] Aprire `bingo_game/ui/locales/it.py` e leggere il contenuto attuale
-- [x] Aggiungere in testa al file (insieme agli altri import di `codici_*`):
-  `from bingo_game.events.codici_configurazione import Codici_Configurazione`
-- [x] Verificare che `MappingProxyType` e `Mapping` siano già importati (lo sono)
-- [x] Aggiungere in **coda al file** (dopo tutti gli altri dizionari esistenti) il dizionario:
-  `MESSAGGI_CONFIGURAZIONE: Mapping[Codici_Configurazione, tuple[str, ...]] = MappingProxyType({...})`
-- [x] Inserire la chiave `"CONFIG_BENVENUTO": ("Benvenuto in Tombola Stark!",)`
-- [x] Inserire la chiave `"CONFIG_CONFERMA_AVVIO": ("Configurazione completata. Avvio partita...",)`
-- [x] Inserire la chiave `"CONFIG_RICHIESTA_NOME": ("Inserisci il tuo nome (max 15 caratteri): ",)`
-- [x] Inserire la chiave `"CONFIG_RICHIESTA_BOT": ("Inserisci il numero di bot (1-7): ",)`
-- [x] Inserire la chiave `"CONFIG_RICHIESTA_CARTELLE": ("Inserisci il numero di cartelle (1-6): ",)`
-- [x] Inserire la chiave `"CONFIG_ERRORE_NOME_VUOTO": ("Errore: Nome non valido.", "Inserisci almeno un carattere.",)`
-- [x] Inserire la chiave `"CONFIG_ERRORE_NOME_TROPPO_LUNGO": ("Errore: Nome troppo lungo.", "Inserisci al massimo 15 caratteri.",)`
-- [x] Inserire la chiave `"CONFIG_ERRORE_BOT_RANGE": ("Errore: Numero bot non valido.", "Inserisci un valore tra 1 e 7.",)`
-- [x] Inserire la chiave `"CONFIG_ERRORE_CARTELLE_RANGE": ("Errore: Numero cartelle non valido.", "Inserisci un valore tra 1 e 6.",)`
-- [x] Verificare che i dizionari esistenti non siano stati modificati
-- [x] Verificare: `python -m py_compile bingo_game/ui/locales/it.py` → nessun errore
+1. **Leggi questo TODO** → identifica il prossimo commit da implementare
+2. **Consulta il piano completo** → rivedi la sezione pertinente in `PLAN_SILENT_CONTROLLER.md`
+3. **Implementa modifiche** → codifica solo il commit corrente (scope limitato)
+4. **Verifica meccanica** → esegui il comando di verifica indicato nel task
+5. **Commit atomico** → messaggio conventional, scope chiaro, riferimento fase
+6. **Aggiorna questo TODO** → spunta le checkbox completate
+7. **RIPETI** → passa al commit successivo (torna al punto 1)
 
-### Criterio di Successo
+⚠️ **REGOLE FONDAMENTALI:**
 
-> Il commit è completo quando:
-> `python -c "from bingo_game.ui.locales.it import MESSAGGI_CONFIGURAZIONE; print(len(MESSAGGI_CONFIGURAZIONE))"` stampa `9`.
+- ✅ **Un commit per fase logica** (no mega-commit con tutto)
+- ✅ **Dopo ogni commit**: aggiorna questo TODO spuntando le checkbox
+- ✅ **Prima di ogni fase**: rileggi la sezione pertinente nel piano completo
+- ✅ **Approccio sequenziale**: la Fase 2 dipende dalla Fase 1; non saltare l'ordine
+- ✅ **Commit message format**: `type(scope): description [CX/9]`
+- ❌ **NO commit multipli senza aggiornare TODO** (perde tracciabilità)
+- ❌ **NO implementazione completa in un colpo** (viola incrementalità)
 
 ---
 
-## COMMIT 3 — Implementazione Core UI
+## ⚠️ Attenzioni Tecniche (Leggere PRIMA di ogni fase)
 
-**File**: `bingo_game/ui/ui_terminale.py` (IMPLEMENTARE — attualmente vuoto)
-**Messaggio commit**: `feat(ui): implement TerminalUI class with sequential state machine A-E`
+> Questi tre punti sono prerequisiti di correttezza architetturale. Verificarli attivamente, non darli per scontati.
 
-### Task — Struttura Classe
+### AT-1 — Verifica Baseline (prima di qualsiasi modifica)
 
-- [x] Aggiungere `from __future__ import annotations` e docstring modulo
-- [x] Importare `logging` (libreria standard)
-- [x] Importare `MESSAGGI_CONFIGURAZIONE` e `MESSAGGI_ERRORI` da `bingo_game.ui.locales.it`
-- [x] Importare `crea_partita_standard` e `avvia_partita_sicura` da `bingo_game.game_controller`
-- [x] Importare `TerminalRenderer` da `bingo_game.ui.renderers.renderer_terminal`
-- [x] Definire `logger = logging.getLogger(__name__)` a livello modulo
-- [x] Definire costanti modulo: `_LUNGHEZZA_MAX_NOME = 15`, `_BOT_MIN = 1`, `_BOT_MAX = 7`, `_CARTELLE_MIN = 1`, `_CARTELLE_MAX = 6`
-- [x] Creare classe `TerminalUI` con docstring Google-style completa
+- [ ] Eseguire `python -m pytest tests/ -q` **prima** di iniziare il commit C4
+- [ ] Verificare che tutti i test esistenti siano **verdi** (0 failed, 0 error)
+- [ ] Annotare il numero di test che passano come baseline di riferimento
+- [ ] Se ci sono test falliti pre-esistenti: **segnalare e non procedere** finché non sono risolti
 
-### Task — Metodo `__init__`
+> **Motivazione**: il refactoring del controller (Fase 2) è ad alto impatto. Partire da una baseline verde garantisce che qualsiasi regressione introdotta sia attribuibile univocamente alle modifiche di questa feature.
 
-- [x] Istanziare `self._renderer = TerminalRenderer()` (per Fase 2+, non usato ora)
-- [x] Aggiungere `logger.debug("[TUI] TerminalUI inizializzata.")`
-- [x] Aggiungere docstring con nota su `_renderer` e `Version: v0.7.0`
+### AT-2 — Prevenzione Circolarità Import
 
-### Task — Metodo `avvia()` (entry point pubblico)
+- [ ] Dopo C1 (creazione `codici_controller.py`): verificare che il file non importi nulla da `bingo_game.ui.*`
+- [ ] Dopo C2 (modifica `it.py`): eseguire `python -c "from bingo_game.ui.locales.it import MESSAGGI_CONTROLLER"` → deve completarsi **senza `ImportError`**
+- [ ] Verificare che il grafo delle dipendenze rispetti la direzione: `events/ ← locales/` (mai il contrario)
+- [ ] Regola da rispettare: `codici_controller.py` ha **zero import** da qualsiasi modulo del progetto (solo letterali stringa)
 
-- [x] Aggiungere `logger.info("[TUI] Avvio configurazione partita.")` (**INFO** obbligatorio)
-- [x] Chiamare `self._mostra_benvenuto()`
-- [x] Chiamare `nome = self._chiedi_nome()`
-- [x] Chiamare `numero_bot = self._chiedi_bot()`
-- [x] Chiamare `numero_cartelle = self._chiedi_cartelle()`
-- [x] Chiamare `self._avvia_partita(nome, numero_bot, numero_cartelle)`
+> **Motivazione**: `bingo_game/events/` è un layer inferiore rispetto a `bingo_game/ui/`. Un import circolare `events → ui → events` causerebbe un `ImportError` silenzioso difficile da diagnosticare.
 
-### Task — Metodo `_mostra_benvenuto()` (Stato A)
+### AT-3 — Prefissi di Logging Context
 
-- [x] Aggiungere `logger.debug("[TUI] Stato A: BENVENUTO")` (**DEBUG** transizione)
-- [x] Chiamare `self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_BENVENUTO"])`
+- [ ] Ogni nuova chiamata `_log_safe()` in `game_controller.py` deve usare il prefisso corretto:
+  - `[GAME]` per log via `_logger_game` (costruzione, turni, stato)
+  - `[PRIZES]` per log via `_logger_prizes` (premi, tombola)
+  - `[SYS]` per log via `_logger_system` (stati inattesi infrastruttura)
+  - `[ERR]` per log via `_logger_errors` (parametri errati, eccezioni impreviste)
+- [ ] Verificare i prefissi dopo C4, C5 e C6 con: `grep -n "_log_safe" bingo_game/game_controller.py`
+- [ ] Nessun log deve usare `[CTRL]` come prefisso (prefisso riservato alla TUI in futuro)
+- [ ] I nuovi messaggi di log devono essere in italiano o inglese tecnico: **mai con emoji** (✅❌🎉)
 
-### Task — Metodo `_chiedi_nome()` (Stato B)
-
-- [x] Aggiungere `logger.debug("[TUI] Stato B: ATTESA_NOME")` (**DEBUG** transizione)
-- [x] Implementare loop `while True:`
-- [x] Acquisire `input_raw = self._chiedi_input("CONFIG_RICHIESTA_NOME")`
-- [x] Applicare `nome = input_raw.strip()` (OBBLIGATORIO: primo passo)
-- [x] Aggiungere `logger.debug(f"[TUI] Nome dopo strip: '{nome}' (len={len(nome)})")` (**DEBUG** sanitizzazione)
-- [x] Controllo vuoto: `if len(nome) == 0:` → `logger.warning(...)` (**WARNING** obbligatorio) + `self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_ERRORE_NOME_VUOTO"])` + `continue`
-- [x] Controllo lunghezza: `if len(nome) > _LUNGHEZZA_MAX_NOME:` → `logger.warning(...)` (**WARNING** obbligatorio) + `self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_ERRORE_NOME_TROPPO_LUNGO"])` + `continue`
-- [x] Aggiungere `logger.debug(f"[TUI] Nome valido acquisito: '{nome}'")` (**DEBUG**) + `return nome`
-- [x] Verificare ordine priorità: (1) strip → (2) non vuoto → (3) len ≤ 15
-
-### Task — Metodo `_chiedi_bot()` (Stato C)
-
-- [x] Aggiungere `logger.debug("[TUI] Stato C: ATTESA_BOT")` (**DEBUG** transizione)
-- [x] Implementare loop `while True:`
-- [x] Acquisire `input_raw = self._chiedi_input("CONFIG_RICHIESTA_BOT")`
-- [x] Try/except `int(input_raw)` → `except ValueError:` → `logger.warning(...)` (**WARNING**) + `self._stampa_righe(MESSAGGI_ERRORI["NUMERO_TIPO_NON_VALIDO"])` + `continue`
-- [x] Controllo range: `if not (_BOT_MIN <= valore <= _BOT_MAX):` → `logger.warning(...)` (**WARNING**) + `self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_ERRORE_BOT_RANGE"])` + `continue`
-- [x] Aggiungere `logger.debug(f"[TUI] Numero bot valido: {valore}")` + `return valore`
-- [x] Verificare riuso `MESSAGGI_ERRORI["NUMERO_TIPO_NON_VALIDO"]` (non creare chiave duplicata)
-
-### Task — Metodo `_chiedi_cartelle()` (Stato D)
-
-- [x] Aggiungere `logger.debug("[TUI] Stato D: ATTESA_CARTELLE")` (**DEBUG** transizione)
-- [x] Implementare loop `while True:`
-- [x] Acquisire `input_raw = self._chiedi_input("CONFIG_RICHIESTA_CARTELLE")`
-- [x] Try/except `int(input_raw)` → `except ValueError:` → `logger.warning(...)` (**WARNING**) + `self._stampa_righe(MESSAGGI_ERRORI["NUMERO_TIPO_NON_VALIDO"])` + `continue`
-- [x] Controllo range: `if not (_CARTELLE_MIN <= valore <= _CARTELLE_MAX):` → `logger.warning(...)` (**WARNING**) + `self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_ERRORE_CARTELLE_RANGE"])` + `continue`
-- [x] Aggiungere `logger.debug(f"[TUI] Numero cartelle valido: {valore}")` + `return valore`
-- [x] Ricordare: limite 1–6 è scelta UX (screen reader), non vincolo del Controller
-
-### Task — Metodo `_avvia_partita()` (Stato E)
-
-- [x] Aggiungere `logger.debug("[TUI] Stato E: AVVIO_PARTITA")` (**DEBUG** transizione)
-- [x] Chiamare `self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_CONFERMA_AVVIO"])` (PRIMA del Controller)
-- [x] Chiamare `partita = crea_partita_standard(nome_giocatore_umano=nome, num_cartelle_umano=numero_cartelle, num_bot=numero_bot)`
-- [x] Chiamare `avvia_partita_sicura(partita)`
-- [x] Aggiungere `logger.info(f"[TUI] Configurazione completata. nome='{nome}', bot={numero_bot}, cartelle={numero_cartelle}.")` (**INFO** obbligatorio)
-
-### Task — Helper Privati
-
-- [x] Implementare `_stampa_righe(self, righe: tuple[str, ...]) -> None`: loop `for riga in righe: print(riga)`
-- [x] Implementare `_chiedi_input(self, chiave_prompt: str) -> str`: `return input(MESSAGGI_CONFIGURAZIONE[chiave_prompt][0])`
-- [x] Aggiungere docstring Google-style a entrambi gli helper
-
-### Task — Verifica Post-Implementazione
-
-- [x] Nessuna stringa hardcoded: `grep -n '"Benvenuto\|"Inserisci\|"Errore\|"Configurazione' bingo_game/ui/ui_terminale.py` deve restituire **0 righe**
-- [x] Nessun import dal Domain layer (`partita.py`, `giocatore_base.py`, ecc.)
-- [x] Verifica sintassi: `python -m py_compile bingo_game/ui/ui_terminale.py`
-- [x] Verifica import: `python -c "from bingo_game.ui.ui_terminale import TerminalUI; print('OK')"`
-
-### Criterio di Successo
-
-> Il commit è completo quando:
-> - `python -c "from bingo_game.ui.ui_terminale import TerminalUI; print('OK')"` stampa `OK`
-> - I log `[TUI]` compaiono nel file di log eseguendo manualmente `python main.py` con input validi
-> - I 3 livelli di log sono presenti: almeno un `INFO`, un `WARNING` (inserendo un input errato), un `DEBUG`
+> **Motivazione**: i prefissi `[GAME]`, `[SYS]`, `[ERR]` permettono il filtraggio del log con `grep "\[ERR\]" tombola_stark.log` senza dover conoscere il nome del modulo. Questa convenzione è già stabilita nel `DESIGN_LOGGING_SYSTEM.md`.
 
 ---
 
-## COMMIT 4 — Integrazione Entry Point
+## 🎯 Obiettivo Implementazione
 
-**File**: `main.py` (AGGIORNARE)
-**Messaggio commit**: `feat(main): wire TerminalUI to application entry point`
-
-### Task
-
-- [x] Leggere il contenuto attuale di `main.py` prima di modificare
-- [x] Aggiungere import: `from bingo_game.ui.ui_terminale import TerminalUI`
-- [x] Verificare se esiste già una funzione `main()`: in caso sì, integrare senza sovrascrivere
-- [x] Aggiungere istanziazione e avvio: `tui = TerminalUI()` + `tui.avvia()`
-- [x] Assicurarsi che il blocco `if __name__ == "__main__":` chiami `main()`
-- [x] Verificare sintassi: `python -m py_compile main.py`
-- [x] Test rapido di avvio manuale: `python main.py` → compare il messaggio di benvenuto
-
-### Criterio di Successo
-
-> Il commit è completo quando:
-> `python main.py` avvia il flusso di configurazione completo senza errori e permette di inserire nome, bot e cartelle.
-> Questo abilita anche l’esecuzione manuale del Protocollo TC01–TC05.
+- Eliminare le ~22 chiamate `print()` da `game_controller.py`, rendendolo completamente silenzioso verso stdout
+- Sostituire i `print()` con `_log_safe()` verso i sub-logger già esistenti (Gruppi A e D) o rimuoverli (Gruppo B)
+- Aggiungere `MESSAGGI_CONTROLLER` in `it.py` per permettere alla TUI di mostrare messaggi localizzati in risposta ai valori di ritorno del controller
+- Verificare il silenzio con test `capsys` su tutte le funzioni pubbliche del controller
+- Aggiornare la documentazione (`API.md`, `ARCHITECTURE.md`, `CHANGELOG.md`) nella stessa PR
 
 ---
 
-## COMMIT 5 — Testing
+## 📂 File Coinvolti
 
-**File**: `tests/unit/test_ui_terminale.py` (CREARE)
-**Messaggio commit**: `test(ui): add unit tests for TerminalUI validation loops (7 tests)`
-
-### Task — Setup File di Test
-
-- [x] Creare il file `tests/unit/test_ui_terminale.py`
-- [x] Aggiungere `from __future__ import annotations` e docstring modulo con riferimento ai TC
-- [x] Importare `from unittest.mock import patch, MagicMock`
-- [x] Importare `import pytest`
-- [x] Importare `from bingo_game.ui.ui_terminale import TerminalUI`
-
-### Task — Classe `TestValidazioneNome` (Stato B)
-
-- [x] Implementare `test_tc01_nome_vuoto_dopo_strip`: input `["   ", "Marco"]` → verifica errore `"Errore: Nome non valido."` + ritorno `"Marco"`
-- [x] Implementare `test_tc02_nome_troppo_lungo`: input `["NomeMoltoLungoOltreQuindici", "Marco"]` → verifica errore `"Errore: Nome troppo lungo."`
-- [x] Implementare `test_strip_applicato_prima_del_check`: input `"  Marco  "` → ritorno `"Marco"` (nessun errore, strip corretto)
-
-### Task — Classe `TestValidazioneBot` (Stato C)
-
-- [x] Implementare `test_tc03_bot_sotto_range`: input `["0", "3"]` → verifica errore `"Errore: Numero bot non valido."`
-- [x] Implementare `test_tc03_bot_sopra_range`: input `["9", "3"]` → verifica errore `"Errore: Numero bot non valido."`
-- [x] Implementare `test_bot_tipo_non_valido`: input `["tre", "3"]` → verifica errore `"Errore: Tipo non valido."` (riuso `MESSAGGI_ERRORI`)
-
-### Task — Classe `TestValidazioneCartelle` (Stato D)
-
-- [x] Implementare `test_tc04_cartelle_fuori_range`: input `["7", "2"]` → verifica errore `"Errore: Numero cartelle non valido."`
-
-### Task — Classe `TestFlussoFelice`
-
-- [x] Implementare `test_flusso_felice_completo`: input `["Marco", "3", "2"]` → verifica `crea_partita_standard(nome_giocatore_umano="Marco", num_cartelle_umano=2, num_bot=3)` chiamato correttamente
-- [x] Verifica `avvia_partita_sicura(mock_partita)` chiamata con l’oggetto restituito da `crea_partita_standard`
-
-### Task — Esecuzione Unit Test
-
-- [x] Eseguire: `python -m pytest tests/unit/test_ui_terminale.py -v`
-- [x] Verificare: **tutti e 8 i test verdi** prima di procedere al Commit 6
-- [x] In caso di fallimento: consultare sezione "Troubleshooting" del `PLAN_TERMINAL_START_MENU.md`
-
-### Task — Protocollo di Verifica Manuale TC01–TC05
-
-> Eseguire `python main.py` e seguire manualmente ogni test case
-
-- [ ] **TC01**: inserire `"   "` (3 spazi) come nome → atteso: errore `CONFIG_ERRORE_NOME_VUOTO` + re-prompt
-- [ ] **TC02**: inserire `"NomeMoltoLungoOltreQuindici"` (28 char) come nome → atteso: errore `CONFIG_ERRORE_NOME_TROPPO_LUNGO`
-- [ ] **TC03**: inserire `"0"` come numero bot → atteso: errore `CONFIG_ERRORE_BOT_RANGE`; poi inserire `"9"` → stesso errore
-- [ ] **TC04**: inserire `"7"` come numero cartelle → atteso: errore `CONFIG_ERRORE_CARTELLE_RANGE`
-- [ ] **TC05**: eseguire l’intero flusso con **screen reader attivo** (NVDA / JAWS / Orca):
-  - [ ] Il messaggio di benvenuto viene letto all’avvio
-  - [ ] Ogni prompt viene letto prima dell’attesa input
-  - [ ] Gli errori vengono letti PRIMA del re-prompt
-  - [ ] Nessun artefatto grafico vocalizzato (nessun box, nessuna emoji)
-  - [ ] La conferma di avvio viene letta prima del passaggio alla Fase 2
-
-### Criterio di Successo
-
-> Il commit è completo quando:
-> - `pytest tests/unit/test_ui_terminale.py` restituisce **7 passed, 0 failed**
-> - I 5 test case manuali (TC01–TC05) sono stati eseguiti e smarcati
+- `bingo_game/events/codici_controller.py` → **CREATE** (C1)
+- `bingo_game/ui/locales/it.py` → **MODIFY** (C2)
+- `bingo_game/ui/locales/__init__.py` → **MODIFY** (C3)
+- `bingo_game/game_controller.py` → **MODIFY** (C4, C5, C6)
+- `bingo_game/ui/ui_terminale.py` → **MODIFY** (C7)
+- `tests/test_silent_controller.py` → **CREATE** (C8)
+- `documentations/API.md` → **UPDATE** (C9)
+- `documentations/ARCHITECTURE.md` → **UPDATE** (C9)
+- `documentations/CHANGELOG.md` → **UPDATE** (C9)
 
 ---
 
-## COMMIT 6 — Chiusura Documentale
+## 🛠️ Checklist Implementazione
 
-**File**: 5 file di documentazione (AGGIORNARE)
-**Messaggio commit**: `docs: update README, CHANGELOG, API, ARCHITECTURE, LOGGING for v0.7.0`
+---
 
-### Task — `README.md`
+### COMMIT 1 (C1) — Infrastruttura Costanti
 
-- [x] Aggiungere o aggiornare la sezione "Avvio" con il comando: `python main.py`
-- [x] Aggiungere descrizione breve del flusso di configurazione (nome → bot → cartelle)
-- [x] Aggiungere nota accessibilità: compatibile con screen reader NVDA/JAWS/Orca
-- [x] Verificare che la versione indicata nel README sia allineata a `v0.7.0`
+**File**: `bingo_game/events/codici_controller.py` (CREATE)  
+**Messaggio**: `feat(events): add codici_controller.py — 4 CTRL_* string constants [C1/9]`
 
-### Task — `CHANGELOG.md`
+- [ ] Creare `bingo_game/events/codici_controller.py` con docstring di modulo
+- [ ] Definire `CTRL_AVVIO_FALLITO_GENERICO: str = "ctrl.avvio_fallito_generico"`
+- [ ] Definire `CTRL_TURNO_NON_IN_CORSO: str = "ctrl.turno_non_in_corso"`
+- [ ] Definire `CTRL_NUMERI_ESAURITI: str = "ctrl.numeri_esauriti"`
+- [ ] Definire `CTRL_TURNO_FALLITO_GENERICO: str = "ctrl.turno_fallito_generico"`
+- [ ] Verificare che il file **non contenga nessun import** da moduli del progetto
+- [ ] Eseguire `python -m py_compile bingo_game/events/codici_controller.py` → zero errori
+- [ ] Eseguire `python -c "from bingo_game.events.codici_controller import CTRL_AVVIO_FALLITO_GENERICO; print(CTRL_AVVIO_FALLITO_GENERICO)"` → output: `ctrl.avvio_fallito_generico`
+- [ ] Verificare AT-2: nessun import circolare possibile (file di soli letterali)
 
-- [x] Aggiungere nuova sezione `## [v0.7.0] - 2026-xx-xx` in cima alla lista versioni
-- [x] Sezione `### Aggiunto`:
-  - `TerminalUI`: interfaccia da terminale, flusso configurazione pre-partita (Fase 1)
-  - `codici_configurazione.py`: 9 costanti-chiave per localizzazione configurazione
-  - `MESSAGGI_CONFIGURAZIONE` in `it.py`: 9 chiavi con testi italiani
-  - `tests/unit/test_ui_terminale.py`: 7 unit test (mock input/print)
-- [ ] Sezione `### Modificato`:
-  - `main.py`: aggiunto entry point `TerminalUI.avvia()`
-  - `it.py`: esteso con dizionario `MESSAGGI_CONFIGURAZIONE`
+**Criterio di done C1**: 4 costanti importabili, nessun import interno, py_compile verde.
 
-### Task — `API.md`
+---
 
-- [x] Aggiungere sezione dedicata `TerminalUI` (Interface Layer)
-- [x] Documentare il metodo pubblico: `TerminalUI.avvia() -> None`
-- [x] Includere: descrizione, side effects (avvia la partita), dipendenze (GameController), note di accessibilità
-- [x] Specificare che è l’unico metodo pubblico consumabile da `main.py`
+### COMMIT 2 (C2) — Localizzazione Controller
 
-### Task — `ARCHITECTURE.md`
+**File**: `bingo_game/ui/locales/it.py` (MODIFY)  
+**Messaggio**: `feat(locales): add MESSAGGI_CONTROLLER to it.py with typed import [C2/9]`
 
-- [x] Aggiungere `TerminalUI` nel diagramma del layer Interface
-- [x] Aggiornare il flusso TUI: `main.py` → `TerminalUI` → `GameController`
-- [x] Specificare che `TerminalRenderer` è istanziato in `TerminalUI.__init__` ma usato dalla Fase 2+
+- [ ] Leggere il contenuto attuale di `it.py` prima di modificare (evitare sovrascritture)
+- [ ] Aggiungere in cima al file l'import delle 4 costanti da `codici_controller`:
+  ```python
+  from bingo_game.events.codici_controller import (
+      CTRL_AVVIO_FALLITO_GENERICO,
+      CTRL_TURNO_NON_IN_CORSO,
+      CTRL_NUMERI_ESAURITI,
+      CTRL_TURNO_FALLITO_GENERICO,
+  )
+  ```
+- [ ] Aggiungere in coda al file il dizionario `MESSAGGI_CONTROLLER: dict[str, str]` con 4 chiavi
+- [ ] Verificare i 4 testi italiani corrispondono esattamente al DESIGN (nessuna variazione)
+- [ ] Verificare che i dizionari pre-esistenti (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, ecc.) **non siano stati modificati**
+- [ ] Eseguire `python -m py_compile bingo_game/ui/locales/it.py` → zero errori
+- [ ] Eseguire `python -c "from bingo_game.ui.locales.it import MESSAGGI_CONTROLLER; print(len(MESSAGGI_CONTROLLER))"` → output: `4`
+- [ ] Eseguire AT-2: `python -c "from bingo_game.ui.locales.it import MESSAGGI_CONTROLLER"` → **nessun `ImportError`**
 
-### Task — `DESIGN_LOGGING_SYSTEM.md`
+**Criterio di done C2**: `MESSAGGI_CONTROLLER` con 4 chiavi importabile, nessun ImportError, dizionari esistenti intatti.
 
-- [x] Aggiungere sezione o tabella con i nuovi eventi `[TUI]`
-- [x] Registrare: `INFO` — avvio configurazione, configurazione completata
-- [x] Registrare: `WARNING` — nome vuoto, nome troppo lungo, bot tipo non valido, bot fuori range, cartelle tipo non valido, cartelle fuori range
-- [x] Registrare: `DEBUG` — transizioni di stato (A→B→C→D→E), valori dopo `.strip()`, valori validati
+---
 
-### Criterio di Successo
+### COMMIT 3 (C3) — Export dal Package Locales
 
-> Il commit è completo quando tutti e 5 i file sono stati aggiornati e il branch `feature/terminal-start-menu` è pronto per il merge in `main`.
+**File**: `bingo_game/ui/locales/__init__.py` (MODIFY)  
+**Messaggio**: `feat(locales): export MESSAGGI_CONTROLLER from locales __init__ [C3/9]`
+
+- [ ] Leggere il contenuto attuale di `__init__.py` prima di modificare
+- [ ] Aggiungere `from bingo_game.ui.locales.it import MESSAGGI_CONTROLLER` nella sezione export
+- [ ] Verificare che segua il pattern degli altri export già presenti (es. `MESSAGGI_CONFIGURAZIONE`)
+- [ ] Verificare che gli export pre-esistenti **non siano stati rimossi o alterati**
+- [ ] Eseguire `python -c "from bingo_game.ui.locales import MESSAGGI_CONTROLLER; print(type(MESSAGGI_CONTROLLER))"` → output: `<class 'dict'>`
+
+**Criterio di done C3**: `MESSAGGI_CONTROLLER` importabile da `bingo_game.ui.locales` (path corto), export esistenti intatti.
+
+---
+
+### ⚠️ PRE-FASE 2 — Verifica Baseline (AT-1)
+
+> Eseguire questi check **prima** di iniziare C4. Non procedere se falliscono.
+
+- [ ] `python -m pytest tests/ -q` → annotare numero di test verdi come baseline
+- [ ] `grep -n "print(" bingo_game/game_controller.py` → annotare numero di occorrenze (baseline ~22)
+- [ ] Nessun test fallito pre-esistente: se ci sono fallimenti, segnalare e bloccare
+
+---
+
+### COMMIT 4 (C4) — Refactoring Gruppo A
+
+**File**: `bingo_game/game_controller.py` (MODIFY)  
+**Messaggio**: `refactor(controller): replace print() Gruppo A with _log_safe DEBUG [C4/9]`
+
+> Gruppo A = 11 `print()` di scaffolding costruzione partita → `_log_safe` livello DEBUG via `_logger_game`
+
+- [ ] Sostituire `print("Creazione tabellone standard...")` con `_log_safe("[GAME] crea_partita_standard: tabellone creato.", logging.DEBUG, logger=_logger_game)`
+- [ ] Sostituire `print(f"Creazione giocatore umano '{nome}'...")` con log DEBUG equivalente
+- [ ] Sostituire `print(f"Creazione {n} bot automatici...")` con log DEBUG equivalente
+- [ ] Sostituire `print(f"Partita composta da {n} giocatori totali")` con log DEBUG equivalente
+- [ ] Sostituire `print("Inizializzazione oggetto Partita...")` con log DEBUG equivalente
+- [ ] Sostituire `print("✅ Partita standard creata con successo!")` con log DEBUG equivalente
+- [ ] Sostituire `print(f"📸 Stato partita '...'...")` con log DEBUG equivalente
+- [ ] Sostituire `print(f"🔍 Controllo tombola:...")` con log DEBUG equivalente
+- [ ] Sostituire `print("⏳ Nessuna tombola, gioco continua...")` con log DEBUG equivalente
+- [ ] Sostituire `print(f"🔍 Controllo fine partita:...")` con log DEBUG equivalente
+- [ ] Sostituire `print("▶️ Partita in corso - continua il loop")` con log DEBUG equivalente
+- [ ] Verificare AT-3: ogni nuova riga `_log_safe` usa prefisso `[GAME]` e nessuna emoji
+- [ ] `python -m pytest tests/ -q` → nessuna regressione rispetto alla baseline
+- [ ] `grep -n "print(" bingo_game/game_controller.py` → ~11 righe residue (Gruppi B, C, D)
+
+**Criterio di done C4**: 11 print Gruppo A rimossi, test verdi, prefissi [GAME] corretti.
+
+---
+
+### COMMIT 5 (C5) — Refactoring Gruppo B+C
+
+**File**: `bingo_game/game_controller.py` (MODIFY)  
+**Messaggio**: `refactor(controller): replace print() Gruppo B+C — remove output, log WARNING [C5/9]`
+
+> Gruppo B = 5 `print()` di output di stato → rimozione secca (la TUI legge il valore di ritorno)  
+> Gruppo C = 7 `print()` di errori utente → rimozione + `_log_safe` WARNING via `_logger_errors` / `_logger_game`
+
+**Gruppo B — rimozione secca:**
+
+- [ ] Rimuovere `print("✅ Partita avviata con successo!")` → la TUI legge `True`
+- [ ] Rimuovere `print(f"✅ Turno #{n}: {numero}")` → la TUI legge `dict["numero_estratto"]`
+- [ ] Rimuovere `print(f"🎉 {n} nuovi premi!")` → la TUI legge `dict["premi_nuovi"]`
+- [ ] Rimuovere `print("🎉 TOMBOLA RILEVATA...")` → la TUI legge `dict["tombola_rilevata"]`
+- [ ] Rimuovere `print("🏁 Partita TERMINATA - esci dal loop")` → la TUI riceve `True` da `partita_terminata()`
+
+**Gruppo C — rimozione + log WARNING:**
+
+- [ ] Sostituire `print(f"❌ Impossibile avviare: {exc}")` con `_log_safe(f"[GAME] Avvio fallito: tipo='{type(exc).__name__}'.", logging.WARNING, logger=_logger_errors)`
+- [ ] Sostituire `print(f"❌ Partita già avviata: {exc}")` con log WARNING equivalente (stesso template)
+- [ ] Sostituire `print(f"❌ Errore partita generico: {exc}")` con log WARNING equivalente (stesso template)
+- [ ] Sostituire `print(f"❌ Impossibile turno: stato '...'")`  con `_log_safe("[GAME] esegui_turno_sicuro: stato '...' non in corso.", logging.WARNING, logger=_logger_game)`
+- [ ] Sostituire `print(f"🏁 Partita finita - Numeri esauriti: {exc}")` con log WARNING via `_logger_game`
+- [ ] Sostituire `print(f"❌ Turno fallito - Partita non in corso: {exc}")` con log WARNING via `_logger_game`
+- [ ] Sostituire `print(f"❌ Errore partita durante turno: {exc}")` con log WARNING via `_logger_game`
+- [ ] Verificare AT-3: prefissi `[GAME]` e `[ERR]` corretti per ogni sostituzione, zero emoji
+- [ ] `python -m pytest tests/ -q` → nessuna regressione
+- [ ] `grep -n "print(" bingo_game/game_controller.py` → ~5 righe residue (solo Gruppo D)
+
+**Criterio di done C5**: 12 print Gruppo B+C eliminati, test verdi, log WARNING presenti con tipo eccezione.
+
+---
+
+### COMMIT 6 (C6) — Refactoring Gruppo D
+
+**File**: `bingo_game/game_controller.py` (MODIFY)  
+**Messaggio**: `refactor(controller): replace print() Gruppo D with _log_safe ERROR [C6/9]`
+
+> Gruppo D = 5 `print()` di errori infrastruttura gravi → `_log_safe` livello ERROR/WARNING via `_logger_errors` / `_logger_system`
+
+- [ ] Sostituire `print(f"⚠️ Avvio completato ma stato inatteso: {stato}")` con `_log_safe(f"[SYS] avvia_partita_sicura: stato post-avvio inatteso='{stato}'.", logging.WARNING, logger=_logger_system)`
+- [ ] Sostituire `print("❌ ERRORE: Oggetto non è una Partita valida")` (in `avvia`) con `_log_safe(f"[ERR] avvia_partita_sicura: parametro non è Partita. tipo='{type(partita).__name__}'.", logging.ERROR, logger=_logger_errors)`
+- [ ] Sostituire `print("❌ ERRORE: Parametro non è una Partita valida")` (in `esegui_turno`) con `_log_safe(f"[ERR] esegui_turno_sicuro: parametro non è Partita. tipo='{type(partita).__name__}'.", logging.ERROR, logger=_logger_errors)`
+- [ ] Sostituire `print(f"💥 Errore critico imprevisto: {exc}")` (in `avvia`) con `_log_safe(f"[ERR] avvia_partita_sicura: eccezione imprevista. tipo='{type(exc).__name__}'.", logging.ERROR, logger=_logger_errors)`
+- [ ] Sostituire `print(f"💥 Errore critico imprevisto nel turno: {exc}")` con `_log_safe(f"[ERR] esegui_turno_sicuro: eccezione imprevista. tipo='{type(exc).__name__}'.", logging.ERROR, logger=_logger_errors)`
+- [ ] Verificare AT-3: prefissi `[SYS]` e `[ERR]` corretti, nessuna emoji
+- [ ] `python -m pytest tests/ -q` → nessuna regressione
+- [ ] **`grep -n "print(" bingo_game/game_controller.py` → ZERO RISULTATI** 🚨
+
+**Criterio di done C6**: `grep print(` restituisce zero. Il controller è silenzioso. Nessuna regressione.
+
+---
+
+### COMMIT 7 (C7) — Guardie TUI
+
+**File**: `bingo_game/ui/ui_terminale.py` (MODIFY)  
+**Messaggio**: `feat(ui): add MESSAGGI_CONTROLLER guards in ui_terminale.py [C7/9]`
+
+- [ ] Aggiungere import `from bingo_game.ui.locales import MESSAGGI_CONTROLLER`
+- [ ] Aggiungere import delle 4 costanti `CTRL_*` da `bingo_game.events.codici_controller`
+- [ ] Nel metodo che chiama `avvia_partita_sicura`: aggiungere guardia sul `False` con `MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO]`
+- [ ] Nel metodo che chiama `esegui_turno_sicuro`: aggiungere guardia sul `None` con `MESSAGGI_CONTROLLER[CTRL_TURNO_FALLITO_GENERICO]` come fallback
+- [ ] Catturare `ValueError` di `ottieni_stato_sintetico` con blocco `try/except ValueError`
+- [ ] Verificare che nessun nuovo testo sia hardcoded in `ui_terminale.py` (tutti i messaggi via `MESSAGGI_CONTROLLER`)
+- [ ] Verificare che nessun nuovo import dal Domain layer sia stato aggiunto
+- [ ] `python -m py_compile bingo_game/ui/ui_terminale.py` → zero errori
+- [ ] `python -m pytest tests/ -q` → nessuna regressione
+
+**Criterio di done C7**: TUI gestisce i tre casi di ritorno anomalo, nessun hardcoding, nessuna regressione.
+
+---
+
+### COMMIT 8 (C8) — Test di Non-Regressione
+
+**File**: `tests/test_silent_controller.py` (CREATE)  
+**Messaggio**: `test: add capsys non-regression tests for silent controller [C8/9]`
+
+- [ ] Creare `tests/test_silent_controller.py` con docstring di modulo
+- [ ] Implementare fixture `partita_mock` (Partita in stato `in_corso`)
+- [ ] Implementare fixture `partita_terminata_mock` (Partita in stato `terminata`)
+- [ ] **Classe `TestControllerSilenzioso`** (8 test `capsys.readouterr().out == ""`):
+  - [ ] `test_crea_partita_standard_silenzioso`
+  - [ ] `test_avvia_partita_sicura_true_silenzioso`
+  - [ ] `test_avvia_partita_sicura_false_silenzioso`
+  - [ ] `test_esegui_turno_sicuro_dict_silenzioso`
+  - [ ] `test_esegui_turno_sicuro_none_silenzioso`
+  - [ ] `test_partita_terminata_false_silenzioso`
+  - [ ] `test_partita_terminata_true_silenzioso`
+  - [ ] `test_ottieni_stato_sintetico_dict_silenzioso`
+- [ ] **Classe `TestContrattiRitorno`** (4 test):
+  - [ ] `test_avvia_partita_sicura_ritorna_true`
+  - [ ] `test_avvia_partita_sicura_ritorna_false_su_eccezione`
+  - [ ] `test_ottieni_stato_sintetico_lancia_valueerror_su_non_partita`
+  - [ ] `test_esegui_turno_sicuro_ritorna_none_su_partita_non_in_corso`
+- [ ] **Classe `TestMESSAGGICONTROLLER`** (3 test):
+  - [ ] `test_quattro_chiavi`
+  - [ ] `test_chiavi_sono_costanti_corrette`
+  - [ ] `test_valori_sono_stringhe_non_vuote`
+- [ ] Eseguire `python -m pytest tests/test_silent_controller.py -v` → **tutti 15 verdi**
+- [ ] Eseguire `python -m pytest tests/ -q` → nessuna regressione sull'intera suite
+
+**Criterio di done C8**: 15 test verdi, nessuna regressione.
+
+---
+
+### COMMIT 9 (C9) — Chiusura Documentale
+
+**File**: `documentations/API.md`, `documentations/ARCHITECTURE.md`, `documentations/CHANGELOG.md` (UPDATE)  
+**Messaggio**: `docs: update API.md, ARCHITECTURE.md, CHANGELOG.md for v0.8.0 [C9/9]`
+
+**`API.md`:**
+- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `crea_partita_standard`
+- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `avvia_partita_sicura`
+- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `esegui_turno_sicuro`
+- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `ottieni_stato_sintetico`
+- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `partita_terminata`
+- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `ha_partita_tombola`
+- [ ] Aggiornare le descrizioni con i contratti di ritorno corretti (vedi tabella in PLAN sezione 4.2.1)
+- [ ] Verifica: `grep -n "stdout\|print()" documentations/API.md` → zero riferimenti alle funzioni controller
+
+**`ARCHITECTURE.md`:**
+- [ ] Rimuovere la freccia `Controller → stdout` dal diagramma layer
+- [ ] Aggiornare il diagramma flusso dati: `game_controller → (bool/dict/None) → ui_terminale → stdout`
+- [ ] Aggiungere regola invariante: *"Il Controller non scrive mai su stdout"*
+- [ ] Aggiungere `bingo_game/events/codici_controller.py` alla mappa moduli con descrizione v0.8.0
+
+**`CHANGELOG.md`:**
+- [ ] Aggiungere sezione `## [v0.8.0] - 2026-02-20 Silent Controller`
+- [ ] Sezione `### Changed`: game_controller.py (rimozione ~22 print), ui_terminale.py (guardie)
+- [ ] Sezione `### Added`: codici_controller.py (4 costanti), MESSAGGI_CONTROLLER (4 voci), test_silent_controller.py (15 test)
+- [ ] Sezione `### Fixed`: accessibilità (rimozione emoji), architettura (eliminazione dipendenza Controller → stdout)
+
+**Criterio di done C9**: i 3 file documentali aggiornati, nessuna menzione di stdout/print() nelle firme del controller in API.md.
+
+---
+
+## ✅ Criteri di Completamento
+
+L'implementazione è considerata completa quando **tutte** queste condizioni sono soddisfatte:
+
+- [ ] `grep -n "print(" bingo_game/game_controller.py` → **zero risultati**
+- [ ] `python -m pytest tests/test_silent_controller.py` → **15 passed, 0 failed**
+- [ ] `python -m pytest tests/` → **nessuna regressione** rispetto alla baseline AT-1
+- [ ] `bingo_game/events/codici_controller.py` esiste con 4 costanti corrette
+- [ ] `MESSAGGI_CONTROLLER` ha 4 chiavi con testi non vuoti
+- [ ] `MESSAGGI_CONTROLLER` esportabile da `bingo_game.ui.locales`
+- [ ] TUI gestisce `False` di `avvia_partita_sicura`
+- [ ] TUI cattura `ValueError` di `ottieni_stato_sintetico`
+- [ ] `API.md`, `ARCHITECTURE.md`, `CHANGELOG.md` aggiornati
+- [ ] Tutti i log usano i prefissi corretti `[GAME]`/`[SYS]`/`[ERR]` senza emoji
+
+---
+
+## 📝 Aggiornamenti Obbligatori a Fine Implementazione
+
+- [ ] Aggiornare `CHANGELOG.md` con entry v0.8.0 (già nel C9)
+- [ ] Aggiornare `API.md` (già nel C9)
+- [ ] Aggiornare `ARCHITECTURE.md` (già nel C9)
+- [ ] Versione: **MINOR** (v0.7.0 → v0.8.0) — nuova feature retrocompatibile
+- [ ] PR aperta con titolo: `feat: Silent Controller v0.8.0 — rimozione print(), logging e localizzazione`
+- [ ] PR approvata e mergiata su `main`
+- [ ] Questo `TODO.md` aggiornato come `COMPLETATO ✅`
 
 ---
 
 ## 🏁 Checklist di Chiusura Branch
 
-- [ ] Tutti i 6 commit completati con i messaggi convenzionali corretti
-- [ ] `python -m pytest tests/unit/test_ui_terminale.py` → 7 passed, 0 failed
-- [ ] `python main.py` → flusso completo funzionante
-- [ ] TC01–TC05 eseguiti manualmente e smarcati
-- [ ] Nessuna stringa hardcoded in `ui_terminale.py` (grep pulito)
-- [ ] Nessun import dal Domain layer in `ui_terminale.py`
-- [ ] Tutti i log `[TUI]` presenti nei livelli corretti (INFO/WARNING/DEBUG)
-- [ ] Documentazione allineata (Commit 6 completato)
-- [ ] Branch `feature/terminal-start-menu` → PR aperta verso `main`
+- [ ] Tutti i 9 commit completati con i messaggi convenzionali corretti
+- [ ] `grep -n "print(" bingo_game/game_controller.py` → zero risultati
+- [ ] `pytest tests/test_silent_controller.py` → 15 passed
+- [ ] `pytest tests/` → nessuna regressione
+- [ ] AT-1 (baseline pre-refactoring) verificata
+- [ ] AT-2 (no import circolari) verificata dopo C1 e C2
+- [ ] AT-3 (prefissi log corretti) verificata dopo C4, C5, C6
+- [ ] Documentazione allineata (C9 completato)
+- [ ] Branch `feature/silent-controller-v0.8.0` → PR aperta verso `main`
 - [ ] PR approvata e merged
-- [ ] `TODO.md` archiviato o aggiornato come `COMPLETATO`
+- [ ] `TODO.md` marcato `COMPLETATO ✅`
 
 ---
 
-*Generato da: `documentations/PLAN_TERMINAL_START_MENU.md` v1.0*
-*Data generazione: 2026-02-19*
+## 📌 Note Operative
+
+- Il controller già possiede `_log_safe`, `_logger_game`, `_logger_prizes`, `_logger_system`, `_logger_errors`: **non creare nuovi logger**.
+- I log INFO esistenti per premi e tombola in `esegui_turno_sicuro` **vanno preservati** (non rimuoverli).
+- Il flag `_partita_terminata_logged` già esistente in `partita_terminata()` **va preservato** per evitare log ripetuti.
+- `ottieni_stato_sintetico` è l'**unica** funzione del controller che mantiene il `ValueError`: non convertirlo in `False`/`None`.
+- Se `_logger_system` non fosse ancora inizializzato nel controller, aggiungerlo seguendo il pattern degli altri sub-logger.
+- I testi di `MESSAGGI_CONTROLLER` devono essere identici al DESIGN (nessuna variazione editoriale autonoma).
+
+---
+
+> *TODO precedente (v0.7.0 — Menu Iniziale TUI): completato ✅ — archiviato il 2026-02-20*
+
+*Generato da: `documentations/PLAN_SILENT_CONTROLLER.md`*  
+*Data generazione: 2026-02-20*
