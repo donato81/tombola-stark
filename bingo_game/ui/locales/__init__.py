@@ -1,5 +1,6 @@
 from bingo_game.ui.locales.it import (
     MESSAGGI_CONFIGURAZIONE,
+    MESSAGGI_CONTROLLER,
     MESSAGGI_ERRORI,
     MESSAGGI_EVENTI,
     MESSAGGI_OUTPUT_UI_UMANI,
@@ -8,6 +9,7 @@ from bingo_game.ui.locales.it import (
 
 __all__ = [
     "MESSAGGI_CONFIGURAZIONE",
+    "MESSAGGI_CONTROLLER",
     "MESSAGGI_ERRORI",
     "MESSAGGI_EVENTI",
     "MESSAGGI_OUTPUT_UI_UMANI",
