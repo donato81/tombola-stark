@@ -1,23 +1,17 @@
 """Interfaccia utente da terminale per Tombola Stark.
 
-Implementa il flusso completo:
-  Fase 1 (Start Menu, stati A→E): configurazione pre-partita accessibile.
-  Fase 2 (Game Loop, stati F→H): ciclo di gioco interattivo v0.9.0.
+Implementa la Fase 1 del menu iniziale TUI: flusso di configurazione pre-partita
+accessibile (compatibile screen reader NVDA/JAWS/Orca) con macchina a stati A→E.
+Dopo la configurazione, delega il loop di partita a TuiGameLoop (v0.9.0).
 
-Compatibile con screen reader NVDA/JAWS/Orca.
 Pattern di riferimento: bingo_game/ui/locales/it.py
-
 Version: v0.9.0
 """
 from __future__ import annotations
 
 import logging
 
-from bingo_game.game_controller import (
-    avvia_partita_sicura,
-    crea_partita_standard,
-    ottieni_stato_sintetico,
-)
+from bingo_game.game_controller import avvia_partita_sicura, crea_partita_standard, ottieni_stato_sintetico
 from bingo_game.ui.locales import MESSAGGI_CONTROLLER
 from bingo_game.ui.locales.it import MESSAGGI_CONFIGURAZIONE, MESSAGGI_ERRORI
 from bingo_game.events.codici_controller import (
@@ -27,7 +21,7 @@ from bingo_game.events.codici_controller import (
     CTRL_TURNO_FALLITO_GENERICO,
 )
 from bingo_game.ui.renderers.renderer_terminal import TerminalRenderer
-from bingo_game.ui.tui.game_loop import GameLoop
+from bingo_game.ui.tui_game_loop import TuiGameLoop
 
 logger = logging.getLogger(__name__)
 
@@ -39,24 +33,22 @@ _CARTELLE_MAX = 6
 
 
 class TerminalUI:
-    """Interfaccia utente da terminale per la configurazione e il gioco.
+    """Interfaccia utente da terminale per la configurazione e l'avvio di una partita.
 
-    Implementa il flusso completo:
-    - Start Menu (stati A→E): raccolta configurazione e avvio partita.
-    - Game Loop (stati F→H): delegato a GameLoop per il ciclo di gioco.
+    Implementa un flusso sequenziale (macchina a stati A→E) che raccoglie nome,
+    numero di bot e numero di cartelle, quindi delega al GameController e al
+    TuiGameLoop per il ciclo interattivo di partita.
 
     Attributes:
-        _renderer: Istanza di TerminalRenderer (condivisa col GameLoop).
+        _renderer: Istanza di TerminalRenderer.
 
     Note:
         Consuma esclusivamente il Controller (Application Layer).
         Nessun import diretto dal Domain Layer.
-
-    Version: v0.9.0
+        Version: v0.9.0
     """
 
     def __init__(self) -> None:
-        """Inizializza TerminalUI con il renderer terminale."""
         self._renderer = TerminalRenderer()
         logger.debug("[TUI] TerminalUI inizializzata.")
 
@@ -65,24 +57,16 @@ class TerminalUI:
     # ------------------------------------------------------------------
 
     def avvia(self) -> None:
-        """Avvia il flusso completo: configurazione + game loop.
-
-        Esegue gli stati A→E (start menu), poi delega il game loop
-        a GameLoop.avvia() se la partita viene avviata correttamente.
-        """
+        """Avvia il flusso di configurazione e poi il loop di partita."""
         logger.info("[TUI] Avvio configurazione partita.")
         self._mostra_benvenuto()
         nome = self._chiedi_nome()
         numero_bot = self._chiedi_bot()
         numero_cartelle = self._chiedi_cartelle()
-        partita = self._avvia_partita(nome, numero_bot, numero_cartelle)
-        if partita is not None:
-            logger.info("[TUI] Avvio game loop.")
-            game_loop = GameLoop(partita, self._renderer)
-            game_loop.avvia()
+        self._avvia_partita(nome, numero_bot, numero_cartelle)
 
     # ------------------------------------------------------------------
-    # Stati della macchina a stati (Start Menu A→E)
+    # Stati della macchina a stati
     # ------------------------------------------------------------------
 
     def _mostra_benvenuto(self) -> None:
@@ -91,11 +75,7 @@ class TerminalUI:
         self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_BENVENUTO"])
 
     def _chiedi_nome(self) -> str:
-        """Stato B: ATTESA_NOME — raccoglie e valida il nome del giocatore.
-
-        Returns:
-            str: Nome valido dopo strip, non vuoto e di lunghezza <= 15.
-        """
+        """Stato B: ATTESA_NOME — raccoglie e valida il nome del giocatore."""
         logger.debug("[TUI] Stato B: ATTESA_NOME")
         while True:
             input_raw = self._chiedi_input("CONFIG_RICHIESTA_NOME")
@@ -108,8 +88,7 @@ class TerminalUI:
             if len(nome) > _LUNGHEZZA_MAX_NOME:
                 logger.warning(
                     "[TUI] Validazione nome: troppo lungo (%d > %d).",
-                    len(nome),
-                    _LUNGHEZZA_MAX_NOME,
+                    len(nome), _LUNGHEZZA_MAX_NOME,
                 )
                 self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_ERRORE_NOME_TROPPO_LUNGO"])
                 continue
@@ -117,11 +96,7 @@ class TerminalUI:
             return nome
 
     def _chiedi_bot(self) -> int:
-        """Stato C: ATTESA_BOT — raccoglie e valida il numero di bot.
-
-        Returns:
-            int: Numero di bot valido compreso tra 1 e 7.
-        """
+        """Stato C: ATTESA_BOT — raccoglie e valida il numero di bot."""
         logger.debug("[TUI] Stato C: ATTESA_BOT")
         while True:
             input_raw = self._chiedi_input("CONFIG_RICHIESTA_BOT")
@@ -142,11 +117,7 @@ class TerminalUI:
             return valore
 
     def _chiedi_cartelle(self) -> int:
-        """Stato D: ATTESA_CARTELLE — raccoglie e valida il numero di cartelle.
-
-        Returns:
-            int: Numero di cartelle valido compreso tra 1 e 6.
-        """
+        """Stato D: ATTESA_CARTELLE — raccoglie e valida il numero di cartelle."""
         logger.debug("[TUI] Stato D: ATTESA_CARTELLE")
         while True:
             input_raw = self._chiedi_input("CONFIG_RICHIESTA_CARTELLE")
@@ -168,16 +139,13 @@ class TerminalUI:
             logger.debug("[TUI] Numero cartelle valido: %d", valore)
             return valore
 
-    def _avvia_partita(self, nome: str, numero_bot: int, numero_cartelle: int):
-        """Stato E: AVVIO_PARTITA — crea e avvia la partita.
+    def _avvia_partita(self, nome: str, numero_bot: int, numero_cartelle: int) -> None:
+        """Stato E: AVVIO_PARTITA — crea, avvia e passa al TuiGameLoop.
 
         Args:
             nome: Nome del giocatore umano (già validato).
             numero_bot: Numero di bot (già validato, 1–7).
             numero_cartelle: Numero di cartelle del giocatore (già validato, 1–6).
-
-        Returns:
-            Partita | None: la partita avviata, oppure None se l'avvio fallisce.
         """
         logger.debug("[TUI] Stato E: AVVIO_PARTITA")
         self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_CONFERMA_AVVIO"])
@@ -190,23 +158,22 @@ class TerminalUI:
         if not esito:
             self._stampa_righe((MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO],))
             logger.error("[TUI] Avvio partita fallito — esito=False da avvia_partita_sicura.")
-            return None
+            return
+
         logger.info(
             "[TUI] Configurazione completata. nome='%s', bot=%d, cartelle=%d.",
             nome, numero_bot, numero_cartelle,
         )
-        return partita
+
+        # v0.9.0: delega il loop interattivo al TuiGameLoop
+        loop = TuiGameLoop(partita)
+        loop.avvia()
 
     # ------------------------------------------------------------------
     # Helper privati
     # ------------------------------------------------------------------
 
-    def _stampa_righe(self, righe: tuple[str, ...]) -> None:
-        """Stampa su stdout ogni riga della tupla ricevuta.
-
-        Args:
-            righe: Tupla di stringhe da stampare, una per riga.
-        """
+    def _stampa_righe(self, righe: tuple) -> None:
         for riga in righe:
             print(riga)
 
@@ -220,13 +187,4 @@ class TerminalUI:
             return None
 
     def _chiedi_input(self, chiave_prompt: str) -> str:
-        """Mostra il prompt associato alla chiave e acquisisce l'input dell'utente.
-
-        Args:
-            chiave_prompt: Chiave in MESSAGGI_CONFIGURAZIONE il cui primo elemento è
-                           il testo del prompt da mostrare all'utente.
-
-        Returns:
-            str: Stringa grezza letta da stdin (senza strip).
-        """
         return input(MESSAGGI_CONFIGURAZIONE[chiave_prompt][0])
