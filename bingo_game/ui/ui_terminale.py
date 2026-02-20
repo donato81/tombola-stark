@@ -1,16 +1,23 @@
 """Interfaccia utente da terminale per Tombola Stark.
 
-Implementa la Fase 1 del menu iniziale TUI: flusso di configurazione pre-partita
-accessibile (compatibile screen reader NVDA/JAWS/Orca) con macchina a stati A→E.
+Implementa il flusso completo:
+  Fase 1 (Start Menu, stati A→E): configurazione pre-partita accessibile.
+  Fase 2 (Game Loop, stati F→H): ciclo di gioco interattivo v0.9.0.
 
+Compatibile con screen reader NVDA/JAWS/Orca.
 Pattern di riferimento: bingo_game/ui/locales/it.py
-Version: v0.7.0
+
+Version: v0.9.0
 """
 from __future__ import annotations
 
 import logging
 
-from bingo_game.game_controller import avvia_partita_sicura, crea_partita_standard, ottieni_stato_sintetico
+from bingo_game.game_controller import (
+    avvia_partita_sicura,
+    crea_partita_standard,
+    ottieni_stato_sintetico,
+)
 from bingo_game.ui.locales import MESSAGGI_CONTROLLER
 from bingo_game.ui.locales.it import MESSAGGI_CONFIGURAZIONE, MESSAGGI_ERRORI
 from bingo_game.events.codici_controller import (
@@ -20,6 +27,7 @@ from bingo_game.events.codici_controller import (
     CTRL_TURNO_FALLITO_GENERICO,
 )
 from bingo_game.ui.renderers.renderer_terminal import TerminalRenderer
+from bingo_game.ui.tui.game_loop import GameLoop
 
 logger = logging.getLogger(__name__)
 
@@ -31,26 +39,24 @@ _CARTELLE_MAX = 6
 
 
 class TerminalUI:
-    """Interfaccia utente da terminale per la configurazione e l'avvio di una partita.
+    """Interfaccia utente da terminale per la configurazione e il gioco.
 
-    Implementa un flusso sequenziale (macchina a stati A→E) che raccoglie nome,
-    numero di bot e numero di cartelle, quindi delega al GameController.
+    Implementa il flusso completo:
+    - Start Menu (stati A→E): raccolta configurazione e avvio partita.
+    - Game Loop (stati F→H): delegato a GameLoop per il ciclo di gioco.
 
     Attributes:
-        _renderer: Istanza di TerminalRenderer (riservato Fase 2+, non usato ora).
+        _renderer: Istanza di TerminalRenderer (condivisa col GameLoop).
 
     Note:
         Consuma esclusivamente il Controller (Application Layer).
         Nessun import diretto dal Domain Layer.
-        Version: v0.7.0
+
+    Version: v0.9.0
     """
 
     def __init__(self) -> None:
-        """Inizializza TerminalUI.
-
-        Istanzia il renderer terminale (riservato Fase 2+) e registra il log di
-        inizializzazione a livello DEBUG.
-        """
+        """Inizializza TerminalUI con il renderer terminale."""
         self._renderer = TerminalRenderer()
         logger.debug("[TUI] TerminalUI inizializzata.")
 
@@ -59,20 +65,24 @@ class TerminalUI:
     # ------------------------------------------------------------------
 
     def avvia(self) -> None:
-        """Avvia il flusso di configurazione della partita.
+        """Avvia il flusso completo: configurazione + game loop.
 
-        Esegue in sequenza gli stati A→E: benvenuto, raccolta nome, raccolta bot,
-        raccolta cartelle, avvio partita tramite GameController.
+        Esegue gli stati A→E (start menu), poi delega il game loop
+        a GameLoop.avvia() se la partita viene avviata correttamente.
         """
         logger.info("[TUI] Avvio configurazione partita.")
         self._mostra_benvenuto()
         nome = self._chiedi_nome()
         numero_bot = self._chiedi_bot()
         numero_cartelle = self._chiedi_cartelle()
-        self._avvia_partita(nome, numero_bot, numero_cartelle)
+        partita = self._avvia_partita(nome, numero_bot, numero_cartelle)
+        if partita is not None:
+            logger.info("[TUI] Avvio game loop.")
+            game_loop = GameLoop(partita, self._renderer)
+            game_loop.avvia()
 
     # ------------------------------------------------------------------
-    # Stati della macchina a stati
+    # Stati della macchina a stati (Start Menu A→E)
     # ------------------------------------------------------------------
 
     def _mostra_benvenuto(self) -> None:
@@ -124,9 +134,7 @@ class TerminalUI:
             if not (_BOT_MIN <= valore <= _BOT_MAX):
                 logger.warning(
                     "[TUI] Validazione bot: fuori range (%d non in [%d, %d]).",
-                    valore,
-                    _BOT_MIN,
-                    _BOT_MAX,
+                    valore, _BOT_MIN, _BOT_MAX,
                 )
                 self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_ERRORE_BOT_RANGE"])
                 continue
@@ -153,22 +161,23 @@ class TerminalUI:
             if not (_CARTELLE_MIN <= valore <= _CARTELLE_MAX):
                 logger.warning(
                     "[TUI] Validazione cartelle: fuori range (%d non in [%d, %d]).",
-                    valore,
-                    _CARTELLE_MIN,
-                    _CARTELLE_MAX,
+                    valore, _CARTELLE_MIN, _CARTELLE_MAX,
                 )
                 self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_ERRORE_CARTELLE_RANGE"])
                 continue
             logger.debug("[TUI] Numero cartelle valido: %d", valore)
             return valore
 
-    def _avvia_partita(self, nome: str, numero_bot: int, numero_cartelle: int) -> None:
-        """Stato E: AVVIO_PARTITA — conferma e delega l'avvio al GameController.
+    def _avvia_partita(self, nome: str, numero_bot: int, numero_cartelle: int):
+        """Stato E: AVVIO_PARTITA — crea e avvia la partita.
 
         Args:
             nome: Nome del giocatore umano (già validato).
             numero_bot: Numero di bot (già validato, 1–7).
             numero_cartelle: Numero di cartelle del giocatore (già validato, 1–6).
+
+        Returns:
+            Partita | None: la partita avviata, oppure None se l'avvio fallisce.
         """
         logger.debug("[TUI] Stato E: AVVIO_PARTITA")
         self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_CONFERMA_AVVIO"])
@@ -181,14 +190,12 @@ class TerminalUI:
         if not esito:
             self._stampa_righe((MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO],))
             logger.error("[TUI] Avvio partita fallito — esito=False da avvia_partita_sicura.")
-            return
-        # TODO C7-D: chiamare _ottieni_stato_sicuro(partita) nel loop TUI quando disponibile
+            return None
         logger.info(
             "[TUI] Configurazione completata. nome='%s', bot=%d, cartelle=%d.",
-            nome,
-            numero_bot,
-            numero_cartelle,
+            nome, numero_bot, numero_cartelle,
         )
+        return partita
 
     # ------------------------------------------------------------------
     # Helper privati
@@ -204,10 +211,7 @@ class TerminalUI:
             print(riga)
 
     def _ottieni_stato_sicuro(self, partita) -> dict | None:
-        """Helper sicuro per ottieni_stato_sintetico.
-
-        # TODO C7-D: integrare nel loop TUI quando disponibile.
-        """
+        """Helper sicuro per ottieni_stato_sintetico."""
         try:
             return ottieni_stato_sintetico(partita)
         except ValueError as e:
