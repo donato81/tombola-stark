@@ -266,15 +266,15 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 **File**: `bingo_game/ui/ui_terminale.py` (MODIFY)  
 **Messaggio**: `feat(ui): add MESSAGGI_CONTROLLER guards in ui_terminale.py [C7/9]`
 
-- [ ] Aggiungere import `from bingo_game.ui.locales import MESSAGGI_CONTROLLER`
-- [ ] Aggiungere import delle 4 costanti `CTRL_*` da `bingo_game.events.codici_controller`
-- [ ] Nel metodo che chiama `avvia_partita_sicura`: aggiungere guardia sul `False` con `MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO]`
+- [x] Aggiungere import `from bingo_game.ui.locales import MESSAGGI_CONTROLLER`
+- [x] Aggiungere import delle 4 costanti `CTRL_*` da `bingo_game.events.codici_controller`
+- [x] Nel metodo che chiama `avvia_partita_sicura`: aggiungere guardia sul `False` con `MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO]`
 - [ ] Nel metodo che chiama `esegui_turno_sicuro`: aggiungere guardia sul `None` con `MESSAGGI_CONTROLLER[CTRL_TURNO_FALLITO_GENERICO]` come fallback
 - [ ] Catturare `ValueError` di `ottieni_stato_sintetico` con blocco `try/except ValueError`
-- [ ] Verificare che nessun nuovo testo sia hardcoded in `ui_terminale.py` (tutti i messaggi via `MESSAGGI_CONTROLLER`)
-- [ ] Verificare che nessun nuovo import dal Domain layer sia stato aggiunto
-- [ ] `python -m py_compile bingo_game/ui/ui_terminale.py` → zero errori
-- [ ] `python -m pytest tests/ -q` → nessuna regressione
+- [x] Verificare che nessun nuovo testo sia hardcoded in `ui_terminale.py` (tutti i messaggi via `MESSAGGI_CONTROLLER`)
+- [x] Verificare che nessun nuovo import dal Domain layer sia stato aggiunto
+- [x] `python -m py_compile bingo_game/ui/ui_terminale.py` → zero errori
+- [x] `python -m pytest tests/ -q` → nessuna regressione
 
 **Criterio di done C7**: TUI gestisce i tre casi di ritorno anomalo, nessun hardcoding, nessuna regressione.
 
