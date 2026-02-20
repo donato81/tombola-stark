@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 
-from bingo_game.game_controller import avvia_partita_sicura, crea_partita_standard
+from bingo_game.game_controller import avvia_partita_sicura, crea_partita_standard, ottieni_stato_sintetico
 from bingo_game.ui.locales import MESSAGGI_CONTROLLER
 from bingo_game.ui.locales.it import MESSAGGI_CONFIGURAZIONE, MESSAGGI_ERRORI
 from bingo_game.events.codici_controller import (
@@ -182,8 +182,7 @@ class TerminalUI:
             self._stampa_righe((MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO],))
             logger.error("[TUI] Avvio partita fallito — esito=False da avvia_partita_sicura.")
             return
-        # TODO C7: guardia da aggiungere quando ottieni_stato_sintetico verra' usato
-        # TODO C7: guardia da aggiungere nel loop di gioco
+        # TODO C7-D: chiamare _ottieni_stato_sicuro(partita) nel loop TUI quando disponibile
         logger.info(
             "[TUI] Configurazione completata. nome='%s', bot=%d, cartelle=%d.",
             nome,
@@ -203,6 +202,18 @@ class TerminalUI:
         """
         for riga in righe:
             print(riga)
+
+    def _ottieni_stato_sicuro(self, partita) -> dict | None:
+        """Helper sicuro per ottieni_stato_sintetico.
+
+        # TODO C7-D: integrare nel loop TUI quando disponibile.
+        """
+        try:
+            return ottieni_stato_sintetico(partita)
+        except ValueError as e:
+            logger.error("[TUI] Errore critico ottieni_stato_sintetico: %s", e)
+            self._stampa_righe((MESSAGGI_CONTROLLER[CTRL_TURNO_FALLITO_GENERICO],))
+            return None
 
     def _chiedi_input(self, chiave_prompt: str) -> str:
         """Mostra il prompt associato alla chiave e acquisisce l'input dell'utente.

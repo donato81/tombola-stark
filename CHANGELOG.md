@@ -7,6 +7,32 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ---
 
+## [0.8.0] - 2026-02-20 — Silent Controller
+
+### Changed
+- `bingo_game/game_controller.py`: rimossi tutti i `print()` (~22 chiamate).
+  I passaggi di costruzione vanno ora a log DEBUG via `_logger_game`.
+  Gli output di stato sono trasportati dai valori di ritorno (`bool`, `dict`, `None`).
+  I messaggi di errore sono gestiti dalla TUI via `MESSAGGI_CONTROLLER`.
+- `bingo_game/ui/ui_terminale.py`: aggiunta guardia sul valore di ritorno di
+  `avvia_partita_sicura` (percorso `False`) e helper sicuro `_ottieni_stato_sicuro`
+  per la cattura di `ValueError` da `ottieni_stato_sintetico`.
+
+### Added
+- `bingo_game/events/codici_controller.py`: nuove costanti stringa
+  `CTRL_AVVIO_FALLITO_GENERICO`, `CTRL_TURNO_NON_IN_CORSO`,
+  `CTRL_NUMERI_ESAURITI`, `CTRL_TURNO_FALLITO_GENERICO`.
+- `bingo_game/ui/locales/it.py`: nuovo dizionario `MESSAGGI_CONTROLLER`
+  (4 voci) tipizzato con le costanti di `codici_controller.py`.
+- `tests/test_silent_controller.py`: 15 test di non-regressione stdout
+  con `capsys` per tutte le funzioni pubbliche del controller.
+
+### Fixed
+- Accessibilità: rimossi i messaggi con emoji che interferivano con gli screen reader.
+- Architettura: eliminata la dipendenza `Controller → stdout`.
+
+---
+
 ## [0.7.0] - 2026-02-19
 
 ### Aggiunto

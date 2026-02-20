@@ -1,7 +1,7 @@
 # 🏗️ ARCHITECTURE.md - Tombola Stark
 
 > **Documentazione architetturale di tombola-stark**  
-> Ultimo aggiornamento: 2026-02-19 (v0.6.0)
+> Ultimo aggiornamento: 2026-02-20 (v0.8.0)
 
 ---
 
@@ -78,6 +78,8 @@ Il sistema adotta una separazione a tre livelli principali con regole di dipende
 │          LIVELLO CONTROLLER                    │
 │  (game_controller.py, comandi_partita.py)      │
 │  Orchestrazione sicura, gestione eccezioni     │
+│  → (bool/dict/None) → ui_terminale.py → stdout│
+│  → (log) → tombola_stark.log                  │
 └───────────────────────────────────────────────┘
                       ↓ dipende da
 ┌───────────────────────────────────────────────┐
@@ -153,17 +155,19 @@ class Partita:
 **Regole di Dipendenza**:
 - ✅ Può dipendere da: livello dominio, standard library
 - ❌ Non contiene: logica di business, codice UI, stringhe di vocalizzazione
+- ❌ **Il Controller non scrive mai su stdout** (v0.8.0+). Verificabile con:
+  `grep -n "print(" bingo_game/game_controller.py` → zero risultati.
 
 **Esempio**:
 ```python
-# game_controller.py - Orchestrazione sicura
+# game_controller.py - Orchestrazione sicura (v0.8.0)
 def avvia_partita_sicura(partita: Partita) -> bool:
     try:
         partita.avvia_partita()  # Delega al dominio
         return True
-    except PartitaGiocatoriInsufficientiException:
-        print("❌ Giocatori insufficienti")
-        return False
+    except PartitaGiocatoriInsufficientiException as exc:
+        _log_safe("[GAME] Avvio fallito: ...", "warning", logger=_logger_errors)
+        return False  # La TUI legge False e mostra MESSAGGI_CONTROLLER
 ```
 
 ---
@@ -177,24 +181,27 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 - Sistema `bingo_game/events/` (per messaggi strutturati pronti per TTS)
 - `bingo_game/ui/locales/it.py` (testi localizzati in italiano)
 
-**Componenti attivi (v0.7.0)**:
+**Componenti attivi (v0.8.0)**:
 
 | File | Ruolo |
 |---|---|
 | `bingo_game/ui/ui_terminale.py` | `TerminalUI`: flusso configurazione pre-partita (Fase 1) |
-| `bingo_game/ui/locales/it.py` | Testi localizzati (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, …) |
+| `bingo_game/ui/locales/it.py` | Testi localizzati (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, `MESSAGGI_CONTROLLER`) |
+| `bingo_game/events/codici_controller.py` | Costanti chiave (`CTRL_*`) per `MESSAGGI_CONTROLLER` (v0.8.0) |
 | `bingo_game/ui/renderers/renderer_terminal.py` | `TerminalRenderer`: istanziato da `TerminalUI.__init__` (Fase 2+) |
 
-**Flusso TUI (v0.7.0)**:
+**Flusso TUI (v0.8.0)**:
 
 ```
-main.py → TerminalUI.avvia() → GameController
+main.py → TerminalUI.avvia() → GameController → (bool/dict/None) → TUI → stdout
+                                              → (log) → tombola_stark.log
 ```
 
 1. `main.py` istanzia `TerminalUI` e chiama `avvia()`
 2. `TerminalUI` esegue la macchina a stati A→E (benvenuto → nome → bot → cartelle → avvio)
 3. `TerminalUI` delega al `GameController`: `crea_partita_standard()` + `avvia_partita_sicura()`
-4. `TerminalUI` **non importa mai** dal Domain layer (`partita.py`, `giocatore_base.py`, ecc.)
+4. `TerminalUI` legge il valore di ritorno e mostra `MESSAGGI_CONTROLLER` se necessario
+5. `TerminalUI` **non importa mai** dal Domain layer (`partita.py`, `giocatore_base.py`, ecc.)
 
 **Nota su `TerminalRenderer`**: istanziato in `TerminalUI.__init__` ma non ancora usato nella Fase 1. Sarà integrato nella Fase 2 per vocalizzare gli eventi di gioco.
 
