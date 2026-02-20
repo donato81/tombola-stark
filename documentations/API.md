@@ -1378,8 +1378,52 @@ def _log_safe(message: str, level: str = "info", *args,
 
 ---
 
+## 🖥️ Livello Interfaccia — TerminalUI
+
+### Modulo: `bingo_game/ui/ui_terminale.py`
+
+**Versione introdotta**: v0.7.0
+
+### Classe `TerminalUI`
+
+Interfaccia da terminale accessibile (screen reader NVDA/JAWS/Orca) per la configurazione pre-partita. Implementa una macchina a stati sequenziale A→E.
+
+**Dipendenze**: `game_controller.crea_partita_standard`, `game_controller.avvia_partita_sicura`  
+**Nota**: unico metodo pubblico consumabile da `main.py` è `avvia()`.
+
+#### Metodo pubblico
+
+```python
+def avvia(self) -> None
+```
+
+**Descrizione**: Avvia il flusso di configurazione completo della partita.  
+**Side effects**: stampa i prompt e i messaggi su `stdout`; delega la creazione e l'avvio della partita al `GameController`.  
+**Dipendenze**: `crea_partita_standard()` + `avvia_partita_sicura()` (two-step obbligatorio).  
+**Logging**:
+- `INFO` all'inizio del flusso e al completamento della configurazione
+- `DEBUG` ad ogni transizione di stato (A→B→C→D→E) e dopo ogni strip/validazione
+- `WARNING` per ogni errore di input (nome vuoto, nome troppo lungo, bot fuori range, cartelle fuori range, tipo non intero)
+
+**Validazioni integrate**:
+- Nome: `strip()` obbligatorio → non vuoto → max 15 caratteri
+- Bot: `int()` richiesto → range 1–7
+- Cartelle: `int()` richiesto → range 1–6 (scelta UX, non vincolo del Controller)
+
+**Esempio di utilizzo** (in `main.py`):
+
+```python
+from bingo_game.ui.ui_terminale import TerminalUI
+
+tui = TerminalUI()
+tui.avvia()
+```
+
+---
+
 ## 🔄 Note di Versione
 
+- **v0.7.0** – TUI Start Menu Fase 1: `TerminalUI` con macchina a stati A→E, 9 costanti `Codici_Configurazione`, `MESSAGGI_CONFIGURAZIONE` in `it.py`, 8 unit test. Entry point `main.py` aggiornato.
 - **v0.6.0** – Bot Attivo: `GiocatoreAutomatico` valuta autonomamente i premi e li dichiara tramite `ReclamoVittoria`. Nuova chiave `reclami_bot` in `Partita.esegui_turno()` (backward-compatible). Campo `id_giocatore` aggiunto agli eventi premio per matching robusto con nomi duplicati. Metodi `is_automatico()` e `reset_reclamo_turno()` documentati in `GiocatoreBase`.
 - **v0.5.0** – Sistema di logging Fase 2: copertura completa eventi di gioco (18 eventi distinti), sub-logger per categoria, riepilogo finale partita
 - **v0.4.0** – Sistema di logging Fase 1: GameLogger singleton, file cumulativo con flush immediato, marcatori di sessione, flag `--debug`

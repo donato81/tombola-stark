@@ -168,17 +168,35 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 
 ---
 
-#### Livello Interfaccia (previsto / in sviluppo)
+#### Livello Interfaccia
 
 **Scopo**: Presentazione degli stati di gioco tramite terminale, vocalizzazione TTS, screen reader.
 
 **Dipende da**:
-- Controller (per ottenere risultati sicuri)
+- Controller (per ottenere risultati sicuri tramite `crea_partita_standard` + `avvia_partita_sicura`)
 - Sistema `bingo_game/events/` (per messaggi strutturati pronti per TTS)
-- Librerie TTS esterne (es. `pyttsx3`) o framework terminal (es. `curses`)
+- `bingo_game/ui/locales/it.py` (testi localizzati in italiano)
 
-**File previsti**:
-- `bingo_game/ui/` (directory presente, da implementare)
+**Componenti attivi (v0.7.0)**:
+
+| File | Ruolo |
+|---|---|
+| `bingo_game/ui/ui_terminale.py` | `TerminalUI`: flusso configurazione pre-partita (Fase 1) |
+| `bingo_game/ui/locales/it.py` | Testi localizzati (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, …) |
+| `bingo_game/ui/renderers/renderer_terminal.py` | `TerminalRenderer`: istanziato da `TerminalUI.__init__` (Fase 2+) |
+
+**Flusso TUI (v0.7.0)**:
+
+```
+main.py → TerminalUI.avvia() → GameController
+```
+
+1. `main.py` istanzia `TerminalUI` e chiama `avvia()`
+2. `TerminalUI` esegue la macchina a stati A→E (benvenuto → nome → bot → cartelle → avvio)
+3. `TerminalUI` delega al `GameController`: `crea_partita_standard()` + `avvia_partita_sicura()`
+4. `TerminalUI` **non importa mai** dal Domain layer (`partita.py`, `giocatore_base.py`, ecc.)
+
+**Nota su `TerminalRenderer`**: istanziato in `TerminalUI.__init__` ma non ancora usato nella Fase 1. Sarà integrato nella Fase 2 per vocalizzare gli eventi di gioco.
 
 ---
 

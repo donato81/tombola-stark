@@ -1,6 +1,7 @@
 """Entry point dell'applicazione Tombola Stark."""
 import argparse
 from bingo_game.logging import GameLogger
+from bingo_game.ui.ui_terminale import TerminalUI
 
 
 def _parse_args() -> argparse.Namespace:
@@ -29,8 +30,8 @@ def main() -> None:
     GameLogger.initialize(debug_mode=args.debug)
     
     try:
-        # TODO: Implementare l'interfaccia di gioco
-        print("Ciao mondo")
+        tui = TerminalUI()
+        tui.avvia()
     finally:
         # Assicura sempre la chiusura pulita del logger
         GameLogger.shutdown()

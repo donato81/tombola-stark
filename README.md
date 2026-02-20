@@ -23,6 +23,8 @@ L'architettura è strutturata a livelli (Dominio → Controller → Interfaccia)
 - 🎯 **Motore di gioco completo** — Gestione di 90 numeri, estrazione casuale certificata, storico estrazioni e percentuale di avanzamento
 - 🎴 **Cartelle automatiche** — Generazione automatica di cartelle (3 righe × 5 numeri) con verifica in tempo reale di ambo, terno, quaterna, cinquina e tombola
 - 👥 **Multiplayer locale** — Da 2 a 8 giocatori, con supporto simultaneo a 1 giocatore umano e fino a 7 bot automatici
+- 🖥️ **Menu TUI accessibile (v0.7.0+)** — Interfaccia da terminale screen reader–friendly (NVDA/JAWS/Orca): 3 prompt sequenziali (nome, bot, cartelle) con validazione in loop e re-prompt automatico
+- ♿️ **Accessibilità screen reader (v0.7.0+)** — Output lineare senza decorazioni grafiche, compatibile con NVDA, JAWS e Orca
 - 🤖 **Bot Attivi (v0.6.0+)** — I bot dichiarano autonomamente i premi conseguiti in tempo reale, simulando il comportamento di giocatori umani. I reclami sono loggati e pronti per vocalizzazione TTS
 - ♿️ **Accessibilità nativa** — Output strutturato compatibile con screen reader; ogni evento di gioco produce dati semantici pronti per la vocalizzazione TTS
 - ⌨️ **Navigazione da tastiera** — Zero dipendenza dal mouse nell'architettura di controllo
