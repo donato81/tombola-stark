@@ -75,9 +75,7 @@ Codici_Output_Ui_Umani = Literal[
     "UMANI_RECLAMO_VITTORIA_NOTA_VALIDAZIONE",
     "UMANI_FINE_TURNO_PASSATO",
     "UMANI_FINE_TURNO_PASSATO_CON_RECLAMO",
-    # -----------------------------------------------------------------------
-    # Game Loop v0.9.0
-    # -----------------------------------------------------------------------
+    # ---- Game Loop v0.9.0 ----
     "LOOP_NUMERO_ESTRATTO",
     "LOOP_PROMPT_COMANDO",
     "LOOP_HELP_COMANDI",

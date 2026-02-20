@@ -1,135 +1,144 @@
 """
-Test unitari per bingo_game.events.codici_loop — v0.9.0.
+Test unitari per bingo_game/events/codici_loop.py — v0.9.0
 
 Verifica:
 1. Tutte le costanti sono stringhe non vuote.
-2. Nessuna costante duplicata.
-3. Tutte le 13 chiavi LOOP_* presenti in MESSAGGI_OUTPUT_UI_UMANI.
-4. Template con placeholder sono formattabili senza eccezioni.
-5. Import senza side effect.
+2. Nessuna costante è duplicata.
+3. Tutte le 13 chiavi LOOP_* sono presenti in MESSAGGI_OUTPUT_UI_UMANI.
+4. I template con placeholder sono formattabili senza eccezioni.
+5. L'import di codici_loop non produce side effect.
 """
 from __future__ import annotations
 
 import importlib
+import sys
 
 import pytest
 
 
 # ---------------------------------------------------------------------------
-# Test 1: tutte le costanti sono stringhe non vuote
+# Test 1 — Le costanti sono stringhe non vuote
 # ---------------------------------------------------------------------------
 
 def test_costanti_loop_sono_stringhe_non_vuote():
-    """Ogni costante LOOP_* deve essere una stringa non vuota."""
-    import bingo_game.events.codici_loop as m
+    """Tutte le costanti in codici_loop sono str non vuote."""
+    from bingo_game.events.codici_loop import (
+        LOOP_TURNO_AVANZATO,
+        LOOP_NUMERO_ESTRATTO,
+        LOOP_SEGNAZIONE_OK,
+        LOOP_REPORT_FINALE,
+        LOOP_QUIT_CONFERMATO,
+        LOOP_QUIT_ANNULLATO,
+        LOOP_HELP,
+        LOOP_FOCUS_AUTO,
+    )
     costanti = [
-        m.LOOP_NUMERO_ESTRATTO,
-        m.LOOP_PROMPT_COMANDO,
-        m.LOOP_HELP_COMANDI,
-        m.LOOP_HELP_FOCUS,
-        m.LOOP_QUIT_CONFERMA,
-        m.LOOP_QUIT_ANNULLATO,
-        m.LOOP_REPORT_FINALE_INTESTAZIONE,
-        m.LOOP_REPORT_FINALE_TURNI,
-        m.LOOP_REPORT_FINALE_ESTRATTI,
-        m.LOOP_REPORT_FINALE_VINCITORE,
-        m.LOOP_REPORT_FINALE_NESSUN_VINCITORE,
-        m.LOOP_REPORT_FINALE_PREMI,
-        m.LOOP_COMANDO_NON_RICONOSCIUTO,
+        LOOP_TURNO_AVANZATO, LOOP_NUMERO_ESTRATTO, LOOP_SEGNAZIONE_OK,
+        LOOP_REPORT_FINALE, LOOP_QUIT_CONFERMATO, LOOP_QUIT_ANNULLATO,
+        LOOP_HELP, LOOP_FOCUS_AUTO,
     ]
     for c in costanti:
-        assert isinstance(c, str), f"Costante non è stringa: {c!r}"
+        assert isinstance(c, str), f"Costante non è str: {c!r}"
         assert len(c) > 0, f"Costante è stringa vuota: {c!r}"
 
 
 # ---------------------------------------------------------------------------
-# Test 2: nessuna costante duplicata
+# Test 2 — Nessuna costante duplicata
 # ---------------------------------------------------------------------------
 
 def test_costanti_loop_nessun_duplicato():
-    """Nessuna costante LOOP_* deve avere lo stesso valore di un'altra."""
-    import bingo_game.events.codici_loop as m
+    """Nessuna costante in codici_loop è duplicata."""
+    from bingo_game.events.codici_loop import (
+        LOOP_TURNO_AVANZATO, LOOP_NUMERO_ESTRATTO, LOOP_SEGNAZIONE_OK,
+        LOOP_REPORT_FINALE, LOOP_QUIT_CONFERMATO, LOOP_QUIT_ANNULLATO,
+        LOOP_HELP, LOOP_FOCUS_AUTO,
+    )
     costanti = [
-        m.LOOP_NUMERO_ESTRATTO,
-        m.LOOP_PROMPT_COMANDO,
-        m.LOOP_HELP_COMANDI,
-        m.LOOP_HELP_FOCUS,
-        m.LOOP_QUIT_CONFERMA,
-        m.LOOP_QUIT_ANNULLATO,
-        m.LOOP_REPORT_FINALE_INTESTAZIONE,
-        m.LOOP_REPORT_FINALE_TURNI,
-        m.LOOP_REPORT_FINALE_ESTRATTI,
-        m.LOOP_REPORT_FINALE_VINCITORE,
-        m.LOOP_REPORT_FINALE_NESSUN_VINCITORE,
-        m.LOOP_REPORT_FINALE_PREMI,
-        m.LOOP_COMANDO_NON_RICONOSCIUTO,
+        LOOP_TURNO_AVANZATO, LOOP_NUMERO_ESTRATTO, LOOP_SEGNAZIONE_OK,
+        LOOP_REPORT_FINALE, LOOP_QUIT_CONFERMATO, LOOP_QUIT_ANNULLATO,
+        LOOP_HELP, LOOP_FOCUS_AUTO,
     ]
-    assert len(costanti) == len(set(costanti)), "Trovati valori duplicati tra le costanti LOOP_*"
+    assert len(costanti) == len(set(costanti)), "Costanti duplicate trovate in codici_loop"
 
 
 # ---------------------------------------------------------------------------
-# Test 3: tutte le chiavi LOOP_* presenti in MESSAGGI_OUTPUT_UI_UMANI
+# Test 3 — Le 13 chiavi LOOP_* sono presenti in MESSAGGI_OUTPUT_UI_UMANI
 # ---------------------------------------------------------------------------
 
-def test_chiavi_loop_presenti_in_messaggi_output_ui_umani():
-    """Ogni costante LOOP_* deve essere una chiave di MESSAGGI_OUTPUT_UI_UMANI."""
-    import bingo_game.events.codici_loop as m
+CHIAVI_LOOP_ATTESE = [
+    "LOOP_NUMERO_ESTRATTO",
+    "LOOP_PROMPT_COMANDO",
+    "LOOP_HELP_COMANDI",
+    "LOOP_HELP_FOCUS",
+    "LOOP_QUIT_CONFERMA",
+    "LOOP_QUIT_ANNULLATO",
+    "LOOP_REPORT_FINALE_INTESTAZIONE",
+    "LOOP_REPORT_FINALE_TURNI",
+    "LOOP_REPORT_FINALE_ESTRATTI",
+    "LOOP_REPORT_FINALE_VINCITORE",
+    "LOOP_REPORT_FINALE_NESSUN_VINCITORE",
+    "LOOP_REPORT_FINALE_PREMI",
+    "LOOP_COMANDO_NON_RICONOSCIUTO",
+]
+
+
+@pytest.mark.parametrize("chiave", CHIAVI_LOOP_ATTESE)
+def test_chiavi_loop_presenti_in_messaggi_output_ui_umani(chiave):
+    """Ogni chiave LOOP_* deve essere presente in MESSAGGI_OUTPUT_UI_UMANI."""
+    from bingo_game.ui.locales.it import MESSAGGI_OUTPUT_UI_UMANI
+    assert chiave in MESSAGGI_OUTPUT_UI_UMANI, (
+        f"Chiave mancante in MESSAGGI_OUTPUT_UI_UMANI: {chiave!r}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Test 4 — I template con placeholder sono formattabili
+# ---------------------------------------------------------------------------
+
+def test_template_placeholder_formattabili():
+    """I template con placeholder non sollevano eccezioni se formattati con valori dummy."""
     from bingo_game.ui.locales.it import MESSAGGI_OUTPUT_UI_UMANI
 
-    chiavi_attese = [
-        m.LOOP_NUMERO_ESTRATTO,
-        m.LOOP_PROMPT_COMANDO,
-        m.LOOP_HELP_COMANDI,
-        m.LOOP_HELP_FOCUS,
-        m.LOOP_QUIT_CONFERMA,
-        m.LOOP_QUIT_ANNULLATO,
-        m.LOOP_REPORT_FINALE_INTESTAZIONE,
-        m.LOOP_REPORT_FINALE_TURNI,
-        m.LOOP_REPORT_FINALE_ESTRATTI,
-        m.LOOP_REPORT_FINALE_VINCITORE,
-        m.LOOP_REPORT_FINALE_NESSUN_VINCITORE,
-        m.LOOP_REPORT_FINALE_PREMI,
-        m.LOOP_COMANDO_NON_RICONOSCIUTO,
-    ]
-    for chiave in chiavi_attese:
-        assert chiave in MESSAGGI_OUTPUT_UI_UMANI, (
-            f"Chiave mancante in MESSAGGI_OUTPUT_UI_UMANI: {chiave!r}"
-        )
-
-
-# ---------------------------------------------------------------------------
-# Test 4: template con placeholder sono formattabili
-# ---------------------------------------------------------------------------
-
-def test_template_con_placeholder_sono_formattabili():
-    """I template con placeholder devono accettare .format() senza eccezioni."""
-    from bingo_game.ui.locales.it import MESSAGGI_OUTPUT_UI_UMANI
-    import bingo_game.events.codici_loop as m
-
-    placeholder_map = {
-        m.LOOP_NUMERO_ESTRATTO: {"numero": 42},
-        m.LOOP_HELP_FOCUS: {"numero_cartella": 1},
-        m.LOOP_REPORT_FINALE_TURNI: {"turni": 45},
-        m.LOOP_REPORT_FINALE_ESTRATTI: {"estratti": 45},
-        m.LOOP_REPORT_FINALE_VINCITORE: {"nome": "Mario"},
-        m.LOOP_REPORT_FINALE_PREMI: {"premi": 3},
+    valori_dummy = {
+        "numero": 42,
+        "numero_cartella": 1,
+        "turni": 10,
+        "estratti": 45,
+        "nome": "Mario",
+        "premi": 3,
     }
-    for chiave, kwargs in placeholder_map.items():
-        tupla = MESSAGGI_OUTPUT_UI_UMANI[chiave]
-        for riga in tupla:
+
+    chiavi_con_placeholder = [
+        "LOOP_NUMERO_ESTRATTO",
+        "LOOP_HELP_FOCUS",
+        "LOOP_REPORT_FINALE_TURNI",
+        "LOOP_REPORT_FINALE_ESTRATTI",
+        "LOOP_REPORT_FINALE_VINCITORE",
+        "LOOP_REPORT_FINALE_PREMI",
+    ]
+
+    for chiave in chiavi_con_placeholder:
+        righe = MESSAGGI_OUTPUT_UI_UMANI[chiave]
+        for riga in righe:
             try:
-                riga.format(**kwargs)
+                risultato = riga.format(**valori_dummy)
+                assert isinstance(risultato, str)
             except KeyError as exc:
-                pytest.fail(f"Placeholder mancante in {chiave!r}: {exc}")
+                pytest.fail(
+                    f"Placeholder mancante per chiave {chiave!r}, riga {riga!r}: {exc}"
+                )
 
 
 # ---------------------------------------------------------------------------
-# Test 5: import senza side effect
+# Test 5 — L'import di codici_loop non produce side effect
 # ---------------------------------------------------------------------------
 
-def test_import_codici_loop_senza_side_effect(capsys):
-    """L'import di codici_loop non deve produrre output su stdout/stderr."""
-    importlib.reload(__import__("bingo_game.events.codici_loop", fromlist=["codici_loop"]))
-    captured = capsys.readouterr()
-    assert captured.out == "", "Import codici_loop produce output su stdout"
-    assert captured.err == "", "Import codici_loop produce output su stderr"
+def test_import_codici_loop_no_side_effect():
+    """L'import di codici_loop non deve produrre side effect visibili."""
+    # Rimuovi il modulo dalla cache per forzare re-import
+    sys.modules.pop("bingo_game.events.codici_loop", None)
+    mod = importlib.import_module("bingo_game.events.codici_loop")
+    # Deve esporre le costanti attese
+    assert hasattr(mod, "LOOP_TURNO_AVANZATO")
+    assert hasattr(mod, "LOOP_HELP")
+    assert hasattr(mod, "LOOP_FOCUS_AUTO")

@@ -40,7 +40,7 @@ MESSAGGI_ERRORI: Mapping[Codici_Errori, tuple[str, ...]] = MappingProxyType({
 
     # FOCUS_CARTELLA_FUORI_RANGE:
     # Il focus cartella è impostato, ma punta fuori dai limiti della lista cartelle.
-    # In pratica: la cartella "selezionata" non esiste più (stato non coerente) e va riselezionata.
+    # In pratica: la cartella \u201cselezionata\u201d non esiste più (stato non coerente) e va riselezionata.
     "FOCUS_CARTELLA_FUORI_RANGE": (
         "Errore: La cartella selezionata non è più disponibile.",
         "Seleziona una cartella valida per continuare.",
@@ -48,7 +48,7 @@ MESSAGGI_ERRORI: Mapping[Codici_Errori, tuple[str, ...]] = MappingProxyType({
 
     # FOCUS_RIGA_NON_IMPOSTATA:
     # La cartella in focus è valida, ma non è stata selezionata alcuna riga.
-    # Questo è un prerequisito tipico per azioni "rigorose" (es. annuncia ambo/terno/quaterna/cinquina),
+    # Questo è un prerequisito tipico per azioni \u201crigorse\u201d (es. annuncia ambo/terno/quaterna/cinquina),
     # dove la riga deve essere scelta esplicitamente dall'utente e non viene auto-impostata.
     "FOCUS_RIGA_NON_IMPOSTATA": (
         "Errore: Nessuna riga selezionata.",
@@ -58,7 +58,7 @@ MESSAGGI_ERRORI: Mapping[Codici_Errori, tuple[str, ...]] = MappingProxyType({
     # FOCUS_RIGA_FUORI_RANGE:
     # La riga in focus è impostata, ma non è coerente con le righe disponibili
     # nella cartella attualmente in focus (indice fuori dai limiti).
-    # In pratica: la riga "selezionata" non esiste più e va selezionata di nuovo.
+    # In pratica: la riga \u201cselezionata\u201d non esiste più e va selezionata di nuovo.
     "FOCUS_RIGA_FUORI_RANGE": (
         "Errore: La riga selezionata non è più disponibile.",
         "Seleziona una riga valida per continuare.",
@@ -74,7 +74,7 @@ MESSAGGI_ERRORI: Mapping[Codici_Errori, tuple[str, ...]] = MappingProxyType({
     # FOCUS_COLONNA_FUORI_RANGE:
     # La colonna in focus è impostata, ma non è coerente con le colonne disponibili
     # nella cartella attualmente in focus (indice fuori dai limiti).
-    # In pratica: la colonna "selezionata" non esiste più e va selezionata di nuovo.
+    # In pratica: la colonna \u201cselezionata\u201d non esiste più e va selezionata di nuovo.
     "FOCUS_COLONNA_FUORI_RANGE": (
         "Errore: La colonna selezionata non è più disponibile.",
         "Seleziona una colonna valida per continuare.",
@@ -520,76 +520,78 @@ MESSAGGI_OUTPUT_UI_UMANI: Mapping[Codici_Output_Ui_Umani, tuple[str, ...]] = Map
         "Turno passato. Reclamo inviato: {tipo}.",
     ),
 
-    # ===========================================================================
-    # Game Loop v0.9.0
-    # ===========================================================================
+    # =========================================================================
+    # Game Loop v0.9.0 — Messaggi interattivi del loop di partita
+    # =========================================================================
 
-    # Numero estratto nel turno corrente.
+    # Numero estratto nell'ultimo turno.
     # Placeholder: {numero}
     "LOOP_NUMERO_ESTRATTO": (
         "Numero estratto: {numero}.",
     ),
 
-    # Prompt comandi interattivo mostrato dopo ogni estrazione e all'avvio.
+    # Prompt interattivo mostrato dopo ogni estrazione.
     "LOOP_PROMPT_COMANDO": (
         "Comando (p=prosegui  s=segna  c=cartella  v=tabellone  q=esci  ?=aiuto):",
     ),
 
-    # Lista comandi help — tupla multi-riga, una riga per comando.
+    # Help comandi: tupla multi-riga, una riga per comando.
     "LOOP_HELP_COMANDI": (
         "p  — prosegui al prossimo turno.",
         "s <N>  — segna il numero N sulla cartella in focus.",
         "c  — riepilogo cartella in focus.",
-        "v  — riepilogo tabellone.",
+        "v  — riepilogo tabellone (numeri estratti).",
         "q  — esci dalla partita (chiede conferma).",
         "?  — mostra questo aiuto.",
     ),
 
-    # Focus cartella corrente mostrato in coda all'help.
+    # Riga aggiuntiva dell'help: cartella attualmente in focus.
     # Placeholder: {numero_cartella} (1-based)
     "LOOP_HELP_FOCUS": (
         "Cartella in focus: {numero_cartella}.",
     ),
 
-    # Richiesta conferma quit.
+    # Richiesta di conferma quit.
     "LOOP_QUIT_CONFERMA": (
         "Vuoi davvero uscire? La partita non verrà salvata. (s/n)",
     ),
 
-    # Messaggio se il quit viene annullato.
+    # Uscita annullata (utente ha risposto 'n').
     "LOOP_QUIT_ANNULLATO": (
         "Uscita annullata. Partita in corso.",
     ),
 
-    # Report finale — intestazione.
+    # ---- Report finale ----
+
+    # Intestazione del report finale.
     "LOOP_REPORT_FINALE_INTESTAZIONE": (
         "=== FINE PARTITA ===",
     ),
 
-    # Report finale — turni giocati.
+    # Turni giocati.
     # Placeholder: {turni}
     "LOOP_REPORT_FINALE_TURNI": (
         "Turni giocati: {turni}.",
     ),
 
-    # Report finale — numeri estratti su 90.
+    # Numeri estratti su 90.
     # Placeholder: {estratti}
     "LOOP_REPORT_FINALE_ESTRATTI": (
         "Numeri estratti: {estratti}/90.",
     ),
 
-    # Report finale — vincitore tombola.
+    # Vincitore tombola.
     # Placeholder: {nome}
     "LOOP_REPORT_FINALE_VINCITORE": (
         "Vincitore Tombola: {nome}!",
     ),
 
-    # Report finale — nessun vincitore.
+    # Nessun vincitore (numeri esauriti).
     "LOOP_REPORT_FINALE_NESSUN_VINCITORE": (
         "Partita terminata senza tombola.",
     ),
 
-    # Report finale — premi assegnati.
+    # Premi totali assegnati.
     # Placeholder: {premi}
     "LOOP_REPORT_FINALE_PREMI": (
         "Premi assegnati: {premi}.",

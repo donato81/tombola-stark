@@ -1,53 +1,33 @@
-"""
-Modulo: bingo_game.events.codici_loop
-
-Costanti per i codici di evento del Game Loop (v0.9.0).
-
-Queste costanti sono chiavi del catalogo MESSAGGI_OUTPUT_UI_UMANI definito in
-bingo_game/ui/locales/it.py.  Seguono lo stesso pattern di
-bingo_game/events/codici_eventi.py: Final + Literal per la type-safety.
-
-Version:
-    v0.9.0: Prima implementazione.
-"""
 from __future__ import annotations
 
 from typing import Final, Literal
 
-# ---------------------------------------------------------------------------
-# Costanti di codice evento per il Game Loop
-# ---------------------------------------------------------------------------
+# =============================================================================
+# Costanti per i codici di evento del Game Loop — v0.9.0
+# =============================================================================
+# Convenzione: ogni costante è una stringa immutabile (Final) che identifica
+# un evento/codice del loop di partita.
+# Il renderer e la TUI le usano come chiavi per recuperare il testo da it.py.
+# Nessun side effect all'import.
+# =============================================================================
 
-LOOP_NUMERO_ESTRATTO: Final = "LOOP_NUMERO_ESTRATTO"
-LOOP_PROMPT_COMANDO: Final = "LOOP_PROMPT_COMANDO"
-LOOP_HELP_COMANDI: Final = "LOOP_HELP_COMANDI"
-LOOP_HELP_FOCUS: Final = "LOOP_HELP_FOCUS"
-LOOP_QUIT_CONFERMA: Final = "LOOP_QUIT_CONFERMA"
-LOOP_QUIT_ANNULLATO: Final = "LOOP_QUIT_ANNULLATO"
-LOOP_REPORT_FINALE_INTESTAZIONE: Final = "LOOP_REPORT_FINALE_INTESTAZIONE"
-LOOP_REPORT_FINALE_TURNI: Final = "LOOP_REPORT_FINALE_TURNI"
-LOOP_REPORT_FINALE_ESTRATTI: Final = "LOOP_REPORT_FINALE_ESTRATTI"
-LOOP_REPORT_FINALE_VINCITORE: Final = "LOOP_REPORT_FINALE_VINCITORE"
-LOOP_REPORT_FINALE_NESSUN_VINCITORE: Final = "LOOP_REPORT_FINALE_NESSUN_VINCITORE"
-LOOP_REPORT_FINALE_PREMI: Final = "LOOP_REPORT_FINALE_PREMI"
-LOOP_COMANDO_NON_RICONOSCIUTO: Final = "LOOP_COMANDO_NON_RICONOSCIUTO"
+LOOP_TURNO_AVANZATO:   Final = "LOOP_TURNO_AVANZATO"
+LOOP_NUMERO_ESTRATTO:  Final = "LOOP_NUMERO_ESTRATTO"
+LOOP_SEGNAZIONE_OK:    Final = "LOOP_SEGNAZIONE_OK"
+LOOP_REPORT_FINALE:    Final = "LOOP_REPORT_FINALE"
+LOOP_QUIT_CONFERMATO:  Final = "LOOP_QUIT_CONFERMATO"
+LOOP_QUIT_ANNULLATO:   Final = "LOOP_QUIT_ANNULLATO"
+LOOP_HELP:             Final = "LOOP_HELP"
+LOOP_FOCUS_AUTO:       Final = "LOOP_FOCUS_AUTO"
 
-# ---------------------------------------------------------------------------
-# Tipo Literal per type-checking (stesso pattern di Codici_Output_Ui_Umani)
-# ---------------------------------------------------------------------------
-
+# Tipo Literal per type-checking sulle chiavi del catalogo loop.
 Codici_Loop = Literal[
+    "LOOP_TURNO_AVANZATO",
     "LOOP_NUMERO_ESTRATTO",
-    "LOOP_PROMPT_COMANDO",
-    "LOOP_HELP_COMANDI",
-    "LOOP_HELP_FOCUS",
-    "LOOP_QUIT_CONFERMA",
+    "LOOP_SEGNAZIONE_OK",
+    "LOOP_REPORT_FINALE",
+    "LOOP_QUIT_CONFERMATO",
     "LOOP_QUIT_ANNULLATO",
-    "LOOP_REPORT_FINALE_INTESTAZIONE",
-    "LOOP_REPORT_FINALE_TURNI",
-    "LOOP_REPORT_FINALE_ESTRATTI",
-    "LOOP_REPORT_FINALE_VINCITORE",
-    "LOOP_REPORT_FINALE_NESSUN_VINCITORE",
-    "LOOP_REPORT_FINALE_PREMI",
-    "LOOP_COMANDO_NON_RICONOSCIUTO",
+    "LOOP_HELP",
+    "LOOP_FOCUS_AUTO",
 ]
