@@ -1,8 +1,8 @@
 # 📚 API.md - Tombola Stark
 
 > **Riferimento API pubblico per tombola-stark**  
-> Versione: v0.6.0  
-> Ultimo aggiornamento: 2026-02-19
+> Versione: v0.8.0  
+> Ultimo aggiornamento: 2026-02-20
 
 ---
 
@@ -982,6 +982,8 @@ def crea_partita_standard(
 
 **Ritorna**: `Partita` nello stato `"non_iniziata"` con tutti i giocatori configurati
 
+**Note v0.8.0**: Scrive log DEBUG via `_logger_game` per ogni sotto-passo (nessun output su stdout).
+
 **Esempio**:
 ```python
 partita = crea_partita_standard(
@@ -1004,6 +1006,8 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 - `True`: Avvio riuscito, partita ora in `"in_corso"`
 - `False`: Avvio fallito (giocatori insufficienti, partita già iniziata, ecc.)
 
+**Note v0.8.0**: Fallimenti loggati a WARNING via `_logger_errors`. Ritorna `bool` senza emettere su stdout.
+
 ---
 
 #### esegui_turno_sicuro()
@@ -1018,6 +1022,8 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
 
 **Chiavi garantite**: `numero_estratto`, `stato_partita_prima`, `stato_partita_dopo`, `tombola_rilevata`, `partita_terminata`, `premi_nuovi`, `reclami_bot` (v0.6.0+)
 
+**Note v0.8.0**: Premi loggati a INFO via `_logger_prizes`. Ritorna `dict` o `None` senza emettere su stdout.
+
 ---
 
 #### ottieni_stato_sintetico()
@@ -1029,7 +1035,7 @@ def ottieni_stato_sintetico(partita: Partita) -> Dict[str, Any]:
 **Ritorna**: Dict con chiavi: `stato_partita`, `ultimo_numero_estratto`, `numeri_estratti`, `giocatori`, `premi_gia_assegnati`
 
 **Raises**:
-- `ValueError`: Se il parametro non è `Partita` o lo stato è incompleto
+- `ValueError`: Lancia `ValueError` se il parametro non è un oggetto `Partita` valido o lo stato è incompleto.
 
 ---
 
@@ -1041,6 +1047,8 @@ def ha_partita_tombola(partita: Partita) -> bool:
 
 **Ritorna**: `True` se almeno un giocatore ha tombola
 
+**Note v0.8.0**: Scrive log DEBUG via `_logger_game`. Nessun output su stdout.
+
 ---
 
 #### partita_terminata()
@@ -1049,12 +1057,15 @@ def ha_partita_tombola(partita: Partita) -> bool:
 def partita_terminata(partita: Partita) -> bool:
 ```
 
+**Note v0.8.0**: Scrive log DEBUG via `_logger_game`. Nessun output su stdout.
+
 **Esempio tipico d'uso**:
 ```python
 while not partita_terminata(partita):
     turno = esegui_turno_sicuro(partita)
     if turno and turno["tombola_rilevata"]:
-        print("TOMBOLA!")
+        # La TUI mostra il messaggio da MESSAGGI_CONTROLLER
+        break
 ```
 
 ---

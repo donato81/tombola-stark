@@ -270,7 +270,7 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 - [x] Aggiungere import delle 4 costanti `CTRL_*` da `bingo_game.events.codici_controller`
 - [x] Nel metodo che chiama `avvia_partita_sicura`: aggiungere guardia sul `False` con `MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO]`
 - [ ] Nel metodo che chiama `esegui_turno_sicuro`: aggiungere guardia sul `None` con `MESSAGGI_CONTROLLER[CTRL_TURNO_FALLITO_GENERICO]` come fallback
-- [ ] Catturare `ValueError` di `ottieni_stato_sintetico` con blocco `try/except ValueError`
+- [x] Catturare `ValueError` di `ottieni_stato_sintetico` con helper `_ottieni_stato_sicuro`
 - [x] Verificare che nessun nuovo testo sia hardcoded in `ui_terminale.py` (tutti i messaggi via `MESSAGGI_CONTROLLER`)
 - [x] Verificare che nessun nuovo import dal Domain layer sia stato aggiunto
 - [x] `python -m py_compile bingo_game/ui/ui_terminale.py` → zero errori
@@ -285,29 +285,29 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 **File**: `tests/test_silent_controller.py` (CREATE)  
 **Messaggio**: `test: add capsys non-regression tests for silent controller [C8/9]`
 
-- [ ] Creare `tests/test_silent_controller.py` con docstring di modulo
-- [ ] Implementare fixture `partita_mock` (Partita in stato `in_corso`)
-- [ ] Implementare fixture `partita_terminata_mock` (Partita in stato `terminata`)
-- [ ] **Classe `TestControllerSilenzioso`** (8 test `capsys.readouterr().out == ""`):
-  - [ ] `test_crea_partita_standard_silenzioso`
-  - [ ] `test_avvia_partita_sicura_true_silenzioso`
-  - [ ] `test_avvia_partita_sicura_false_silenzioso`
-  - [ ] `test_esegui_turno_sicuro_dict_silenzioso`
-  - [ ] `test_esegui_turno_sicuro_none_silenzioso`
-  - [ ] `test_partita_terminata_false_silenzioso`
-  - [ ] `test_partita_terminata_true_silenzioso`
-  - [ ] `test_ottieni_stato_sintetico_dict_silenzioso`
-- [ ] **Classe `TestContrattiRitorno`** (4 test):
-  - [ ] `test_avvia_partita_sicura_ritorna_true`
-  - [ ] `test_avvia_partita_sicura_ritorna_false_su_eccezione`
-  - [ ] `test_ottieni_stato_sintetico_lancia_valueerror_su_non_partita`
-  - [ ] `test_esegui_turno_sicuro_ritorna_none_su_partita_non_in_corso`
-- [ ] **Classe `TestMESSAGGICONTROLLER`** (3 test):
-  - [ ] `test_quattro_chiavi`
-  - [ ] `test_chiavi_sono_costanti_corrette`
-  - [ ] `test_valori_sono_stringhe_non_vuote`
-- [ ] Eseguire `python -m pytest tests/test_silent_controller.py -v` → **tutti 15 verdi**
-- [ ] Eseguire `python -m pytest tests/ -q` → nessuna regressione sull'intera suite
+- [x] Creare `tests/test_silent_controller.py` con docstring di modulo
+- [x] Implementare fixture `partita_mock` (Partita in stato `in_corso`)
+- [x] Implementare fixture `partita_terminata_mock` (Partita in stato `terminata`)
+- [x] **Classe `TestControllerSilenzioso`** (8 test `capsys.readouterr().out == ""`):
+  - [x] `test_crea_partita_standard_silenzioso`
+  - [x] `test_avvia_partita_sicura_true_silenzioso`
+  - [x] `test_avvia_partita_sicura_false_silenzioso`
+  - [x] `test_esegui_turno_sicuro_dict_silenzioso`
+  - [x] `test_esegui_turno_sicuro_none_silenzioso`
+  - [x] `test_partita_terminata_false_silenzioso`
+  - [x] `test_partita_terminata_true_silenzioso`
+  - [x] `test_ottieni_stato_sintetico_dict_silenzioso`
+- [x] **Classe `TestContrattiRitorno`** (4 test):
+  - [x] `test_avvia_partita_sicura_ritorna_true`
+  - [x] `test_avvia_partita_sicura_ritorna_false_su_eccezione`
+  - [x] `test_ottieni_stato_sintetico_lancia_valueerror_su_non_partita`
+  - [x] `test_esegui_turno_sicuro_ritorna_none_su_partita_non_in_corso`
+- [x] **Classe `TestMESSAGGICONTROLLER`** (3 test):
+  - [x] `test_quattro_chiavi`
+  - [x] `test_chiavi_sono_costanti_corrette`
+  - [x] `test_valori_sono_stringhe_non_vuote`
+- [x] Eseguire `python -m pytest tests/test_silent_controller.py -v` → **tutti 15 verdi**
+- [x] Eseguire `python -m pytest tests/ -q` → nessuna regressione sull'intera suite
 
 **Criterio di done C8**: 15 test verdi, nessuna regressione.
 
@@ -319,26 +319,26 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 **Messaggio**: `docs: update API.md, ARCHITECTURE.md, CHANGELOG.md for v0.8.0 [C9/9]`
 
 **`API.md`:**
-- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `crea_partita_standard`
-- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `avvia_partita_sicura`
-- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `esegui_turno_sicuro`
-- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `ottieni_stato_sintetico`
-- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `partita_terminata`
-- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `ha_partita_tombola`
-- [ ] Aggiornare le descrizioni con i contratti di ritorno corretti (vedi tabella in PLAN sezione 4.2.1)
-- [ ] Verifica: `grep -n "stdout\|print()" documentations/API.md` → zero riferimenti alle funzioni controller
+- [x] Rimuovere ogni nota su `print()` o stdout nelle firme di `crea_partita_standard`
+- [x] Rimuovere ogni nota su `print()` o stdout nelle firme di `avvia_partita_sicura`
+- [x] Rimuovere ogni nota su `print()` o stdout nelle firme di `esegui_turno_sicuro`
+- [x] Rimuovere ogni nota su `print()` o stdout nelle firme di `ottieni_stato_sintetico`
+- [x] Rimuovere ogni nota su `print()` o stdout nelle firme di `partita_terminata`
+- [x] Rimuovere ogni nota su `print()` o stdout nelle firme di `ha_partita_tombola`
+- [x] Aggiornare le descrizioni con i contratti di ritorno corretti (vedi tabella in PLAN sezione 4.2.1)
+- [x] Verifica: `grep -n "stdout\|print()" documentations/API.md` → zero riferimenti alle funzioni controller
 
 **`ARCHITECTURE.md`:**
-- [ ] Rimuovere la freccia `Controller → stdout` dal diagramma layer
-- [ ] Aggiornare il diagramma flusso dati: `game_controller → (bool/dict/None) → ui_terminale → stdout`
-- [ ] Aggiungere regola invariante: *"Il Controller non scrive mai su stdout"*
-- [ ] Aggiungere `bingo_game/events/codici_controller.py` alla mappa moduli con descrizione v0.8.0
+- [x] Rimuovere la freccia `Controller → stdout` dal diagramma layer
+- [x] Aggiornare il diagramma flusso dati: `game_controller → (bool/dict/None) → ui_terminale → stdout`
+- [x] Aggiungere regola invariante: *"Il Controller non scrive mai su stdout"*
+- [x] Aggiungere `bingo_game/events/codici_controller.py` alla mappa moduli con descrizione v0.8.0
 
 **`CHANGELOG.md`:**
-- [ ] Aggiungere sezione `## [v0.8.0] - 2026-02-20 Silent Controller`
-- [ ] Sezione `### Changed`: game_controller.py (rimozione ~22 print), ui_terminale.py (guardie)
-- [ ] Sezione `### Added`: codici_controller.py (4 costanti), MESSAGGI_CONTROLLER (4 voci), test_silent_controller.py (15 test)
-- [ ] Sezione `### Fixed`: accessibilità (rimozione emoji), architettura (eliminazione dipendenza Controller → stdout)
+- [x] Aggiungere sezione `## [0.8.0] - 2026-02-20 Silent Controller`
+- [x] Sezione `### Changed`: game_controller.py (rimozione ~22 print), ui_terminale.py (guardie)
+- [x] Sezione `### Added`: codici_controller.py (4 costanti), MESSAGGI_CONTROLLER (4 voci), test_silent_controller.py (15 test)
+- [x] Sezione `### Fixed`: accessibilità (rimozione emoji), architettura (eliminazione dipendenza Controller → stdout)
 
 **Criterio di done C9**: i 3 file documentali aggiornati, nessuna menzione di stdout/print() nelle firme del controller in API.md.
 
