@@ -56,7 +56,7 @@ L'obiettivo è documentare le interfacce che altri livelli o componenti chiamano
 
 ---
 
-## 🏛️ Livello Dominio
+## 🏗️ Livello Dominio
 
 ### Tabellone
 
@@ -914,6 +914,8 @@ for giocatore in self.giocatori:
 
 **Scopo**: Funzioni di alto livello per orchestrare la creazione e il ciclo di una partita. Fa da collante tra motore di gioco e interfaccia, gestendo tutte le eccezioni in modo sicuro.
 
+**Invariante v0.8.0**: Il controller non scrive **mai** su stdout. Tutta la comunicazione verso l'utente avviene tramite i valori di ritorno (`bool`, `dict`, `None`) che la TUI legge e vocalizza usando `MESSAGGI_CONTROLLER`.
+
 ---
 
 #### crea_tabellone_standard()
@@ -982,7 +984,7 @@ def crea_partita_standard(
 
 **Ritorna**: `Partita` nello stato `"non_iniziata"` con tutti i giocatori configurati
 
-**Note v0.8.0**: Scrive log DEBUG via `_logger_game` per ogni sotto-passo (nessun output su stdout).
+**Note v0.8.0**: Scrive log DEBUG via `_logger_game` per ogni sotto-passo. Nessun output su stdout.
 
 **Esempio**:
 ```python
@@ -1006,7 +1008,7 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 - `True`: Avvio riuscito, partita ora in `"in_corso"`
 - `False`: Avvio fallito (giocatori insufficienti, partita già iniziata, ecc.)
 
-**Note v0.8.0**: Fallimenti loggati a WARNING via `_logger_errors`. Ritorna `bool` senza emettere su stdout.
+**Note v0.8.0**: Fallimenti loggati a WARNING via `_logger_errors` con tipo eccezione. Nessun output su stdout. La TUI legge `False` e mostra `MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO]`.
 
 ---
 
@@ -1018,11 +1020,11 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
 
 **Ritorna**:
 - `Dict[str, Any]`: Dizionario risultato turno se successo
-- `None`: Se errore
+- `None`: Se errore (partita non in corso, parametro non valido, eccezione imprevista)
 
 **Chiavi garantite**: `numero_estratto`, `stato_partita_prima`, `stato_partita_dopo`, `tombola_rilevata`, `partita_terminata`, `premi_nuovi`, `reclami_bot` (v0.6.0+)
 
-**Note v0.8.0**: Premi loggati a INFO via `_logger_prizes`. Ritorna `dict` o `None` senza emettere su stdout.
+**Note v0.8.0**: Premi loggati a INFO via `_logger_prizes`. Errori loggati a WARNING/ERROR via `_logger_errors`. Nessun output su stdout.
 
 ---
 
@@ -1035,7 +1037,9 @@ def ottieni_stato_sintetico(partita: Partita) -> Dict[str, Any]:
 **Ritorna**: Dict con chiavi: `stato_partita`, `ultimo_numero_estratto`, `numeri_estratti`, `giocatori`, `premi_gia_assegnati`
 
 **Raises**:
-- `ValueError`: Lancia `ValueError` se il parametro non è un oggetto `Partita` valido o lo stato è incompleto.
+- `ValueError`: Se il parametro non è un oggetto `Partita` valido o lo stato è incompleto.
+
+**Note v0.8.0**: La TUI cattura `ValueError` tramite l'helper `_ottieni_stato_sicuro`. Nessun output su stdout.
 
 ---
 
@@ -1135,20 +1139,20 @@ if self.stato_partita != "in_corso":
     raise PartitaNonInCorsoException("...")
 ```
 
-**Controller** intercetta e ritorna valore sicuro:
+**Controller** intercetta e ritorna valore sicuro (v0.8.0 — senza print):
 ```python
 try:
     partita.avvia_partita()
     return True
-except PartitaGiocatoriInsufficientiException:
-    print("❌ Giocatori insufficienti")
+except PartitaGiocatoriInsufficientiException as exc:
+    _log_safe(f"[GAME] Avvio fallito: tipo='{type(exc).__name__}'.", logging.WARNING, logger=_logger_errors)
     return False
 ```
 
 **Interfaccia** mostra messaggio all'utente:
 ```python
 if not avvia_partita_sicura(partita):
-    speak("Impossibile avviare la partita.")
+    print(MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO])
 ```
 
 ---
@@ -1399,7 +1403,7 @@ def _log_safe(message: str, level: str = "info", *args,
 
 Interfaccia da terminale accessibile (screen reader NVDA/JAWS/Orca) per la configurazione pre-partita. Implementa una macchina a stati sequenziale A→E.
 
-**Dipendenze**: `game_controller.crea_partita_standard`, `game_controller.avvia_partita_sicura`  
+**Dipendenze**: `game_controller.crea_partita_standard`, `game_controller.avvia_partita_sicura`, `MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_CONTROLLER` (v0.8.0+), costanti `CTRL_*` (v0.8.0+)  
 **Nota**: unico metodo pubblico consumabile da `main.py` è `avvia()`.
 
 #### Metodo pubblico
@@ -1421,6 +1425,10 @@ def avvia(self) -> None
 - Bot: `int()` richiesto → range 1–7
 - Cartelle: `int()` richiesto → range 1–6 (scelta UX, non vincolo del Controller)
 
+**Gestione fallimenti controller (v0.8.0+)**:
+- Se `avvia_partita_sicura()` ritorna `False`: mostra `MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO]`
+- Se `ottieni_stato_sintetico()` solleva `ValueError`: catturato dall'helper `_ottieni_stato_sicuro`
+
 **Esempio di utilizzo** (in `main.py`):
 
 ```python
@@ -1434,7 +1442,8 @@ tui.avvia()
 
 ## 🔄 Note di Versione
 
-- **v0.7.0** – TUI Start Menu Fase 1: `TerminalUI` con macchina a stati A→E, 9 costanti `Codici_Configurazione`, `MESSAGGI_CONFIGURAZIONE` in `it.py`, 8 unit test. Entry point `main.py` aggiornato.
+- **v0.8.0** — Silent Controller: rimozione ~22 `print()` da `game_controller.py` (Gruppi A/B/C/D), sostituzione con `_log_safe()` sui sub-logger con prefissi `[GAME]`/`[ERR]`/`[SYS]`. Aggiunta `codici_controller.py` (4 costanti `CTRL_*`), `MESSAGGI_CONTROLLER` in `it.py` (4 voci localizzate), guardie TUI in `ui_terminale.py`. 15 nuovi test `capsys` in `test_silent_controller.py`.
+- **v0.7.0** — TUI Start Menu Fase 1: `TerminalUI` con macchina a stati A→E, 9 costanti `Codici_Configurazione`, `MESSAGGI_CONFIGURAZIONE` in `it.py`, 8 unit test. Entry point `main.py` aggiornato.
 - **v0.6.0** – Bot Attivo: `GiocatoreAutomatico` valuta autonomamente i premi e li dichiara tramite `ReclamoVittoria`. Nuova chiave `reclami_bot` in `Partita.esegui_turno()` (backward-compatible). Campo `id_giocatore` aggiunto agli eventi premio per matching robusto con nomi duplicati. Metodi `is_automatico()` e `reset_reclamo_turno()` documentati in `GiocatoreBase`.
 - **v0.5.0** – Sistema di logging Fase 2: copertura completa eventi di gioco (18 eventi distinti), sub-logger per categoria, riepilogo finale partita
 - **v0.4.0** – Sistema di logging Fase 1: GameLogger singleton, file cumulativo con flush immediato, marcatori di sessione, flag `--debug`
@@ -1444,4 +1453,4 @@ tui.avvia()
 
 ---
 
-*Ultimo aggiornamento: 2026-02-19 (v0.6.0)*
+*Ultimo aggiornamento: 2026-02-20 (v0.8.0)*
