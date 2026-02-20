@@ -61,9 +61,104 @@ TUI (ui_terminale.py)
   ↓ legge testi da                      ↓ chiama
 it.py (MESSAGGI_*)              game_controller.py
   ↑ nuovo: MESSAGGI_CONTROLLER          ↓ ritorna bool / dict / None / ValueError
-                                        ↓ scrive diagnostica in
+  ↑ tipizzato con codici_controller.py  ↓ scrive diagnostica in
                                   GameLogger → tombola_stark.log
 ```
+
+---
+
+## ⚙️ Infrastruttura Interna del Controller (v0.8.0)
+
+Questa sezione documenta la configurazione interna di `game_controller.py` che **non cambia** con questa modifica ma che è essenziale per capire come verranno incanalati i nuovi log sostitutivi dei `print()`.
+
+### Import di Logging
+
+Il controller già importa e inizializza il sistema di logging nella sezione di testa del modulo. Questo pattern **va preservato invariato** durante l'implementazione:
+
+```
+# Import sistema di logging centralizzato
+from bingo_game.logging import GameLogger
+import logging
+
+# Sub-logger per categoria — figli del logger radice tombola_stark
+# Ereditano handler e livello dal padre: nessuna configurazione aggiuntiva necessaria
+_logger_game   = logging.getLogger("tombola_stark.game")
+_logger_prizes = logging.getLogger("tombola_stark.prizes")
+_logger_system = logging.getLogger("tombola_stark.system")
+_logger_errors = logging.getLogger("tombola_stark.errors")
+```
+
+L'helper `_log_safe()` incapsula ogni chiamata ai sub-logger proteggendo il flusso di gioco da eccezioni del sistema di logging:
+
+```
+_log_safe(messaggio, livello, *args, logger=_logger_game)
+```
+
+**Regola di routing dei log** — quale sub-logger usare per i nuovi messaggi sostitutivi:
+
+| Tipo di messaggio | Sub-logger | Livello |
+|---|---|---|
+| Passaggi di costruzione partita (Gruppo A) | `_logger_game` | `DEBUG` |
+| Avvio/termine partita, premi, tombola | `_logger_game` / `_logger_prizes` | `INFO` |
+| Stato inatteso, comportamento imprevisto gestito | `_logger_system` | `WARNING` |
+| Parametro non-Partita, eccezione imprevista | `_logger_errors` | `ERROR` |
+
+### Relazione con `GameLogger`
+
+I sub-logger `tombola_stark.*` sono figli del logger radice `tombola_stark` configurato da `GameLogger.get_instance()`. Non richiedono configurazione propria: ereditano automaticamente l'handler su file e il livello impostato all'avvio. Questa catena è già operativa dalla v0.4.0 e **non deve essere modificata** per questa feature.
+
+---
+
+## 📦 Struttura dei Nuovi File (v0.8.0)
+
+### `bingo_game/events/codici_controller.py` (nuovo)
+
+File di costanti stringa che definisce i codici evento del controller. Segue il pattern già in uso per `Codici_Configurazione`, `Codici_Errori` e `Codici_Eventi`.
+
+**Costanti definite**:
+
+| Costante | Valore stringa | Descrizione |
+|---|---|---|
+| `CTRL_AVVIO_FALLITO_GENERICO` | `"ctrl.avvio_fallito_generico"` | Qualsiasi fallimento di `avvia_partita_sicura` |
+| `CTRL_TURNO_NON_IN_CORSO` | `"ctrl.turno_non_in_corso"` | Turno richiesto con partita non `in_corso` |
+| `CTRL_NUMERI_ESAURITI` | `"ctrl.numeri_esauriti"` | `PartitaNumeriEsauritiException` intercettata |
+| `CTRL_TURNO_FALLITO_GENERICO` | `"ctrl.turno_fallito_generico"` | Qualsiasi altro fallimento di `esegui_turno_sicuro` |
+
+**Posizione**: `bingo_game/events/codici_controller.py`  
+**Dipendenze**: nessuna (file di soli letterali stringa)  
+**Chi importa questo file**: `bingo_game/ui/locales/it.py` per annotare `MESSAGGI_CONTROLLER`
+
+### `bingo_game/ui/locales/it.py` (modifica)
+
+Aggiunta del dizionario `MESSAGGI_CONTROLLER` al file di localizzazione esistente.
+
+**Import necessario in cima al file**:
+
+```
+from bingo_game.events.codici_controller import (
+    CTRL_AVVIO_FALLITO_GENERICO,
+    CTRL_TURNO_NON_IN_CORSO,
+    CTRL_NUMERI_ESAURITI,
+    CTRL_TURNO_FALLITO_GENERICO,
+)
+```
+
+**Struttura del nuovo dizionario**:
+
+```
+MESSAGGI_CONTROLLER: dict[str, str] = {
+    CTRL_AVVIO_FALLITO_GENERICO:  "Impossibile avviare la partita. "
+                                  "Riprova o riavvia l'applicazione.",
+    CTRL_TURNO_NON_IN_CORSO:      "Impossibile eseguire il turno: "
+                                  "la partita non è in corso.",
+    CTRL_NUMERI_ESAURITI:         "Tutti i 90 numeri sono stati estratti. "
+                                  "La partita termina senza vincitore.",
+    CTRL_TURNO_FALLITO_GENERICO:  "Errore durante l'esecuzione del turno. "
+                                  "La partita potrebbe essere terminata.",
+}
+```
+
+**Motivazione dell'import**: usare le costanti come chiavi del dizionario — invece di stringhe letterali — garantisce che il refactoring di un codice si propaghi automaticamente sia in `codici_controller.py` che in `it.py`, eliminando il rischio di disallineamento silenzioso tra i due file.
 
 ---
 
@@ -76,11 +171,11 @@ it.py (MESSAGGI_*)              game_controller.py
 **Flusso**:
 
 1. **TUI**: Chiama `crea_partita_standard(nome, bot, cartelle)`
-   → **Controller**: Costruisce tabellone, giocatore umano e bot. **Scrive nel log** a livello `DEBUG`: `"[GAME] crea_partita_standard: tabellone creato."`, `"[GAME] crea_partita_standard: giocatore umano creato. nome='...'"`, `"[GAME] crea_partita_standard: N bot creati."`. Ritorna l'oggetto `Partita`.
+   → **Controller**: Costruisce tabellone, giocatore umano e bot. **Scrive nel log** via `_log_safe(..., logger=_logger_game)` a livello `DEBUG`: `"[GAME] crea_partita_standard: tabellone creato."`, `"[GAME] crea_partita_standard: giocatore umano creato. nome='...'"`, `"[GAME] crea_partita_standard: N bot creati."`. Ritorna l'oggetto `Partita`.
    → **stdout**: nulla
 
 2. **TUI**: Chiama `avvia_partita_sicura(partita)`
-   → **Controller**: Chiama `partita.avvia_partita()`. **Scrive nel log** a livello `INFO`: `"[GAME] Partita avviata — stato: in_corso, giocatori: N."` (questo log già esiste e va mantenuto). Ritorna `True`.
+   → **Controller**: Chiama `partita.avvia_partita()`. **Scrive nel log** via `_log_safe(..., logger=_logger_game)` a livello `INFO`: `"[GAME] Partita avviata — stato: in_corso, giocatori: N."` (log già esistente, va mantenuto). Ritorna `True`.
    → **stdout**: nulla
 
 3. **TUI**: Riceve `True`. Legge `MESSAGGI_CONFIGURAZIONE["CONFIG_CONFERMA_AVVIO"]` da `it.py`. Stampa a schermo il testo localizzato.
@@ -96,20 +191,20 @@ it.py (MESSAGGI_*)              game_controller.py
 
 **Punto di partenza**: `avvia_partita_sicura` fallisce per qualunque motivo (giocatori insufficienti, partita già avviata, errore generico).
 
-> **Decisione confermata (donato81, 2026-02-20)**: La TUI mostra sempre un unico messaggio generico `CTRL_AVVIO_FALLITO_GENERICO`, indipendentemente dalla causa specifica. La distinzione diagnostica tra le diverse eccezioni esiste **solo nel log** (`WARNING` con tipo eccezione), non nell'interfaccia utente. Questi errori non dovrebbero mai verificarsi in produzione perché la TUI valida i parametri prima di chiamare il controller.
+> **Decisione confermata (donato81, 2026-02-20)**: La TUI mostra sempre un unico messaggio generico `CTRL_AVVIO_FALLITO_GENERICO`, indipendentemente dalla causa specifica. La distinzione diagnostica tra le diverse eccezioni esiste **solo nel log** (`WARNING` con tipo eccezione via `_logger_errors`), non nell'interfaccia utente. Questi errori non dovrebbero mai verificarsi in produzione perché la TUI valida i parametri prima di chiamare il controller.
 
 **Flusso**:
 
 1. **TUI**: Chiama `avvia_partita_sicura(partita)`
-   → **Controller**: Intercetta l'eccezione (qualunque essa sia). **Scrive nel log** a livello `WARNING` con il tipo specifico per il debug: `"[GAME] Avvio fallito: tipo='PartitaGiocatoriInsufficientiException'"` oppure `"[GAME] Avvio fallito: tipo='PartitaGiaIniziataException'"` ecc. Ritorna sempre e comunque `False`.
+   → **Controller**: Intercetta l'eccezione. **Scrive nel log** via `_log_safe(..., logger=_logger_errors)` a livello `WARNING` con il tipo specifico: `"[GAME] Avvio fallito: tipo='PartitaGiocatoriInsufficientiException'"` ecc. Ritorna sempre `False`.
    → **stdout**: nulla
 
-2. **TUI**: Riceve `False`. Legge **sempre** `MESSAGGI_CONTROLLER["CTRL_AVVIO_FALLITO_GENERICO"]` da `it.py`. Stampa il messaggio localizzato.
+2. **TUI**: Riceve `False`. Legge `MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO]` da `it.py`. Stampa il messaggio localizzato.
    → **stdout**: `"Impossibile avviare la partita. Riprova o riavvia l'applicazione."` (solo da TUI)
 
 **Punto di arrivo**: L'utente vede un messaggio chiaro. Il log registra la causa tecnica precisa. Il controller non ha mai toccato stdout.
 
-**Cosa cambia**: Spariscono i `print(f"❌ Impossibile avviare: {exc}")`, `print(f"❌ Partita già avviata: {exc}")` e simili. La TUI aggiunge una guardia sul valore di ritorno `False` che oggi non controlla.
+**Cosa cambia**: Spariscono i `print(f"❌ Impossibile avviare: {exc}")` e simili. La TUI aggiunge una guardia sul `False` che oggi non controlla.
 
 ---
 
@@ -120,13 +215,11 @@ it.py (MESSAGGI_*)              game_controller.py
 **Flusso**:
 
 1. **TUI**: Chiama `esegui_turno_sicuro(partita)`
-   → **Controller**: Esegue il turno, incrementa `_turno_corrente`. **Scrive nel log** a livello `DEBUG`: `"[GAME] Turno #N — estratto: M, avanzamento: X%."`. Se ci sono premi, scrive a livello `INFO` per ciascun premio (già implementato, va mantenuto). Ritorna il dizionario del turno con `numero_estratto`, `premi_nuovi`, `tombola_rilevata`, ecc.
+   → **Controller**: Esegue il turno, incrementa `_turno_corrente`. **Scrive nel log** via `_log_safe(..., logger=_logger_game)` a livello `DEBUG`: `"[GAME] Turno #N — estratto: M, avanzamento: X%."`. Se ci sono premi, scrive a livello `INFO` via `_logger_prizes` per ciascun premio (già implementato, va mantenuto). Ritorna il dizionario del turno.
    → **stdout**: nulla
 
-2. **TUI**: Riceve il dizionario. Lo passa al renderer. Il renderer produce le righe da stampare: annuncio del numero estratto, eventuali premi, eventuale tombola.
+2. **TUI**: Riceve il dizionario. Lo passa al renderer. Il renderer produce le righe da stampare.
    → **stdout**: output controllato esclusivamente dalla TUI tramite renderer
-
-**Punto di arrivo**: L'utente vede il numero estratto e i premi. Il controller non ha scritto nulla su stdout.
 
 **Cosa cambia**: Spariscono i `print(f"✅ Turno #{n}: {numero}")` e `print(f"🎉 {n} nuovi premi!")`.
 
@@ -134,18 +227,16 @@ it.py (MESSAGGI_*)              game_controller.py
 
 ### Scenario 4: Turno Fallito (partita non in corso)
 
-**Punto di partenza**: Per qualche motivo la partita non è nello stato `in_corso` quando viene richiesto un turno.
+**Punto di partenza**: La partita non è nello stato `in_corso` quando viene richiesto un turno.
 
 **Flusso**:
 
 1. **TUI**: Chiama `esegui_turno_sicuro(partita)`
-   → **Controller**: Rileva stato non valido prima ancora di tentare il turno. **Scrive nel log** a livello `WARNING`: `"[GAME] esegui_turno_sicuro: stato '...' non in corso, turno saltato."`. Ritorna `None`.
+   → **Controller**: Rileva stato non valido. **Scrive nel log** via `_log_safe(..., logger=_logger_game)` a livello `WARNING`: `"[GAME] esegui_turno_sicuro: stato '...' non in corso, turno saltato."`. Ritorna `None`.
    → **stdout**: nulla
 
-2. **TUI**: Riceve `None`. Legge `MESSAGGI_CONTROLLER["CTRL_TURNO_NON_IN_CORSO"]` da `it.py`. Stampa il messaggio localizzato.
+2. **TUI**: Riceve `None`. Legge `MESSAGGI_CONTROLLER[CTRL_TURNO_NON_IN_CORSO]` da `it.py`. Stampa il messaggio localizzato.
    → **stdout**: messaggio localizzato (solo da TUI)
-
-**Punto di arrivo**: Utente informato. Log diagnostico disponibile per lo sviluppatore. Controller silenzioso.
 
 ---
 
@@ -156,14 +247,14 @@ it.py (MESSAGGI_*)              game_controller.py
 **Flusso**:
 
 1. **TUI**: Chiama `partita_terminata(partita)` ad ogni iterazione
-   → **Controller**: Ottiene stato dalla `Partita`. **Scrive nel log** a livello `DEBUG` (solo se abilitato): `"[GAME] partita_terminata: stato='in_corso'."` o `"[GAME] partita_terminata: stato='terminata'."`. Ritorna `False` o `True`.
+   → **Controller**: Ottiene stato dalla `Partita`. **Scrive nel log** via `_log_safe(..., logger=_logger_game)` a livello `DEBUG`: `"[GAME] partita_terminata: stato='...'"`. Ritorna `False` o `True`.
    → **stdout**: nulla
 
 2. Quando ritorna `True`:
-   → **Controller**: Scrive nel log a livello `INFO` (solo la prima volta, grazie al flag `_partita_terminata_logged`): `"[GAME] Partita terminata."` (già implementato, va mantenuto).
+   → **Controller**: Scrive nel log a livello `INFO` (solo la prima volta, grazie al flag `_partita_terminata_logged`): `"Partita terminata."` (già implementato, va mantenuto).
    → **TUI**: Riceve `True`, esce dal loop, entra nella schermata di fine partita.
 
-**Punto di arrivo**: Loop controllato silenziosamente. Spariscono i `print("🏁 Partita TERMINATA")` e `print("▶️ Partita in corso")` che oggi vengono emessi ad ogni iterazione del loop.
+**Cosa cambia**: Spariscono i `print("🏁 Partita TERMINATA")` e `print("▶️ Partita in corso")` emessi ad ogni iterazione.
 
 ---
 
@@ -171,9 +262,9 @@ it.py (MESSAGGI_*)              game_controller.py
 
 **Cosa succede se**: `ottieni_stato_sintetico` viene chiamata con un parametro che non è un oggetto `Partita`.
 
-> **Decisione confermata (donato81, 2026-02-20)**: `ottieni_stato_sintetico` è l'**unica funzione del controller che mantiene il `ValueError`** invece di ritornare `False`/`None`. Motivazione: principio _fail fast_. Questa funzione viene chiamata solo nel riepilogo finale; un parametro errato indica un bug reale nel codice della TUI, non un errore dell'utente. Un crash esplicito aiuta il developer a trovare il problema immediatamente. Il `ValueError` è già documentato nella docstring e nella firma pubblica. La TUI deve catturarlo esplicitamente.
+> **Decisione confermata (donato81, 2026-02-20)**: `ottieni_stato_sintetico` è l'**unica funzione del controller che mantiene il `ValueError`** invece di ritornare `False`/`None`. Motivazione: principio _fail fast_. Questa funzione viene chiamata solo nel riepilogo finale; un parametro errato indica un bug reale nel codice della TUI, non un errore dell'utente. Un crash esplicito aiuta il developer a trovare il problema immediatamente. La TUI deve catturarlo esplicitamente.
 
-**Sistema dovrebbe**: Lanciare immediatamente `ValueError` con messaggio descrittivo. **Scrivere nel log** a livello `ERROR` (sub-logger `_logger_errors`): `"[ERR] ottieni_stato_sintetico: parametro non è Partita — tipo: '...'."` La TUI cattura il `ValueError` e mostra un messaggio di errore critico.
+**Sistema dovrebbe**: Lanciare immediatamente `ValueError` con messaggio descrittivo. **Scrivere nel log** via `_log_safe(..., logger=_logger_errors)` a livello `ERROR`: `"[ERR] ottieni_stato_sintetico: parametro non è Partita — tipo: '...'."`
 
 ---
 
@@ -181,17 +272,13 @@ it.py (MESSAGGI_*)              game_controller.py
 
 **Cosa succede se**: Le altre funzioni del controller vengono chiamate con un parametro che non è un oggetto `Partita`.
 
-**Sistema dovrebbe**: Rilevare il problema immediatamente. **Scrivere nel log** a livello `ERROR` (sub-logger `_logger_errors`): `"[ERR] avvia_partita_sicura: parametro non è Partita — tipo: '...'."` Ritornare `False` o `None` secondo contratto. Non stampare nulla su stdout. Coerente con il pattern generale del controller (nessuna eccezione propagata, solo valore di ritorno sentinel).
+**Sistema dovrebbe**: Rilevare il problema immediatamente. **Scrivere nel log** via `_log_safe(..., logger=_logger_errors)` a livello `ERROR`: `"[ERR] avvia_partita_sicura: parametro non è Partita — tipo: '...'"`. Ritornare `False` o `None` secondo contratto. Non stampare nulla su stdout.
 
 ---
 
 ## 🔀 Classificazione dei `print()` Esistenti
 
-Questa è la tassonomia completa dei `print()` attualmente presenti nel controller, organizzata per tipo di intervento.
-
-### Gruppo A — Scaffolding di sviluppo (→ `_log_safe` livello `DEBUG`)
-
-Frasi che descrivono passaggi interni della costruzione di una partita. Nessun valore per l'utente finale.
+### Gruppo A — Scaffolding di sviluppo (→ `_log_safe` livello `DEBUG`, `logger=_logger_game`)
 
 | `print()` attuale | Log sostitutivo |
 |---|---|
@@ -209,8 +296,6 @@ Frasi che descrivono passaggi interni della costruzione di una partita. Nessun v
 
 ### Gruppo B — Output di stato che la TUI gestisce (→ rimossi dal controller)
 
-Messaggi di gioco rilevanti il cui contenuto è già trasportato dal valore di ritorno della funzione. La TUI riceve il valore e stampa con il renderer.
-
 | `print()` attuale | Chi lo gestisce invece |
 |---|---|
 | `"✅ Partita avviata con successo!"` | TUI legge `True` da `avvia_partita_sicura` |
@@ -221,9 +306,7 @@ Messaggi di gioco rilevanti il cui contenuto è già trasportato dal valore di r
 
 ### Gruppo C — Errori che la TUI mostra da `it.py` (→ rimossi dal controller + testi in `it.py`)
 
-Messaggi di fallimento che oggi vengono stampati dal controller. La TUI non li vede perché riceve già `False` o `None` — deve essere aggiornata per leggere il messaggio corretto da `it.py`.
-
-> **Decisione confermata (donato81, 2026-02-20)**: tutti i fallimenti di `avvia_partita_sicura` mappano sulla stessa chiave `CTRL_AVVIO_FALLITO_GENERICO`. Distinzione diagnostica solo nel log.
+> **Decisione confermata (donato81, 2026-02-20)**: tutti i fallimenti di `avvia_partita_sicura` mappano su `CTRL_AVVIO_FALLITO_GENERICO`. Distinzione diagnostica solo nel log.
 
 | `print()` attuale | Chiave `MESSAGGI_CONTROLLER` usata dalla TUI |
 |---|---|
@@ -235,9 +318,7 @@ Messaggi di fallimento che oggi vengono stampati dal controller. La TUI non li v
 | `"❌ Turno fallito - Partita non in corso: {exc}"` | `CTRL_TURNO_NON_IN_CORSO` |
 | `"❌ Errore partita durante turno: {exc}"` | `CTRL_TURNO_FALLITO_GENERICO` |
 
-### Gruppo D — Avvisi di infrastruttura (→ `_log_safe` livello `WARNING` o `ERROR`)
-
-Comportamenti inattesi dell'infrastruttura o errori di programmazione. Destinati allo sviluppatore, mai all'utente.
+### Gruppo D — Avvisi di infrastruttura (→ `_log_safe` livello `WARNING`/`ERROR`, `logger=_logger_errors`)
 
 | `print()` attuale | Log sostitutivo |
 |---|---|
@@ -265,28 +346,28 @@ Ritorno valore (bool/dict/None)
 Log su file
 ```
 
-### Dopo questa modifica (stato target)
+### Dopo questa modifica (stato target v0.8.0)
 
 ```
 Chiamata funzione controller
     ↓
 Elaborazione interna
     ↓ (risultato)
-Log su file (DEBUG/INFO/WARNING/ERROR per sviluppatore)
+_log_safe(…, logger=_logger_*) → tombola_stark.log
     +
 Ritorno valore (bool/dict/None) ←── unica comunicazione verso TUI
     ↓
 TUI interpreta il valore
     ↓
-TUI legge testo da it.py (MESSAGGI_CONTROLLER o altri)
+TUI legge testo da it.py tramite MESSAGGI_CONTROLLER[CTRL_*]
     ↓
 TUI stampa su stdout via renderer
 
 Eccezione: ottieni_stato_sintetico (parametro non-Partita)
     ↓
-Lancia ValueError — fail fast
+_log_safe(ERROR, logger=_logger_errors) + ValueError
     ↓
-TUI cattura e mostra errore critico
+TUI cattura ValueError e mostra errore critico
 ```
 
 ### Diagramma stati del controller
@@ -296,7 +377,7 @@ TUI cattura e mostra errore critico
         ↓
 [Elaborazione interna]
         ↓ (sempre)
-[Scrive in log — mai su stdout]
+[_log_safe — mai su stdout]
         ↓ (biforcazione esito)
    ┌────┴────┐
 [Successo]  [Errore]
@@ -317,39 +398,110 @@ o dict]      log WARNING/ERROR]
 
 ### Mappa completa: Ritorno Controller → Azione TUI
 
-> Nota: `avvia_partita_sicura` ritorna sempre `False` per qualsiasi fallimento. La TUI mostra sempre `CTRL_AVVIO_FALLITO_GENERICO`. La distinzione diagnostica è esclusivamente nel log per il developer.
+> Nota: `avvia_partita_sicura` ritorna sempre `False` per qualsiasi fallimento. La TUI mostra sempre `CTRL_AVVIO_FALLITO_GENERICO`. La distinzione diagnostica è esclusivamente nel log.
 
 | Funzione controller | Valore ritornato | Azione TUI |
 |---|---|---|
 | `crea_partita_standard(...)` | Oggetto `Partita` | Continua al passo successivo |
 | `crea_partita_standard(...)` | Eccezione (propagata) | Mostra errore critico, esci |
 | `avvia_partita_sicura(partita)` | `True` | Mostra `CONFIG_CONFERMA_AVVIO` (già in `it.py`) |
-| `avvia_partita_sicura(partita)` | `False` (qualsiasi causa) | Mostra `CTRL_AVVIO_FALLITO_GENERICO` |
+| `avvia_partita_sicura(partita)` | `False` (qualsiasi causa) | Mostra `MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO]` |
 | `esegui_turno_sicuro(partita)` | `dict` | Renderer elabora il dict e stampa |
-| `esegui_turno_sicuro(partita)` | `None` (non in corso) | Mostra `CTRL_TURNO_NON_IN_CORSO` |
-| `esegui_turno_sicuro(partita)` | `None` (numeri esauriti) | Mostra `CTRL_NUMERI_ESAURITI` |
-| `esegui_turno_sicuro(partita)` | `None` (generico) | Mostra `CTRL_TURNO_FALLITO_GENERICO` |
+| `esegui_turno_sicuro(partita)` | `None` (non in corso) | Mostra `MESSAGGI_CONTROLLER[CTRL_TURNO_NON_IN_CORSO]` |
+| `esegui_turno_sicuro(partita)` | `None` (numeri esauriti) | Mostra `MESSAGGI_CONTROLLER[CTRL_NUMERI_ESAURITI]` |
+| `esegui_turno_sicuro(partita)` | `None` (generico) | Mostra `MESSAGGI_CONTROLLER[CTRL_TURNO_FALLITO_GENERICO]` |
 | `partita_terminata(partita)` | `True` | TUI esce dal loop, entra in schermata fine |
 | `partita_terminata(partita)` | `False` | TUI prosegue il loop |
 | `ottieni_stato_sintetico(partita)` | `dict` | TUI elabora il riepilogo finale |
 | `ottieni_stato_sintetico(partita)` | `ValueError` (bug) | TUI cattura, mostra errore critico |
 
-### Nuovo dizionario `MESSAGGI_CONTROLLER` in `it.py`
+### Dizionario `MESSAGGI_CONTROLLER` in `it.py`
 
-Questi testi vengono letti **esclusivamente dalla TUI**, mai dal controller. Il controller non conosce e non importa `it.py`.
-
-> Le chiavi sono **4** (non 6): `CTRL_AVVIO_FALLITO_GIOCATORI` e `CTRL_AVVIO_GIA_AVVIATA` non vengono create — tutti i fallimenti di avvio usano `CTRL_AVVIO_FALLITO_GENERICO`.
+Questi testi vengono letti **esclusivamente dalla TUI**, mai dal controller. Il controller non conosce e non importa `it.py`. Le chiavi sono le costanti importate da `codici_controller.py`.
 
 | Chiave costante | Testo (Italian) | Quando |
 |---|---|---|
-| `CTRL_AVVIO_FALLITO_GENERICO` | `"Impossibile avviare la partita."` + `"Riprova o riavvia l'applicazione."` | `avvia_partita_sicura` → `False` per qualsiasi causa |
+| `CTRL_AVVIO_FALLITO_GENERICO` | `"Impossibile avviare la partita. Riprova o riavvia l'applicazione."` | `avvia_partita_sicura` → `False` per qualsiasi causa |
 | `CTRL_TURNO_NON_IN_CORSO` | `"Impossibile eseguire il turno: la partita non è in corso."` | `esegui_turno_sicuro` → `None` per stato non `in_corso` |
-| `CTRL_NUMERI_ESAURITI` | `"Tutti i 90 numeri sono stati estratti."` + `"La partita termina senza vincitore."` | `esegui_turno_sicuro` → `None` per `PartitaNumeriEsauritiException` |
-| `CTRL_TURNO_FALLITO_GENERICO` | `"Errore durante l'esecuzione del turno."` + `"La partita potrebbe essere terminata."` | `esegui_turno_sicuro` → `None` per altri errori |
+| `CTRL_NUMERI_ESAURITI` | `"Tutti i 90 numeri sono stati estratti. La partita termina senza vincitore."` | `esegui_turno_sicuro` → `None` per `PartitaNumeriEsauritiException` |
+| `CTRL_TURNO_FALLITO_GENERICO` | `"Errore durante l'esecuzione del turno. La partita potrebbe essere terminata."` | `esegui_turno_sicuro` → `None` per altri errori |
 
-### Nuovo file `codici_controller.py`
+---
 
-Per rispettare il pattern del progetto (`Codici_Configurazione`, `Codici_Errori`, `Codici_Eventi`), le 4 chiavi sopra vengono definite come costanti stringa in `bingo_game/events/codici_controller.py`.
+## 📄 Side Effects Documentali (v0.8.0)
+
+Questa feature richiede l'aggiornamento di tre file di documentazione **oltre al codice**. Questi aggiornamenti sono obbligatori e fanno parte della Definition of Done della PR v0.8.0.
+
+### `API.md` — Rimozione riferimenti a stdout
+
+**File**: `documentations/API.md`
+
+**Cosa cambia**: Le firme delle funzioni pubbliche del controller oggi riportano nei commenti/note eventuali riferimenti a output su stdout (es. "stampa messaggio di avvio", "scrive su terminale"). Tutti questi riferimenti vanno rimossi o sostituiti con la descrizione corretta del contratto di ritorno.
+
+**Aggiornamenti richiesti per funzione**:
+
+| Funzione | Rimozione | Sostituzione |
+|---|---|---|
+| `crea_partita_standard` | Qualsiasi nota su `print()` di costruzione | "Scrive log DEBUG per ogni sotto-passo" |
+| `avvia_partita_sicura` | Note su messaggi di avvio/errore stampati | "Ritorna `True`/`False`. Fallimenti loggati a WARNING." |
+| `esegui_turno_sicuro` | Note su stampa turno/premi | "Ritorna `dict` o `None`. Premi loggati a INFO." |
+| `ottieni_stato_sintetico` | Note su stampa stato | "Ritorna `dict`. Lancia `ValueError` su parametro non valido." |
+| `partita_terminata` | Note su stampa stato loop | "Ritorna `bool`. Stato loggato a DEBUG." |
+| `ha_partita_tombola` | Note su stampa tombola | "Ritorna `bool`. Verifica loggata a DEBUG." |
+
+**Criterio di done**: Nessuna funzione del controller in `API.md` deve menzionare stdout o `print()` come effetto collaterale.
+
+---
+
+### `ARCHITECTURE.md` — Aggiornamento diagramma flussi
+
+**File**: `documentations/ARCHITECTURE.md`
+
+**Cosa cambia**: Il diagramma architetturale deve riflettere il pattern "Silent Controller". La freccia di comunicazione tra Controller e UI era bidirezionale di fatto (Controller scriveva su stdout). Diventa **strettamente unidirezionale**.
+
+**Aggiornamenti richiesti**:
+
+1. **Diagramma layer**: Aggiornare il diagramma dei layer per mostrare che `game_controller.py` non ha più dipendenza verso stdout. La freccia `Controller → stdout` deve essere rimossa.
+
+2. **Diagramma flusso dati**: Aggiornare per mostrare il nuovo flusso:
+   ```
+   game_controller.py → (bool/dict/None) → ui_terminale.py → stdout
+   game_controller.py → (log) → tombola_stark.log
+   ```
+   Al posto di:
+   ```
+   game_controller.py → stdout  [DA RIMUOVERE]
+   game_controller.py → (bool/dict/None) → ui_terminale.py → stdout
+   ```
+
+3. **Sezione dipendenze**: Aggiungere alla lista delle regole architetturali invarianti: *"Il Controller non scrive mai su stdout (verificabile con `grep -n "print(" game_controller.py` → zero risultati)"*.
+
+4. **Sezione nuovi componenti v0.8.0**: Aggiungere `bingo_game/events/codici_controller.py` alla mappa dei moduli con la sua descrizione (costanti codici evento controller).
+
+**Criterio di done**: Il diagramma in `ARCHITECTURE.md` deve riflettere il flusso dati corretto dopo la v0.8.0: Controller → valori di ritorno → TUI → stdout, mai Controller → stdout diretto.
+
+---
+
+### `CHANGELOG.md` — Voce v0.8.0
+
+**File**: `documentations/CHANGELOG.md`
+
+**Cosa aggiungere** nella sezione `v0.8.0`:
+
+```
+### Changed
+- game_controller.py: rimossi tutti i print() (~22 chiamate).
+  I passaggi di costruzione vanno ora a log DEBUG.
+  Gli output di stato sono trasportati dai valori di ritorno.
+  I messaggi di errore sono gestiti dalla TUI via MESSAGGI_CONTROLLER.
+
+### Added
+- bingo_game/events/codici_controller.py: nuove costanti stringa
+  CTRL_AVVIO_FALLITO_GENERICO, CTRL_TURNO_NON_IN_CORSO,
+  CTRL_NUMERI_ESAURITI, CTRL_TURNO_FALLITO_GENERICO.
+- bingo_game/ui/locales/it.py: nuovo dizionario MESSAGGI_CONTROLLER
+  (4 voci) tipizzato con le costanti di codici_controller.py.
+```
 
 ---
 
@@ -362,17 +514,19 @@ Per rispettare il pattern del progetto (`Codici_Configurazione`, `Codici_Errori`
 ### Decisioni Prese
 
 - ✅ **Controller non importa mai `it.py`**: La dipendenza `Controller → UI` è vietata dall'architettura. Le costanti `codici_controller.py` vivono in `bingo_game/events/` (layer dominio/infrastruttura), non in `bingo_game/ui/`.
-- ✅ **Log DEBUG per i passaggi di costruzione**: I dettagli della costruzione (tabellone, giocatori, bot) vanno a livello `DEBUG` — visibili solo con `--debug`, in linea con il principio del `DESIGN_LOGGING_SYSTEM.md` di non appesantire il log ordinario.
-- ✅ **Log INFO mantenuti per eventi di gioco**: I log `INFO` già esistenti in `esegui_turno_sicuro` per premi e tombola vengono preservati — rispettano il contratto del `DESIGN_LOGGING_SYSTEM.md`.
-- ✅ **Il sub-logger `_logger_errors` riceve i casi gravi**: Errori di parametro non-Partita e eccezioni impreviste vanno a `_logger_errors` con livello `ERROR`, coerentemente con la convenzione `[ERR]` già in uso.
-- ✅ **Nessuna nuova eccezione introdotta nelle funzioni sicure**: Il controller continua a ritornare `False`/`None` per i casi di errore gestiti. Il comportamento pubblico non cambia.
-- ✅ **Tutti i fallimenti di `avvia_partita_sicura` → `False` + `CTRL_AVVIO_FALLITO_GENERICO` in TUI** *(donato81, 2026-02-20)*: La TUI mostra sempre il messaggio generico. La distinzione tra `PartitaGiocatoriInsufficientiException`, `PartitaGiaIniziataException` e altri errori esiste solo nel log per il developer. Motivazione: questi errori non devono verificarsi in produzione (la TUI valida prima); il dettaglio fine non aggiunge valore per l'utente. Le chiavi `CTRL_AVVIO_FALLITO_GIOCATORI` e `CTRL_AVVIO_GIA_AVVIATA` **non vengono create**.
-- ✅ **`ottieni_stato_sintetico` mantiene il `ValueError`** *(donato81, 2026-02-20)*: È l'unica funzione del controller che non segue il pattern `False`/`None`. Motivazione: viene chiamata solo nel riepilogo finale; un parametro errato indica un bug reale nel codice della TUI — il principio _fail fast_ prevale sulla coerenza formale. La TUI deve catturare il `ValueError` esplicitamente.
+- ✅ **`it.py` importa le costanti da `codici_controller.py`**: Il dizionario `MESSAGGI_CONTROLLER` usa le costanti come chiavi tipizzate. Questo garantisce coerenza e refactoring sicuro tra i due file.
+- ✅ **Log DEBUG per i passaggi di costruzione**: I dettagli della costruzione vanno a livello `DEBUG` via `_logger_game` — visibili solo con `--debug`, in linea con `DESIGN_LOGGING_SYSTEM.md`.
+- ✅ **Log INFO mantenuti per eventi di gioco**: I log `INFO` già esistenti in `esegui_turno_sicuro` per premi e tombola vengono preservati.
+- ✅ **Il sub-logger `_logger_errors` riceve i casi gravi**: Errori di parametro non-Partita e eccezioni impreviste vanno a `_logger_errors` con livello `ERROR`.
+- ✅ **Nessuna nuova eccezione introdotta nelle funzioni sicure**: Il controller continua a ritornare `False`/`None` per i casi di errore gestiti. Comportamento pubblico invariato.
+- ✅ **Tutti i fallimenti di `avvia_partita_sicura` → `False` + `CTRL_AVVIO_FALLITO_GENERICO`** *(donato81, 2026-02-20)*: Distinzione diagnostica solo nel log. Le chiavi `CTRL_AVVIO_FALLITO_GIOCATORI` e `CTRL_AVVIO_GIA_AVVIATA` non vengono create.
+- ✅ **`ottieni_stato_sintetico` mantiene il `ValueError`** *(donato81, 2026-02-20)*: Principio _fail fast_. La TUI deve catturarlo esplicitamente.
+- ✅ **Aggiornamento obbligatorio di `API.md` e `ARCHITECTURE.md`** nella stessa PR v0.8.0: La coerenza documentale è parte della Definition of Done.
 
 ### Assunzioni
 
 - Il controller viene sempre chiamato dalla TUI e mai direttamente da altri moduli
-- I test esistenti non fanno `capsys.readouterr()` per catturare i `print()` del controller (da verificare all'inizio dell'implementazione — se esistessero tali test andrebbero aggiornati)
+- I test esistenti non fanno `capsys.readouterr()` sul controller (da verificare prima dell'implementazione)
 - La modifica non richiede cambiamenti al dominio (`partita.py`, `cartella.py`, `tabellone.py`, `players/`)
 
 ---
@@ -381,54 +535,33 @@ Per rispettare il pattern del progetto (`Codici_Configurazione`, `Codici_Errori`
 
 ### Opzione A: Rimpiazzare i `print()` con messaggi in `it.py` e stampare dal controller stesso
 
-**Descrizione**: Il controller importa `MESSAGGI_CONTROLLER` da `it.py` e stampa direttamente i testi localizzati.
+**Pro**: messaggi localizzati, nessun cambiamento alla TUI.  
+**Contro**: viola la freccia di dipendenza `Controller → UI`; il controller continua a scrivere su stdout; il renderer non può processare i messaggi.
 
-**Pro**:
-- ✅ I messaggi sono localizzati
-- ✅ Nessun cambiamento alla TUI
+### Opzione B: Silenzio totale — controller ritorna dati, TUI parla *(Scelta)*
 
-**Contro**:
-- ❌ Viola la freccia di dipendenza: `Controller → UI` è architetturalmente vietato
-- ❌ Il controller continua a scrivere su stdout — il problema del controllo esclusivo dell'output non è risolto
-- ❌ Il renderer non può processare questi messaggi (niente TTS, niente accessibilità strutturata)
+**Pro**: rispetta la dipendenza unidirezionale; TUI ha controllo esclusivo su stdout; messaggi passano per il renderer; log più ricco; zero modifiche all'API pubblica.  
+**Contro**: la TUI deve aggiungere guardie sul `False` di `avvia_partita_sicura` (piccolo lavoro extra ma necessario).
 
----
-
-### Opzione B: Silenzio totale — controller ritorna dati, TUI parla (Scelta)
-
-**Descrizione**: Il controller non scrive mai su stdout. Ogni `print()` viene o rimosso (se il valore di ritorno già trasporta l'informazione) o convertito in `_log_safe` (se è diagnostica per lo sviluppatore). I messaggi per l'utente vengono aggiunti in `it.py` e stampati dalla TUI sulla base del valore di ritorno del controller.
-
-**Pro**:
-- ✅ Rispetta rigorosamente la freccia di dipendenza unidirezionale
-- ✅ La TUI ha controllo esclusivo su stdout — prerequisito per v0.8.0 loop di gioco
-- ✅ I messaggi passano per il renderer — screen reader e TTS possono consumarli
-- ✅ Il log diventa più ricco con log DEBUG verbosi per ogni sotto-passo
-- ✅ Zero modifiche all'API pubblica del controller
-
-**Contro**:
-- ❌ La TUI deve aggiungere guardie sul valore di ritorno di `avvia_partita_sicura` (oggi non controllato) — piccolo lavoro extra ma necessario
-
----
-
-### Scelta Finale
-
-**Opzione B: Silenzio totale**. L'Opzione A è una soluzione di comodo che rimanda il problema: il controller continuerebbe a violare il layer di presentazione. L'Opzione B è l'unica coerente con l'architettura del progetto e sblocca il loop di gioco v0.8.0 senza compromessi.
+**Scelta finale**: **Opzione B**. È l'unica coerente con l'architettura e sblocca il loop di gioco v0.8.0 senza compromessi.
 
 ---
 
 ## ✅ Design Freeze Checklist
 
-Questo design è pronto per la fase PLAN:
-
 - [x] Tutti gli scenari principali mappati (Scenario 1–7)
 - [x] Tassonomia completa dei `print()` con destino di ciascuno (Gruppi A–D)
 - [x] Mappa ritorno controller → azione TUI completa e aggiornata
 - [x] Contenuto di `MESSAGGI_CONTROLLER` definito (**4 chiavi** con testi)
-- [x] Nuovo file `codici_controller.py` progettato
+- [x] Nuovo file `codici_controller.py` progettato con costanti tipizzate
+- [x] Import di `codici_controller.py` in `it.py` specificato
+- [x] Infrastruttura di logging interna documentata (sub-logger, routing, `_log_safe`)
+- [x] Side effects documentali: `API.md`, `ARCHITECTURE.md`, `CHANGELOG.md` — criteri di done esplicitati
 - [x] Opzioni valutate e scelta motivata
-- [x] **Domanda 1 risolta** — tutti i `False` di `avvia_partita_sicura` → `CTRL_AVVIO_FALLITO_GENERICO` *(donato81, 2026-02-20)*
+- [x] **Domanda 1 risolta** — `False` di `avvia_partita_sicura` → `CTRL_AVVIO_FALLITO_GENERICO` *(donato81, 2026-02-20)*
 - [x] **Domanda 2 risolta** — `ottieni_stato_sintetico` mantiene `ValueError`, fail fast *(donato81, 2026-02-20)*
-- [x] Verifica nessun `capsys` esistente sul controller (da eseguire all'inizio dell'implementazione)
+- [x] Tutti i riferimenti puntano a v0.8.0
+- [x] Verifica nessun `capsys` esistente sul controller (da eseguire a inizio implementazione)
 
 **Stato**: ~~DRAFT~~ → **DESIGN FREEZE** ✅  
 **Data Freeze**: 2026-02-20
@@ -443,9 +576,7 @@ Questo design è pronto per la fase PLAN:
 
 ## 🧪 Protocollo di Verifica (Preview per il PLAN)
 
-### Test di Non-Regressione stdout (da formalizzare in PLAN)
-
-Il criterio di done oggettivo è: ogni funzione pubblica del controller, chiamata in qualsiasi condizione, non deve emettere nulla su stdout. Il test pattern è:
+### Test di Non-Regressione stdout
 
 ```
 DATO  una partita creata con parametri validi
@@ -453,7 +584,7 @@ QUANDO chiamo [funzione controller]
 ALLORA capsys.readouterr().out == ""
 ```
 
-Questo va applicato a tutte e 6 le funzioni pubbliche:
+Funzioni da coprire:
 1. `crea_tabellone_standard`
 2. `crea_partita_standard`
 3. `avvia_partita_sicura` — percorso `True` e percorso `False` generico
@@ -461,58 +592,58 @@ Questo va applicato a tutte e 6 le funzioni pubbliche:
 5. `partita_terminata`
 6. `ottieni_stato_sintetico` — percorso `dict` (il `ValueError` non riguarda stdout)
 
-Devono essere coperti sia i percorsi felici sia i percorsi di errore. Per `avvia_partita_sicura` il test `capsys` verifica il singolo percorso `False` — non servono test separati per tipo di eccezione lato TUI.
-
 ### Criterio di Done Meccanico
 
 ```bash
 grep -n "print(" bingo_game/game_controller.py
 ```
 
-Deve restituire **zero risultati**. Questo comando può essere aggiunto come check nel processo di revisione della PR.
+Deve restituire **zero risultati**.
 
 ---
 
 ## 📝 Note di Brainstorming
 
-- La modifica è completamente backward-compatible: l'API pubblica del controller non cambia in nessuna firma.
-- Il log diventa notevolmente più ricco: i passaggi di costruzione in `crea_partita_standard` oggi sono invisibili al log — dopo, con `--debug`, lo sviluppatore vedrà ogni sotto-passo.
-- Questa modifica è il prerequisito architetturale per il loop di gioco v0.8.0: senza di essa, il loop produrrebbe output disordinato con frasi del controller mischiate all'output del renderer.
-- I `print()` con emoji (✅, ❌, 🎉, 🏁) sono particolarmente problematici per l'accessibilità: uno screen reader li legge letteralmente come "segno di spunta verde", "X rossa", ecc. La rimozione ha un beneficio diretto per l'accessibilità.
-- La riduzione delle chiavi `MESSAGGI_CONTROLLER` da 6 a 4 semplifica il lavoro sulla TUI: un solo ramo condizionale per il fallimento dell'avvio invece di tre.
-- Valutare se aggiungere un check `print(` in pre-commit hook o regola `ruff` custom in una versione futura.
+- La modifica è completamente backward-compatible: l'API pubblica non cambia in nessuna firma.
+- Il log in modalità `--debug` diventa molto più ricco: ogni sotto-passo di costruzione partita oggi invisibile sarà tracciabile.
+- Prerequisito architetturale per il loop di gioco v0.8.0: senza controller silenzioso il loop produrrebbe output disordinato.
+- I `print()` con emoji (✅, ❌, 🎉, 🏁) sono problematici per gli screen reader: la rimozione ha beneficio diretto sull'accessibilità.
+- La riduzione da 6 a 4 chiavi `MESSAGGI_CONTROLLER` semplifica la TUI: un solo ramo condizionale per il fallimento dell'avvio.
+- Valutare check `print(` in pre-commit hook o regola `ruff` custom in versione futura.
 
 ---
 
 ## 📚 Riferimenti Contestuali
 
 ### Feature Correlate
-- **Sistema di Logging v0.4.0–v0.5.0**: I sub-logger `_logger_game`, `_logger_prizes`, `_logger_system`, `_logger_errors` e il pattern `_log_safe()` già esistenti sono gli strumenti con cui sostituire i `print()` di Gruppo A e D.
-- **TUI Start Menu v0.7.0** (`ui_terminale.py`): Il pattern di stampa già in uso negli stati A–D (testi da `it.py`, nessun `print()` hardcoded) è il modello da replicare per la gestione dei ritorni del controller nello Stato E.
-- **Loop di Gioco v0.8.0** (da implementare): Questa modifica è il suo prerequisito diretto. Senza controller silenzioso, il loop produrrebbe output non controllato.
-- **TerminalRenderer** (`renderer_terminal.py`): Già implementato e pronto. I messaggi di `MESSAGGI_CONTROLLER` arriveranno al renderer tramite la TUI, non direttamente dal controller.
+- **Sistema di Logging v0.4.0–v0.5.0**: Sub-logger e `_log_safe()` già esistenti sono gli strumenti per sostituire i `print()` di Gruppo A e D.
+- **TUI Start Menu v0.7.0** (`ui_terminale.py`): Pattern testi-da-`it.py` già in uso negli stati A–D è il modello da replicare per la gestione dei ritorni del controller.
+- **Loop di Gioco v0.8.0** (da implementare): Questa modifica è il prerequisito diretto.
+- **TerminalRenderer** (`renderer_terminal.py`): Già implementato. I messaggi `MESSAGGI_CONTROLLER` arriveranno al renderer tramite TUI.
 
 ### Vincoli da Rispettare
-- **`TerminalUI` usa solo il Controller** — vietato importare da `partita.py`, `giocatore_base.py`, ecc. (invariante architetturale già stabilito)
-- **Zero stringhe hardcoded in `ui_terminale.py`** — tutti i nuovi testi di errore controller vanno in `it.py` (invariante già stabilito)
-- **Logger centralizzato** — `logging.getLogger(__name__)`, prefisso categoria `[GAME]`/`[SYS]`/`[ERR]`, nessun `print()` per debug (invariante già stabilito da `DESIGN_LOGGING_SYSTEM.md`)
-- **Il sistema di logging non propaga mai eccezioni al gioco** — il pattern `_log_safe()` deve essere usato per tutti i nuovi log aggiunti
-- **I log DEBUG non devono appesantire il log normale** — i nuovi log di costruzione vanno tutti a livello `DEBUG`, visibili solo con `--debug`
+- **`TerminalUI` usa solo il Controller** — vietato importare da `partita.py`, `giocatore_base.py`, ecc.
+- **Zero stringhe hardcoded in `ui_terminale.py`** — tutti i nuovi testi vanno in `it.py`
+- **Logger centralizzato** — pattern `_log_safe()` obbligatorio per tutti i nuovi log, mai `print()` per debug
+- **Log DEBUG non appesantiscono il log normale** — tutti i nuovi log di costruzione a livello `DEBUG`
+- **`API.md` e `ARCHITECTURE.md` aggiornati nella stessa PR** — la coerenza documentale è parte della Definition of Done v0.8.0
 
 ---
 
 ## 🎯 Risultato Finale Atteso
 
-Una volta implementato, il controller garantirà:
-
 ✅ `grep -n "print(" bingo_game/game_controller.py` → zero risultati  
-✅ Ogni funzione pubblica del controller supera il test `capsys.readouterr().out == ""`  
-✅ Il log `tombola_stark.log` in modalità `--debug` mostra tutti i sotto-passi di costruzione partita  
-✅ Il log `tombola_stark.log` in modalità normale mostra solo eventi INFO rilevanti (avvio, premi, tombola, errori)  
-✅ La TUI riceve `False` da `avvia_partita_sicura` e mostra sempre `CTRL_AVVIO_FALLITO_GENERICO`  
-✅ La TUI cattura il `ValueError` di `ottieni_stato_sintetico` e mostra un messaggio di errore critico  
-✅ I messaggi di errore controller non contengono emoji che interferiscono con lo screen reader  
-✅ Il loop di gioco v0.8.0 può collegare il renderer senza rischio di output duplicato o interlacciato  
+✅ Ogni funzione pubblica supera `capsys.readouterr().out == ""`  
+✅ Log `tombola_stark.log` in `--debug` mostra tutti i sotto-passi di costruzione  
+✅ Log in modalità normale mostra solo eventi INFO rilevanti  
+✅ `it.py` importa le costanti da `codici_controller.py` e le usa come chiavi di `MESSAGGI_CONTROLLER`  
+✅ TUI riceve `False` da `avvia_partita_sicura` e mostra `CTRL_AVVIO_FALLITO_GENERICO`  
+✅ TUI cattura `ValueError` di `ottieni_stato_sintetico` e mostra errore critico  
+✅ `API.md` aggiornato: nessun riferimento a stdout nelle firme del controller  
+✅ `ARCHITECTURE.md` aggiornato: diagramma riflette il Silent Controller v0.8.0  
+✅ `CHANGELOG.md` aggiornato: voce v0.8.0 con Changed e Added  
+✅ Messaggi senza emoji problematiche per screen reader  
+✅ Loop di gioco v0.8.0 collegabile al renderer senza rischio di output duplicato  
 
 ---
 
