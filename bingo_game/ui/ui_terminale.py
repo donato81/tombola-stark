@@ -11,7 +11,14 @@ from __future__ import annotations
 import logging
 
 from bingo_game.game_controller import avvia_partita_sicura, crea_partita_standard
+from bingo_game.ui.locales import MESSAGGI_CONTROLLER
 from bingo_game.ui.locales.it import MESSAGGI_CONFIGURAZIONE, MESSAGGI_ERRORI
+from bingo_game.events.codici_controller import (
+    CTRL_AVVIO_FALLITO_GENERICO,
+    CTRL_TURNO_NON_IN_CORSO,
+    CTRL_NUMERI_ESAURITI,
+    CTRL_TURNO_FALLITO_GENERICO,
+)
 from bingo_game.ui.renderers.renderer_terminal import TerminalRenderer
 
 logger = logging.getLogger(__name__)
@@ -170,7 +177,13 @@ class TerminalUI:
             num_cartelle_umano=numero_cartelle,
             num_bot=numero_bot,
         )
-        avvia_partita_sicura(partita)
+        esito = avvia_partita_sicura(partita)
+        if not esito:
+            self._stampa_righe((MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO],))
+            logger.error("[TUI] Avvio partita fallito — esito=False da avvia_partita_sicura.")
+            return
+        # TODO C7: guardia da aggiungere quando ottieni_stato_sintetico verra' usato
+        # TODO C7: guardia da aggiungere nel loop di gioco
         logger.info(
             "[TUI] Configurazione completata. nome='%s', bot=%d, cartelle=%d.",
             nome,

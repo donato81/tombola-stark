@@ -488,7 +488,6 @@ def avvia_partita_sicura(partita: Partita) -> bool:
             
     # 4. Eccezioni SPECIFICHE intercettate e gestite
     except PartitaGiocatoriInsufficientiException as exc:
-        _log_safe(f"[GAME] Avvio fallito: tipo='{type(exc).__name__}'.", "warning", logger=_logger_errors)
         _log_safe("[GAME] Avvio fallito: %s", "warning", str(exc), logger=_logger_game)
         _log_safe(
             "[ERR] Eccezione avvio partita: %s — tipo: %s",
@@ -498,7 +497,6 @@ def avvia_partita_sicura(partita: Partita) -> bool:
         return False
         
     except PartitaGiaIniziataException as exc:
-        _log_safe(f"[GAME] Avvio fallito: tipo='{type(exc).__name__}'.", "warning", logger=_logger_errors)
         _log_safe("[GAME] Avvio fallito: %s", "warning", str(exc), logger=_logger_game)
         _log_safe(
             "[ERR] Eccezione avvio partita: %s — tipo: %s",
@@ -509,7 +507,6 @@ def avvia_partita_sicura(partita: Partita) -> bool:
         
     # 5. QUALSIASI altra eccezione di Partita
     except PartitaException as exc:
-        _log_safe(f"[GAME] Avvio fallito: tipo='{type(exc).__name__}'.", "warning", logger=_logger_errors)
         _log_safe("[GAME] Avvio fallito: %s", "warning", str(exc), logger=_logger_game)
         _log_safe(
             "[ERR] Eccezione avvio partita: %s — tipo: %s",
@@ -833,7 +830,7 @@ def ha_partita_tombola(partita: Partita) -> bool:
     
     # 5. LOG RISULTATO (rimuovibile in produzione)
     if ha_tombola:
-        pass
+        _log_safe("[GAME] ha_partita_tombola: esito=True.", "debug", logger=_logger_game)
     else:
         _log_safe("[GAME] ha_partita_tombola: nessuna tombola, gioco continua.", "debug", logger=_logger_game)
     
