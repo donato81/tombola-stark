@@ -7,6 +7,104 @@
 
 ---
 
+## [v0.8.0] - 2026-02-20
+
+### Feature: Silent Controller — Rimozione `print()` e Localizzazione Messaggi
+
+#### Aggiunto
+- **`bingo_game/events/codici_controller.py`**: 4 costanti stringa `CTRL_*` per i codici
+  di risposta del controller (`ctrl.avvio_fallito_generico`, `ctrl.turno_non_in_corso`,
+  `ctrl.numeri_esauriti`, `ctrl.turno_fallito_generico`). File privo di import interni
+  (nessun rischio di circolarità).
+- **`MESSAGGI_CONTROLLER`** in `bingo_game/ui/locales/it.py`: dizionario `dict[str, str]`
+  con 4 chiavi (una per ogni costante `CTRL_*`) contenente i testi localizzati in italiano
+  da mostrare all'utente in risposta ai valori di ritorno anomali del controller.
+- **Export `MESSAGGI_CONTROLLER`** da `bingo_game/ui/locales/__init__.py`: importabile
+  via path corto `from bingo_game.ui.locales import MESSAGGI_CONTROLLER`.
+- **`tests/test_silent_controller.py`**: 15 nuovi test (tutti verdi):
+  - Classe `TestControllerSilenzioso` (8 test `capsys`): verifica che tutte le funzioni
+    pubbliche del controller non emettano nulla su stdout.
+  - Classe `TestContrattiRitorno` (4 test): verifica i contratti di ritorno
+    (`True`/`False`, `dict`/`None`, `ValueError`).
+  - Classe `TestMESSAGGICONTROLLER` (3 test): verifica le 4 chiavi, i valori stringa
+    non vuoti e la corrispondenza con le costanti `CTRL_*`.
+
+#### Modificato
+- **`bingo_game/game_controller.py`**: rimosse ~22 chiamate `print()` suddivise in 3 gruppi:
+  - *Gruppo A* (11 `print()`): scaffolding costruzione partita → sostituiti con
+    `_log_safe(..., logging.DEBUG, logger=_logger_game)` con prefisso `[GAME]`.
+  - *Gruppo B* (5 `print()`): output di stato (`"✅ Partita avviata"`, ecc.) → rimossi
+    (la TUI legge già il valore di ritorno `bool`/`dict`).
+  - *Gruppo C+D* (7+5 `print()`): errori utente ed errori infrastruttura → sostituiti
+    con `_log_safe(..., logging.WARNING/ERROR, logger=_logger_errors/_logger_system)`
+    con prefissi `[GAME]`, `[ERR]`, `[SYS]` senza emoji.
+  - `grep -n "print(" bingo_game/game_controller.py` → **zero risultati** post-modifica.
+- **`bingo_game/ui/ui_terminale.py`**: aggiunte guardie TUI per i casi di ritorno anomalo
+  del controller:
+  - Import di `MESSAGGI_CONTROLLER` e delle 4 costanti `CTRL_*`.
+  - Guardia sul `False` di `avvia_partita_sicura` con messaggio localizzato.
+  - Helper `_ottieni_stato_sicuro` per catturare `ValueError` di `ottieni_stato_sintetico`.
+- **`documentations/API.md`**: aggiornate le firme di tutte le funzioni pubbliche del
+  controller con note `v0.8.0` (rimozione riferimenti a `stdout`/`print()`, contratti
+  di ritorno espliciti).
+- **`documentations/ARCHITECTURE.md`**: aggiornato diagramma livelli (rimozione freccia
+  `Controller → stdout`), aggiunta regola invariante *"Il Controller non scrive mai su
+  stdout"*, aggiunta `codici_controller.py` alla tabella componenti, aggiornamento
+  flusso TUI.
+
+#### Fixed
+- **Accessibilità**: rimossi tutti i caratteri emoji (`✅`, `❌`, `🎉`, `💥`) dai
+  messaggi di log del controller. I log erano potenzialmente vocalizzati dai screen
+  reader come sequenze Unicode non significative.
+- **Architettura**: eliminata la dipendenza `Controller → stdout`. Il controller è ora
+  rigorosamente silenzioso; tutta la comunicazione verso l'utente passa attraverso
+  la TUI che legge i valori di ritorno.
+- **Pattern `_log_safe`**: ogni chiamata usa il prefisso categorizzato (`[GAME]`,
+  `[ERR]`, `[SYS]`) come da `DESIGN_LOGGING_SYSTEM.md`, abilitando il filtraggio
+  con `grep "\[ERR\]" tombola_stark.log`.
+
+#### Test
+- 15 nuovi test in `tests/test_silent_controller.py` (tutti verdi)
+- Nessuna regressione sulla suite preesistente
+
+---
+
+## [v0.7.0] - 2026-02-20
+
+### Feature: TUI Start Menu Fase 1 — Macchina a Stati A→E
+
+#### Aggiunto
+- **`bingo_game/ui/ui_terminale.py`**: classe `TerminalUI` con macchina a stati
+  sequenziale A→E per la configurazione pre-partita:
+  - Stato A (Benvenuto): messaggio introduttivo accessibile
+  - Stato B (Nome): input nome giocatore con `strip()`, validazione non vuoto, max 15 caratteri
+  - Stato C (Bot): input numero bot (1–7) con re-prompt automatico su valore non valido
+  - Stato D (Cartelle): input numero cartelle (1–6) con re-prompt automatico
+  - Stato E (Avvio): chiamata `crea_partita_standard()` + `avvia_partita_sicura()` (two-step obbligatorio)
+- **`bingo_game/events/codici_configurazione.py`**: 9 costanti `Codici_Configurazione`
+  per i messaggi del flusso di configurazione.
+- **`MESSAGGI_CONFIGURAZIONE`** in `bingo_game/ui/locales/it.py`: testi localizzati
+  in italiano per i 5 stati del flusso TUI.
+- **`main.py`**: aggiornato per istanziare `TerminalUI` e avviare il flusso di
+  configurazione via `tui.avvia()`.
+- **8 unit test** per `TerminalUI` (flusso happy path, validazioni, re-prompt).
+
+#### Modificato
+- **`bingo_game/ui/locales/it.py`**: aggiunta sezione `MESSAGGI_CONFIGURAZIONE`.
+- **`bingo_game/ui/locales/__init__.py`**: export di `MESSAGGI_CONFIGURAZIONE`.
+- **`documentations/API.md`**: documentata la classe `TerminalUI` con il metodo
+  pubblico `avvia()`, validazioni integrate e dipendenze.
+- **`documentations/ARCHITECTURE.md`**: aggiornata sezione Livello Interfaccia con
+  componenti attivi v0.7.0 e flusso TUI.
+- **`README.md`**: aggiunta feature *"Menu TUI accessibile (v0.7.0+)"* nella sezione
+  Caratteristiche.
+
+#### Test
+- 8 nuovi test unitari per `TerminalUI`
+- Nessuna regressione sulla suite preesistente
+
+---
+
 ## [v0.6.0] - 2026-02-19
 
 ### Feature: Bot Attivo — Reclami Autonomi dei Bot
@@ -138,4 +236,4 @@
 
 ---
 
-*Ultimo aggiornamento: 2026-02-19 (v0.6.0)*
+*Ultimo aggiornamento: 2026-02-20 (v0.8.0)*
