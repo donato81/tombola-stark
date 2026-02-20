@@ -11,7 +11,7 @@ funzioni di comodo per:
 - avviare la partita in modo sicuro, gestendo eventuali eccezioni;
 - eseguire un turno di gioco e restituire un dizionario pronto per l'interfaccia;
 - ottenere una fotografia sintetica dello stato della partita;
-- ottenere il giocatore umano dalla partita (helper per la TUI).
+- ottenere il giocatore umano dalla partita (v0.9.0).
 
 L'obiettivo è separare la logica del "cosa succede" (motore) dalla logica
 del "come viene presentato" (interfaccia da terminale, screen reader, ecc.).
@@ -194,9 +194,7 @@ def assegna_cartelle_a_giocatore(giocatore: GiocatoreBase, num_cartelle: int) ->
 
     Parametri:
     - giocatore: GiocatoreBase
-      Giocatore a cui assegnare le cartelle.
     - num_cartelle: int
-      Numero di cartelle da creare e assegnare.
 
     Raises:
     - ControllerCartelleNegativeException: Se num_cartelle è negativo.
@@ -212,21 +210,6 @@ def assegna_cartelle_a_giocatore(giocatore: GiocatoreBase, num_cartelle: int) ->
 def crea_giocatore_umano(nome: str, num_cartelle: int = 1, id_giocatore: Optional[int] = None) -> GiocatoreUmano:
     """
     Crea un nuovo giocatore umano, assegnandogli un ID (se disponibile) e le cartelle richieste.
-
-    Passaggi:
-    1. Istanzia GiocatoreUmano passando nome ed eventuale ID;
-    2. Delega la creazione delle cartelle alla funzione di supporto.
-
-    Parametri:
-    - nome: str
-      Nome descrittivo del giocatore (es. "Mario"). Non deve essere vuoto.
-    - num_cartelle: int
-      Numero di cartelle da assegnare subito. Default: 1.
-    - id_giocatore: Optional[int]
-      Identificativo univoco del giocatore.
-
-    Ritorna:
-    - GiocatoreUmano: l'istanza del giocatore creata e configurata.
 
     Raises:
     - ControllerNomeGiocatoreException: Se il nome è vuoto.
@@ -244,17 +227,9 @@ def crea_giocatori_automatici(num_bot: int = 1) -> List[GiocatoreAutomatico]:
     """
     Crea una lista di giocatori automatici (bot) per la partita di tombola.
 
-    Parametri:
-    - num_bot: int
-      Numero desiderato di bot da creare. Default: 1.
-      Massimo consentito: 7.
-
-    Ritorna:
-    - List[GiocatoreAutomatico]: lista dei bot creati e configurati.
-
     Raises:
     - ControllerBotNegativeException: Se num_bot < 0.
-    - ControllerBotExcessException: Se num_bot > 7.
+    - ControllerBotExcessException: Se num_bot > 7 (limite partita).
     """
     if num_bot < 0:
         raise ControllerBotNegativeException(num_bot)
@@ -283,17 +258,6 @@ def crea_partita_standard(
     """
     Crea una partita di tombola standard completamente configurata e pronta per essere avviata.
 
-    Parametri:
-    - nome_giocatore_umano: str
-      Nome del giocatore umano principale. Default: "Giocatore 1".
-    - num_cartelle_umano: int
-      Numero di cartelle da assegnare al giocatore umano. Default: 1.
-    - num_bot: int
-      Numero di bot automatici da includere (1-7). Default: 1.
-
-    Ritorna:
-    - Partita: istanza completamente configurata nello stato "non_iniziata".
-
     Raises:
     - ControllerNomeGiocatoreException: Se nome_giocatore_umano è vuoto.
     - ControllerCartelleNegativeException: Se num_cartelle_umano < 0.
@@ -302,6 +266,7 @@ def crea_partita_standard(
     """
     global _partita_terminata_logged, _turno_corrente, _premi_totali
 
+    # Reset flag terminazione e contatori per nuova partita
     _partita_terminata_logged = False
     _turno_corrente = 0
     _premi_totali = 0
@@ -360,11 +325,9 @@ def avvia_partita_sicura(partita: Partita) -> bool:
     """
     Avvia la partita in modo sicuro, intercettando eccezioni comuni.
 
-    Parametri:
-    - partita: Partita. Istanza della partita da avviare.
-
     Ritorna:
-    - bool: True se avvio riuscito, False altrimenti.
+    - True: avvio riuscito, partita ora in stato "in_corso"
+    - False: avvio fallito
     """
     if not isinstance(partita, Partita):
         _log_safe(f"[ERR] avvia_partita_sicura: parametro non e' Partita. tipo='{type(partita).__name__}'.", "error", logger=_logger_errors)
@@ -408,9 +371,6 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
     """
     Esegue un turno di gioco in modo completamente sicuro.
-
-    Parametri:
-    - partita: Partita. La partita su cui eseguire il turno.
 
     Ritorna:
     - Dict[str, Any]: dizionario completo del turno se successo.
@@ -532,14 +492,8 @@ def ottieni_stato_sintetico(partita: Partita) -> Dict[str, Any]:
     """
     Ritorna una fotografia completa e validata dello stato della partita.
 
-    Parametri:
-    - partita: Partita. Istanza valida della partita (qualsiasi stato).
-
-    Ritorna:
-    - Dict[str, Any]: stato completo garantito.
-
     Raises:
-    - ValueError: parametro non-Partita o stato incompleto/incoerente.
+    - ValueError: parametro non-Partita o stato incompleto/incoerente
     """
     if not isinstance(partita, Partita):
         raise ValueError("ottieni_stato_sintetico: parametro deve essere Partita, ricevuto: " + str(type(partita)))
@@ -585,14 +539,8 @@ def ha_partita_tombola(partita: Partita) -> bool:
     """
     Verifica se almeno un giocatore della partita ha completato una tombola.
 
-    Parametri:
-    - partita: Partita. Istanza valida della partita.
-
-    Ritorna:
-    - bool: True se almeno 1 giocatore ha tombola.
-
     Raises:
-    - ValueError: parametro non-Partita.
+    - ValueError: parametro non-Partita
     """
     if not isinstance(partita, Partita):
         raise ValueError(
@@ -620,14 +568,8 @@ def partita_terminata(partita: Partita) -> bool:
     """
     Verifica se la partita è nello stato 'terminata' (condizione di uscita).
 
-    Parametri:
-    - partita: Partita. Istanza valida della partita.
-
-    Ritorna:
-    - bool: True se stato == "terminata".
-
     Raises:
-    - ValueError: parametro non-Partita o stato invalido.
+    - ValueError: parametro non-Partita o stato invalido
     """
     global _partita_terminata_logged
 
@@ -663,59 +605,55 @@ def partita_terminata(partita: Partita) -> bool:
     return is_terminata
 
 
+# =========================
+# Sezione 3: Helper per la TUI — v0.9.0
+# =========================
+
 def ottieni_giocatore_umano(partita: Partita) -> Optional[GiocatoreUmano]:
-    """Restituisce il primo GiocatoreUmano presente nella partita.
+    """Ritorna il primo GiocatoreUmano trovato nella partita, oppure None.
 
-    Questo helper consente alla TUI di ottenere il giocatore umano
-    senza importare oggetti del Domain Layer (Partita, GiocatoreUmano)
-    direttamente nel layer di presentazione.
-
-    Il risultato è usato dalla TUI per:
-    - chiamare i metodi di segnazione/navigazione del giocatore;
-    - leggere lo stato focus (cartella, riga, colonna);
-    - derivare la cartella in focus per il prompt del game loop.
-
-    Comportamento:
-    - Scansiona get_giocatori() e ritorna il primo GiocatoreUmano trovato.
-    - Ritorna None se la partita non ha giocatori umani (caso anomalo).
-    - Non solleva mai eccezioni: log DEBUG su tutti i percorsi di errore.
+    Questa funzione è l'interfaccia ufficiale per la TUI Game Loop: permette
+    alla TUI di ottenere un riferimento al giocatore umano senza importare
+    direttamente dal Domain Layer (GiocatoreUmano è usato solo nel Controller).
 
     Args:
-        partita: L'istanza Partita da cui estrarre il giocatore umano.
+        partita: Istanza Partita valida (qualsiasi stato).
 
     Returns:
-        GiocatoreUmano | None: il primo giocatore umano, oppure None se
-        non presente o se si verifica un errore interno.
+        GiocatoreUmano: primo giocatore umano trovato in partita.get_giocatori().
+        None: se nessun GiocatoreUmano è presente o partita non è valida.
+
+    Note:
+        Nessun side effect. Nessuna eccezione propagata all'esterno.
+        Compatibile con partita non ancora avviata (stato 'non_iniziata').
 
     Version:
-        v0.9.0: Prima implementazione (Fase 2 Game Loop).
+        v0.9.0: Prima implementazione.
     """
     if not isinstance(partita, Partita):
         _log_safe(
-            "[GAME] ottieni_giocatore_umano: parametro non è Partita (tipo='%s').",
-            "debug", type(partita).__name__, logger=_logger_game
+            "[ERR] ottieni_giocatore_umano: parametro non e' Partita. tipo='%s'.",
+            "warning", type(partita).__name__, logger=_logger_errors
         )
         return None
 
     try:
-        giocatori = partita.get_giocatori()
+        for giocatore in partita.get_giocatori():
+            if isinstance(giocatore, GiocatoreUmano):
+                _log_safe(
+                    "[GAME] ottieni_giocatore_umano: trovato '%s'.",
+                    "debug", giocatore.nome, logger=_logger_game
+                )
+                return giocatore
     except Exception as exc:
         _log_safe(
-            "[GAME] ottieni_giocatore_umano: errore get_giocatori() — %s.",
-            "debug", str(exc), logger=_logger_game
+            "[ERR] ottieni_giocatore_umano: eccezione durante get_giocatori(). %s",
+            "error", str(exc), logger=_logger_errors
         )
         return None
 
-    for giocatore in giocatori:
-        if isinstance(giocatore, GiocatoreUmano):
-            _log_safe(
-                "[GAME] ottieni_giocatore_umano: trovato giocatore='%s'.",
-                "debug", giocatore.nome, logger=_logger_game
-            )
-            return giocatore
-
     _log_safe(
-        "[GAME] ottieni_giocatore_umano: nessun GiocatoreUmano in partita.",
-        "debug", logger=_logger_game
+        "[GAME] ottieni_giocatore_umano: nessun GiocatoreUmano trovato.",
+        "warning", logger=_logger_game
     )
     return None
