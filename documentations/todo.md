@@ -1,238 +1,335 @@
-# 📋 TODO – Bot Attivo: GiocatoreAutomatico dichiara i premi (v0.6.0)
+# ✅ TODO — Implementazione Menu Iniziale TUI (v0.7.0)
 
-Branch: `feature/bot-attivo`
-Tipo: `FEATURE`
-Priorità: `HIGH`
-Stato: `READY`
-
----
-
-## 📖 Riferimento Documentazione
-
-Prima di iniziare qualsiasi implementazione, consultare obbligatoriamente:
-
-| Documento | Scopo |
-|---|---|
-| `documentations/PLAN_BOT_ATTIVO.md` | **Piano completo** — architettura, algoritmi, edge case, ordine di implementazione |
-| `documentations/API.md` | Contratti API pubblici di tutte le classi coinvolte |
-| `documentations/ARCHITECTURE.md` | Regole di dipendenza, flusso del turno, pattern architetturali |
-
-Questo file TODO è solo un sommario operativo da consultare e aggiornare durante ogni fase.
-Il piano completo contiene analisi, architettura, edge case e dettagli tecnici.
+> **Basato su**: `documentations/PLAN_TERMINAL_START_MENU.md` v1.0
+> **Design di riferimento**: `documentations/DESIGN_TERMINAL_START_MENU.md` v1.2 (READY)
+> **Branch di lavoro**: `feature/terminal-start-menu`
+> **Versione target**: `v0.7.0`
+> **Ultimo aggiornamento**: 2026-02-19
 
 ---
 
-## 🤖 Istruzioni per Copilot Agent
+## 🚨 Regole Architetturali (ricordare sempre)
 
-Implementare le modifiche in modo **incrementale** su più commit atomici e logici.
+> Questi vincoli si applicano a **ogni** commit. Copilot deve rispettarli senza eccezioni.
 
-**Workflow per ogni fase:**
-
-1. **Leggi questo TODO** → Identifica la prossima fase da implementare
-2. **Consulta `PLAN_BOT_ATTIVO.md`** → Rivedi algoritmo, edge case e vincoli della fase
-3. **Implementa modifiche** → Codifica solo la fase corrente (scope limitato)
-4. **Commit atomico** → Messaggio conventional, scope chiaro, riferimento fase
-5. **Aggiorna questo TODO** → Spunta le checkbox completate per la fase
-6. **Acquisisci stato sommario** → Rivedi stato globale prima di proseguire
-7. **RIPETI** → Passa alla fase successiva (torna al punto 1)
-
-⚠️ **REGOLE FONDAMENTALI:**
-
-- ✅ **Un commit per fase logica** (no mega-commit con tutto)
-- ✅ **Dopo ogni commit**: aggiorna questo TODO spuntando le checkbox
-- ✅ **Prima di ogni fase**: rileggi la sezione pertinente in `PLAN_BOT_ATTIVO.md`
-- ✅ **Approccio sequenziale**: fase → commit → aggiorna TODO → fase successiva
-- ✅ **Commit message format**: `type(scope): description [Phase N/7]`
-- ❌ **NO commit multipli senza aggiornare TODO** (perde tracciabilità)
-- ❌ **NO implementazione completa in un colpo** (viola incrementalità)
-- ❌ **NO logica di gioco nel Controller** (viola ARCHITECTURE.md)
-- ❌ **NO import di librerie UI/TTS nel Dominio** (viola ARCHITECTURE.md)
-
-**Esempio workflow reale:**
-```
-Fase 1: GiocatoreBase.is_automatico()
-→ Implementa + Commit `feat(players): add is_automatico() [Phase 1/7]` + Aggiorna TODO ✅
-
-Fase 2: GiocatoreAutomatico._valuta_potenziale_reclamo()
-→ Rileggi PLAN_BOT_ATTIVO.md sezione FASE 1 Task 1.1
-→ Implementa + Commit `feat(players): add _valuta_potenziale_reclamo() [Phase 2/7]` + Aggiorna TODO ✅
-
-... e così via fino alla Fase 7
-```
+- **Separazione dei layer**: `TerminalUI` (Interface Layer) consuma **solo** `game_controller.py` (Application Layer). Vietato importare direttamente dal Domain (`partita.py`, `giocatore_base.py`, ecc.).
+- **Zero stringhe hardcoded**: ogni testo visibile all'utente deve provenire da `MESSAGGI_CONFIGURAZIONE` o `MESSAGGI_ERRORI` in `it.py`. Nessun `print("testo")` letterale in `ui_terminale.py`.
+- **Logger centralizzato**: usare sempre `logging.getLogger(__name__)`. Non usare `print()` per debug. Prefisso `[TUI]` per tutti i messaggi di log dell'interfaccia.
+- **Contratto API obbligatorio**: il metodo del Controller è sempre il two-step `crea_partita_standard()` + `avvia_partita_sicura()`. Nessun altro metodo di avvio esiste.
 
 ---
 
-## 🎯 Obiettivo Implementazione
+## COMMIT 1 — Infrastruttura Chiavi
 
-- Estendere `GiocatoreAutomatico` affinché valuti autonomamente, dopo ogni estrazione,
-  se ha conseguito un premio e lo dichiari tramite un `ReclamoVittoria`.
-- Integrare la fase di reclamo bot nel ciclo `Partita.esegui_turno()`,
-  mantenendo `verifica_premi()` come unico arbitro dei premi reali.
-- Esporre gli esiti dei reclami bot nel dizionario risultato del turno (nuova chiave
-  backward-compatible `reclami_bot`) e loggarli nel controller.
-- **Zero breaking change** su API esistente e architettura a livelli.
+**File**: `bingo_game/events/codici_configurazione.py` (CREARE)
+**Messaggio commit**: `feat(events): add codici_configurazione.py with 9 config key constants`
 
----
+### Task
 
-## 📂 File Coinvolti
+- [x] Creare il file `bingo_game/events/codici_configurazione.py`
+- [x] Aggiungere docstring modulo con descrizione, pattern di riferimento e `Version: v0.7.0`
+- [x] Definire `from __future__ import annotations`
+- [x] Definire il tipo alias `Codici_Configurazione = str`
+- [x] Aggiungere costante `CONFIG_BENVENUTO: Codici_Configurazione = "CONFIG_BENVENUTO"`
+- [x] Aggiungere costante `CONFIG_CONFERMA_AVVIO: Codici_Configurazione = "CONFIG_CONFERMA_AVVIO"`
+- [x] Aggiungere costante `CONFIG_RICHIESTA_NOME: Codici_Configurazione = "CONFIG_RICHIESTA_NOME"`
+- [x] Aggiungere costante `CONFIG_RICHIESTA_BOT: Codici_Configurazione = "CONFIG_RICHIESTA_BOT"`
+- [x] Aggiungere costante `CONFIG_RICHIESTA_CARTELLE: Codici_Configurazione = "CONFIG_RICHIESTA_CARTELLE"`
+- [x] Aggiungere costante `CONFIG_ERRORE_NOME_VUOTO: Codici_Configurazione = "CONFIG_ERRORE_NOME_VUOTO"`
+- [x] Aggiungere costante `CONFIG_ERRORE_NOME_TROPPO_LUNGO: Codici_Configurazione = "CONFIG_ERRORE_NOME_TROPPO_LUNGO"`
+- [x] Aggiungere costante `CONFIG_ERRORE_BOT_RANGE: Codici_Configurazione = "CONFIG_ERRORE_BOT_RANGE"`
+- [x] Aggiungere costante `CONFIG_ERRORE_CARTELLE_RANGE: Codici_Configurazione = "CONFIG_ERRORE_CARTELLE_RANGE"`
+- [x] Verificare coerenza di stile con `bingo_game/events/codici_errori.py` (pattern di riferimento)
+- [x] Verificare: `python -m py_compile bingo_game/events/codici_configurazione.py` → nessun errore
 
-- `bingo_game/players/giocatore_base.py` → **MODIFY** (aggiunta `is_automatico()`)
-- `bingo_game/players/giocatore_automatico.py` → **MODIFY** (override `is_automatico()` + `_valuta_potenziale_reclamo()`)
-- `bingo_game/partita.py` → **MODIFY** (estensione `esegui_turno()`)
-- `bingo_game/game_controller.py` → **MODIFY** (logging `reclami_bot` in `esegui_turno_sicuro()`)
-- `tests/unit/test_giocatore_automatico_bot_attivo.py` → **CREATE**
-- `tests/integration/test_partita_bot_attivo.py` → **CREATE**
-- `documentations/API.md` → **UPDATE**
-- `documentations/ARCHITECTURE.md` → **UPDATE**
-- `README.md` → **UPDATE**
+### Criterio di Successo
 
----
-
-## 🛠 Checklist Implementazione
-
-### Fase 1 — Preparazione base (GiocatoreBase + GiocatoreAutomatico)
-
-> 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "Decisione aperta" + "FASE 1"
-
-- [x] Aggiungere `is_automatico() -> bool` in `GiocatoreBase` (default: `return False`)
-- [x] Override `is_automatico()` in `GiocatoreAutomatico` (return `True`)
-- [x] Commit: `feat(players): add is_automatico() helper [Phase 1/7]`
-- [x] Aggiornare questo TODO (spuntare le righe qui sopra)
-
-### Fase 2 — Logica di reclamo del Bot
-
-> 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "FASE 1 — Task 1.1"
-
-- [x] Aggiungere import di `ReclamoVittoria` in `giocatore_automatico.py`
-- [x] Implementare `_valuta_potenziale_reclamo(premi_gia_assegnati: set[str]) -> Optional[ReclamoVittoria]`
-  - [x] Gerarchia premi decrescente: `tombola > cinquina > quaterna > terno > ambo`
-  - [x] Logica tombola: controlla `verifica_cartella_completa()` + chiave `"cartella_{idx}_tombola"`
-  - [x] Logica riga: controlla `verifica_<tipo>_riga(riga)` + chiave `"cartella_{idx}_riga_{r}_{tipo}"`
-  - [x] Scelta del `best_claim` per rango più alto tra tutte le cartelle
-  - [x] Usa costruttore diretto `ReclamoVittoria()` (factory methods non disponibili per bug esistente)
-  - [x] Ritorna `None` se nessun premio reclamabile
-- [x] Commit: `feat(players): add _valuta_potenziale_reclamo() to GiocatoreAutomatico [Phase 2/7]`
-- [x] Aggiornare questo TODO
-
-### Fase 3 — Test unitari GiocatoreAutomatico
-
-> 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "Test da implementare — Test unitari"
-
-- [x] Creare `tests/unit/test_giocatore_automatico_bot_attivo.py`
-- [x] `test_bot_reclama_ambo_disponibile`
-- [x] `test_bot_non_reclama_premio_gia_assegnato`
-- [x] `test_bot_sceglie_premio_piu_alto`
-- [x] `test_bot_reclama_tombola`
-- [x] `test_bot_nessun_premio_disponibile`
-- [x] `test_bot_sceglie_tra_piu_cartelle`
-- [x] Tutti i test passano ✅
-- [x] Commit: `test(players): add unit tests for bot _valuta_potenziale_reclamo [Phase 3/7]`
-- [x] Aggiornare questo TODO
-
-### Fase 4 — Estensione Partita.esegui_turno()
-
-> 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "FASE 2 — Task 2.1, 2.2, 2.3"
-
-- [x] Inserire ciclo reclami bot **dopo** `estrai_prossimo_numero()` e **prima** di `verifica_premi()`
-  - [x] Iterare su `self.giocatori` filtrando con `giocatore.is_automatico()`
-  - [x] Chiamare `bot._valuta_potenziale_reclamo(self.premi_gia_assegnati)` (passare snapshot pre-turno)
-  - [x] Se reclamo presente: `bot.reclamo_turno = reclamo`
-- [x] Eseguire `verifica_premi()` invariato (rimane l'unico arbitro)
-- [x] Inserire ciclo confronto reclami vs `premi_nuovi` **dopo** `verifica_premi()`
-  - [x] Matching per `(cartella, tipo, riga)`
-  - [x] Costruire lista `reclami_bot` con struttura `{nome, id, reclamo, successo}`
-- [x] Inserire reset `bot.reset_reclamo_turno()` per tutti i bot
-- [x] Aggiungere chiave `"reclami_bot"` al dizionario `risultato_turno`
-- [x] Commit: `feat(partita): integrate bot reclamo phase in esegui_turno [Phase 4/7]`
-- [x] Aggiornare questo TODO
-
-### Fase 5 — Test di integrazione Partita
-
-> 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "Test da implementare — Test di integrazione"
-
-- [x] Creare `tests/integration/test_partita_bot_attivo.py`
-- [x] `test_partita_reclami_bot_nel_risultato`
-- [x] `test_reclamo_bot_rigettato_premio_gia_preso`
-- [x] `test_bot_tombola_termina_partita`
-- [x] `test_reclami_bot_vuoto_se_nessun_premio`
-- [x] `test_reset_reclamo_dopo_turno`
-- [x] Tutti i test esistenti ancora passano (no regressioni) ✅
-- [x] Commit: `test(partita): add integration tests for bot attivo [Phase 5/7]`
-- [x] Aggiornare questo TODO
-
-### Fase 6 — Logging nel Controller
-
-> 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "FASE 3 — Task 3.1"
-
-- [x] In `game_controller.py`, in `esegui_turno_sicuro()`, leggere `risultato.get("reclami_bot", [])`
-- [x] Per reclamo con `successo=True`: log su `tombola_stark.prizes` con `_log_safe()`
-- [x] Per reclamo con `successo=False`: log su `tombola_stark.game` con `_log_safe()`
-- [x] Verificare che il logging non interrompa mai il flusso (wrap in `try/except Exception: pass`)
-- [x] Commit: `feat(controller): log bot reclami in esegui_turno_sicuro [Phase 6/7]`
-- [x] Aggiornare questo TODO
-
-### Fase 7 — Documentazione e aggiornamenti finali
-
-> 📖 Consulta: `PLAN_BOT_ATTIVO.md` → sezione "Aggiornamenti documentazione"
-
-- [x] `API.md`: aggiungere sezione `GiocatoreAutomatico` con nuova logica Bot Attivo
-- [x] `API.md`: aggiornare contratto `Partita.esegui_turno()` con chiave `reclami_bot`
-- [x] `ARCHITECTURE.md`: aggiornare diagramma "Flusso Tipico: Esecuzione di un Turno"
-- [x] `ARCHITECTURE.md`: incrementare versione documento a `v0.6.0`
-- [x] `README.md`: aggiornare descrizione funzionale (bot reclamano premi automaticamente)
-- [x] Commit: `docs: update API.md, ARCHITECTURE.md, README.md for bot attivo [Phase 7/7]`
-- [x] Aggiornare questo TODO
+> Il commit è completo quando:
+> `python -c "from bingo_game.events.codici_configurazione import CONFIG_BENVENUTO; print('OK')"` stampa `OK` senza errori.
 
 ---
 
-### 🔧 Correzioni Post Code Review
+## COMMIT 2 — Localizzazione
 
-> Fix applicati in risposta al code review di @donato81
+**File**: `bingo_game/ui/locales/it.py` (ESTENDERE)
+**Messaggio commit**: `feat(locales): add MESSAGGI_CONFIGURAZIONE dict to it.py (9 keys)`
 
-- [x] **Fix Problema 1 (CRITICO)**: Verificato che `reset_reclamo_turno()` e `is_automatico()` esistono in `GiocatoreBase` ✅ (nessuna azione necessaria)
-- [x] **Fix Problema 2 (Bug latente)**: Aggiunto `id_giocatore` agli eventi di premio in `verifica_premi()`
-- [x] **Fix Problema 2 (Bug latente)**: Migliorato matching in `esegui_turno()` per usare `id_giocatore` come discriminatore primario
-- [x] **Ottimizzazione**: Aggiunto `break` nel loop di `_valuta_potenziale_reclamo()` dopo aver trovato il tipo più alto per riga
-- [x] **Documentazione**: Aggiornato `API.md` per documentare il nuovo campo `id_giocatore` negli eventi premio
-- [x] Commit: `fix(partita): robust matching by id_giocatore + loop optimization`
+### Task
 
----
+- [x] Aprire `bingo_game/ui/locales/it.py` e leggere il contenuto attuale
+- [x] Aggiungere in testa al file (insieme agli altri import di `codici_*`):
+  `from bingo_game.events.codici_configurazione import Codici_Configurazione`
+- [x] Verificare che `MappingProxyType` e `Mapping` siano già importati (lo sono)
+- [x] Aggiungere in **coda al file** (dopo tutti gli altri dizionari esistenti) il dizionario:
+  `MESSAGGI_CONFIGURAZIONE: Mapping[Codici_Configurazione, tuple[str, ...]] = MappingProxyType({...})`
+- [x] Inserire la chiave `"CONFIG_BENVENUTO": ("Benvenuto in Tombola Stark!",)`
+- [x] Inserire la chiave `"CONFIG_CONFERMA_AVVIO": ("Configurazione completata. Avvio partita...",)`
+- [x] Inserire la chiave `"CONFIG_RICHIESTA_NOME": ("Inserisci il tuo nome (max 15 caratteri): ",)`
+- [x] Inserire la chiave `"CONFIG_RICHIESTA_BOT": ("Inserisci il numero di bot (1-7): ",)`
+- [x] Inserire la chiave `"CONFIG_RICHIESTA_CARTELLE": ("Inserisci il numero di cartelle (1-6): ",)`
+- [x] Inserire la chiave `"CONFIG_ERRORE_NOME_VUOTO": ("Errore: Nome non valido.", "Inserisci almeno un carattere.",)`
+- [x] Inserire la chiave `"CONFIG_ERRORE_NOME_TROPPO_LUNGO": ("Errore: Nome troppo lungo.", "Inserisci al massimo 15 caratteri.",)`
+- [x] Inserire la chiave `"CONFIG_ERRORE_BOT_RANGE": ("Errore: Numero bot non valido.", "Inserisci un valore tra 1 e 7.",)`
+- [x] Inserire la chiave `"CONFIG_ERRORE_CARTELLE_RANGE": ("Errore: Numero cartelle non valido.", "Inserisci un valore tra 1 e 6.",)`
+- [x] Verificare che i dizionari esistenti non siano stati modificati
+- [x] Verificare: `python -m py_compile bingo_game/ui/locales/it.py` → nessun errore
 
-## ✅ Criteri di Completamento
+### Criterio di Successo
 
-L'implementazione è considerata completa quando:
-
-- [x] Tutte le checklist sopra sono spuntate
-- [x] Tutti i test passano (unit + integration)
-- [x] Nessuna regressione funzionale sui test esistenti
-- [x] Nessuna violazione delle regole architetturali (ARCHITECTURE.md)
-- [x] Versione incrementata a `v0.6.0` (MINOR: nuova feature retrocompatibile)
-
----
-
-## 📝 Aggiornamenti Obbligatori a Fine Implementazione
-
-- [ ] Aggiornare `README.md` con la nuova funzionalità Bot Attivo
-- [ ] Aggiornare `CHANGELOG.md` con entry `v0.6.0`
-- [ ] Incrementare versione a `v0.6.0` (MINOR — nuova feature retrocompatibile, zero breaking change)
-- [ ] Commit finale con messaggio convenzionale
-- [ ] Push su branch `feature/bot-attivo`
+> Il commit è completo quando:
+> `python -c "from bingo_game.ui.locales.it import MESSAGGI_CONFIGURAZIONE; print(len(MESSAGGI_CONFIGURAZIONE))"` stampa `9`.
 
 ---
 
-## 📌 Note
+## COMMIT 3 — Implementazione Core UI
 
-- **Decisione aperta risolta**: si usa `is_automatico()` in `GiocatoreBase` (Opzione B del piano).
-  Nessun `isinstance` diretto su sottoclassi in `partita.py`.
-- **Backward-compatible**: la chiave `reclami_bot` è sempre presente nel dict di `esegui_turno()`
-  (lista vuota se nessun bot ha reclamato). Nessun consumer esistente si rompe.
-- **Il bot non è infallibile**: il reclamo può essere rigettato (es. due bot in gara sullo stesso
-  ambo). `verifica_premi()` rimane l'unico arbitro. I reclami sono solo un segnale UX/log.
-- **Logging silenzioso**: tutto il logging usa `_log_safe()`. Non può mai interrompere il gioco.
+**File**: `bingo_game/ui/ui_terminale.py` (IMPLEMENTARE — attualmente vuoto)
+**Messaggio commit**: `feat(ui): implement TerminalUI class with sequential state machine A-E`
+
+### Task — Struttura Classe
+
+- [x] Aggiungere `from __future__ import annotations` e docstring modulo
+- [x] Importare `logging` (libreria standard)
+- [x] Importare `MESSAGGI_CONFIGURAZIONE` e `MESSAGGI_ERRORI` da `bingo_game.ui.locales.it`
+- [x] Importare `crea_partita_standard` e `avvia_partita_sicura` da `bingo_game.game_controller`
+- [x] Importare `TerminalRenderer` da `bingo_game.ui.renderers.renderer_terminal`
+- [x] Definire `logger = logging.getLogger(__name__)` a livello modulo
+- [x] Definire costanti modulo: `_LUNGHEZZA_MAX_NOME = 15`, `_BOT_MIN = 1`, `_BOT_MAX = 7`, `_CARTELLE_MIN = 1`, `_CARTELLE_MAX = 6`
+- [x] Creare classe `TerminalUI` con docstring Google-style completa
+
+### Task — Metodo `__init__`
+
+- [x] Istanziare `self._renderer = TerminalRenderer()` (per Fase 2+, non usato ora)
+- [x] Aggiungere `logger.debug("[TUI] TerminalUI inizializzata.")`
+- [x] Aggiungere docstring con nota su `_renderer` e `Version: v0.7.0`
+
+### Task — Metodo `avvia()` (entry point pubblico)
+
+- [x] Aggiungere `logger.info("[TUI] Avvio configurazione partita.")` (**INFO** obbligatorio)
+- [x] Chiamare `self._mostra_benvenuto()`
+- [x] Chiamare `nome = self._chiedi_nome()`
+- [x] Chiamare `numero_bot = self._chiedi_bot()`
+- [x] Chiamare `numero_cartelle = self._chiedi_cartelle()`
+- [x] Chiamare `self._avvia_partita(nome, numero_bot, numero_cartelle)`
+
+### Task — Metodo `_mostra_benvenuto()` (Stato A)
+
+- [x] Aggiungere `logger.debug("[TUI] Stato A: BENVENUTO")` (**DEBUG** transizione)
+- [x] Chiamare `self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_BENVENUTO"])`
+
+### Task — Metodo `_chiedi_nome()` (Stato B)
+
+- [x] Aggiungere `logger.debug("[TUI] Stato B: ATTESA_NOME")` (**DEBUG** transizione)
+- [x] Implementare loop `while True:`
+- [x] Acquisire `input_raw = self._chiedi_input("CONFIG_RICHIESTA_NOME")`
+- [x] Applicare `nome = input_raw.strip()` (OBBLIGATORIO: primo passo)
+- [x] Aggiungere `logger.debug(f"[TUI] Nome dopo strip: '{nome}' (len={len(nome)})")` (**DEBUG** sanitizzazione)
+- [x] Controllo vuoto: `if len(nome) == 0:` → `logger.warning(...)` (**WARNING** obbligatorio) + `self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_ERRORE_NOME_VUOTO"])` + `continue`
+- [x] Controllo lunghezza: `if len(nome) > _LUNGHEZZA_MAX_NOME:` → `logger.warning(...)` (**WARNING** obbligatorio) + `self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_ERRORE_NOME_TROPPO_LUNGO"])` + `continue`
+- [x] Aggiungere `logger.debug(f"[TUI] Nome valido acquisito: '{nome}'")` (**DEBUG**) + `return nome`
+- [x] Verificare ordine priorità: (1) strip → (2) non vuoto → (3) len ≤ 15
+
+### Task — Metodo `_chiedi_bot()` (Stato C)
+
+- [x] Aggiungere `logger.debug("[TUI] Stato C: ATTESA_BOT")` (**DEBUG** transizione)
+- [x] Implementare loop `while True:`
+- [x] Acquisire `input_raw = self._chiedi_input("CONFIG_RICHIESTA_BOT")`
+- [x] Try/except `int(input_raw)` → `except ValueError:` → `logger.warning(...)` (**WARNING**) + `self._stampa_righe(MESSAGGI_ERRORI["NUMERO_TIPO_NON_VALIDO"])` + `continue`
+- [x] Controllo range: `if not (_BOT_MIN <= valore <= _BOT_MAX):` → `logger.warning(...)` (**WARNING**) + `self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_ERRORE_BOT_RANGE"])` + `continue`
+- [x] Aggiungere `logger.debug(f"[TUI] Numero bot valido: {valore}")` + `return valore`
+- [x] Verificare riuso `MESSAGGI_ERRORI["NUMERO_TIPO_NON_VALIDO"]` (non creare chiave duplicata)
+
+### Task — Metodo `_chiedi_cartelle()` (Stato D)
+
+- [x] Aggiungere `logger.debug("[TUI] Stato D: ATTESA_CARTELLE")` (**DEBUG** transizione)
+- [x] Implementare loop `while True:`
+- [x] Acquisire `input_raw = self._chiedi_input("CONFIG_RICHIESTA_CARTELLE")`
+- [x] Try/except `int(input_raw)` → `except ValueError:` → `logger.warning(...)` (**WARNING**) + `self._stampa_righe(MESSAGGI_ERRORI["NUMERO_TIPO_NON_VALIDO"])` + `continue`
+- [x] Controllo range: `if not (_CARTELLE_MIN <= valore <= _CARTELLE_MAX):` → `logger.warning(...)` (**WARNING**) + `self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_ERRORE_CARTELLE_RANGE"])` + `continue`
+- [x] Aggiungere `logger.debug(f"[TUI] Numero cartelle valido: {valore}")` + `return valore`
+- [x] Ricordare: limite 1–6 è scelta UX (screen reader), non vincolo del Controller
+
+### Task — Metodo `_avvia_partita()` (Stato E)
+
+- [x] Aggiungere `logger.debug("[TUI] Stato E: AVVIO_PARTITA")` (**DEBUG** transizione)
+- [x] Chiamare `self._stampa_righe(MESSAGGI_CONFIGURAZIONE["CONFIG_CONFERMA_AVVIO"])` (PRIMA del Controller)
+- [x] Chiamare `partita = crea_partita_standard(nome_giocatore_umano=nome, num_cartelle_umano=numero_cartelle, num_bot=numero_bot)`
+- [x] Chiamare `avvia_partita_sicura(partita)`
+- [x] Aggiungere `logger.info(f"[TUI] Configurazione completata. nome='{nome}', bot={numero_bot}, cartelle={numero_cartelle}.")` (**INFO** obbligatorio)
+
+### Task — Helper Privati
+
+- [x] Implementare `_stampa_righe(self, righe: tuple[str, ...]) -> None`: loop `for riga in righe: print(riga)`
+- [x] Implementare `_chiedi_input(self, chiave_prompt: str) -> str`: `return input(MESSAGGI_CONFIGURAZIONE[chiave_prompt][0])`
+- [x] Aggiungere docstring Google-style a entrambi gli helper
+
+### Task — Verifica Post-Implementazione
+
+- [x] Nessuna stringa hardcoded: `grep -n '"Benvenuto\|"Inserisci\|"Errore\|"Configurazione' bingo_game/ui/ui_terminale.py` deve restituire **0 righe**
+- [x] Nessun import dal Domain layer (`partita.py`, `giocatore_base.py`, ecc.)
+- [x] Verifica sintassi: `python -m py_compile bingo_game/ui/ui_terminale.py`
+- [x] Verifica import: `python -c "from bingo_game.ui.ui_terminale import TerminalUI; print('OK')"`
+
+### Criterio di Successo
+
+> Il commit è completo quando:
+> - `python -c "from bingo_game.ui.ui_terminale import TerminalUI; print('OK')"` stampa `OK`
+> - I log `[TUI]` compaiono nel file di log eseguendo manualmente `python main.py` con input validi
+> - I 3 livelli di log sono presenti: almeno un `INFO`, un `WARNING` (inserendo un input errato), un `DEBUG`
 
 ---
 
-**Fine.**
+## COMMIT 4 — Integrazione Entry Point
 
-Snello, consultabile in 30 secondi, zero fronzoli.
-`PLAN_BOT_ATTIVO.md` è la fonte di verità tecnica. Questo è il cruscotto operativo.
+**File**: `main.py` (AGGIORNARE)
+**Messaggio commit**: `feat(main): wire TerminalUI to application entry point`
+
+### Task
+
+- [x] Leggere il contenuto attuale di `main.py` prima di modificare
+- [x] Aggiungere import: `from bingo_game.ui.ui_terminale import TerminalUI`
+- [x] Verificare se esiste già una funzione `main()`: in caso sì, integrare senza sovrascrivere
+- [x] Aggiungere istanziazione e avvio: `tui = TerminalUI()` + `tui.avvia()`
+- [x] Assicurarsi che il blocco `if __name__ == "__main__":` chiami `main()`
+- [x] Verificare sintassi: `python -m py_compile main.py`
+- [x] Test rapido di avvio manuale: `python main.py` → compare il messaggio di benvenuto
+
+### Criterio di Successo
+
+> Il commit è completo quando:
+> `python main.py` avvia il flusso di configurazione completo senza errori e permette di inserire nome, bot e cartelle.
+> Questo abilita anche l’esecuzione manuale del Protocollo TC01–TC05.
+
+---
+
+## COMMIT 5 — Testing
+
+**File**: `tests/unit/test_ui_terminale.py` (CREARE)
+**Messaggio commit**: `test(ui): add unit tests for TerminalUI validation loops (7 tests)`
+
+### Task — Setup File di Test
+
+- [x] Creare il file `tests/unit/test_ui_terminale.py`
+- [x] Aggiungere `from __future__ import annotations` e docstring modulo con riferimento ai TC
+- [x] Importare `from unittest.mock import patch, MagicMock`
+- [x] Importare `import pytest`
+- [x] Importare `from bingo_game.ui.ui_terminale import TerminalUI`
+
+### Task — Classe `TestValidazioneNome` (Stato B)
+
+- [x] Implementare `test_tc01_nome_vuoto_dopo_strip`: input `["   ", "Marco"]` → verifica errore `"Errore: Nome non valido."` + ritorno `"Marco"`
+- [x] Implementare `test_tc02_nome_troppo_lungo`: input `["NomeMoltoLungoOltreQuindici", "Marco"]` → verifica errore `"Errore: Nome troppo lungo."`
+- [x] Implementare `test_strip_applicato_prima_del_check`: input `"  Marco  "` → ritorno `"Marco"` (nessun errore, strip corretto)
+
+### Task — Classe `TestValidazioneBot` (Stato C)
+
+- [x] Implementare `test_tc03_bot_sotto_range`: input `["0", "3"]` → verifica errore `"Errore: Numero bot non valido."`
+- [x] Implementare `test_tc03_bot_sopra_range`: input `["9", "3"]` → verifica errore `"Errore: Numero bot non valido."`
+- [x] Implementare `test_bot_tipo_non_valido`: input `["tre", "3"]` → verifica errore `"Errore: Tipo non valido."` (riuso `MESSAGGI_ERRORI`)
+
+### Task — Classe `TestValidazioneCartelle` (Stato D)
+
+- [x] Implementare `test_tc04_cartelle_fuori_range`: input `["7", "2"]` → verifica errore `"Errore: Numero cartelle non valido."`
+
+### Task — Classe `TestFlussoFelice`
+
+- [x] Implementare `test_flusso_felice_completo`: input `["Marco", "3", "2"]` → verifica `crea_partita_standard(nome_giocatore_umano="Marco", num_cartelle_umano=2, num_bot=3)` chiamato correttamente
+- [x] Verifica `avvia_partita_sicura(mock_partita)` chiamata con l’oggetto restituito da `crea_partita_standard`
+
+### Task — Esecuzione Unit Test
+
+- [x] Eseguire: `python -m pytest tests/unit/test_ui_terminale.py -v`
+- [x] Verificare: **tutti e 8 i test verdi** prima di procedere al Commit 6
+- [x] In caso di fallimento: consultare sezione "Troubleshooting" del `PLAN_TERMINAL_START_MENU.md`
+
+### Task — Protocollo di Verifica Manuale TC01–TC05
+
+> Eseguire `python main.py` e seguire manualmente ogni test case
+
+- [ ] **TC01**: inserire `"   "` (3 spazi) come nome → atteso: errore `CONFIG_ERRORE_NOME_VUOTO` + re-prompt
+- [ ] **TC02**: inserire `"NomeMoltoLungoOltreQuindici"` (28 char) come nome → atteso: errore `CONFIG_ERRORE_NOME_TROPPO_LUNGO`
+- [ ] **TC03**: inserire `"0"` come numero bot → atteso: errore `CONFIG_ERRORE_BOT_RANGE`; poi inserire `"9"` → stesso errore
+- [ ] **TC04**: inserire `"7"` come numero cartelle → atteso: errore `CONFIG_ERRORE_CARTELLE_RANGE`
+- [ ] **TC05**: eseguire l’intero flusso con **screen reader attivo** (NVDA / JAWS / Orca):
+  - [ ] Il messaggio di benvenuto viene letto all’avvio
+  - [ ] Ogni prompt viene letto prima dell’attesa input
+  - [ ] Gli errori vengono letti PRIMA del re-prompt
+  - [ ] Nessun artefatto grafico vocalizzato (nessun box, nessuna emoji)
+  - [ ] La conferma di avvio viene letta prima del passaggio alla Fase 2
+
+### Criterio di Successo
+
+> Il commit è completo quando:
+> - `pytest tests/unit/test_ui_terminale.py` restituisce **7 passed, 0 failed**
+> - I 5 test case manuali (TC01–TC05) sono stati eseguiti e smarcati
+
+---
+
+## COMMIT 6 — Chiusura Documentale
+
+**File**: 5 file di documentazione (AGGIORNARE)
+**Messaggio commit**: `docs: update README, CHANGELOG, API, ARCHITECTURE, LOGGING for v0.7.0`
+
+### Task — `README.md`
+
+- [x] Aggiungere o aggiornare la sezione "Avvio" con il comando: `python main.py`
+- [x] Aggiungere descrizione breve del flusso di configurazione (nome → bot → cartelle)
+- [x] Aggiungere nota accessibilità: compatibile con screen reader NVDA/JAWS/Orca
+- [x] Verificare che la versione indicata nel README sia allineata a `v0.7.0`
+
+### Task — `CHANGELOG.md`
+
+- [x] Aggiungere nuova sezione `## [v0.7.0] - 2026-xx-xx` in cima alla lista versioni
+- [x] Sezione `### Aggiunto`:
+  - `TerminalUI`: interfaccia da terminale, flusso configurazione pre-partita (Fase 1)
+  - `codici_configurazione.py`: 9 costanti-chiave per localizzazione configurazione
+  - `MESSAGGI_CONFIGURAZIONE` in `it.py`: 9 chiavi con testi italiani
+  - `tests/unit/test_ui_terminale.py`: 7 unit test (mock input/print)
+- [ ] Sezione `### Modificato`:
+  - `main.py`: aggiunto entry point `TerminalUI.avvia()`
+  - `it.py`: esteso con dizionario `MESSAGGI_CONFIGURAZIONE`
+
+### Task — `API.md`
+
+- [x] Aggiungere sezione dedicata `TerminalUI` (Interface Layer)
+- [x] Documentare il metodo pubblico: `TerminalUI.avvia() -> None`
+- [x] Includere: descrizione, side effects (avvia la partita), dipendenze (GameController), note di accessibilità
+- [x] Specificare che è l’unico metodo pubblico consumabile da `main.py`
+
+### Task — `ARCHITECTURE.md`
+
+- [x] Aggiungere `TerminalUI` nel diagramma del layer Interface
+- [x] Aggiornare il flusso TUI: `main.py` → `TerminalUI` → `GameController`
+- [x] Specificare che `TerminalRenderer` è istanziato in `TerminalUI.__init__` ma usato dalla Fase 2+
+
+### Task — `DESIGN_LOGGING_SYSTEM.md`
+
+- [x] Aggiungere sezione o tabella con i nuovi eventi `[TUI]`
+- [x] Registrare: `INFO` — avvio configurazione, configurazione completata
+- [x] Registrare: `WARNING` — nome vuoto, nome troppo lungo, bot tipo non valido, bot fuori range, cartelle tipo non valido, cartelle fuori range
+- [x] Registrare: `DEBUG` — transizioni di stato (A→B→C→D→E), valori dopo `.strip()`, valori validati
+
+### Criterio di Successo
+
+> Il commit è completo quando tutti e 5 i file sono stati aggiornati e il branch `feature/terminal-start-menu` è pronto per il merge in `main`.
+
+---
+
+## 🏁 Checklist di Chiusura Branch
+
+- [ ] Tutti i 6 commit completati con i messaggi convenzionali corretti
+- [ ] `python -m pytest tests/unit/test_ui_terminale.py` → 7 passed, 0 failed
+- [ ] `python main.py` → flusso completo funzionante
+- [ ] TC01–TC05 eseguiti manualmente e smarcati
+- [ ] Nessuna stringa hardcoded in `ui_terminale.py` (grep pulito)
+- [ ] Nessun import dal Domain layer in `ui_terminale.py`
+- [ ] Tutti i log `[TUI]` presenti nei livelli corretti (INFO/WARNING/DEBUG)
+- [ ] Documentazione allineata (Commit 6 completato)
+- [ ] Branch `feature/terminal-start-menu` → PR aperta verso `main`
+- [ ] PR approvata e merged
+- [ ] `TODO.md` archiviato o aggiornato come `COMPLETATO`
+
+---
+
+*Generato da: `documentations/PLAN_TERMINAL_START_MENU.md` v1.0*
+*Data generazione: 2026-02-19*
