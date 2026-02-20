@@ -1,4 +1,4 @@
-# 🏗️ ARCHITECTURE.md - Tombola Stark
+# 🏛️ ARCHITECTURE.md - Tombola Stark
 
 > **Documentazione architetturale di tombola-stark**  
 > Ultimo aggiornamento: 2026-02-20 (v0.8.0)
@@ -400,13 +400,14 @@ def esegui_turno_sicuro(partita) -> Optional[dict]:
     try:
         return partita.esegui_turno()
     except PartitaNonInCorsoException:
-        print("❌ Partita non in corso")
+        _log_safe("[GAME] esegui_turno_sicuro: stato non in corso.", logging.WARNING, logger=_logger_game)
         return None
     except PartitaException:
-        print("❌ Errore partita")
+        _log_safe("[ERR] esegui_turno_sicuro: eccezione partita.", logging.WARNING, logger=_logger_errors)
         return None
-    except Exception:
-        raise  # Solo errori critici imprevisti propagano
+    except Exception as exc:
+        _log_safe(f"[ERR] esegui_turno_sicuro: eccezione imprevista. tipo='{type(exc).__name__}'.", logging.ERROR, logger=_logger_errors)
+        return None
 ```
 
 ---
@@ -421,6 +422,7 @@ def esegui_turno_sicuro(partita) -> Optional[dict]:
 - `eventi_partita.py` – `ReclamoVittoria`, `EventoFineTurno`
 - `eventi_output_ui_umani.py` – Messaggi strutturati per output terminale/TTS
 - `codici_errori.py`, `codici_eventi.py`, `codici_messaggi_sistema.py`, `codici_output_ui_umani.py` – Costanti di categorizzazione
+- `codici_controller.py` – Costanti `CTRL_*` per i codici di risposta del controller (v0.8.0)
 
 ---
 
@@ -433,7 +435,7 @@ tombola-stark/
 │   ├── tabellone.py             # Dominio: gestione estrazioni
 │   ├── cartella.py              # Dominio: cartella e verifica premi
 │   ├── partita.py               # Dominio: coordinamento partita
-│   ├── game_controller.py       # Controller: orchestrazione sicura
+│   ├── game_controller.py       # Controller: orchestrazione sicura (silent v0.8.0)
 │   ├── comandi_partita.py       # Controller: comandi di partita
 │   ├── utils.py                 # Utility (placeholder)
 │   ├── players/                 # Dominio: gerarchia giocatori
@@ -452,7 +454,8 @@ tombola-stark/
 │   │   ├── codici_errori.py
 │   │   ├── codici_eventi.py
 │   │   ├── codici_messaggi_sistema.py
-│   │   └── codici_output_ui_umani.py
+│   │   ├── codici_output_ui_umani.py
+│   │   └── codici_controller.py     # Costanti CTRL_* (v0.8.0)
 │   ├── exceptions/              # Gerarchia eccezioni per modulo
 │   │   ├── __init__.py
 │   │   ├── partita_exceptions.py
@@ -461,12 +464,22 @@ tombola-stark/
 │   │   ├── game_controller_exceptions.py
 │   │   └── tabellone_exceptions.py
 │   ├── validations/             # Logica di validazione
-│   └── ui/                      # Placeholder interfaccia futura
+│   ├── logging/                 # Infrastruttura logging
+│   │   └── game_logger.py
+│   └── ui/                      # Livello interfaccia
+│       ├── ui_terminale.py          # TerminalUI: menu + config (v0.7.0)
+│       ├── locales/
+│       │   ├── __init__.py
+│       │   └── it.py                # Testi IT (MESSAGGI_CONFIGURAZIONE, MESSAGGI_CONTROLLER)
+│       └── renderers/
+│           └── renderer_terminal.py # TerminalRenderer (Fase 2+)
 ├── my_lib/                      # Libreria di supporto
 ├── tests/                       # Suite di test
+│   └── test_silent_controller.py    # 15 test capsys + contratti (v0.8.0)
 ├── documentations/
-│   ├── API.md                   # Questo file (riferimento API)
-│   ├── ARCHITECTURE.md          # Questo file (architettura)
+│   ├── API.md
+│   ├── ARCHITECTURE.md
+│   ├── CHANGELOG.md
 │   └── templates/
 │       ├── TEMPLATE_example_API.md
 │       └── TEMPLATE_example_ARCHITECTURE.md
@@ -489,14 +502,21 @@ tombola-stark/
 #### `bingo_game/events/`
 - Oggetti evento per disaccoppiare produzione e consumo
 - Codici costanti per categorizzazione eventi e messaggi
+- `codici_controller.py`: costanti `CTRL_*` per i codici risposta controller (v0.8.0)
 
 #### `bingo_game/exceptions/`
 - Un file per ogni modulo di dominio
 - Gerarchia chiara: eccezione base → specializzazioni
 
+#### `bingo_game/ui/`
+- `ui_terminale.py`: `TerminalUI` con macchina a stati A→E (v0.7.0)
+- `locales/it.py`: tutti i testi italiani (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, `MESSAGGI_CONTROLLER`)
+- `renderers/`: `TerminalRenderer` (integrato in Fase 2)
+
 #### `tests/`
 - Test unitari per dominio (isolati)
-- Test di integrazione per flussi multi-livello
+- Test di integrazione per flussi controller+dominio
+- `test_silent_controller.py`: 15 test non-regressione stdout (v0.8.0)
 
 ---
 
@@ -556,7 +576,7 @@ UI         Controller          Dominio
 │               │<--partita obj----│
 │<--partita obj-│                  │
 │               │                  │
-│--avvia------->│                  │
+│--avvia----->│                  │
 │               │--avvia_partita-->│
 │               │<--True/False-----│
 │<--bool--------│                  │
@@ -614,20 +634,20 @@ if self.stato_partita != "in_corso":
     raise PartitaNonInCorsoException("Impossibile estrarre: partita non avviata.")
 ```
 
-**Controller** → intercetta, ritorna valore sicuro:
+**Controller** → intercetta, ritorna valore sicuro, logga (v0.8.0):
 ```python
 try:
     partita.avvia_partita()
     return True
 except PartitaGiaIniziataException as exc:
-    print(f"❌ {exc}")
+    _log_safe(f"[GAME] Avvio fallito: tipo='{type(exc).__name__}'.", logging.WARNING, logger=_logger_errors)
     return False
 ```
 
 **Interfaccia** → vocalizza all'utente:
 ```python
 if not avvia_partita_sicura(partita):
-    speak("Impossibile avviare la partita. Controlla il numero di giocatori.")
+    speak(MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO])
 ```
 
 ### Codici di Errore Strutturati
@@ -674,12 +694,28 @@ def test_flusso_partita_completa():
     assert partita.get_stato_partita() == "terminata"
 ```
 
+### Test Non-Regressione stdout (v0.8.0)
+
+```python
+# tests/test_silent_controller.py
+class TestControllerSilenzioso:
+    def test_avvia_partita_sicura_true_silenzioso(self, capsys, partita_mock):
+        avvia_partita_sicura(partita_mock)
+        assert capsys.readouterr().out == ""
+
+    def test_esegui_turno_sicuro_dict_silenzioso(self, capsys, partita_mock):
+        esegui_turno_sicuro(partita_mock)
+        assert capsys.readouterr().out == ""
+```
+
 ---
 
 ## 📈 Evoluzione e Sviluppi Futuri
 
 ### Storia delle Versioni
 
+- **v0.8.0** (2026-02-20): Silent Controller. Rimozione ~22 `print()` da `game_controller.py` (Gruppi A/B/C/D). Aggiunta `codici_controller.py` (4 costanti `CTRL_*`), `MESSAGGI_CONTROLLER` in `it.py`, guardie TUI, 15 test `capsys`. Il controller è ora rigorosamente silenzioso verso stdout.
+- **v0.7.0** (2026-02-20): TUI Start Menu Fase 1. `TerminalUI` con macchina a stati A→E, 9 costanti `Codici_Configurazione`, `MESSAGGI_CONFIGURAZIONE` in `it.py`, `main.py` aggiornato, 8 unit test. Entry point funzionante per configurazione pre-partita.
 - **v0.6.0** (2026-02): Feature Bot Attivo. I `GiocatoreAutomatico` ora valutano autonomamente i premi conseguiti e li dichiarano tramite `ReclamoVittoria`. Nuova chiave `reclami_bot` in `Partita.esegui_turno()` (backward-compatible). Logging reclami bot in `game_controller`. Metodo `is_automatico()` in `GiocatoreBase`.
 - **v0.5.0** (2026-02): Sistema di logging Fase 2: copertura completa eventi di gioco (18 eventi distinti), sub-logger per categoria, riepilogo finale partita
 - **v0.4.0** (2026-02): Sistema di logging Fase 1: GameLogger singleton, file cumulativo con flush immediato, marcatori di sessione, flag `--debug`
@@ -687,7 +723,7 @@ def test_flusso_partita_completa():
 
 ### Aree di Sviluppo Futuro
 
-- **`bingo_game/ui/`** (directory presente, vuota): Strato interfaccia terminale/TTS da implementare
+- **Loop di gioco TUI (v0.9.0)**: Integrazione `esegui_turno_sicuro()` nel loop da terminale con `TerminalRenderer` per vocalizzare estrazioni e premi
 - **`bingo_game/utils.py`** (file presente, vuoto): Utility di supporto da aggiungere
 - **Modalità multiplayer estesa**: Struttura pronta per estensione fino a 8 giocatori
 
@@ -754,14 +790,35 @@ def test_flusso_partita_completa():
 
 ---
 
+### ADR-005: Silent Controller
+
+- **Status**: Accettato
+- **Data**: 2026-02-20 (v0.8.0)
+- **Contesto**: Il `game_controller.py` conteneva ~22 chiamate `print()` che accoppiavano il controller a stdout, violando la separazione Dominio/Controller/Interfaccia e causando output non vocalizzabili (emoji su screen reader).
+- **Decisione**:
+  - Rimuovere tutti i `print()` dal controller (zero output su stdout)
+  - Sostituire con `_log_safe()` categorizzato (`[GAME]`/`[ERR]`/`[SYS]`) senza emoji
+  - Aggiungere `codici_controller.py` con costanti `CTRL_*` per i casi di errore
+  - Aggiungere `MESSAGGI_CONTROLLER` in `it.py` per localizzazione lato TUI
+  - La TUI legge i valori di ritorno (`bool`/`dict`/`None`) e mostra i messaggi appropriati
+- **Conseguenze**:
+  - ✅ Controller rigorosamente silenzioso (verificabile con `grep print(` → zero)
+  - ✅ Accessibilità migliorata: nessuna emoji nei log
+  - ✅ Architettura allineata: Controller → (bool/dict/None) → TUI → stdout
+  - ✅ 15 test `capsys` garantiscono la non-regressione
+  - ❌ La TUI deve implementare tutte le guardie sui valori di ritorno anomali
+
+---
+
 ## 📚 Documentazione Correlata
 
 **Interna**:
 - `documentations/API.md` – Riferimento API pubblico per tutte le classi e funzioni
+- `documentations/CHANGELOG.md` – Cronologia completa delle versioni
 - `documentations/templates/` – Template per nuovi documenti
 - `README.md` – Guida utente e installazione
 
 ---
 
-*Ultimo aggiornamento: 2026-02-19 (v0.6.0)*  
+*Ultimo aggiornamento: 2026-02-20 (v0.8.0)*  
 *Documento vivente: aggiornare ad ogni cambiamento architetturale significativo.*
