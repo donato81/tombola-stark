@@ -6,7 +6,7 @@
 > **Versione target**: `v0.8.0`  
 > **Tipo**: REFACTOR  
 > **Priorità**: HIGH  
-> **Stato**: READY 🔵  
+> **Stato**: IN PROGRESS 🟡  
 > **Ultimo aggiornamento**: 2026-02-20
 
 ---
@@ -62,23 +62,23 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 
 ### AT-2 — Prevenzione Circolarità Import
 
-- [ ] Dopo C1 (creazione `codici_controller.py`): verificare che il file non importi nulla da `bingo_game.ui.*`
-- [ ] Dopo C2 (modifica `it.py`): eseguire `python -c "from bingo_game.ui.locales.it import MESSAGGI_CONTROLLER"` → deve completarsi **senza `ImportError`**
-- [ ] Verificare che il grafo delle dipendenze rispetti la direzione: `events/ ← locales/` (mai il contrario)
-- [ ] Regola da rispettare: `codici_controller.py` ha **zero import** da qualsiasi modulo del progetto (solo letterali stringa)
+- [x] Dopo C1 (creazione `codici_controller.py`): verificare che il file non importi nulla da `bingo_game.ui.*`
+- [x] Dopo C2 (modifica `it.py`): eseguire `python -c "from bingo_game.ui.locales.it import MESSAGGI_CONTROLLER"` → deve completarsi **senza `ImportError`**
+- [x] Verificare che il grafo delle dipendenze rispetti la direzione: `events/ ← locales/` (mai il contrario)
+- [x] Regola da rispettare: `codici_controller.py` ha **zero import** da qualsiasi modulo del progetto (solo letterali stringa)
 
 > **Motivazione**: `bingo_game/events/` è un layer inferiore rispetto a `bingo_game/ui/`. Un import circolare `events → ui → events` causerebbe un `ImportError` silenzioso difficile da diagnosticare.
 
 ### AT-3 — Prefissi di Logging Context
 
-- [ ] Ogni nuova chiamata `_log_safe()` in `game_controller.py` deve usare il prefisso corretto:
+- [x] Ogni nuova chiamata `_log_safe()` in `game_controller.py` deve usare il prefisso corretto:
   - `[GAME]` per log via `_logger_game` (costruzione, turni, stato)
   - `[PRIZES]` per log via `_logger_prizes` (premi, tombola)
   - `[SYS]` per log via `_logger_system` (stati inattesi infrastruttura)
   - `[ERR]` per log via `_logger_errors` (parametri errati, eccezioni impreviste)
-- [ ] Verificare i prefissi dopo C4, C5 e C6 con: `grep -n "_log_safe" bingo_game/game_controller.py`
-- [ ] Nessun log deve usare `[CTRL]` come prefisso (prefisso riservato alla TUI in futuro)
-- [ ] I nuovi messaggi di log devono essere in italiano o inglese tecnico: **mai con emoji** (✅❌🎉)
+- [x] Verificare i prefissi dopo C4, C5 e C6 con: `grep -n "_log_safe" bingo_game/game_controller.py`
+- [x] Nessun log deve usare `[CTRL]` come prefisso (prefisso riservato alla TUI in futuro)
+- [x] I nuovi messaggi di log devono essere in italiano o inglese tecnico: **mai con emoji** (✅❌🎉)
 
 > **Motivazione**: i prefissi `[GAME]`, `[SYS]`, `[ERR]` permettono il filtraggio del log con `grep "\[ERR\]" tombola_stark.log` senza dover conoscere il nome del modulo. Questa convenzione è già stabilita nel `DESIGN_LOGGING_SYSTEM.md`.
 
@@ -117,15 +117,15 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 **File**: `bingo_game/events/codici_controller.py` (CREATE)  
 **Messaggio**: `feat(events): add codici_controller.py — 4 CTRL_* string constants [C1/9]`
 
-- [ ] Creare `bingo_game/events/codici_controller.py` con docstring di modulo
-- [ ] Definire `CTRL_AVVIO_FALLITO_GENERICO: str = "ctrl.avvio_fallito_generico"`
-- [ ] Definire `CTRL_TURNO_NON_IN_CORSO: str = "ctrl.turno_non_in_corso"`
-- [ ] Definire `CTRL_NUMERI_ESAURITI: str = "ctrl.numeri_esauriti"`
-- [ ] Definire `CTRL_TURNO_FALLITO_GENERICO: str = "ctrl.turno_fallito_generico"`
-- [ ] Verificare che il file **non contenga nessun import** da moduli del progetto
-- [ ] Eseguire `python -m py_compile bingo_game/events/codici_controller.py` → zero errori
-- [ ] Eseguire `python -c "from bingo_game.events.codici_controller import CTRL_AVVIO_FALLITO_GENERICO; print(CTRL_AVVIO_FALLITO_GENERICO)"` → output: `ctrl.avvio_fallito_generico`
-- [ ] Verificare AT-2: nessun import circolare possibile (file di soli letterali)
+- [x] Creare `bingo_game/events/codici_controller.py` con docstring di modulo
+- [x] Definire `CTRL_AVVIO_FALLITO_GENERICO: str = "ctrl.avvio_fallito_generico"`
+- [x] Definire `CTRL_TURNO_NON_IN_CORSO: str = "ctrl.turno_non_in_corso"`
+- [x] Definire `CTRL_NUMERI_ESAURITI: str = "ctrl.numeri_esauriti"`
+- [x] Definire `CTRL_TURNO_FALLITO_GENERICO: str = "ctrl.turno_fallito_generico"`
+- [x] Verificare che il file **non contenga nessun import** da moduli del progetto
+- [x] Eseguire `python -m py_compile bingo_game/events/codici_controller.py` → zero errori
+- [x] Eseguire `python -c "from bingo_game.events.codici_controller import CTRL_AVVIO_FALLITO_GENERICO; print(CTRL_AVVIO_FALLITO_GENERICO)"` → output: `ctrl.avvio_fallito_generico`
+- [x] Verificare AT-2: nessun import circolare possibile (file di soli letterali)
 
 **Criterio di done C1**: 4 costanti importabili, nessun import interno, py_compile verde.
 
@@ -136,8 +136,8 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 **File**: `bingo_game/ui/locales/it.py` (MODIFY)  
 **Messaggio**: `feat(locales): add MESSAGGI_CONTROLLER to it.py with typed import [C2/9]`
 
-- [ ] Leggere il contenuto attuale di `it.py` prima di modificare (evitare sovrascritture)
-- [ ] Aggiungere in cima al file l'import delle 4 costanti da `codici_controller`:
+- [x] Leggere il contenuto attuale di `it.py` prima di modificare (evitare sovrascritture)
+- [x] Aggiungere in cima al file l'import delle 4 costanti da `codici_controller`:
   ```python
   from bingo_game.events.codici_controller import (
       CTRL_AVVIO_FALLITO_GENERICO,
@@ -146,12 +146,12 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
       CTRL_TURNO_FALLITO_GENERICO,
   )
   ```
-- [ ] Aggiungere in coda al file il dizionario `MESSAGGI_CONTROLLER: dict[str, str]` con 4 chiavi
-- [ ] Verificare i 4 testi italiani corrispondono esattamente al DESIGN (nessuna variazione)
-- [ ] Verificare che i dizionari pre-esistenti (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, ecc.) **non siano stati modificati**
-- [ ] Eseguire `python -m py_compile bingo_game/ui/locales/it.py` → zero errori
-- [ ] Eseguire `python -c "from bingo_game.ui.locales.it import MESSAGGI_CONTROLLER; print(len(MESSAGGI_CONTROLLER))"` → output: `4`
-- [ ] Eseguire AT-2: `python -c "from bingo_game.ui.locales.it import MESSAGGI_CONTROLLER"` → **nessun `ImportError`**
+- [x] Aggiungere in coda al file il dizionario `MESSAGGI_CONTROLLER: dict[str, str]` con 4 chiavi
+- [x] Verificare i 4 testi italiani corrispondono esattamente al DESIGN (nessuna variazione)
+- [x] Verificare che i dizionari pre-esistenti (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, ecc.) **non siano stati modificati**
+- [x] Eseguire `python -m py_compile bingo_game/ui/locales/it.py` → zero errori
+- [x] Eseguire `python -c "from bingo_game.ui.locales.it import MESSAGGI_CONTROLLER; print(len(MESSAGGI_CONTROLLER))"` → output: `4`
+- [x] Eseguire AT-2: `python -c "from bingo_game.ui.locales.it import MESSAGGI_CONTROLLER"` → **nessun `ImportError`**
 
 **Criterio di done C2**: `MESSAGGI_CONTROLLER` con 4 chiavi importabile, nessun ImportError, dizionari esistenti intatti.
 
@@ -162,11 +162,11 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 **File**: `bingo_game/ui/locales/__init__.py` (MODIFY)  
 **Messaggio**: `feat(locales): export MESSAGGI_CONTROLLER from locales __init__ [C3/9]`
 
-- [ ] Leggere il contenuto attuale di `__init__.py` prima di modificare
-- [ ] Aggiungere `from bingo_game.ui.locales.it import MESSAGGI_CONTROLLER` nella sezione export
-- [ ] Verificare che segua il pattern degli altri export già presenti (es. `MESSAGGI_CONFIGURAZIONE`)
-- [ ] Verificare che gli export pre-esistenti **non siano stati rimossi o alterati**
-- [ ] Eseguire `python -c "from bingo_game.ui.locales import MESSAGGI_CONTROLLER; print(type(MESSAGGI_CONTROLLER))"` → output: `<class 'dict'>`
+- [x] Leggere il contenuto attuale di `__init__.py` prima di modificare
+- [x] Aggiungere `from bingo_game.ui.locales.it import MESSAGGI_CONTROLLER` nella sezione export
+- [x] Verificare che segua il pattern degli altri export già presenti (es. `MESSAGGI_CONFIGURAZIONE`)
+- [x] Verificare che gli export pre-esistenti **non siano stati rimossi o alterati**
+- [x] Eseguire `python -c "from bingo_game.ui.locales import MESSAGGI_CONTROLLER; print(type(MESSAGGI_CONTROLLER))"` → output: `<class 'dict'>`
 
 **Criterio di done C3**: `MESSAGGI_CONTROLLER` importabile da `bingo_game.ui.locales` (path corto), export esistenti intatti.
 
@@ -176,9 +176,9 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 
 > Eseguire questi check **prima** di iniziare C4. Non procedere se falliscono.
 
-- [ ] `python -m pytest tests/ -q` → annotare numero di test verdi come baseline
-- [ ] `grep -n "print(" bingo_game/game_controller.py` → annotare numero di occorrenze (baseline ~22)
-- [ ] Nessun test fallito pre-esistente: se ci sono fallimenti, segnalare e bloccare
+- [x] `python -m pytest tests/ -q` → annotare numero di test verdi come baseline
+- [x] `grep -n "print(" bingo_game/game_controller.py` → annotare numero di occorrenze (baseline ~22)
+- [x] Nessun test fallito pre-esistente: se ci sono fallimenti, segnalare e bloccare
 
 ---
 
@@ -189,20 +189,20 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 
 > Gruppo A = 11 `print()` di scaffolding costruzione partita → `_log_safe` livello DEBUG via `_logger_game`
 
-- [ ] Sostituire `print("Creazione tabellone standard...")` con `_log_safe("[GAME] crea_partita_standard: tabellone creato.", logging.DEBUG, logger=_logger_game)`
-- [ ] Sostituire `print(f"Creazione giocatore umano '{nome}'...")` con log DEBUG equivalente
-- [ ] Sostituire `print(f"Creazione {n} bot automatici...")` con log DEBUG equivalente
-- [ ] Sostituire `print(f"Partita composta da {n} giocatori totali")` con log DEBUG equivalente
-- [ ] Sostituire `print("Inizializzazione oggetto Partita...")` con log DEBUG equivalente
-- [ ] Sostituire `print("✅ Partita standard creata con successo!")` con log DEBUG equivalente
-- [ ] Sostituire `print(f"📸 Stato partita '...'...")` con log DEBUG equivalente
-- [ ] Sostituire `print(f"🔍 Controllo tombola:...")` con log DEBUG equivalente
-- [ ] Sostituire `print("⏳ Nessuna tombola, gioco continua...")` con log DEBUG equivalente
-- [ ] Sostituire `print(f"🔍 Controllo fine partita:...")` con log DEBUG equivalente
-- [ ] Sostituire `print("▶️ Partita in corso - continua il loop")` con log DEBUG equivalente
-- [ ] Verificare AT-3: ogni nuova riga `_log_safe` usa prefisso `[GAME]` e nessuna emoji
-- [ ] `python -m pytest tests/ -q` → nessuna regressione rispetto alla baseline
-- [ ] `grep -n "print(" bingo_game/game_controller.py` → ~11 righe residue (Gruppi B, C, D)
+- [x] Sostituire `print("Creazione tabellone standard...")` con `_log_safe("[GAME] crea_partita_standard: tabellone creato.", logging.DEBUG, logger=_logger_game)`
+- [x] Sostituire `print(f"Creazione giocatore umano '{nome}'...")` con log DEBUG equivalente
+- [x] Sostituire `print(f"Creazione {n} bot automatici...")` con log DEBUG equivalente
+- [x] Sostituire `print(f"Partita composta da {n} giocatori totali")` con log DEBUG equivalente
+- [x] Sostituire `print("Inizializzazione oggetto Partita...")` con log DEBUG equivalente
+- [x] Sostituire `print("✅ Partita standard creata con successo!")` con log DEBUG equivalente
+- [x] Sostituire `print(f"📸 Stato partita '...'...")` con log DEBUG equivalente
+- [x] Sostituire `print(f"🔍 Controllo tombola:...")` con log DEBUG equivalente
+- [x] Sostituire `print("⏳ Nessuna tombola, gioco continua...")` con log DEBUG equivalente
+- [x] Sostituire `print(f"🔍 Controllo fine partita:...")` con log DEBUG equivalente
+- [x] Sostituire `print("▶️ Partita in corso - continua il loop")` con log DEBUG equivalente
+- [x] Verificare AT-3: ogni nuova riga `_log_safe` usa prefisso `[GAME]` e nessuna emoji
+- [x] `python -m pytest tests/ -q` → nessuna regressione rispetto alla baseline
+- [x] `grep -n "print(" bingo_game/game_controller.py` → ~11 righe residue (Gruppi B, C, D)
 
 **Criterio di done C4**: 11 print Gruppo A rimossi, test verdi, prefissi [GAME] corretti.
 
@@ -218,24 +218,24 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 
 **Gruppo B — rimozione secca:**
 
-- [ ] Rimuovere `print("✅ Partita avviata con successo!")` → la TUI legge `True`
-- [ ] Rimuovere `print(f"✅ Turno #{n}: {numero}")` → la TUI legge `dict["numero_estratto"]`
-- [ ] Rimuovere `print(f"🎉 {n} nuovi premi!")` → la TUI legge `dict["premi_nuovi"]`
-- [ ] Rimuovere `print("🎉 TOMBOLA RILEVATA...")` → la TUI legge `dict["tombola_rilevata"]`
-- [ ] Rimuovere `print("🏁 Partita TERMINATA - esci dal loop")` → la TUI riceve `True` da `partita_terminata()`
+- [x] Rimuovere `print("✅ Partita avviata con successo!")` → la TUI legge `True`
+- [x] Rimuovere `print(f"✅ Turno #{n}: {numero}")` → la TUI legge `dict["numero_estratto"]`
+- [x] Rimuovere `print(f"🎉 {n} nuovi premi!")` → la TUI legge `dict["premi_nuovi"]`
+- [x] Rimuovere `print("🎉 TOMBOLA RILEVATA...")` → la TUI legge `dict["tombola_rilevata"]`
+- [x] Rimuovere `print("🏁 Partita TERMINATA - esci dal loop")` → la TUI riceve `True` da `partita_terminata()`
 
 **Gruppo C — rimozione + log WARNING:**
 
-- [ ] Sostituire `print(f"❌ Impossibile avviare: {exc}")` con `_log_safe(f"[GAME] Avvio fallito: tipo='{type(exc).__name__}'.", logging.WARNING, logger=_logger_errors)`
-- [ ] Sostituire `print(f"❌ Partita già avviata: {exc}")` con log WARNING equivalente (stesso template)
-- [ ] Sostituire `print(f"❌ Errore partita generico: {exc}")` con log WARNING equivalente (stesso template)
-- [ ] Sostituire `print(f"❌ Impossibile turno: stato '...'")`  con `_log_safe("[GAME] esegui_turno_sicuro: stato '...' non in corso.", logging.WARNING, logger=_logger_game)`
-- [ ] Sostituire `print(f"🏁 Partita finita - Numeri esauriti: {exc}")` con log WARNING via `_logger_game`
-- [ ] Sostituire `print(f"❌ Turno fallito - Partita non in corso: {exc}")` con log WARNING via `_logger_game`
-- [ ] Sostituire `print(f"❌ Errore partita durante turno: {exc}")` con log WARNING via `_logger_game`
-- [ ] Verificare AT-3: prefissi `[GAME]` e `[ERR]` corretti per ogni sostituzione, zero emoji
-- [ ] `python -m pytest tests/ -q` → nessuna regressione
-- [ ] `grep -n "print(" bingo_game/game_controller.py` → ~5 righe residue (solo Gruppo D)
+- [x] Sostituire `print(f"❌ Impossibile avviare: {exc}")` con `_log_safe(f"[GAME] Avvio fallito: tipo='{type(exc).__name__}'.", logging.WARNING, logger=_logger_errors)`
+- [x] Sostituire `print(f"❌ Partita già avviata: {exc}")` con log WARNING equivalente (stesso template)
+- [x] Sostituire `print(f"❌ Errore partita generico: {exc}")` con log WARNING equivalente (stesso template)
+- [x] Sostituire `print(f"❌ Impossibile turno: stato '...'")`  con `_log_safe("[GAME] esegui_turno_sicuro: stato '...' non in corso.", logging.WARNING, logger=_logger_game)`
+- [x] Sostituire `print(f"🏁 Partita finita - Numeri esauriti: {exc}")` con log WARNING via `_logger_game`
+- [x] Sostituire `print(f"❌ Turno fallito - Partita non in corso: {exc}")` con log WARNING via `_logger_game`
+- [x] Sostituire `print(f"❌ Errore partita durante turno: {exc}")` con log WARNING via `_logger_game`
+- [x] Verificare AT-3: prefissi `[GAME]` e `[ERR]` corretti per ogni sostituzione, zero emoji
+- [x] `python -m pytest tests/ -q` → nessuna regressione
+- [x] `grep -n "print(" bingo_game/game_controller.py` → ~5 righe residue (solo Gruppo D)
 
 **Criterio di done C5**: 12 print Gruppo B+C eliminati, test verdi, log WARNING presenti con tipo eccezione.
 
@@ -248,14 +248,14 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 
 > Gruppo D = 5 `print()` di errori infrastruttura gravi → `_log_safe` livello ERROR/WARNING via `_logger_errors` / `_logger_system`
 
-- [ ] Sostituire `print(f"⚠️ Avvio completato ma stato inatteso: {stato}")` con `_log_safe(f"[SYS] avvia_partita_sicura: stato post-avvio inatteso='{stato}'.", logging.WARNING, logger=_logger_system)`
-- [ ] Sostituire `print("❌ ERRORE: Oggetto non è una Partita valida")` (in `avvia`) con `_log_safe(f"[ERR] avvia_partita_sicura: parametro non è Partita. tipo='{type(partita).__name__}'.", logging.ERROR, logger=_logger_errors)`
-- [ ] Sostituire `print("❌ ERRORE: Parametro non è una Partita valida")` (in `esegui_turno`) con `_log_safe(f"[ERR] esegui_turno_sicuro: parametro non è Partita. tipo='{type(partita).__name__}'.", logging.ERROR, logger=_logger_errors)`
-- [ ] Sostituire `print(f"💥 Errore critico imprevisto: {exc}")` (in `avvia`) con `_log_safe(f"[ERR] avvia_partita_sicura: eccezione imprevista. tipo='{type(exc).__name__}'.", logging.ERROR, logger=_logger_errors)`
-- [ ] Sostituire `print(f"💥 Errore critico imprevisto nel turno: {exc}")` con `_log_safe(f"[ERR] esegui_turno_sicuro: eccezione imprevista. tipo='{type(exc).__name__}'.", logging.ERROR, logger=_logger_errors)`
-- [ ] Verificare AT-3: prefissi `[SYS]` e `[ERR]` corretti, nessuna emoji
-- [ ] `python -m pytest tests/ -q` → nessuna regressione
-- [ ] **`grep -n "print(" bingo_game/game_controller.py` → ZERO RISULTATI** 🚨
+- [x] Sostituire `print(f"⚠️ Avvio completato ma stato inatteso: {stato}")` con `_log_safe(f"[SYS] avvia_partita_sicura: stato post-avvio inatteso='{stato}'.", logging.WARNING, logger=_logger_system)`
+- [x] Sostituire `print("❌ ERRORE: Oggetto non è una Partita valida")` (in `avvia`) con `_log_safe(f"[ERR] avvia_partita_sicura: parametro non è Partita. tipo='{type(partita).__name__}'.", logging.ERROR, logger=_logger_errors)`
+- [x] Sostituire `print("❌ ERRORE: Parametro non è una Partita valida")` (in `esegui_turno`) con `_log_safe(f"[ERR] esegui_turno_sicuro: parametro non è Partita. tipo='{type(partita).__name__}'.", logging.ERROR, logger=_logger_errors)`
+- [x] Sostituire `print(f"💥 Errore critico imprevisto: {exc}")` (in `avvia`) con `_log_safe(f"[ERR] avvia_partita_sicura: eccezione imprevista. tipo='{type(exc).__name__}'.", logging.ERROR, logger=_logger_errors)`
+- [x] Sostituire `print(f"💥 Errore critico imprevisto nel turno: {exc}")` con `_log_safe(f"[ERR] esegui_turno_sicuro: eccezione imprevista. tipo='{type(exc).__name__}'.", logging.ERROR, logger=_logger_errors)`
+- [x] Verificare AT-3: prefissi `[SYS]` e `[ERR]` corretti, nessuna emoji
+- [x] `python -m pytest tests/ -q` → nessuna regressione
+- [x] **`grep -n "print(" bingo_game/game_controller.py` → ZERO RISULTATI** 🚨
 
 **Criterio di done C6**: `grep print(` restituisce zero. Il controller è silenzioso. Nessuna regressione.
 
@@ -266,15 +266,15 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 **File**: `bingo_game/ui/ui_terminale.py` (MODIFY)  
 **Messaggio**: `feat(ui): add MESSAGGI_CONTROLLER guards in ui_terminale.py [C7/9]`
 
-- [ ] Aggiungere import `from bingo_game.ui.locales import MESSAGGI_CONTROLLER`
-- [ ] Aggiungere import delle 4 costanti `CTRL_*` da `bingo_game.events.codici_controller`
-- [ ] Nel metodo che chiama `avvia_partita_sicura`: aggiungere guardia sul `False` con `MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO]`
+- [x] Aggiungere import `from bingo_game.ui.locales import MESSAGGI_CONTROLLER`
+- [x] Aggiungere import delle 4 costanti `CTRL_*` da `bingo_game.events.codici_controller`
+- [x] Nel metodo che chiama `avvia_partita_sicura`: aggiungere guardia sul `False` con `MESSAGGI_CONTROLLER[CTRL_AVVIO_FALLITO_GENERICO]`
 - [ ] Nel metodo che chiama `esegui_turno_sicuro`: aggiungere guardia sul `None` con `MESSAGGI_CONTROLLER[CTRL_TURNO_FALLITO_GENERICO]` come fallback
-- [ ] Catturare `ValueError` di `ottieni_stato_sintetico` con blocco `try/except ValueError`
-- [ ] Verificare che nessun nuovo testo sia hardcoded in `ui_terminale.py` (tutti i messaggi via `MESSAGGI_CONTROLLER`)
-- [ ] Verificare che nessun nuovo import dal Domain layer sia stato aggiunto
-- [ ] `python -m py_compile bingo_game/ui/ui_terminale.py` → zero errori
-- [ ] `python -m pytest tests/ -q` → nessuna regressione
+- [x] Catturare `ValueError` di `ottieni_stato_sintetico` con helper `_ottieni_stato_sicuro`
+- [x] Verificare che nessun nuovo testo sia hardcoded in `ui_terminale.py` (tutti i messaggi via `MESSAGGI_CONTROLLER`)
+- [x] Verificare che nessun nuovo import dal Domain layer sia stato aggiunto
+- [x] `python -m py_compile bingo_game/ui/ui_terminale.py` → zero errori
+- [x] `python -m pytest tests/ -q` → nessuna regressione
 
 **Criterio di done C7**: TUI gestisce i tre casi di ritorno anomalo, nessun hardcoding, nessuna regressione.
 
@@ -285,29 +285,29 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 **File**: `tests/test_silent_controller.py` (CREATE)  
 **Messaggio**: `test: add capsys non-regression tests for silent controller [C8/9]`
 
-- [ ] Creare `tests/test_silent_controller.py` con docstring di modulo
-- [ ] Implementare fixture `partita_mock` (Partita in stato `in_corso`)
-- [ ] Implementare fixture `partita_terminata_mock` (Partita in stato `terminata`)
-- [ ] **Classe `TestControllerSilenzioso`** (8 test `capsys.readouterr().out == ""`):
-  - [ ] `test_crea_partita_standard_silenzioso`
-  - [ ] `test_avvia_partita_sicura_true_silenzioso`
-  - [ ] `test_avvia_partita_sicura_false_silenzioso`
-  - [ ] `test_esegui_turno_sicuro_dict_silenzioso`
-  - [ ] `test_esegui_turno_sicuro_none_silenzioso`
-  - [ ] `test_partita_terminata_false_silenzioso`
-  - [ ] `test_partita_terminata_true_silenzioso`
-  - [ ] `test_ottieni_stato_sintetico_dict_silenzioso`
-- [ ] **Classe `TestContrattiRitorno`** (4 test):
-  - [ ] `test_avvia_partita_sicura_ritorna_true`
-  - [ ] `test_avvia_partita_sicura_ritorna_false_su_eccezione`
-  - [ ] `test_ottieni_stato_sintetico_lancia_valueerror_su_non_partita`
-  - [ ] `test_esegui_turno_sicuro_ritorna_none_su_partita_non_in_corso`
-- [ ] **Classe `TestMESSAGGICONTROLLER`** (3 test):
-  - [ ] `test_quattro_chiavi`
-  - [ ] `test_chiavi_sono_costanti_corrette`
-  - [ ] `test_valori_sono_stringhe_non_vuote`
-- [ ] Eseguire `python -m pytest tests/test_silent_controller.py -v` → **tutti 15 verdi**
-- [ ] Eseguire `python -m pytest tests/ -q` → nessuna regressione sull'intera suite
+- [x] Creare `tests/test_silent_controller.py` con docstring di modulo
+- [x] Implementare fixture `partita_mock` (Partita in stato `in_corso`)
+- [x] Implementare fixture `partita_terminata_mock` (Partita in stato `terminata`)
+- [x] **Classe `TestControllerSilenzioso`** (8 test `capsys.readouterr().out == ""`):
+  - [x] `test_crea_partita_standard_silenzioso`
+  - [x] `test_avvia_partita_sicura_true_silenzioso`
+  - [x] `test_avvia_partita_sicura_false_silenzioso`
+  - [x] `test_esegui_turno_sicuro_dict_silenzioso`
+  - [x] `test_esegui_turno_sicuro_none_silenzioso`
+  - [x] `test_partita_terminata_false_silenzioso`
+  - [x] `test_partita_terminata_true_silenzioso`
+  - [x] `test_ottieni_stato_sintetico_dict_silenzioso`
+- [x] **Classe `TestContrattiRitorno`** (4 test):
+  - [x] `test_avvia_partita_sicura_ritorna_true`
+  - [x] `test_avvia_partita_sicura_ritorna_false_su_eccezione`
+  - [x] `test_ottieni_stato_sintetico_lancia_valueerror_su_non_partita`
+  - [x] `test_esegui_turno_sicuro_ritorna_none_su_partita_non_in_corso`
+- [x] **Classe `TestMESSAGGICONTROLLER`** (3 test):
+  - [x] `test_quattro_chiavi`
+  - [x] `test_chiavi_sono_costanti_corrette`
+  - [x] `test_valori_sono_stringhe_non_vuote`
+- [x] Eseguire `python -m pytest tests/test_silent_controller.py -v` → **tutti 15 verdi**
+- [x] Eseguire `python -m pytest tests/ -q` → nessuna regressione sull'intera suite
 
 **Criterio di done C8**: 15 test verdi, nessuna regressione.
 
@@ -319,26 +319,26 @@ Implementare le modifiche in modo **incrementale** su commit atomici e logici.
 **Messaggio**: `docs: update API.md, ARCHITECTURE.md, CHANGELOG.md for v0.8.0 [C9/9]`
 
 **`API.md`:**
-- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `crea_partita_standard`
-- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `avvia_partita_sicura`
-- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `esegui_turno_sicuro`
-- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `ottieni_stato_sintetico`
-- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `partita_terminata`
-- [ ] Rimuovere ogni nota su `print()` o stdout nelle firme di `ha_partita_tombola`
-- [ ] Aggiornare le descrizioni con i contratti di ritorno corretti (vedi tabella in PLAN sezione 4.2.1)
-- [ ] Verifica: `grep -n "stdout\|print()" documentations/API.md` → zero riferimenti alle funzioni controller
+- [x] Rimuovere ogni nota su `print()` o stdout nelle firme di `crea_partita_standard`
+- [x] Rimuovere ogni nota su `print()` o stdout nelle firme di `avvia_partita_sicura`
+- [x] Rimuovere ogni nota su `print()` o stdout nelle firme di `esegui_turno_sicuro`
+- [x] Rimuovere ogni nota su `print()` o stdout nelle firme di `ottieni_stato_sintetico`
+- [x] Rimuovere ogni nota su `print()` o stdout nelle firme di `partita_terminata`
+- [x] Rimuovere ogni nota su `print()` o stdout nelle firme di `ha_partita_tombola`
+- [x] Aggiornare le descrizioni con i contratti di ritorno corretti (vedi tabella in PLAN sezione 4.2.1)
+- [x] Verifica: `grep -n "stdout\|print()" documentations/API.md` → zero riferimenti alle funzioni controller
 
 **`ARCHITECTURE.md`:**
-- [ ] Rimuovere la freccia `Controller → stdout` dal diagramma layer
-- [ ] Aggiornare il diagramma flusso dati: `game_controller → (bool/dict/None) → ui_terminale → stdout`
-- [ ] Aggiungere regola invariante: *"Il Controller non scrive mai su stdout"*
-- [ ] Aggiungere `bingo_game/events/codici_controller.py` alla mappa moduli con descrizione v0.8.0
+- [x] Rimuovere la freccia `Controller → stdout` dal diagramma layer
+- [x] Aggiornare il diagramma flusso dati: `game_controller → (bool/dict/None) → ui_terminale → stdout`
+- [x] Aggiungere regola invariante: *"Il Controller non scrive mai su stdout"*
+- [x] Aggiungere `bingo_game/events/codici_controller.py` alla mappa moduli con descrizione v0.8.0
 
 **`CHANGELOG.md`:**
-- [ ] Aggiungere sezione `## [v0.8.0] - 2026-02-20 Silent Controller`
-- [ ] Sezione `### Changed`: game_controller.py (rimozione ~22 print), ui_terminale.py (guardie)
-- [ ] Sezione `### Added`: codici_controller.py (4 costanti), MESSAGGI_CONTROLLER (4 voci), test_silent_controller.py (15 test)
-- [ ] Sezione `### Fixed`: accessibilità (rimozione emoji), architettura (eliminazione dipendenza Controller → stdout)
+- [x] Aggiungere sezione `## [0.8.0] - 2026-02-20 Silent Controller`
+- [x] Sezione `### Changed`: game_controller.py (rimozione ~22 print), ui_terminale.py (guardie)
+- [x] Sezione `### Added`: codici_controller.py (4 costanti), MESSAGGI_CONTROLLER (4 voci), test_silent_controller.py (15 test)
+- [x] Sezione `### Fixed`: accessibilità (rimozione emoji), architettura (eliminazione dipendenza Controller → stdout)
 
 **Criterio di done C9**: i 3 file documentali aggiornati, nessuna menzione di stdout/print() nelle firme del controller in API.md.
 

@@ -5,6 +5,12 @@ from types import MappingProxyType
 
 #import moduli di progetto
 from bingo_game.events.codici_configurazione import Codici_Configurazione
+from bingo_game.events.codici_controller import (
+    CTRL_AVVIO_FALLITO_GENERICO,
+    CTRL_TURNO_NON_IN_CORSO,
+    CTRL_NUMERI_ESAURITI,
+    CTRL_TURNO_FALLITO_GENERICO,
+)
 from bingo_game.events.codici_errori import Codici_Errori
 from bingo_game.events.codici_eventi import Codici_Eventi
 from bingo_game.events.codici_messaggi_sistema import Codici_Messaggi_Sistema
@@ -651,3 +657,11 @@ MESSAGGI_CONFIGURAZIONE: Mapping[Codici_Configurazione, tuple[str, ...]] = Mappi
         "Inserisci un valore tra 1 e 6.",
     ),
 })
+
+
+MESSAGGI_CONTROLLER: dict[str, str] = {
+    CTRL_AVVIO_FALLITO_GENERICO: "Impossibile avviare la partita. Riprova o riavvia l'applicazione.",
+    CTRL_TURNO_NON_IN_CORSO: "Impossibile eseguire il turno: la partita non è in corso.",
+    CTRL_NUMERI_ESAURITI: "Tutti i 90 numeri sono stati estratti. La partita termina senza vincitore.",
+    CTRL_TURNO_FALLITO_GENERICO: "Errore durante l'esecuzione del turno. La partita potrebbe essere terminata.",
+}
