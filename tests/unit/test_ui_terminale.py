@@ -109,7 +109,7 @@ class TestFlussoFelice:
                 "bingo_game.ui.ui_terminale.avvia_partita_sicura",
                 return_value=True,
             ) as mock_avvia,
-            patch("bingo_game.ui.ui_terminale.TuiGameLoop") as mock_loop_cls,
+            patch("bingo_game.ui.ui_terminale._loop_partita") as mock_loop,
         ):
             tui = TerminalUI()
             tui.avvia()
@@ -120,8 +120,7 @@ class TestFlussoFelice:
             num_bot=3,
         )
         mock_avvia.assert_called_once_with(mock_partita)
-        mock_loop_cls.assert_called_once_with(mock_partita)
-        mock_loop_cls.return_value.avvia.assert_called_once()
+        mock_loop.assert_called_once_with(mock_partita)
         captured = capsys.readouterr()
         assert "Benvenuto in Tombola Stark!" in captured.out
         assert "Configurazione completata. Avvio partita..." in captured.out

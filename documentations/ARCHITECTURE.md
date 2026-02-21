@@ -475,7 +475,6 @@ tombola-stark/
 │   │   └── game_logger.py
 │   └── ui/                      # Livello interfaccia
 │       ├── ui_terminale.py          # TerminalUI: menu + config (v0.7.0)
-│       ├── tui_game_loop.py         # TuiGameLoop: loop interattivo (legacy)
 │       ├── tui/
 │       │   ├── __init__.py
 │       │   └── tui_partita.py       # _loop_partita(): Game Loop canonico (v0.9.0)
