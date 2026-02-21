@@ -133,13 +133,20 @@ def test_gestisci_segna_arg_non_numerico(partita_mock):
 
 
 # ---------------------------------------------------------------------------
-# Test 6 — _gestisci_segna: errore con argomento vuoto
+# Test 6 — _gestisci_segna: prompt interattivo con argomento vuoto
 # ---------------------------------------------------------------------------
 
 def test_gestisci_segna_arg_vuoto(partita_mock):
-    """_gestisci_segna con stringa vuota deve ritornare messaggio errore."""
+    """_gestisci_segna con stringa vuota deve chiedere il numero interattivamente [v0.9.1]."""
     from bingo_game.ui.tui.tui_partita import _gestisci_segna
-    righe = _gestisci_segna(partita_mock, "")
+    with patch("builtins.input", return_value="abc"):
+        with patch("bingo_game.ui.tui.tui_partita._stampa") as mock_stampa:
+            righe = _gestisci_segna(partita_mock, "")
+    # Deve aver mostrato il prompt interattivo
+    mock_stampa.assert_called_once()
+    prompt_text = mock_stampa.call_args[0][0]
+    assert "1-90" in prompt_text or "numero" in prompt_text.lower()
+    # Deve ritornare un errore (input non numerico)
     assert len(righe) > 0
     testo = " ".join(righe).lower()
     assert "errore" in testo or "tipo" in testo or "valido" in testo
@@ -306,3 +313,40 @@ def test_loop_focus_auto_impostato(partita_mock_con_giocatore):
 
     # imposta_focus_cartella(1) deve essere stato chiamato
     giocatore.imposta_focus_cartella.assert_called_once_with(1)
+
+
+# ---------------------------------------------------------------------------
+# Test 15 — Fallback focus su cartella singola quando imposta_focus_cartella solleva eccezione
+# ---------------------------------------------------------------------------
+
+def test_loop_focus_fallback_cartella_singola(partita_mock):
+    """Se imposta_focus_cartella() solleva eccezione e il giocatore ha 1 cartella,
+    _loop_partita deve impostare _indice_cartella_focus = 0 come fallback [v0.9.1]."""
+    from bingo_game.ui.tui.tui_partita import _loop_partita
+
+    mock_giocatore = MagicMock()
+    mock_giocatore.imposta_focus_cartella.side_effect = AttributeError("metodo mancante")
+    mock_giocatore.cartelle = [MagicMock()]  # esattamente 1 cartella
+    mock_giocatore._indice_cartella_focus = None
+
+    partita_mock.get_giocatori.return_value = [mock_giocatore]
+
+    inputs = iter(["q", "s"])
+    with (
+        patch("builtins.input", side_effect=inputs),
+        patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False]),
+        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=mock_giocatore),
+        patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value={
+            "numeri_estratti": [],
+            "giocatori": [],
+            "premi_gia_assegnati": [],
+            "stato_partita": "in_corso",
+            "ultimo_numero_estratto": None,
+        }),
+    ):
+        _loop_partita(partita_mock)
+
+    # Il fallback deve aver impostato _indice_cartella_focus a 0
+    assert mock_giocatore._indice_cartella_focus == 0, (
+        "Fallback Bug 3: _indice_cartella_focus deve essere 0 dopo il fallback su cartella singola"
+    )

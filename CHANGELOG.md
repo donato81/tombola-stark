@@ -7,6 +7,25 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ---
 
+## [v0.9.1] — 2026-02-21
+
+### Fixed
+- **Bug 1** (`bingo_game/players/giocatore_umano.py`): corretto `AttributeError` in `imposta_focus_cartella()` — la chiamata interna usava `self.reset_focus_riga_e_colonna()` (senza underscore) invece di `self._reset_focus_riga_e_colonna()`. Il focus non veniva mai impostato all'avvio della partita.
+- **Bug 3** (`bingo_game/ui/tui/tui_partita.py`): aggiunto fallback esplicito in `_loop_partita()` — se `imposta_focus_cartella(1)` fallisce e il giocatore ha esattamente 1 cartella, il focus viene ora impostato tramite `imposta_focus_cartella_fallback()`.
+- **Bug 2** (`bingo_game/ui/tui/tui_partita.py`): il comando `s` senza argomento ora chiede il numero interattivamente con prompt `"Quale numero vuoi segnare? (1-90):"` invece di restituire immediatamente errore.
+- **Anomalia A** (`bingo_game/players/giocatore_umano.py`): corretto `AttributeError` latente in `sposta_focus_riga_giu_avanzata()` — la chiamata usava `self._inizializza_focus_riga_se_manca()` (metodo inesistente) invece di `self._esito_inizializza_focus_riga_se_manca()`.
+
+### Refactored
+- **Anomalia B** (`bingo_game/players/helper_focus.py`, `bingo_game/ui/tui/tui_partita.py`): sostituito accesso diretto all'attributo privato `_indice_cartella_focus` dal layer UI con il nuovo metodo pubblico `imposta_focus_cartella_fallback()`, ripristinando il rispetto del vincolo architetturale.
+- **Anomalia C** (`bingo_game/ui/locales/it.py`, `bingo_game/ui/renderers/renderer_terminal.py`): corretto typo `AVVANZATA` → `AVANZATA` in tutte le chiavi di `MESSAGGI_OUTPUT_UI_UMANI` e nelle relative occorrenze nel renderer e nei test.
+
+### Tests
+- Aggiunto test per `imposta_focus_cartella_fallback()` in `tests/unit/test_imposta_focus_cartella_regression.py`
+- Aggiunto test per `sposta_focus_riga_giu_avanzata()` con `_indice_riga_focus` inizialmente `None`
+- Aggiornati test in `tests/unit/test_tui_partita.py` e `tests/flow/test_flusso_game_loop.py`
+
+---
+
 ## [0.9.0] - 2026-02-21 — Game Loop Interattivo
 
 ### Added

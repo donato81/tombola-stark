@@ -84,7 +84,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🕹️ Come si gioca (v0.9.0)
+## 🕹️ Come si gioca (v0.9.1)
 
 Avvia il gioco con `python main.py`, inserisci nome, numero di bot e cartelle, poi entra nel **Game Loop interattivo**.
 
@@ -93,7 +93,7 @@ Avvia il gioco con `python main.py`, inserisci nome, numero di bot e cartelle, p
 | Comando | Descrizione |
 |---------|-------------|
 | `p` | **Prosegui** — estrai il prossimo numero e avanza al turno successivo |
-| `s <N>` | **Segna** — segna il numero N sulla cartella in focus (es. `s 42`) |
+| `s <N> [N2 N3 ...]` | **Segna** — segna uno o più numeri sulla cartella in focus (es. `s 42` oppure `s 42 15 7` o `s 42,15,7`) |
 | `c` | **Cartella** — mostra il riepilogo della cartella in focus |
 | `v` | **Tabellone** — mostra il riepilogo del tabellone (estratti / mancanti) |
 | `q` | **Esci** — chiede conferma prima di uscire dalla partita |
