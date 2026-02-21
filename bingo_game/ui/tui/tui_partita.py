@@ -67,6 +67,9 @@ def _loop_partita(partita) -> None:
             _logger_tui.debug("[LOOP] Focus impostato su cartella 1.")
         except Exception as exc:
             _logger_tui.warning("[LOOP] Impossibile impostare focus auto: %s", exc)
+            if len(giocatore.cartelle) == 1:
+                giocatore._indice_cartella_focus = 0
+                _logger_tui.debug("[LOOP] Focus fallback impostato su cartella 1 (cartella singola).")
 
     while not partita_terminata(partita):
         _stampa(MESSAGGI_OUTPUT_UI_UMANI["LOOP_PROMPT_COMANDO"][0])
