@@ -1696,7 +1696,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         # 4) Creazione evento finale (trovato/nontrovato) con factory method per stabilità.
         if not risultati:
             evento = EventoRicercaNumeroInCartelle.nontrovato(
-                id_giocatore=self.idgiocatore,
+                id_giocatore=self.id_giocatore,
                 nome_giocatore=self.nome,
                 numero=numero_cercato,
                 totale_cartelle=totale_cartelle,
@@ -1708,7 +1708,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
             )
 
         evento = EventoRicercaNumeroInCartelle.trovato(
-            id_giocatore=self.idgiocatore,
+            id_giocatore=self.id_giocatore,
             nome_giocatore=self.nome,
             numero=numero_cercato,
             totale_cartelle=totale_cartelle,
