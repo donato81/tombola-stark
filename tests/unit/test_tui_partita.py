@@ -321,13 +321,12 @@ def test_loop_focus_auto_impostato(partita_mock_con_giocatore):
 
 def test_loop_focus_fallback_cartella_singola(partita_mock):
     """Se imposta_focus_cartella() solleva eccezione e il giocatore ha 1 cartella,
-    _loop_partita deve impostare _indice_cartella_focus = 0 come fallback [v0.9.1]."""
+    _loop_partita deve chiamare imposta_focus_cartella_fallback() come fallback [v0.9.1]."""
     from bingo_game.ui.tui.tui_partita import _loop_partita
 
     mock_giocatore = MagicMock()
     mock_giocatore.imposta_focus_cartella.side_effect = AttributeError("metodo mancante")
     mock_giocatore.cartelle = [MagicMock()]  # esattamente 1 cartella
-    mock_giocatore._indice_cartella_focus = None
 
     partita_mock.get_giocatori.return_value = [mock_giocatore]
 
@@ -346,7 +345,5 @@ def test_loop_focus_fallback_cartella_singola(partita_mock):
     ):
         _loop_partita(partita_mock)
 
-    # Il fallback deve aver impostato _indice_cartella_focus a 0
-    assert mock_giocatore._indice_cartella_focus == 0, (
-        "Fallback Bug 3: _indice_cartella_focus deve essere 0 dopo il fallback su cartella singola"
-    )
+    # Il fallback deve aver chiamato imposta_focus_cartella_fallback()
+    mock_giocatore.imposta_focus_cartella_fallback.assert_called_once()

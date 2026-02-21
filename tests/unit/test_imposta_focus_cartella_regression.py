@@ -68,3 +68,22 @@ def test_sposta_focus_riga_giu_avanzata_con_riga_focus_none_non_solleva_eccezion
         f"sposta_focus_riga_giu_avanzata() deve avere successo con riga_focus=None, "
         f"errore: {esito.errore}"
     )
+
+
+def test_imposta_focus_cartella_fallback_imposta_indice_zero():
+    """imposta_focus_cartella_fallback() imposta _indice_cartella_focus a 0 [v0.9.1 Anomalia B]."""
+    giocatore = GiocatoreUmano("TestFallback", id_giocatore=1)
+    giocatore.aggiungi_cartella(Cartella())
+
+    giocatore.imposta_focus_cartella_fallback()
+
+    assert giocatore._indice_cartella_focus == 0
+
+
+def test_imposta_focus_cartella_fallback_senza_cartelle_non_modifica():
+    """imposta_focus_cartella_fallback() non modifica stato se cartelle è vuoto [v0.9.1 Anomalia B]."""
+    giocatore = GiocatoreUmano("TestFallback", id_giocatore=1)
+
+    giocatore.imposta_focus_cartella_fallback()
+
+    assert giocatore._indice_cartella_focus is None
