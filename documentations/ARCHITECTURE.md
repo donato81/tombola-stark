@@ -1,7 +1,7 @@
 # 🏛️ ARCHITECTURE.md - Tombola Stark
 
 > **Documentazione architetturale di tombola-stark**  
-> Ultimo aggiornamento: 2026-02-20 (v0.8.0)
+> Ultimo aggiornamento: 2026-02-21 (v0.9.0)
 
 ---
 
@@ -181,20 +181,25 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 - Sistema `bingo_game/events/` (per messaggi strutturati pronti per TTS)
 - `bingo_game/ui/locales/it.py` (testi localizzati in italiano)
 
-**Componenti attivi (v0.8.0)**:
+**Componenti attivi (v0.9.0)**:
 
 | File | Ruolo |
 |---|---|
 | `bingo_game/ui/ui_terminale.py` | `TerminalUI`: flusso configurazione pre-partita (Fase 1) |
-| `bingo_game/ui/locales/it.py` | Testi localizzati (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, `MESSAGGI_CONTROLLER`) |
+| `bingo_game/ui/tui/tui_partita.py` | `_loop_partita()`: macchina a stati Game Loop interattivo (v0.9.0) |
+| `bingo_game/ui/locales/it.py` | Testi localizzati (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, `MESSAGGI_CONTROLLER`, chiavi `LOOP_*`) |
 | `bingo_game/events/codici_controller.py` | Costanti chiave (`CTRL_*`) per `MESSAGGI_CONTROLLER` (v0.8.0) |
-| `bingo_game/ui/renderers/renderer_terminal.py` | `TerminalRenderer`: istanziato da `TerminalUI.__init__` (Fase 2+) |
+| `bingo_game/events/codici_loop.py` | Costanti codici evento Game Loop (`LOOP_*`) (v0.9.0) |
+| `bingo_game/ui/renderers/renderer_terminal.py` | `TerminalRenderer`: vocalizzazione gerarchica eventi di gioco |
 
-**Flusso TUI (v0.8.0)**:
+**Flusso TUI (v0.9.0)**:
 
 ```
 main.py → TerminalUI.avvia() → GameController → (bool/dict/None) → TUI → stdout
                                               → (log) → tombola_stark.log
+
+TerminalUI._avvia_partita() → TuiGameLoop.avvia()
+                            → _loop_partita(partita)   [v0.9.0 — canonico]
 ```
 
 1. `main.py` istanzia `TerminalUI` e chiama `avvia()`
@@ -202,8 +207,9 @@ main.py → TerminalUI.avvia() → GameController → (bool/dict/None) → TUI �
 3. `TerminalUI` delega al `GameController`: `crea_partita_standard()` + `avvia_partita_sicura()`
 4. `TerminalUI` legge il valore di ritorno e mostra `MESSAGGI_CONTROLLER` se necessario
 5. `TerminalUI` **non importa mai** dal Domain layer (`partita.py`, `giocatore_base.py`, ecc.)
+6. `_loop_partita()` gestisce il ciclo interattivo: comandi `p/s/c/v/q/?`, report finale
 
-**Nota su `TerminalRenderer`**: istanziato in `TerminalUI.__init__` ma non ancora usato nella Fase 1. Sarà integrato nella Fase 2 per vocalizzare gli eventi di gioco.
+> **Vincolo architetturale v0.9.0**: `tui_partita.py` non importa classi Domain (`GiocatoreUmano`, `Partita`, `Tabellone`, `Cartella`). Ogni accesso al dominio passa esclusivamente tramite `game_controller` (es. `ottieni_giocatore_umano()`, `esegui_turno_sicuro()`, `ottieni_stato_sintetico()`).
 
 ---
 
@@ -455,7 +461,8 @@ tombola-stark/
 │   │   ├── codici_eventi.py
 │   │   ├── codici_messaggi_sistema.py
 │   │   ├── codici_output_ui_umani.py
-│   │   └── codici_controller.py     # Costanti CTRL_* (v0.8.0)
+│   │   ├── codici_controller.py     # Costanti CTRL_* (v0.8.0)
+│   │   └── codici_loop.py           # Costanti LOOP_* per Game Loop (v0.9.0)
 │   ├── exceptions/              # Gerarchia eccezioni per modulo
 │   │   ├── __init__.py
 │   │   ├── partita_exceptions.py
@@ -468,11 +475,14 @@ tombola-stark/
 │   │   └── game_logger.py
 │   └── ui/                      # Livello interfaccia
 │       ├── ui_terminale.py          # TerminalUI: menu + config (v0.7.0)
+│       ├── tui/
+│       │   ├── __init__.py
+│       │   └── tui_partita.py       # _loop_partita(): Game Loop canonico (v0.9.0)
 │       ├── locales/
 │       │   ├── __init__.py
-│       │   └── it.py                # Testi IT (MESSAGGI_CONFIGURAZIONE, MESSAGGI_CONTROLLER)
+│       │   └── it.py                # Testi IT (MESSAGGI_*, chiavi LOOP_*)
 │       └── renderers/
-│           └── renderer_terminal.py # TerminalRenderer (Fase 2+)
+│           └── renderer_terminal.py # TerminalRenderer — vocalizzazione gerarchica
 ├── my_lib/                      # Libreria di supporto
 ├── tests/                       # Suite di test
 │   └── test_silent_controller.py    # 15 test capsys + contratti (v0.8.0)
@@ -503,6 +513,7 @@ tombola-stark/
 - Oggetti evento per disaccoppiare produzione e consumo
 - Codici costanti per categorizzazione eventi e messaggi
 - `codici_controller.py`: costanti `CTRL_*` per i codici risposta controller (v0.8.0)
+- `codici_loop.py`: costanti `LOOP_*` per eventi del Game Loop interattivo (v0.9.0)
 
 #### `bingo_game/exceptions/`
 - Un file per ogni modulo di dominio
@@ -510,8 +521,9 @@ tombola-stark/
 
 #### `bingo_game/ui/`
 - `ui_terminale.py`: `TerminalUI` con macchina a stati A→E (v0.7.0)
-- `locales/it.py`: tutti i testi italiani (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, `MESSAGGI_CONTROLLER`)
-- `renderers/`: `TerminalRenderer` (integrato in Fase 2)
+- `tui/tui_partita.py`: `_loop_partita()` — Game Loop interattivo canonico (v0.9.0). **Non importa classi Domain**: accesso al dominio esclusivamente tramite `game_controller`.
+- `locales/it.py`: tutti i testi italiani (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, `MESSAGGI_CONTROLLER`, chiavi `LOOP_*`)
+- `renderers/`: `TerminalRenderer` — vocalizzazione gerarchica eventi di gioco
 
 #### `tests/`
 - Test unitari per dominio (isolati)
@@ -714,6 +726,7 @@ class TestControllerSilenzioso:
 
 ### Storia delle Versioni
 
+- **v0.9.0** (2026-02-21): Game Loop Interattivo. `_loop_partita()` in `tui_partita.py` con dispatch comandi `p/s/c/v/q/?`. `ottieni_giocatore_umano()` in `game_controller.py`. 8 costanti `LOOP_*` in `codici_loop.py`. 13 chiavi `LOOP_*` in `it.py`. Zero import Domain nella TUI. 44 nuovi test (unit + flow).
 - **v0.8.0** (2026-02-20): Silent Controller. Rimozione ~22 `print()` da `game_controller.py` (Gruppi A/B/C/D). Aggiunta `codici_controller.py` (4 costanti `CTRL_*`), `MESSAGGI_CONTROLLER` in `it.py`, guardie TUI, 15 test `capsys`. Il controller è ora rigorosamente silenzioso verso stdout.
 - **v0.7.0** (2026-02-20): TUI Start Menu Fase 1. `TerminalUI` con macchina a stati A→E, 9 costanti `Codici_Configurazione`, `MESSAGGI_CONFIGURAZIONE` in `it.py`, `main.py` aggiornato, 8 unit test. Entry point funzionante per configurazione pre-partita.
 - **v0.6.0** (2026-02): Feature Bot Attivo. I `GiocatoreAutomatico` ora valutano autonomamente i premi conseguiti e li dichiarano tramite `ReclamoVittoria`. Nuova chiave `reclami_bot` in `Partita.esegui_turno()` (backward-compatible). Logging reclami bot in `game_controller`. Metodo `is_automatico()` in `GiocatoreBase`.
@@ -723,7 +736,7 @@ class TestControllerSilenzioso:
 
 ### Aree di Sviluppo Futuro
 
-- **Loop di gioco TUI (v0.9.0)**: Integrazione `esegui_turno_sicuro()` nel loop da terminale con `TerminalRenderer` per vocalizzare estrazioni e premi
+- **Navigazione cartelle (v0.10.0)**: tasti freccia per passare da una cartella all'altra nel Game Loop
 - **`bingo_game/utils.py`** (file presente, vuoto): Utility di supporto da aggiungere
 - **Modalità multiplayer estesa**: Struttura pronta per estensione fino a 8 giocatori
 

@@ -2,7 +2,7 @@
 
 Implementa la Fase 1 del menu iniziale TUI: flusso di configurazione pre-partita
 accessibile (compatibile screen reader NVDA/JAWS/Orca) con macchina a stati A→E.
-Dopo la configurazione, delega il loop di partita a TuiGameLoop (v0.9.0).
+Dopo la configurazione, delega il loop di partita a _loop_partita (v0.9.0).
 
 Pattern di riferimento: bingo_game/ui/locales/it.py
 Version: v0.9.0
@@ -21,7 +21,7 @@ from bingo_game.events.codici_controller import (
     CTRL_TURNO_FALLITO_GENERICO,
 )
 from bingo_game.ui.renderers.renderer_terminal import TerminalRenderer
-from bingo_game.ui.tui_game_loop import TuiGameLoop
+from bingo_game.ui.tui.tui_partita import _loop_partita
 
 logger = logging.getLogger(__name__)
 
@@ -165,9 +165,8 @@ class TerminalUI:
             nome, numero_bot, numero_cartelle,
         )
 
-        # v0.9.0: delega il loop interattivo al TuiGameLoop
-        loop = TuiGameLoop(partita)
-        loop.avvia()
+        # v0.9.0: delega il loop interattivo a _loop_partita
+        _loop_partita(partita)
 
     # ------------------------------------------------------------------
     # Helper privati
