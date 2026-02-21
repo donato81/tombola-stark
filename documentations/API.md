@@ -1074,6 +1074,37 @@ while not partita_terminata(partita):
 
 ---
 
+#### ottieni_giocatore_umano()
+
+```python
+def ottieni_giocatore_umano(partita: Partita) -> Optional[GiocatoreUmano]
+```
+
+**Modulo**: `bingo_game.game_controller`  
+**Versione introdotta**: v0.9.0
+
+**Descrizione**: Ritorna il primo `GiocatoreUmano` della partita, oppure `None` se non trovato. Permette alla TUI di accedere al giocatore umano senza importare classi Domain.
+
+**Args**:
+- `partita` — istanza `Partita` in qualsiasi stato
+
+**Returns**: primo `GiocatoreUmano` trovato, oppure `None` se nessun umano è presente
+
+**Raises**: nessuna eccezione (input non-`Partita` ritorna `None`)
+
+**Logging**:
+- `DEBUG` quando il giocatore umano viene trovato (`[GAME] ottieni_giocatore_umano: trovato '…'`)
+- `WARNING` quando nessun giocatore umano è trovato
+
+**Esempio**:
+```python
+giocatore = ottieni_giocatore_umano(partita)
+if giocatore is not None:
+    esito = giocatore.riepilogo_cartella_corrente()
+```
+
+---
+
 ## 🔧 Riferimento Eccezioni
 
 ### Eccezioni Partita
@@ -1440,8 +1471,47 @@ tui.avvia()
 
 ---
 
+## 🕹️ Livello Interfaccia — TUI Game Loop (v0.9.0)
+
+### Modulo: `bingo_game/ui/tui/tui_partita.py`
+
+**Versione introdotta**: v0.9.0
+
+### Funzione `_loop_partita()`
+
+```python
+def _loop_partita(partita) -> None
+```
+
+**Descrizione**: Macchina a stati del Game Loop interattivo. Governa ogni turno di gioco: imposta il focus sulla prima cartella, poi entra nel loop dei comandi fino a terminazione della partita o uscita volontaria dell'utente.
+
+**Comandi disponibili**:
+
+| Comando | Descrizione |
+|---------|-------------|
+| `p` | Prosegui — estrai il prossimo numero (`esegui_turno_sicuro`) |
+| `s <N>` | Segna il numero N sulla cartella in focus |
+| `c` | Riepilogo cartella in focus (informativo, non avanza il turno) |
+| `v` | Riepilogo tabellone (informativo, non avanza il turno) |
+| `q` | Esci con conferma — logga `WARNING [ALERT]` se confermato |
+| `?` | Mostra aiuto comandi + cartella in focus |
+
+**Vincolo architetturale**: nessun import di classi Domain (`GiocatoreUmano`, `Partita`, `Tabellone`, `Cartella`) — accesso al dominio esclusivamente tramite `game_controller`.
+
+**Side effects**: stampa su `stdout`; al termine emette il report finale di partita.
+
+**Logging**:
+- `DEBUG` per ogni transizione di stato e comando ricevuto
+- `WARNING [ALERT]` su `tombola_stark.tui` quando il giocatore conferma il quit: `[ALERT] Partita interrotta dall'utente al turno #N.`
+
+**Report finale** (automatico alla fine del loop):
+- `=== FINE PARTITA ===`, turni giocati, numeri estratti/90, vincitore o assenza, premi assegnati
+
+---
+
 ## 🔄 Note di Versione
 
+- **v0.9.0** — Game Loop Interattivo: `_loop_partita()` in `tui_partita.py` con dispatch comandi `p/s/c/v/q/?`, `ottieni_giocatore_umano()` in `game_controller.py`, 8 costanti `LOOP_*` in `codici_loop.py`, 13 chiavi `LOOP_*` in `MESSAGGI_OUTPUT_UI_UMANI`. Zero import Domain nella TUI. 44 nuovi test (unit + flow).
 - **v0.8.0** — Silent Controller: rimozione ~22 `print()` da `game_controller.py` (Gruppi A/B/C/D), sostituzione con `_log_safe()` sui sub-logger con prefissi `[GAME]`/`[ERR]`/`[SYS]`. Aggiunta `codici_controller.py` (4 costanti `CTRL_*`), `MESSAGGI_CONTROLLER` in `it.py` (4 voci localizzate), guardie TUI in `ui_terminale.py`. 15 nuovi test `capsys` in `test_silent_controller.py`.
 - **v0.7.0** — TUI Start Menu Fase 1: `TerminalUI` con macchina a stati A→E, 9 costanti `Codici_Configurazione`, `MESSAGGI_CONFIGURAZIONE` in `it.py`, 8 unit test. Entry point `main.py` aggiornato.
 - **v0.6.0** – Bot Attivo: `GiocatoreAutomatico` valuta autonomamente i premi e li dichiara tramite `ReclamoVittoria`. Nuova chiave `reclami_bot` in `Partita.esegui_turno()` (backward-compatible). Campo `id_giocatore` aggiunto agli eventi premio per matching robusto con nomi duplicati. Metodi `is_automatico()` e `reset_reclamo_turno()` documentati in `GiocatoreBase`.
@@ -1453,4 +1523,4 @@ tui.avvia()
 
 ---
 
-*Ultimo aggiornamento: 2026-02-20 (v0.8.0)*
+*Ultimo aggiornamento: 2026-02-21 (v0.9.0)*
