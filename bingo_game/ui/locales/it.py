@@ -538,7 +538,7 @@ MESSAGGI_OUTPUT_UI_UMANI: Mapping[Codici_Output_Ui_Umani, tuple[str, ...]] = Map
     # Help comandi: tupla multi-riga, una riga per comando.
     "LOOP_HELP_COMANDI": (
         "p  — prosegui al prossimo turno.",
-        "s <N>  — segna il numero N sulla cartella in focus.",
+        "s <N> [N2 N3 ...]  — segna uno o più numeri sulla cartella in focus (es. s 42 15 7).",
         "c  — riepilogo cartella in focus.",
         "v  — riepilogo tabellone (numeri estratti).",
         "q  — esci dalla partita (chiede conferma).",
