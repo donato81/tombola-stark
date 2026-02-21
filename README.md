@@ -84,6 +84,30 @@ pip install -r requirements.txt
 
 ---
 
+## 🕹️ Come si gioca (v0.9.0)
+
+Avvia il gioco con `python main.py`, inserisci nome, numero di bot e cartelle, poi entra nel **Game Loop interattivo**.
+
+### Comandi disponibili
+
+| Comando | Descrizione |
+|---------|-------------|
+| `p` | **Prosegui** — estrai il prossimo numero e avanza al turno successivo |
+| `s <N>` | **Segna** — segna il numero N sulla cartella in focus (es. `s 42`) |
+| `c` | **Cartella** — mostra il riepilogo della cartella in focus |
+| `v` | **Tabellone** — mostra il riepilogo del tabellone (estratti / mancanti) |
+| `q` | **Esci** — chiede conferma prima di uscire dalla partita |
+| `?` | **Aiuto** — mostra l'elenco dei comandi e la cartella attualmente in focus |
+
+### Note operative
+
+- **Flessibilità di marcatura**: puoi segnare qualsiasi numero già estratto, non solo l'ultimo.
+- **Azioni informative illimitate**: `s`, `c`, `v`, `?` non avanzano il turno — solo `p` lo fa.
+- **Conferma obbligatoria per uscire**: il comando `q` chiede sempre conferma (`s` per confermare, qualsiasi altro tasto per annullare).
+- **Report finale automatico**: al termine della partita (tombola o numeri esauriti) viene mostrato il riepilogo con vincitore, turni, estratti e premi.
+
+---
+
 ## ▶️ Utilizzo
 
 ### Avvio del gioco

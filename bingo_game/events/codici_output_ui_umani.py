@@ -35,7 +35,7 @@ Codici_Output_Ui_Umani = Literal[
     "UMANI_COLONNA_AVVANZATA_SEGNATI_NESSUNO",
     "UMANI_CARTELLA_AVVANZATA_FOOTER_RIEPILOGO",
     "UMANI_COLONNA_AVVANZATA_FOOTER_RIEPILOGO",
-    #codici per segnazione dei numeri in cartella 
+    #codici per segnazione dei numeri in cartella
     "UMANI_SEGNAZIONE_NUMERO_SEGNATO",
     "UMANI_SEGNAZIONE_NUMERO_GIA_SEGNATO",
     "UMANI_SEGNAZIONE_NUMERO_NON_PRESENTE",
@@ -48,7 +48,7 @@ Codici_Output_Ui_Umani = Literal[
     "UMANI_RICERCA_NUMERO_RISULTATO_RIGA",
     "UMANI_RICERCA_NUMERO_STATO_SEGNATO",
     "UMANI_RICERCA_NUMERO_STATO_DA_SEGNARE",
-    # codici per chiedere se un numero è estratto nel tabellone 
+    # codici per chiedere se un numero è estratto nel tabellone
     "UMANI_VERIFICA_NUMERO_ESTRATTO_SI",
     "UMANI_VERIFICA_NUMERO_ESTRATTO_NO",
     #codici per verificare ultimo numero estratto dal tabellone
@@ -75,4 +75,18 @@ Codici_Output_Ui_Umani = Literal[
     "UMANI_RECLAMO_VITTORIA_NOTA_VALIDAZIONE",
     "UMANI_FINE_TURNO_PASSATO",
     "UMANI_FINE_TURNO_PASSATO_CON_RECLAMO",
+    # ---- Game Loop v0.9.0 ----
+    "LOOP_NUMERO_ESTRATTO",
+    "LOOP_PROMPT_COMANDO",
+    "LOOP_HELP_COMANDI",
+    "LOOP_HELP_FOCUS",
+    "LOOP_QUIT_CONFERMA",
+    "LOOP_QUIT_ANNULLATO",
+    "LOOP_REPORT_FINALE_INTESTAZIONE",
+    "LOOP_REPORT_FINALE_TURNI",
+    "LOOP_REPORT_FINALE_ESTRATTI",
+    "LOOP_REPORT_FINALE_VINCITORE",
+    "LOOP_REPORT_FINALE_NESSUN_VINCITORE",
+    "LOOP_REPORT_FINALE_PREMI",
+    "LOOP_COMANDO_NON_RICONOSCIUTO",
 ]

@@ -14,10 +14,10 @@ from bingo_game.events.codici_controller import (
 from bingo_game.events.codici_errori import Codici_Errori
 from bingo_game.events.codici_eventi import Codici_Eventi
 from bingo_game.events.codici_messaggi_sistema import Codici_Messaggi_Sistema
-from bingo_game.events.codici_output_ui_umani import Codici_Output_Ui_Umani 
+from bingo_game.events.codici_output_ui_umani import Codici_Output_Ui_Umani
 
 
-#strutture dati per utilizzo con renderer da riportare al utente finale 
+#strutture dati per utilizzo con renderer da riportare al utente finale
 
 # Messaggi associati ai CodiceErrore.
 # Ogni entry è una tupla di righe: il renderer potrà fare "\n".join(righe) per stampare.
@@ -40,7 +40,7 @@ MESSAGGI_ERRORI: Mapping[Codici_Errori, tuple[str, ...]] = MappingProxyType({
 
     # FOCUS_CARTELLA_FUORI_RANGE:
     # Il focus cartella è impostato, ma punta fuori dai limiti della lista cartelle.
-    # In pratica: la cartella “selezionata” non esiste più (stato non coerente) e va riselezionata.
+    # In pratica: la cartella \u201cselezionata\u201d non esiste più (stato non coerente) e va riselezionata.
     "FOCUS_CARTELLA_FUORI_RANGE": (
         "Errore: La cartella selezionata non è più disponibile.",
         "Seleziona una cartella valida per continuare.",
@@ -48,8 +48,8 @@ MESSAGGI_ERRORI: Mapping[Codici_Errori, tuple[str, ...]] = MappingProxyType({
 
     # FOCUS_RIGA_NON_IMPOSTATA:
     # La cartella in focus è valida, ma non è stata selezionata alcuna riga.
-    # Questo è un prerequisito tipico per azioni “rigorose” (es. annuncia ambo/terno/quaterna/cinquina),
-    # dove la riga deve essere scelta esplicitamente dall’utente e non viene auto-impostata.
+    # Questo è un prerequisito tipico per azioni \u201crigorse\u201d (es. annuncia ambo/terno/quaterna/cinquina),
+    # dove la riga deve essere scelta esplicitamente dall'utente e non viene auto-impostata.
     "FOCUS_RIGA_NON_IMPOSTATA": (
         "Errore: Nessuna riga selezionata.",
         "Seleziona una riga prima di continuare.",
@@ -58,7 +58,7 @@ MESSAGGI_ERRORI: Mapping[Codici_Errori, tuple[str, ...]] = MappingProxyType({
     # FOCUS_RIGA_FUORI_RANGE:
     # La riga in focus è impostata, ma non è coerente con le righe disponibili
     # nella cartella attualmente in focus (indice fuori dai limiti).
-    # In pratica: la riga “selezionata” non esiste più e va selezionata di nuovo.
+    # In pratica: la riga \u201cselezionata\u201d non esiste più e va selezionata di nuovo.
     "FOCUS_RIGA_FUORI_RANGE": (
         "Errore: La riga selezionata non è più disponibile.",
         "Seleziona una riga valida per continuare.",
@@ -74,25 +74,25 @@ MESSAGGI_ERRORI: Mapping[Codici_Errori, tuple[str, ...]] = MappingProxyType({
     # FOCUS_COLONNA_FUORI_RANGE:
     # La colonna in focus è impostata, ma non è coerente con le colonne disponibili
     # nella cartella attualmente in focus (indice fuori dai limiti).
-    # In pratica: la colonna “selezionata” non esiste più e va selezionata di nuovo.
+    # In pratica: la colonna \u201cselezionata\u201d non esiste più e va selezionata di nuovo.
     "FOCUS_COLONNA_FUORI_RANGE": (
         "Errore: La colonna selezionata non è più disponibile.",
         "Seleziona una colonna valida per continuare.",
     ),
 
-    #caso errore numero non valido 
+    #caso errore numero non valido
     "NUMERO_NON_VALIDO": (
         "Errore: Numero non valido.",
         "Inserisci un numero tra 1 e 90.",
     ),
 
-    #caso errore tipo numero non intero 
+    #caso errore tipo numero non intero
     "NUMERO_TIPO_NON_VALIDO": (
         "Errore: Tipo non valido.",
         "Inserisci un numero intero.",
     ),
 
-    #caso tabellone non presente 
+    #caso tabellone non presente
     "TABELLONE_NON_DISPONIBILE": (
         "Errore: Tabellone non disponibile.",
         "Riprova oppure avvia una partita valida.",
@@ -120,7 +120,7 @@ MESSAGGI_ERRORI: Mapping[Codici_Errori, tuple[str, ...]] = MappingProxyType({
         "Attendi il prossimo turno prima di reclamare un'altra vittoria.",
     ),
 
-    #messaggio che scatta quando si inserisce un tipo di vittoria non valido 
+    #messaggio che scatta quando si inserisce un tipo di vittoria non valido
     "TIPO_VITTORIA_NON_VALIDO": (
         "Errore: Tipo di vittoria non valido.",
         "Tipi supportati: ambo, terno, quaterna, cinquina, tombola.",
@@ -241,7 +241,7 @@ MESSAGGI_OUTPUT_UI_UMANI: Mapping[Codici_Output_Ui_Umani, tuple[str, ...]] = Map
         "vuoto",
     ),
 
-    #stampa della intestazione di riga in formato avanzato 
+    #stampa della intestazione di riga in formato avanzato
     "UMANI_RIGA_AVVANZATA_INTESTAZIONE": (
         "Riga {numero_riga} - visualizzazione avanzata.",
     ),
@@ -271,7 +271,6 @@ MESSAGGI_OUTPUT_UI_UMANI: Mapping[Codici_Output_Ui_Umani, tuple[str, ...]] = Map
     "UMANI_COLONNA_AVVANZATA_ETICHETTA_SEGNATI": (
         "Segnati: {lista_segnati}.",
     ),
-
 
     # Caso "nessun segnato" a fine riga: "Segnati: nessuno"
     "UMANI_CARTELLA_AVVANZATA_SEGNATI_RIGA_NESSUNO": (
@@ -397,25 +396,26 @@ MESSAGGI_OUTPUT_UI_UMANI: Mapping[Codici_Output_Ui_Umani, tuple[str, ...]] = Map
     ),
 
     # stringa da mostrare in caso di ultimo numero estratto presente
-    # placeolder ultimo_numero
+    # placeholder ultimo_numero
     "UMANI_ULTIMO_NUMERO_ESTRATTO_PRESENTE": (
         "Ultimo numero estratto: {ultimo_numero}.",
     ),
 
-    # stringa da mostrare nel caso non ci siano numeri estratti 
+    # stringa da mostrare nel caso non ci siano numeri estratti
     "UMANI_ULTIMO_NUMERO_ESTRATTO_NESSUNO": (
         "Nessun numero estratto ancora.",
     ),
 
-    # frase per evento ultimi numeri estratti 5 
+    # frase per evento ultimi numeri estratti 5
     "UMANI_ULTIMI_NUMERI_ESTRATTI_PRESENTI": (
         "Ultimi {visualizzati} numeri estratti: {lista}.",
     ),
 
-    # caso ultimi numeri estratti nessuno estratto 
+    # caso ultimi numeri estratti nessuno estratto
     "UMANI_ULTIMI_NUMERI_ESTRATTI_NESSUNO": (
         "Nessun numero estratto ancora.",
     ),
+
     # Riepilogo tabellone - riga 1 (sintesi globale).
     # Placeholder:
     # - {totale_estratti}
@@ -447,7 +447,7 @@ MESSAGGI_OUTPUT_UI_UMANI: Mapping[Codici_Output_Ui_Umani, tuple[str, ...]] = Map
     # - {a}      (fine decina: 9, 19, 29, ..., 90)
     # - {lista}  (lista formattata dal renderer, es. "10, 12, 19")
     "UMANI_LISTA_NUMERI_ESTRATTI_DECINA_LISTA": (
-        "{da}–{a}: {lista}.",
+        "{da}\u2013{a}: {lista}.",
     ),
 
     # Stato focus corrente - cartella presente.
@@ -518,6 +518,88 @@ MESSAGGI_OUTPUT_UI_UMANI: Mapping[Codici_Output_Ui_Umani, tuple[str, ...]] = Map
     # - {tipo}: tipo di reclamo/vittoria (es. "ambo", "terno", "quaterna", "cinquina", "tombola")
     "UMANI_FINE_TURNO_PASSATO_CON_RECLAMO": (
         "Turno passato. Reclamo inviato: {tipo}.",
+    ),
+
+    # =========================================================================
+    # Game Loop v0.9.0 — Messaggi interattivi del loop di partita
+    # =========================================================================
+
+    # Numero estratto nell'ultimo turno.
+    # Placeholder: {numero}
+    "LOOP_NUMERO_ESTRATTO": (
+        "Numero estratto: {numero}.",
+    ),
+
+    # Prompt interattivo mostrato dopo ogni estrazione.
+    "LOOP_PROMPT_COMANDO": (
+        "Comando (p=prosegui  s=segna  c=cartella  v=tabellone  q=esci  ?=aiuto):",
+    ),
+
+    # Help comandi: tupla multi-riga, una riga per comando.
+    "LOOP_HELP_COMANDI": (
+        "p  — prosegui al prossimo turno.",
+        "s <N>  — segna il numero N sulla cartella in focus.",
+        "c  — riepilogo cartella in focus.",
+        "v  — riepilogo tabellone (numeri estratti).",
+        "q  — esci dalla partita (chiede conferma).",
+        "?  — mostra questo aiuto.",
+    ),
+
+    # Riga aggiuntiva dell'help: cartella attualmente in focus.
+    # Placeholder: {numero_cartella} (1-based)
+    "LOOP_HELP_FOCUS": (
+        "Cartella in focus: {numero_cartella}.",
+    ),
+
+    # Richiesta di conferma quit.
+    "LOOP_QUIT_CONFERMA": (
+        "Vuoi davvero uscire? La partita non verrà salvata. (s/n)",
+    ),
+
+    # Uscita annullata (utente ha risposto 'n').
+    "LOOP_QUIT_ANNULLATO": (
+        "Uscita annullata. Partita in corso.",
+    ),
+
+    # ---- Report finale ----
+
+    # Intestazione del report finale.
+    "LOOP_REPORT_FINALE_INTESTAZIONE": (
+        "=== FINE PARTITA ===",
+    ),
+
+    # Turni giocati.
+    # Placeholder: {turni}
+    "LOOP_REPORT_FINALE_TURNI": (
+        "Turni giocati: {turni}.",
+    ),
+
+    # Numeri estratti su 90.
+    # Placeholder: {estratti}
+    "LOOP_REPORT_FINALE_ESTRATTI": (
+        "Numeri estratti: {estratti}/90.",
+    ),
+
+    # Vincitore tombola.
+    # Placeholder: {nome}
+    "LOOP_REPORT_FINALE_VINCITORE": (
+        "Vincitore Tombola: {nome}!",
+    ),
+
+    # Nessun vincitore (numeri esauriti).
+    "LOOP_REPORT_FINALE_NESSUN_VINCITORE": (
+        "Partita terminata senza tombola.",
+    ),
+
+    # Premi totali assegnati.
+    # Placeholder: {premi}
+    "LOOP_REPORT_FINALE_PREMI": (
+        "Premi assegnati: {premi}.",
+    ),
+
+    # Comando non riconosciuto.
+    "LOOP_COMANDO_NON_RICONOSCIUTO": (
+        "Comando non riconosciuto. Digita ? per l'aiuto.",
     ),
 
 })
