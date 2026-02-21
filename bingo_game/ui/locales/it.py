@@ -242,49 +242,49 @@ MESSAGGI_OUTPUT_UI_UMANI: Mapping[Codici_Output_Ui_Umani, tuple[str, ...]] = Map
     ),
 
     #stampa della intestazione di riga in formato avanzato
-    "UMANI_RIGA_AVVANZATA_INTESTAZIONE": (
+    "UMANI_RIGA_AVANZATA_INTESTAZIONE": (
         "Riga {numero_riga} - visualizzazione avanzata.",
     ),
 
     # Intestazione per la visualizzazione AVANZATA della colonna (navigazione colonna).
     # Placeholder:
     # - {numero_colonna} (1-based)
-    "UMANI_COLONNA_AVVANZATA_INTESTAZIONE": (
+    "UMANI_COLONNA_AVANZATA_INTESTAZIONE": (
         "Colonna {numero_colonna} - visualizzazione avanzata.",
     ),
 
     # Intestazione specifica per visualizzazione AVANZATA.
     # Placeholder: {numero_cartella}, {totale_cartelle}
-    "UMANI_CARTELLA_AVVANZATA_INTESTAZIONE": (
+    "UMANI_CARTELLA_AVANZATA_INTESTAZIONE": (
         "Cartella {numero_cartella} di {totale_cartelle} - visualizzazione avanzata.",
     ),
 
     # Etichetta per i segnati a fine riga: "Segnati: 5, 24"
     # Placeholder: {lista_segnati} (lista numeri segnati della riga, dal renderer)
-    "UMANI_CARTELLA_AVVANZATA_ETICHETTA_SEGNATI_RIGA": (
+    "UMANI_CARTELLA_AVANZATA_ETICHETTA_SEGNATI_RIGA": (
         "Segnati: {lista_segnati}.",
     ),
 
     # Etichetta per i segnati a fine colonna: "Segnati: 5, 24"
     # Placeholder:
     # - {lista_segnati} (lista numeri segnati della colonna, dal renderer)
-    "UMANI_COLONNA_AVVANZATA_ETICHETTA_SEGNATI": (
+    "UMANI_COLONNA_AVANZATA_ETICHETTA_SEGNATI": (
         "Segnati: {lista_segnati}.",
     ),
 
     # Caso "nessun segnato" a fine riga: "Segnati: nessuno"
-    "UMANI_CARTELLA_AVVANZATA_SEGNATI_RIGA_NESSUNO": (
+    "UMANI_CARTELLA_AVANZATA_SEGNATI_RIGA_NESSUNO": (
         "Segnati: nessuno.",
     ),
 
     # Caso "nessun segnato" a fine colonna: "Segnati: nessuno"
-    "UMANI_COLONNA_AVVANZATA_SEGNATI_NESSUNO": (
+    "UMANI_COLONNA_AVANZATA_SEGNATI_NESSUNO": (
         "Segnati: nessuno.",
     ),
 
     # Footer riepilogo globale: "Totale segnati: 4 su 15 (26.7%)"
     # Placeholder: {numeri_segnati}, {numeri_totali}, {percentuale}
-    "UMANI_CARTELLA_AVVANZATA_FOOTER_RIEPILOGO": (
+    "UMANI_CARTELLA_AVANZATA_FOOTER_RIEPILOGO": (
         "Totale segnati: {numeri_segnati} su {numeri_totali} ({percentuale}%).",
     ),
 
@@ -293,7 +293,7 @@ MESSAGGI_OUTPUT_UI_UMANI: Mapping[Codici_Output_Ui_Umani, tuple[str, ...]] = Map
     # - {numeri_segnati}
     # - {numeri_totali}
     # - {percentuale}
-    "UMANI_COLONNA_AVVANZATA_FOOTER_RIEPILOGO": (
+    "UMANI_COLONNA_AVANZATA_FOOTER_RIEPILOGO": (
         "Totale segnati: {numeri_segnati} su {numeri_totali} ({percentuale}%).",
     ),
 
