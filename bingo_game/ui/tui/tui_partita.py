@@ -68,6 +68,8 @@ def _loop_partita(partita) -> None:
         except Exception as exc:
             _logger_tui.warning("[LOOP] Impossibile impostare focus auto: %s", exc)
             if len(giocatore.cartelle) == 1:
+                # Unico accesso diretto al domain object fuori da game_controller: fallback approvato.
+                # Vedi nota architetturale v0.9.1 in ARCHITECTURE.md.
                 giocatore.imposta_focus_cartella_fallback()
                 _logger_tui.debug("[LOOP] Focus fallback impostato su cartella 1 (cartella singola).")
 
