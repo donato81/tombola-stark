@@ -68,9 +68,7 @@ def _loop_partita(partita) -> None:
         except Exception as exc:
             _logger_tui.warning("[LOOP] Impossibile impostare focus auto: %s", exc)
             if len(giocatore.cartelle) == 1:
-                # Unico accesso diretto al domain object fuori da game_controller: fallback approvato.
-                # Vedi nota architetturale v0.9.1 in ARCHITECTURE.md.
-                giocatore.imposta_focus_cartella_fallback()
+                giocatore._indice_cartella_focus = 0
                 _logger_tui.debug("[LOOP] Focus fallback impostato su cartella 1 (cartella singola).")
 
     while not partita_terminata(partita):
@@ -131,54 +129,42 @@ def _loop_partita(partita) -> None:
 # ---------------------------------------------------------------------------
 
 def _gestisci_segna(partita, args: str) -> List[str]:
-    """Comando `s <N> [N2 N3 ...]`: segna uno o più numeri sulla cartella in focus.
+    """Comando `s <N>`: segna il numero N sulla cartella in focus.
 
-    Numeri separati da spazi o virgole (es. `s 42 15 7` oppure `s 42,15,7`).
     Qualsiasi numero estratto è segnabile (flessibilità marcatura v0.9.0).
 
     Args:
         partita: Istanza Partita corrente.
-        args: Stringa argomento del comando (es. "42" oppure "42 15 7").
+        args: Stringa argomento del comando (es. "42").
 
     Returns:
-        Lista di righe di feedback da stampare (una o più per ogni numero).
+        Lista di righe di feedback da stampare.
 
     Version:
         v0.9.0: Prima implementazione.
-        v0.9.2: Supporto multi-numero (spazi o virgole come separatori).
     """
     if not args:
         _stampa(MESSAGGI_OUTPUT_UI_UMANI["LOOP_SEGNA_CHIEDI_NUMERO"][0])
         args = input("> ").strip()
 
-    tokens = args.replace(",", " ").split()
-    if not tokens:
+    try:
+        numero = int(args)
+    except ValueError:
         return list(MESSAGGI_ERRORI["NUMERO_TIPO_NON_VALIDO"])
+
+    if not (1 <= numero <= 90):
+        return list(MESSAGGI_ERRORI["NUMERO_NON_VALIDO"])
 
     giocatore = ottieni_giocatore_umano(partita)
     if giocatore is None:
         return list(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"])
 
-    righe: List[str] = []
-    for token in tokens:
-        try:
-            numero = int(token)
-        except ValueError:
-            righe.extend(MESSAGGI_ERRORI["NUMERO_TIPO_NON_VALIDO"])
-            continue
-
-        if not (1 <= numero <= 90):
-            righe.extend(MESSAGGI_ERRORI["NUMERO_NON_VALIDO"])
-            continue
-
-        try:
-            esito = giocatore.segna_numero_manuale(numero, partita.tabellone)
-            righe.extend(_renderer.render_esito(esito))
-        except Exception as exc:
-            _logger_tui.warning("[LOOP] _gestisci_segna: errore — %s", exc)
-            righe.extend(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"])
-
-    return righe
+    try:
+        esito = giocatore.segna_numero_manuale(numero, partita.tabellone)
+        return list(_renderer.render_esito(esito))
+    except Exception as exc:
+        _logger_tui.warning("[LOOP] _gestisci_segna: errore — %s", exc)
+        return list(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"])
 
 
 def _gestisci_riepilogo_cartella(partita) -> List[str]:

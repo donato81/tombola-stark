@@ -321,12 +321,13 @@ def test_loop_focus_auto_impostato(partita_mock_con_giocatore):
 
 def test_loop_focus_fallback_cartella_singola(partita_mock):
     """Se imposta_focus_cartella() solleva eccezione e il giocatore ha 1 cartella,
-    _loop_partita deve chiamare imposta_focus_cartella_fallback() come fallback [v0.9.1]."""
+    _loop_partita deve impostare _indice_cartella_focus = 0 come fallback [v0.9.1]."""
     from bingo_game.ui.tui.tui_partita import _loop_partita
 
     mock_giocatore = MagicMock()
     mock_giocatore.imposta_focus_cartella.side_effect = AttributeError("metodo mancante")
     mock_giocatore.cartelle = [MagicMock()]  # esattamente 1 cartella
+    mock_giocatore._indice_cartella_focus = None
 
     partita_mock.get_giocatori.return_value = [mock_giocatore]
 
@@ -345,85 +346,7 @@ def test_loop_focus_fallback_cartella_singola(partita_mock):
     ):
         _loop_partita(partita_mock)
 
-    # Il fallback deve aver chiamato imposta_focus_cartella_fallback()
-    mock_giocatore.imposta_focus_cartella_fallback.assert_called_once()
-
-
-# ---------------------------------------------------------------------------
-# Test 16 — _gestisci_segna: più numeri separati da spazi (multi-numero)
-# ---------------------------------------------------------------------------
-
-def test_gestisci_segna_multi_numero_spazi(partita_mock):
-    """_gestisci_segna con '42 15 7' deve chiamare segna_numero_manuale tre volte."""
-    from bingo_game.ui.tui.tui_partita import _gestisci_segna
-    from bingo_game.events.eventi import EsitoAzione
-
-    esito_ok = EsitoAzione(ok=True, errore=None, evento=None)
-
-    with patch(
-        "bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano"
-    ) as mock_ottieni:
-        mock_g = MagicMock()
-        mock_g.segna_numero_manuale.return_value = esito_ok
-        mock_ottieni.return_value = mock_g
-
-        with patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer:
-            mock_renderer.render_esito.return_value = ["ok"]
-            righe = _gestisci_segna(partita_mock, "42 15 7")
-
-    assert mock_g.segna_numero_manuale.call_count == 3
-    assert len(righe) == 3
-
-
-# ---------------------------------------------------------------------------
-# Test 17 — _gestisci_segna: più numeri separati da virgole (multi-numero)
-# ---------------------------------------------------------------------------
-
-def test_gestisci_segna_multi_numero_virgole(partita_mock):
-    """_gestisci_segna con '42,15,7' (virgole) deve chiamare segna_numero_manuale tre volte."""
-    from bingo_game.ui.tui.tui_partita import _gestisci_segna
-    from bingo_game.events.eventi import EsitoAzione
-
-    esito_ok = EsitoAzione(ok=True, errore=None, evento=None)
-
-    with patch(
-        "bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano"
-    ) as mock_ottieni:
-        mock_g = MagicMock()
-        mock_g.segna_numero_manuale.return_value = esito_ok
-        mock_ottieni.return_value = mock_g
-
-        with patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer:
-            mock_renderer.render_esito.return_value = ["ok"]
-            righe = _gestisci_segna(partita_mock, "42,15,7")
-
-    assert mock_g.segna_numero_manuale.call_count == 3
-    assert len(righe) == 3
-
-
-# ---------------------------------------------------------------------------
-# Test 18 — _gestisci_segna: misto valido e non valido nel multi-numero
-# ---------------------------------------------------------------------------
-
-def test_gestisci_segna_multi_numero_misto_errori(partita_mock):
-    """_gestisci_segna con '42 xyz 200' deve segnare 42 e ritornare errori per xyz e 200."""
-    from bingo_game.ui.tui.tui_partita import _gestisci_segna
-    from bingo_game.events.eventi import EsitoAzione
-
-    esito_ok = EsitoAzione(ok=True, errore=None, evento=None)
-
-    with patch(
-        "bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano"
-    ) as mock_ottieni:
-        mock_g = MagicMock()
-        mock_g.segna_numero_manuale.return_value = esito_ok
-        mock_ottieni.return_value = mock_g
-
-        with patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer:
-            mock_renderer.render_esito.return_value = ["ok"]
-            righe = _gestisci_segna(partita_mock, "42 xyz 200")
-
-    # Deve aver segnato solo 42
-    assert mock_g.segna_numero_manuale.call_count == 1
-    # Deve avere righe di errore per xyz e 200
-    assert len(righe) > 1
+    # Il fallback deve aver impostato _indice_cartella_focus a 0
+    assert mock_giocatore._indice_cartella_focus == 0, (
+        "Fallback Bug 3: _indice_cartella_focus deve essere 0 dopo il fallback su cartella singola"
+    )
