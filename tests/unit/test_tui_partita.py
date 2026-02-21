@@ -133,13 +133,20 @@ def test_gestisci_segna_arg_non_numerico(partita_mock):
 
 
 # ---------------------------------------------------------------------------
-# Test 6 — _gestisci_segna: errore con argomento vuoto
+# Test 6 — _gestisci_segna: prompt interattivo con argomento vuoto
 # ---------------------------------------------------------------------------
 
 def test_gestisci_segna_arg_vuoto(partita_mock):
-    """_gestisci_segna con stringa vuota deve ritornare messaggio errore."""
+    """_gestisci_segna con stringa vuota deve chiedere il numero interattivamente [v0.9.1]."""
     from bingo_game.ui.tui.tui_partita import _gestisci_segna
-    righe = _gestisci_segna(partita_mock, "")
+    with patch("builtins.input", return_value="abc"):
+        with patch("bingo_game.ui.tui.tui_partita._stampa") as mock_stampa:
+            righe = _gestisci_segna(partita_mock, "")
+    # Deve aver mostrato il prompt interattivo
+    mock_stampa.assert_called_once()
+    prompt_text = mock_stampa.call_args[0][0]
+    assert "1-90" in prompt_text or "numero" in prompt_text.lower()
+    # Deve ritornare un errore (input non numerico)
     assert len(righe) > 0
     testo = " ".join(righe).lower()
     assert "errore" in testo or "tipo" in testo or "valido" in testo

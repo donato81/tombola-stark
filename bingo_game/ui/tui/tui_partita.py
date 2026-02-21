@@ -144,7 +144,8 @@ def _gestisci_segna(partita, args: str) -> List[str]:
         v0.9.0: Prima implementazione.
     """
     if not args:
-        return list(MESSAGGI_ERRORI["NUMERO_TIPO_NON_VALIDO"])
+        _stampa(MESSAGGI_OUTPUT_UI_UMANI["LOOP_SEGNA_CHIEDI_NUMERO"][0])
+        args = input("> ").strip()
 
     try:
         numero = int(args)

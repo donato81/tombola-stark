@@ -602,6 +602,11 @@ MESSAGGI_OUTPUT_UI_UMANI: Mapping[Codici_Output_Ui_Umani, tuple[str, ...]] = Map
         "Comando non riconosciuto. Digita ? per l'aiuto.",
     ),
 
+    # Prompt interattivo per il comando `s` senza argomento (Bug 2 v0.9.1).
+    "LOOP_SEGNA_CHIEDI_NUMERO": (
+        "Quale numero vuoi segnare? (1-90):",
+    ),
+
 })
 
 
