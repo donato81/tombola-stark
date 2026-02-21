@@ -643,7 +643,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
             evento = EventoNavigazioneRiga.mostra_riga(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -662,7 +662,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         if self._indice_riga_focus == 0:
             evento = EventoNavigazioneRiga.limite_minimo(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -685,7 +685,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         # 8) Evento "mostra": il renderer produrrà la stampa finale.
         evento = EventoNavigazioneRiga.mostra_riga(
             id_giocatore=self.id_giocatore,
-            nome_giocatore=self.nome_giocatore,
+            nome_giocatore=self.nome,
             direzione=direzione,
             totale_cartelle=totale_cartelle,
             numero_cartella_corrente=numero_cartella_corrente,
@@ -765,7 +765,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
             evento = EventoNavigazioneRiga.mostra_riga(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -785,7 +785,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         if self._indice_riga_focus == ultima_riga:
             evento = EventoNavigazioneRiga.limite_massimo(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -808,7 +808,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         # 8) Evento "mostra": il renderer produrrà la stampa finale.
         evento = EventoNavigazioneRiga.mostra_riga(
             id_giocatore=self.id_giocatore,
-            nome_giocatore=self.nome_giocatore,
+            nome_giocatore=self.nome,
             direzione=direzione,
             totale_cartelle=totale_cartelle,
             numero_cartella_corrente=numero_cartella_corrente,
@@ -875,7 +875,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
             evento = EventoNavigazioneRigaAvanzata.mostra_riga(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -894,7 +894,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         if self._indice_riga_focus == 0:
             evento = EventoNavigazioneRigaAvanzata.limite_minimo(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -917,7 +917,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         # 8) Evento "mostra": il renderer produrrà la stampa avanzata finale.
         evento = EventoNavigazioneRigaAvanzata.mostra_riga(
             id_giocatore=self.id_giocatore,
-            nome_giocatore=self.nome_giocatore,
+            nome_giocatore=self.nome,
             direzione=direzione,
             totale_cartelle=totale_cartelle,
             numero_cartella_corrente=numero_cartella_corrente,
@@ -963,7 +963,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         riga_era_none = (self._indice_riga_focus is None)
 
         # 3) Assicura che il focus riga esista; se l'helper fallisce, propago l'esito.
-        esito_init_riga = self._inizializza_focus_riga_se_manca()
+        esito_init_riga = self._esito_inizializza_focus_riga_se_manca()
         if not esito_init_riga.ok:
             return esito_init_riga
 
@@ -984,7 +984,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
             evento = EventoNavigazioneRigaAvanzata.mostra_riga(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -1004,7 +1004,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         if self._indice_riga_focus == ultima_riga:
             evento = EventoNavigazioneRigaAvanzata.limite_massimo(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -1027,7 +1027,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         # 8) Evento "mostra": il renderer produrrà la stampa avanzata finale.
         evento = EventoNavigazioneRigaAvanzata.mostra_riga(
             id_giocatore=self.id_giocatore,
-            nome_giocatore=self.nome_giocatore,
+            nome_giocatore=self.nome,
             direzione=direzione,
             totale_cartelle=totale_cartelle,
             numero_cartella_corrente=numero_cartella_corrente,
@@ -1094,7 +1094,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
             evento = EventoNavigazioneColonna.mostra_colonna(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -1113,7 +1113,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         if self._indice_colonna_focus == 0:
             evento = EventoNavigazioneColonna.limite_minimo(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -1136,7 +1136,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         # 8) Evento "mostra": il renderer produrrà la stampa finale.
         evento = EventoNavigazioneColonna.mostra_colonna(
             id_giocatore=self.id_giocatore,
-            nome_giocatore=self.nome_giocatore,
+            nome_giocatore=self.nome,
             direzione=direzione,
             totale_cartelle=totale_cartelle,
             numero_cartella_corrente=numero_cartella_corrente,
@@ -1201,7 +1201,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
             evento = EventoNavigazioneColonna.mostra_colonna(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -1221,7 +1221,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         if self._indice_colonna_focus == ultima_colonna:
             evento = EventoNavigazioneColonna.limite_massimo(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -1244,7 +1244,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         # 8) Evento "mostra": il renderer produrrà la stampa finale.
         evento = EventoNavigazioneColonna.mostra_colonna(
             id_giocatore=self.id_giocatore,
-            nome_giocatore=self.nome_giocatore,
+            nome_giocatore=self.nome,
             direzione=direzione,
             totale_cartelle=totale_cartelle,
             numero_cartella_corrente=numero_cartella_corrente,
@@ -1312,7 +1312,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
             evento = EventoNavigazioneColonnaAvanzata.mostra_colonna(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -1331,7 +1331,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         if self._indice_colonna_focus == 0:
             evento = EventoNavigazioneColonnaAvanzata.limite_minimo(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -1354,7 +1354,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         # 8) Evento "mostra": il renderer produrrà la stampa avanzata finale.
         evento = EventoNavigazioneColonnaAvanzata.mostra_colonna(
             id_giocatore=self.id_giocatore,
-            nome_giocatore=self.nome_giocatore,
+            nome_giocatore=self.nome,
             direzione=direzione,
             totale_cartelle=totale_cartelle,
             numero_cartella_corrente=numero_cartella_corrente,
@@ -1422,7 +1422,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
             evento = EventoNavigazioneColonnaAvanzata.mostra_colonna(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -1442,7 +1442,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         if self._indice_colonna_focus == ultima_colonna:
             evento = EventoNavigazioneColonnaAvanzata.limite_massimo(
                 id_giocatore=self.id_giocatore,
-                nome_giocatore=self.nome_giocatore,
+                nome_giocatore=self.nome,
                 direzione=direzione,
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
@@ -1465,7 +1465,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         # 8) Evento "mostra": il renderer produrrà la stampa avanzata finale.
         evento = EventoNavigazioneColonnaAvanzata.mostra_colonna(
             id_giocatore=self.id_giocatore,
-            nome_giocatore=self.nome_giocatore,
+            nome_giocatore=self.nome,
             direzione=direzione,
             totale_cartelle=totale_cartelle,
             numero_cartella_corrente=numero_cartella_corrente,

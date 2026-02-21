@@ -5,6 +5,10 @@ invece di `_reset_focus_riga_e_colonna` (con underscore).
 
 Verifica che dopo `imposta_focus_cartella(1)` il focus sia impostato correttamente
 senza sollevare AttributeError.
+
+Test di regressione per Anomalia A v0.9.1:
+`sposta_focus_riga_giu_avanzata` chiamava `_inizializza_focus_riga_se_manca` (inesistente)
+invece di `_esito_inizializza_focus_riga_se_manca`.
 """
 from __future__ import annotations
 
@@ -48,3 +52,19 @@ def test_imposta_focus_cartella_cambio_cartella_non_solleva_eccezioni():
 
     assert esito.ok, f"Cambio focus cartella deve avere successo, errore: {esito.errore}"
     assert giocatore._indice_cartella_focus == 1
+
+
+def test_sposta_focus_riga_giu_avanzata_con_riga_focus_none_non_solleva_eccezioni():
+    """sposta_focus_riga_giu_avanzata() con _indice_riga_focus=None non deve sollevare
+    AttributeError (regressione Anomalia A v0.9.1)."""
+    giocatore = GiocatoreUmano("TestAnomaliaA", id_giocatore=1)
+    giocatore.aggiungi_cartella(Cartella())
+    giocatore.imposta_focus_cartella(1)
+    giocatore._indice_riga_focus = None
+
+    esito = giocatore.sposta_focus_riga_giu_avanzata()
+
+    assert esito.ok, (
+        f"sposta_focus_riga_giu_avanzata() deve avere successo con riga_focus=None, "
+        f"errore: {esito.errore}"
+    )
