@@ -730,3 +730,12 @@ class GestioneFocusMixin:
         # Focus colonna: non selezionata finché l'utente non naviga (o finché non viene inizializzata).
         self._indice_colonna_focus = None
 
+
+    def imposta_focus_cartella_fallback(self) -> None:
+        """
+        Imposta direttamente il focus sulla prima cartella (indice 0) come fallback
+        di emergenza. Usare solo quando imposta_focus_cartella() non è disponibile.
+        Non esegue validazioni: precondizione implicita è che cartelle non sia vuoto.
+        """
+        if self.cartelle:
+            self._indice_cartella_focus = 0

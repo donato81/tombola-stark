@@ -661,12 +661,12 @@ class TerminalRenderer:
         - Il simbolo "*" viene gestito dal renderer (non è una stringa da tradurre).
         """
         # 1) Preleva i template dalla lingua (una sola volta).
-        template_intestazione = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVVANZATA_INTESTAZIONE"][0]
+        template_intestazione = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVANZATA_INTESTAZIONE"][0]
         template_prefisso_riga = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_SEMPLICE_PREFISSO_RIGA"][0]
         parola_vuoto = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_SEMPLICE_CELLA_VUOTA"][0]
-        template_segnati_riga = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVVANZATA_ETICHETTA_SEGNATI_RIGA"][0]
-        testo_segnati_riga_nessuno = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVVANZATA_SEGNATI_RIGA_NESSUNO"][0]
-        template_footer = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVVANZATA_FOOTER_RIEPILOGO"][0]
+        template_segnati_riga = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVANZATA_ETICHETTA_SEGNATI_RIGA"][0]
+        testo_segnati_riga_nessuno = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVANZATA_SEGNATI_RIGA_NESSUNO"][0]
+        template_footer = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVANZATA_FOOTER_RIEPILOGO"][0]
 
         # 2) Intestazione.
         righe_out: list[str] = [
@@ -768,12 +768,12 @@ class TerminalRenderer:
             return tuple()
 
         # 1) Preleva i template dalla lingua (una sola volta).
-        template_intestazione = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVVANZATA_INTESTAZIONE"][0]
+        template_intestazione = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVANZATA_INTESTAZIONE"][0]
         template_prefisso_riga = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_SEMPLICE_PREFISSO_RIGA"][0]
         parola_vuoto = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_SEMPLICE_CELLA_VUOTA"][0]
-        template_segnati_riga = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVVANZATA_ETICHETTA_SEGNATI_RIGA"][0]
-        testo_segnati_riga_nessuno = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVVANZATA_SEGNATI_RIGA_NESSUNO"][0]
-        template_footer = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVVANZATA_FOOTER_RIEPILOGO"][0]
+        template_segnati_riga = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVANZATA_ETICHETTA_SEGNATI_RIGA"][0]
+        testo_segnati_riga_nessuno = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVANZATA_SEGNATI_RIGA_NESSUNO"][0]
+        template_footer = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVANZATA_FOOTER_RIEPILOGO"][0]
 
         righe_out: list[str] = []
         totale = evento.totale_cartelle
@@ -918,12 +918,12 @@ class TerminalRenderer:
 
         - Caso esito="mostra":
           * Produce TRE righe:
-            1) Intestazione riga avanzata: UMANI_RIGA_AVVANZATA_INTESTAZIONE
+            1) Intestazione riga avanzata: UMANI_RIGA_AVANZATA_INTESTAZIONE
             2) Contenuto riga: celle unite con ", " + riepilogo "Segnati: ..."
                - "-" -> parola dal dizionario (UMANI_CARTELLA_SEMPLICE_CELLA_VUOTA)
                - numero non segnato -> "N"
                - numero segnato -> "N*" (asterisco aggiunto dal renderer)
-            3) Footer riepilogo: UMANI_CARTELLA_AVVANZATA_FOOTER_RIEPILOGO
+            3) Footer riepilogo: UMANI_CARTELLA_AVANZATA_FOOTER_RIEPILOGO
                con i valori presi da evento.stato_riga
 
         Robustezza (come riga semplice):
@@ -946,11 +946,11 @@ class TerminalRenderer:
             if evento.riga_semplice is None:
                 return ("",)
 
-            template_intestazione_riga = MESSAGGI_OUTPUT_UI_UMANI["UMANI_RIGA_AVVANZATA_INTESTAZIONE"][0]
+            template_intestazione_riga = MESSAGGI_OUTPUT_UI_UMANI["UMANI_RIGA_AVANZATA_INTESTAZIONE"][0]
             parola_vuoto = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_SEMPLICE_CELLA_VUOTA"][0]
-            template_segnati_riga = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVVANZATA_ETICHETTA_SEGNATI_RIGA"][0]
-            testo_segnati_riga_nessuno = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVVANZATA_SEGNATI_RIGA_NESSUNO"][0]
-            template_footer = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVVANZATA_FOOTER_RIEPILOGO"][0]
+            template_segnati_riga = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVANZATA_ETICHETTA_SEGNATI_RIGA"][0]
+            testo_segnati_riga_nessuno = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVANZATA_SEGNATI_RIGA_NESSUNO"][0]
+            template_footer = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVANZATA_FOOTER_RIEPILOGO"][0]
 
             # Riga 1: intestazione avanzata.
             intestazione = template_intestazione_riga.format(numero_riga=evento.numero_riga_corrente)
@@ -1068,12 +1068,12 @@ class TerminalRenderer:
 
         - Caso esito="mostra":
           * Produce TRE righe:
-            1) Intestazione colonna avanzata: UMANI_COLONNA_AVVANZATA_INTESTAZIONE
+            1) Intestazione colonna avanzata: UMANI_COLONNA_AVANZATA_INTESTAZIONE
             2) Contenuto colonna: celle unite con ", " + riepilogo "Segnati: ..."
                - "-" -> parola dal dizionario (UMANI_CARTELLA_SEMPLICE_CELLA_VUOTA)
                - numero non segnato -> "N"
                - numero segnato -> "N*" (asterisco aggiunto dal renderer)
-            3) Footer riepilogo colonna: UMANI_COLONNA_AVVANZATA_FOOTER_RIEPILOGO
+            3) Footer riepilogo colonna: UMANI_COLONNA_AVANZATA_FOOTER_RIEPILOGO
                con i valori presi da evento.stato_colonna
 
         Robustezza (coerente con gli altri renderer):
@@ -1101,11 +1101,11 @@ class TerminalRenderer:
             if evento.numeri_segnati_colonna_ordinati is None:
                 return ("",)
 
-            template_intestazione_colonna = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVVANZATA_INTESTAZIONE"][0]
+            template_intestazione_colonna = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVANZATA_INTESTAZIONE"][0]
             parola_vuoto = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_SEMPLICE_CELLA_VUOTA"][0]
-            template_segnati_colonna = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVVANZATA_ETICHETTA_SEGNATI"][0]
-            testo_segnati_colonna_nessuno = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVVANZATA_SEGNATI_NESSUNO"][0]
-            template_footer = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVVANZATA_FOOTER_RIEPILOGO"][0]
+            template_segnati_colonna = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVANZATA_ETICHETTA_SEGNATI"][0]
+            testo_segnati_colonna_nessuno = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVANZATA_SEGNATI_NESSUNO"][0]
+            template_footer = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVANZATA_FOOTER_RIEPILOGO"][0]
 
             # Riga 1: intestazione avanzata.
             intestazione = template_intestazione_colonna.format(numero_colonna=evento.numero_colonna_corrente)
@@ -1737,7 +1737,7 @@ class TerminalRenderer:
         Rende EventoVaiARigaAvanzata in 2 righe testuali, in modo stabile e coerente.
 
         Output richiesto (sempre 2 righe, ordine fisso):
-        1) Intestazione: UMANI_RIGA_AVVANZATA_INTESTAZIONE
+        1) Intestazione: UMANI_RIGA_AVANZATA_INTESTAZIONE
         2) Contenuto riga: numeri/vuoti + riepilogo segnati (stile riga avanzata già esistente)
            - "-" -> parola dal dizionario UMANI_CARTELLA_SEMPLICE_CELLA_VUOTA
            - numero segnato -> "N*" (asterisco aggiunto dal renderer)
@@ -1752,7 +1752,7 @@ class TerminalRenderer:
         # --- Riga 1: intestazione ---
         intestazione = ""
         try:
-            template_intestazione = MESSAGGI_OUTPUT_UI_UMANI["UMANI_RIGA_AVVANZATA_INTESTAZIONE"][0]
+            template_intestazione = MESSAGGI_OUTPUT_UI_UMANI["UMANI_RIGA_AVANZATA_INTESTAZIONE"][0]
             intestazione = template_intestazione.format(numero_riga=evento.numero_riga)
         except Exception:
             intestazione = ""
@@ -1761,8 +1761,8 @@ class TerminalRenderer:
         riga_contenuto = ""
         try:
             parola_vuoto = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_SEMPLICE_CELLA_VUOTA"][0]
-            template_segnati = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVVANZATA_ETICHETTA_SEGNATI_RIGA"][0]
-            testo_segnati_nessuno = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVVANZATA_SEGNATI_RIGA_NESSUNO"][0]
+            template_segnati = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVANZATA_ETICHETTA_SEGNATI_RIGA"][0]
+            testo_segnati_nessuno = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_AVANZATA_SEGNATI_RIGA_NESSUNO"][0]
         except KeyError:
             return ("", "")
 
@@ -1804,7 +1804,7 @@ class TerminalRenderer:
         Rende EventoVaiAColonnaAvanzata in 2 righe testuali, in modo stabile e coerente.
 
         Output richiesto (sempre 2 righe, ordine fisso):
-        1) Intestazione: UMANI_COLONNA_AVVANZATA_INTESTAZIONE
+        1) Intestazione: UMANI_COLONNA_AVANZATA_INTESTAZIONE
         2) Contenuto colonna: numeri/vuoti + riepilogo segnati
            - "-" -> parola dal dizionario UMANI_CARTELLA_SEMPLICE_CELLA_VUOTA
            - numero segnato -> "N*" (asterisco aggiunto dal renderer)
@@ -1819,7 +1819,7 @@ class TerminalRenderer:
         # --- Riga 1: intestazione ---
         intestazione = ""
         try:
-            template_intestazione = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVVANZATA_INTESTAZIONE"][0]
+            template_intestazione = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVANZATA_INTESTAZIONE"][0]
             intestazione = template_intestazione.format(numero_colonna=evento.numero_colonna)
         except Exception:
             intestazione = ""
@@ -1828,8 +1828,8 @@ class TerminalRenderer:
         colonna_contenuto = ""
         try:
             parola_vuoto = MESSAGGI_OUTPUT_UI_UMANI["UMANI_CARTELLA_SEMPLICE_CELLA_VUOTA"][0]
-            template_segnati = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVVANZATA_ETICHETTA_SEGNATI"][0]
-            testo_segnati_nessuno = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVVANZATA_SEGNATI_NESSUNO"][0]
+            template_segnati = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVANZATA_ETICHETTA_SEGNATI"][0]
+            testo_segnati_nessuno = MESSAGGI_OUTPUT_UI_UMANI["UMANI_COLONNA_AVANZATA_SEGNATI_NESSUNO"][0]
         except KeyError:
             return ("", "")
 

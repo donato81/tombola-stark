@@ -211,6 +211,8 @@ TerminalUI._avvia_partita() → TuiGameLoop.avvia()
 
 > **Vincolo architetturale v0.9.0**: `tui_partita.py` non importa classi Domain (`GiocatoreUmano`, `Partita`, `Tabellone`, `Cartella`). Ogni accesso al dominio passa esclusivamente tramite `game_controller` (es. `ottieni_giocatore_umano()`, `esegui_turno_sicuro()`, `ottieni_stato_sintetico()`).
 
+> **Nota v0.9.1 — `imposta_focus_cartella_fallback()`**: In `_loop_partita()`, se `imposta_focus_cartella(1)` solleva eccezione e il giocatore ha esattamente 1 cartella, il focus viene impostato tramite `giocatore.imposta_focus_cartella_fallback()`. Questo è l'**unico punto** in cui la TUI invoca un metodo sul domain object `giocatore` al di fuori di `game_controller`: è consentito perché il metodo è pubblico, non espone stato interno e rappresenta un fallback di emergenza documentato. Il metodo è definito in `bingo_game/players/helper_focus.py` (mixin `GestioneFocusMixin`).
+
 ---
 
 #### Infrastruttura di Logging (trasversale)
@@ -726,6 +728,7 @@ class TestControllerSilenzioso:
 
 ### Storia delle Versioni
 
+- **v0.9.1** (2026-02-21): Fix+Refactor post-review. Corretti 3 bug (v0.9.1): `_esito_inizializza_focus_riga_se_manca` in `sposta_focus_riga_giu_avanzata`, fallback focus via `imposta_focus_cartella_fallback()`, typo `AVVANZATA`→`AVANZATA`. Nuovo metodo pubblico `imposta_focus_cartella_fallback()` in `GestioneFocusMixin`.
 - **v0.9.0** (2026-02-21): Game Loop Interattivo. `_loop_partita()` in `tui_partita.py` con dispatch comandi `p/s/c/v/q/?`. `ottieni_giocatore_umano()` in `game_controller.py`. 8 costanti `LOOP_*` in `codici_loop.py`. 13 chiavi `LOOP_*` in `it.py`. Zero import Domain nella TUI. 44 nuovi test (unit + flow).
 - **v0.8.0** (2026-02-20): Silent Controller. Rimozione ~22 `print()` da `game_controller.py` (Gruppi A/B/C/D). Aggiunta `codici_controller.py` (4 costanti `CTRL_*`), `MESSAGGI_CONTROLLER` in `it.py`, guardie TUI, 15 test `capsys`. Il controller è ora rigorosamente silenzioso verso stdout.
 - **v0.7.0** (2026-02-20): TUI Start Menu Fase 1. `TerminalUI` con macchina a stati A→E, 9 costanti `Codici_Configurazione`, `MESSAGGI_CONFIGURAZIONE` in `it.py`, `main.py` aggiornato, 8 unit test. Entry point funzionante per configurazione pre-partita.
