@@ -84,7 +84,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🕹️ Come si gioca (v0.9.0)
+## 🕹️ Come si gioca (v0.9.1)
 
 Avvia il gioco con `python main.py`, inserisci nome, numero di bot e cartelle, poi entra nel **Game Loop interattivo**.
 
