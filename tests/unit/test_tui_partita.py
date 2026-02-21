@@ -19,7 +19,6 @@ Copertura:
 """
 from __future__ import annotations
 
-import logging
 from unittest.mock import patch, MagicMock
 
 import pytest
@@ -46,10 +45,19 @@ def partita_mock():
 def partita_mock_con_giocatore(partita_mock):
     """Partita mock con un GiocatoreUmano configurato."""
     from bingo_game.players.giocatore_umano import GiocatoreUmano
+    from bingo_game.events.eventi import EsitoAzione
+    from bingo_game.events.eventi_output_ui_umani import EventoStatoFocusCorrente
     mock_giocatore = MagicMock(spec=GiocatoreUmano)
     mock_giocatore.__class__ = GiocatoreUmano
     mock_giocatore._indice_cartella_focus = 0
     mock_giocatore.nome = "TestPlayer"
+    # Configura stato_focus_corrente per ritornare il focus su cartella 1
+    evento_focus = MagicMock(spec=EventoStatoFocusCorrente)
+    evento_focus.numero_cartella = 1
+    mock_giocatore.stato_focus_corrente.return_value = EsitoAzione(
+        ok=True, errore=None, evento=evento_focus
+    )
+    mock_giocatore.imposta_focus_cartella.return_value = MagicMock()
     partita_mock.get_giocatori.return_value = [mock_giocatore]
     return partita_mock, mock_giocatore
 
@@ -97,17 +105,18 @@ def test_gestisci_quit_vuoto(partita_mock):
 # Test 4 — _gestisci_quit: logga WARNING se confermato
 # ---------------------------------------------------------------------------
 
-def test_gestisci_quit_logga_warning(partita_mock, caplog):
+def test_gestisci_quit_logga_warning(partita_mock):
     """_gestisci_quit deve loggare un WARNING su tombola_stark.tui se confermato."""
     from bingo_game.ui.tui.tui_partita import _gestisci_quit
-    with caplog.at_level(logging.WARNING, logger="tombola_stark.tui"):
+    with patch("bingo_game.ui.tui.tui_partita._logger_tui") as mock_logger:
         with patch("builtins.input", return_value="s"):
             with patch("bingo_game.ui.tui.tui_partita._stampa"):
                 _gestisci_quit(partita_mock, turno=7)
-    assert any(
-        "ALERT" in record.message and "7" in record.message
-        for record in caplog.records
-    ), f"Nessun log WARNING ALERT trovato. Records: {[r.message for r in caplog.records]}"
+    mock_logger.warning.assert_called()
+    call_args = str(mock_logger.warning.call_args)
+    assert "ALERT" in call_args and "7" in call_args, (
+        f"Atteso log WARNING con ALERT e turno 7, ottenuto: {call_args}"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -276,7 +285,7 @@ def test_loop_comando_non_riconosciuto_no_crash(partita_mock, capsys):
 # ---------------------------------------------------------------------------
 
 def test_loop_focus_auto_impostato(partita_mock_con_giocatore):
-    """_loop_partita deve impostare il focus su cartella 1 (indice 0) all'avvio."""
+    """_loop_partita deve impostare il focus su cartella 1 (1-based, indice 0 interno) all'avvio."""
     from bingo_game.ui.tui.tui_partita import _loop_partita
     partita, giocatore = partita_mock_con_giocatore
 

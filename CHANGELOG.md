@@ -7,6 +7,39 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ---
 
+## [0.9.0] - 2026-02-21 — Game Loop Interattivo
+
+### Added
+- `bingo_game/ui/tui/tui_partita.py`: macchina a stati `_loop_partita()` con dispatch
+  comandi `p/s/c/v/q/?`. Architettura function-based, zero import dal Domain Layer.
+  Helper: `_gestisci_segna`, `_gestisci_riepilogo_cartella`, `_gestisci_riepilogo_tabellone`,
+  `_gestisci_quit`, `_gestisci_help`, `_costruisci_report_finale`, `_emetti_report_finale`,
+  `_stampa`.
+- `bingo_game/events/codici_loop.py`: 8 costanti stringa per i codici evento del Game Loop
+  (`LOOP_TURNO_AVANZATO`, `LOOP_NUMERO_ESTRATTO`, ecc.).
+- `bingo_game/ui/locales/it.py`: 13 nuove chiavi `LOOP_*` in `MESSAGGI_OUTPUT_UI_UMANI`
+  (prompt, help, quit, report finale, numero estratto, ecc.).
+- `bingo_game/game_controller.py`: funzione `ottieni_giocatore_umano(partita)` — espone il
+  primo `GiocatoreUmano` alla TUI senza che questa importi classi Domain.
+- `tests/unit/test_game_controller_loop.py`: 10 unit test per `ottieni_giocatore_umano()`
+  inclusi 3 smoke test di regressione.
+- `tests/unit/test_tui_partita.py`: 14 unit test per `tui_partita.py`
+  (quit, segna, help, report, focus auto, comando sconosciuto).
+- `tests/unit/test_renderer_report_finale.py`: 8 unit test per la vocalizzazione gerarchica
+  del renderer (tabellone 3 righe, segnazione 1 riga per esito, cartella 2 righe).
+- `tests/flow/test_flusso_game_loop.py`: 12 scenari end-to-end che coprono tutti i comandi
+  e i flussi di partita completa (con e senza vincitore).
+- `README.md`: sezione "Come si gioca (v0.9.0)" con tabella comandi e note operative.
+
+### Design Notes
+- **Flessibilità di marcatura**: qualsiasi numero estratto è segnabile, non solo l'ultimo.
+- **Azioni informative illimitate**: `s`, `c`, `v`, `?` non avanzano mai il turno; solo `p` chiama `esegui_turno_sicuro`.
+- **Separazione layer**: la TUI accede al dominio esclusivamente tramite `game_controller`; nessun import diretto di `GiocatoreUmano`, `Partita`, `Tabellone` o `Cartella` in `tui_partita.py`.
+- **Quit con allerta**: il comando `q` confermato logga `WARNING [ALERT] Partita interrotta dall'utente al turno #N.` su `tombola_stark.tui`.
+- **Screen reader ready**: ogni riga di output è autonoma e ≤ 120 caratteri; nessuna ASCII art.
+
+---
+
 ## [0.8.0] - 2026-02-20 — Silent Controller
 
 ### Changed

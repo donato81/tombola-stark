@@ -62,8 +62,11 @@ def _loop_partita(partita) -> None:
     # Focus auto su prima cartella (indice 0 → numero_cartella=1 in 1-based)
     giocatore = ottieni_giocatore_umano(partita)
     if giocatore is not None:
-        giocatore.imposta_focus_cartella(1)
-        _logger_tui.debug("[LOOP] Focus impostato su cartella 1.")
+        try:
+            giocatore.imposta_focus_cartella(1)
+            _logger_tui.debug("[LOOP] Focus impostato su cartella 1.")
+        except Exception as exc:
+            _logger_tui.warning("[LOOP] Impossibile impostare focus auto: %s", exc)
 
     while not partita_terminata(partita):
         _stampa(MESSAGGI_OUTPUT_UI_UMANI["LOOP_PROMPT_COMANDO"][0])
@@ -275,12 +278,16 @@ def _gestisci_help(partita) -> List[str]:
     """
     righe: List[str] = list(MESSAGGI_OUTPUT_UI_UMANI["LOOP_HELP_COMANDI"])
 
+    numero_cartella: object = "nessuna"
     giocatore = ottieni_giocatore_umano(partita)
     if giocatore is not None:
-        indice = giocatore._indice_cartella_focus
-        numero_cartella = (indice + 1) if indice is not None else "nessuna"
-    else:
-        numero_cartella = "nessuna"
+        try:
+            esito_focus = giocatore.stato_focus_corrente()
+            if esito_focus.ok and esito_focus.evento is not None:
+                nc = getattr(esito_focus.evento, "numero_cartella", None)
+                numero_cartella = nc if nc is not None else "nessuna"
+        except Exception:
+            pass
 
     riga_focus = MESSAGGI_OUTPUT_UI_UMANI["LOOP_HELP_FOCUS"][0].format(
         numero_cartella=numero_cartella
