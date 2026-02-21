@@ -10,7 +10,7 @@
 
 - **Data Inizio**: 2026-02-20
 - **Stato**: DRAFT
-- **Versione Target**: v0.9.0
+- **Versione Target**: v0.9.1
 - **Autore**: AI Assistant + donato81
 
 ---
@@ -845,6 +845,23 @@ Aggiornare la sezione "Come si gioca" per descrivere i comandi del loop (`p`, `s
 ### Fixed
 - Il gioco è ora giocabile end-to-end dalla configurazione alla fine partita.
 ```
+
+---
+
+## 🐛 Stato Bug v0.9.1 (post-review)
+
+I seguenti bug identificati dopo la review di PR #20 sono stati risolti in v0.9.1:
+
+| ID | File | Descrizione | Stato |
+|----|------|-------------|-------|
+| Bug 1 | `giocatore_umano.py` | `imposta_focus_cartella()` chiamava `reset_focus_riga_e_colonna()` (senza underscore) | ✅ Risolto v0.9.1 |
+| Bug 2 | `tui_partita.py` | Comando `s` senza argomento restituiva errore immediato invece di chiedere il numero | ✅ Risolto v0.9.1 |
+| Bug 3 | `tui_partita.py` | Nessun fallback focus cartella se `imposta_focus_cartella(1)` fallisce | ✅ Risolto v0.9.1 |
+| Anomalia A | `giocatore_umano.py` | `sposta_focus_riga_giu_avanzata()` chiamava `_inizializza_focus_riga_se_manca()` (inesistente) | ✅ Risolto v0.9.1 |
+
+**Comportamento comando `s` in v0.9.1**: se il giocatore digita `s` senza argomento, il sistema
+risponde con il prompt `"Quale numero vuoi segnare? (1-90):"` e attende l'input interattivo.
+Questo sostituisce il comportamento precedente che restituiva immediatamente un errore.
 
 ---
 
