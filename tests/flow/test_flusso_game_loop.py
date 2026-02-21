@@ -175,12 +175,13 @@ def test_flusso_s_arg_non_numerico_errore(partita_mock, capsys):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 6 — Flusso `s` senza argomento → errore
+# Scenario 6 — Flusso `s` senza argomento → prompt interattivo → errore su input non valido
 # ---------------------------------------------------------------------------
 
 def test_flusso_s_senza_argomento_errore(partita_mock, capsys):
-    """Flusso 's' senza numero: deve stampare un messaggio di errore."""
-    inputs = iter(["s", "q", "s"])
+    """Flusso 's' senza numero: deve chiedere il numero interattivamente [v0.9.1].
+    Se l'utente inserisce un valore non valido, stampa messaggio di errore."""
+    inputs = iter(["s", "xyz", "q", "s"])
     with (
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False]),
@@ -190,8 +191,13 @@ def test_flusso_s_senza_argomento_errore(partita_mock, capsys):
         _loop_partita(partita_mock)
 
     out = capsys.readouterr().out
+    # Il prompt interattivo deve essere mostrato
+    assert "1-90" in out or "numero" in out.lower(), (
+        f"Prompt interattivo per 's' senza argomento atteso, output: {out!r}"
+    )
+    # L'input non valido deve produrre un messaggio di errore
     assert "Errore" in out or "Tipo" in out or "valido" in out, (
-        f"Messaggio di errore atteso per 's' senza argomento, output: {out!r}"
+        f"Messaggio di errore atteso per input non valido, output: {out!r}"
     )
 
 

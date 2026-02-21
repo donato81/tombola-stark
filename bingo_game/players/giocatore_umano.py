@@ -147,7 +147,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         # 4) Se cambia cartella, resetto riga/colonna (evita stati incoerenti tra cartelle).
         reset_riga_colonna = (self._indice_cartella_focus != nuovo_indice)
         if reset_riga_colonna:
-            self.reset_focus_riga_e_colonna()
+            self._reset_focus_riga_e_colonna()
 
         # 5) Aggiornamento stato: focus cartella interno.
         self._indice_cartella_focus = nuovo_indice
