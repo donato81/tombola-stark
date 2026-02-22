@@ -1,6 +1,6 @@
 ---
 
-# Copilot Custom Instructions - Solitario Classico Accessibile
+# Copilot Custom Instructions - Tombola Stark
 
 ## 👤 Profilo Utente e Interazione
 
@@ -27,57 +27,58 @@ Presentation → Application → Domain ← Infrastructure
 ```
 
 **Regole:**
-- **Domain** (`src/domain/`): Zero dipendenze esterne. Solo entity, value objects, domain services, business rules.
-- **Application** (`src/application/`): Dipende solo da Domain. Contiene use cases, command patterns, game engine.
-- **Infrastructure** (`src/infrastructure/`): Implementa interfacce Domain (repositories, external services, UI framework).
-- **Presentation** (`src/presentation/`): Dipende da Application. Contiene formatters, dialogs, view logic.
+- **Domain** (`bingo_game/`): Cartella, Partita, Tabellone, GiocatoreBase e business rules del gioco.
+- **Players** (`bingo_game/players/`): GiocatoreUmano, GiocatoreAutomatico, mixin di gestione focus.
+- **Events** (`bingo_game/events/`): EsitoAzione, eventi di output UI, eventi partita.
+- **UI/TUI** (`bingo_game/ui/tui/`): Interfaccia terminale, navigazione utente, comandi interattivi.
+- **Controller** (`bingo_game/game_controller.py`): Unico punto di accesso al dominio dalla TUI.
 
 **Vietato:**
-- ❌ Import `src.infrastructure.*` dentro `src.domain.*`
-- ❌ Import `wx` (wxPython) fuori da `src.infrastructure.ui.*`
-- ❌ Import `src.application.game_engine` dentro `src.domain.*`
-- ❌ Business logic nei dialog (`src.presentation.dialogs.*`)
+- ❌ Import Domain dalla TUI: `from bingo_game.players.giocatore_umano import GiocatoreUmano` nella TUI
+- ❌ Import `wx` in qualsiasi parte del progetto (TUI terminale only)
+- ❌ Business logic nelle classi UI (`bingo_game/ui/tui/`)
+- ❌ Output diretto con `print()` fuori dal TerminalRenderer
 
 **Esempio corretto di refactoring:**
 ```python
-# ❌ ERRATO (Domain dipende da Infrastructure)
-# src/domain/services/game_service.py
-from src.infrastructure.ui.dialogs import VictoryDialog  # ❌
+# ❌ ERRATO (TUI importa Domain direttamente)
+# bingo_game/ui/tui/tui_partita.py
+from bingo_game.players.giocatore_umano import GiocatoreUmano  # ❌
 
-# ✅ CORRETTO (Domain espone interfaccia, Infrastructure implementa)
-# src/domain/services/game_service.py
-def end_game(self, is_victory: bool) -> Dict[str, Any]:
-    # Ritorna dati, non mostra UI
-    return {"is_victory": is_victory, "stats": self.get_stats()}
+# ✅ CORRETTO (TUI accede Domain solo via Controller)
+# bingo_game/ui/tui/tui_partita.py
+from bingo_game.game_controller import ottieni_stato_sintetico, esegui_turno_sicuro
 
-# src/application/game_engine.py (orchestrazione)
-def end_game(self, is_victory: bool) -> None:
-    result = self.game_service.end_game(is_victory)
-    if self.use_native_dialogs:
-        self._show_victory_dialog(result)  # Infrastructure layer
+def gestisci_comando_cartella(numero: str) -> None:
+    esito = esegui_turno_sicuro('imposta_focus_cartella', int(numero))
+    if esito.ok:
+        renderer.render(esito.evento)
+    else:
+        renderer.render_errore(esito.errore)
 ```
 
 ---
 
 ### Naming Conventions
 
-* **Variabili/Funzioni**: `snake_case` (es. `ensure_guest_profile`, `draw_count`)
-* **Classi**: `PascalCase` (es. `GameEngine`, `ProfileService`, `SessionOutcome`)
-* **Costanti**: `UPPER_SNAKE_CASE` (es. `MAX_RECENT_SESSIONS`, `GUEST_PROFILE_ID`)
-* **Private/Protected**: Prefisso `_` (es. `_handle_crash_recovery`, `_debug_force_victory`)
+* **Variabili/Funzioni**: `snake_case` (es. `imposta_focus_cartella`, `esegui_turno_sicuro`)
+* **Classi**: `PascalCase` (es. `GiocatoreUmano`, `TerminalRenderer`, `EsitoAzione`)
+* **Costanti**: `UPPER_SNAKE_CASE` (es. `MAX_CARTELLE_GIOCATORE`, `NUMERO_MIN_TOMBOLA`)
+* **Private/Protected**: Prefisso `_` (es. `_indice_cartella_focus`, `_reset_focus_riga_e_colonna`)
 * **Type Hints**: Sempre obbligatori per metodi pubblici
 
 **Esempio di firma corretta:**
 ```python
-def record_session(self, session: SessionOutcome) -> bool:
+def imposta_focus_cartella(self, numero_cartella: int) -> EsitoAzione:
     """
-    Registra sessione e aggiorna statistiche.
+    Imposta il focus su una cartella specifica (input umano 1-based).
     
     Args:
-        session: Oggetto SessionOutcome validato
+        numero_cartella: Numero cartella in formato umano (1..N)
         
     Returns:
-        True se salvato con successo, False altrimenti
+        EsitoAzione con ok=True e EventoFocusCartellaImpostato se riesce,
+        ok=False con codice errore standardizzato altrimenti
     """
 ```
 
@@ -86,32 +87,32 @@ def record_session(self, session: SessionOutcome) -> bool:
 ### Type Hints Enforcement
 
 **Vietato:**
-- ❌ `pile.count()` → AttributeError (metodo inesistente)
+- ❌ `tabellone.count()` → AttributeError (metodo inesistente)
 - ❌ Implicit returns senza annotazione
 - ❌ `Any` come type hint di default
 
 **Obbligatorio:**
-- ✅ `pile.get_card_count() -> int`
+- ✅ `tabellone.get_numeri_estratti() -> list[int]`
 - ✅ Ogni public method con return type esplicito
 - ✅ Parametri con type hints anche per metodi privati
 
 **Esempio fix completo:**
 ```python
 # ❌ ERRATO
-def check_pile(pile):
-    if pile.count() > 0:  # AttributeError!
+def controlla_cartella(cartella):
+    if cartella.count() > 0:  # AttributeError!
         return True
 
 # ✅ CORRETTO  
-def check_pile(pile: Pile) -> bool:
-    if pile.get_card_count() > 0:
+def controlla_cartella(cartella: Cartella) -> bool:
+    if cartella.get_numeri_cartella():
         return True
     return False
 ```
 
 ---
 
-### Logging (Sistema Categorizzato v3.3.0)
+### Logging (Sistema Categorizzato v0.4.0)
 
 **MAI usare `print()` nel codice di produzione.** Usa i named logger dedicati per categoria:
 
@@ -119,76 +120,59 @@ def check_pile(pile: Pile) -> bool:
 import logging
 
 # Named logger per categoria — scegli quello corretto per contesto
-_game_logger  = logging.getLogger('game')   # lifecycle partita, mosse, stato
-_ui_logger    = logging.getLogger('ui')     # navigazione UI, dialogs, TTS
-_error_logger = logging.getLogger('error')  # errori, warnings, eccezioni
-_timer_logger = logging.getLogger('timer')  # lifecycle timer, scadenza, pausa
+_logger_partita  = logging.getLogger('tombola_stark.partita')   # lifecycle partita, turni, estrazioni
+_logger_tui      = logging.getLogger('tombola_stark.tui')       # navigazione TUI, comandi utente
+_logger_errori   = logging.getLogger('tombola_stark.errori')    # errori, warnings, eccezioni
 ```
 
 **Routing dei file di output:**
-- `game`  → `logs/game_logic.log`
-- `ui`    → `logs/ui_events.log`
-- `error` → `logs/errors.log`
-- `timer` → `logs/timer.log`
-- root    → `logs/solitario.log` (library logs: wx, PIL, urllib3)
+- `tombola_stark.partita`  → `logs/partita.log`
+- `tombola_stark.tui`      → `logs/tui.log`
+- `tombola_stark.errori`   → `logs/errori.log`
+- root                     → `logs/tombola_stark.log` (library logs)
 
 **Regola propagate=False:** ogni named logger ha `propagate=False` — i messaggi
-NON finiscono su `solitario.log`. Questo è intenzionale. Non modificare mai
-questo comportamento senza aggiornare `categorized_logger.py`.
+NON finiscono su `tombola_stark.log`. Questo è intenzionale. Non modificare mai
+questo comportamento senza aggiornare `game_logger.py`.
 
 **Usare i semantic helpers di `game_logger.py`:**
 ```python
-from src.infrastructure.logging.game_logger import (
-    log_game_start, log_move, log_error, log_keyboard_command,
-    log_timer_started, log_timer_expired,
+from bingo_game.logging.game_logger import (
+    GameLogger,
 )
 ```
 
 **Vietato:**
-- ❌ `print(f"Debug: {variable}")` → usa `logging.getLogger('game').debug()`
+- ❌ `print(f"Debug: {variable}")` → usa `logging.getLogger('tombola_stark.partita').debug()`
 - ❌ Log con emoji o box ASCII → screen reader unfriendly
 - ❌ `logging.getLogger()` (root logger) nel codice applicativo → usa named loggers
 - ❌ Log in Domain layer senza dependency injection
 
 ---
 
-### Accessibilità UI (WAI-ARIA + Keyboard)
+### Accessibilità TUI (Screen Reader + Keyboard)
 
-Ogni componente UI (`wx.Dialog`, `wx.Panel`, `wx.Button`) deve rispettare:
+Ogni output TUI deve essere compatibile con NVDA su Windows 11:
 
-**Checklist obbligatoria:**
-- [ ] Ogni controllo ha `SetLabel()` con testo descrittivo
-- [ ] Bottoni critici hanno acceleratori (es. `&OK`, `&Annulla`)
-- [ ] Dialog hanno `SetTitle()` semantico (letto da NVDA all'apertura)
-- [ ] Focus management: `SetFocus()` su primo controllo navigabile
-- [ ] ESC chiude dialog (binding `wx.ID_CANCEL`)
-- [ ] TAB naviga tutti i controlli in ordine logico
-- [ ] No elementi puramente decorativi (spacer con label vuote)
+**Checklist accessibilità TUI obbligatoria:**
+- [ ] Ogni riga di output è autonoma e leggibile da NVDA senza contesto visivo
+- [ ] Ogni riga non supera 120 caratteri (screen reader non tronca)
+- [ ] Nessun carattere ASCII decorativo (box, linee, tabelle visive)
+- [ ] Nessun colore ANSI o escape sequence (non interpretabili da NVDA)
+- [ ] I comandi sono tasto singolo catturato con msvcrt (niente Invio obbligatorio)
+- [ ] I comandi che richiedono argomento usano input() con prompt descrittivo
+- [ ] Ogni azione produce almeno una riga di feedback testuale
+- [ ] In caso di errore il messaggio descrive cosa fare, non solo cosa è andato storto
 
-**Esempio corretto:**
+**Esempio corretto di output accessibile:**
 ```python
-class VictoryDialog(wx.Dialog):
-    def __init__(self, parent, outcome, profile):
-        super().__init__(parent, title="Partita Vinta!")  # NVDA legge "Partita Vinta!"
-        
-        # TTS announcement (se screen_reader disponibile)
-        if self.screen_reader:
-            self.screen_reader.speak("Hai vinto! Partita completata.")
-        
-        # Text control con summary (navigabile)
-        self.summary_text = wx.TextCtrl(
-            self, 
-            value=formatter.format_session_outcome(outcome),
-            style=wx.TE_MULTILINE | wx.TE_READONLY
-        )
-        self.summary_text.SetFocus()  # Focus su contenuto principale
-        
-        # Bottoni con acceleratori
-        btn_rematch = wx.Button(self, wx.ID_YES, "&Rivincita")  # ALT+R
-        btn_menu = wx.Button(self, wx.ID_NO, "&Menu")            # ALT+M
-        
-        # ESC = torna al menu
-        self.Bind(wx.EVT_BUTTON, self.on_close, id=wx.ID_CANCEL)
+# CORRETTO — riga autonoma, descrittiva, entro 120 caratteri
+print("Cartella 1 di 3 — Riga 2 — Numeri: 15, 32, 67 — Segnati: 1 di 3")
+
+# VIETATO — output visivo non leggibile da screen reader
+print("┌─────────────────────┐")
+print("│  15  │  --  │  67  │")
+print("└─────────────────────┘")
 ```
 
 ---
@@ -366,19 +350,19 @@ def create_profile(self, name: str, set_as_default: bool = False) -> Optional[Us
 # Dopo
 def create_profile(self, name: str, is_guest: bool = False) -> Optional[UserProfile]:
 ```
-→ **Aggiorna `docs/API.md`**: sezione `## ProfileService.create_profile` — parametro `set_as_default` → `is_guest`, aggiorna esempio d'uso
+→ **Aggiorna `docs/API.md`**: sezione `## GiocatoreUmano.imposta_focus_cartella` — parametro aggiunto, aggiorna esempio d'uso
 
 ---
 
 **2. ARCHITECTURE.md**  
 Aggiorna se modifichi:
-- Struttura cartelle (`src/`, `docs/`, `tests/`)
+- Struttura cartelle (`bingo_game/`, `docs/`, `tests/`)
 - Data flow tra layer (nuovi adapter, repositories)
 - Design patterns adottati (nuovi command, observers)
 - Dipendenze esterne (nuove librerie in `requirements.txt`)
 
 **Esempio:**
-- Aggiungi `src/domain/events/` per event sourcing
+- Aggiungi `bingo_game/events/` per event sourcing
 → **Aggiorna `docs/ARCHITECTURE.md`**: sezione "Domain Layer" + diagramma struttura cartelle
 
 ---
@@ -394,7 +378,7 @@ Aggiorna **sempre** dopo merge su `main`:
 ## [Unreleased]
 
 ### Added
-- ProfileService: Aggiunto metodo `get_leaderboard()` per top 10 giocatori (#PR)
+- GiocatoreUmano: Aggiunto metodo `ottieni_stato_focus()` per informazioni focus corrente (#PR)
 
 ### Fixed
 - API.md: Corretto return type `ensure_guest_profile()` (None → bool) (#Issue)
@@ -421,11 +405,11 @@ Quando l'utente dice *"applica le modifiche"*:
 1. **Esegui modifiche codice** (`.py` files)
 2. **Audit immediato**:
    ```
-   Modifiche a src/domain/services/profile_service.py (line 260):
+   Modifiche a bingo_game/players/giocatore_umano.py (line 105):
    - Cambiato return type: None → bool
    
    📋 Impatto documentazione:
-   - docs/API.md: ✅ Richiede aggiornamento (sezione ProfileService.ensure_guest_profile)
+   - docs/API.md: ✅ Richiede aggiornamento (sezione GiocatoreUmano.imposta_focus_cartella)
    - docs/ARCHITECTURE.md: ⬜ Nessun impatto
    - CHANGELOG.md: ✅ Aggiungi entry [Unreleased] - Fixed
    ```
@@ -441,8 +425,8 @@ Quando l'utente dice *"applica le modifiche"*:
 5. **Verifica finale**:
    ```
    ✅ Codice e documentazione sincronizzati:
-   - src/domain/services/profile_service.py (modified)
-   - docs/API.md (updated, sezione ProfileService.ensure_guest_profile)
+   - bingo_game/players/giocatore_umano.py (modified)
+   - docs/API.md (updated, sezione GiocatoreUmano.imposta_focus_cartella)
    - CHANGELOG.md (updated, [Unreleased] section)
    ```
 
@@ -456,7 +440,7 @@ Prima di chiudere un task, verifica:
 - [ ] Ogni sezione `docs/API.md` ha link a `docs/ARCHITECTURE.md` per contesto
 - [ ] `docs/TODO.md` riflette task aperti (nessun TODO completato dimenticato)
 - [ ] `CHANGELOG.md` ha entry per ogni modifica in `main`
-- [ ] Nessun link rotto (es. `[ProfileService](docs/API.md#profileservice)` → verifica anchor esiste)
+- [ ] Nessun link rotto (es. `[GiocatoreUmano](docs/API.md#giocatoreumano)` → verifica anchor esiste)
 
 **Comando verifica** (chiedi all'utente di eseguire):
 ```bash
@@ -472,7 +456,7 @@ done
 
 ### Test Coverage Requirement
 
-- **Minimum**: 85% coverage per `src/domain/` e `src/application/`
+- **Minimum**: 85% coverage per `bingo_game/players/` e `bingo_game/events/`
 - **Target**: 90%+ coverage globale
 - Ogni nuovo metodo pubblico **deve** avere almeno 1 test unitario
 
@@ -486,34 +470,42 @@ pytest tests/ --cov=src --cov-report=term-missing --cov-fail-under=85
 ### Test Pattern (Esempio da seguire)
 
 ```python
-# tests/domain/services/test_profile_service.py
+# tests/players/test_giocatore_umano.py
 import pytest
-from src.domain.services.profile_service import ProfileService
+from bingo_game.players.giocatore_umano import GiocatoreUmano
+from tests.helpers import crea_cartella_test
 
-class TestProfileService:
+class TestImpostaFocusCartella:
     @pytest.fixture
-    def service(self, tmp_path):
-        """Setup con storage temporaneo."""
-        return ProfileService(storage_path=tmp_path)
-    
-    def test_ensure_guest_profile_creates_if_missing(self, service):
-        """Verifica creazione guest profile se non esiste."""
+    def giocatore(self):
+        """Setup giocatore con cartelle per test focus."""
+        g = GiocatoreUmano(nome="Test")
+        g.cartelle = [crea_cartella_test(), crea_cartella_test()]
+        return g
+
+    def test_imposta_focus_cartella_valida_ritorna_successo(self, giocatore):
+        """Verifica che il focus su cartella valida ritorni EsitoAzione ok=True."""
         # Arrange
-        assert not service.storage.exists("profile_000")
-        
+        # (fixture già pronta)
+
         # Act
-        result = service.ensure_guest_profile()
-        
+        esito = giocatore.imposta_focus_cartella(1)
+
         # Assert
-        assert result is True  # ← Verifica return type bool
-        assert service.storage.exists("profile_000")
-        profile = service.storage.load("profile_000")
-        assert profile.profile_name == "Ospite"
+        assert esito.ok is True
+        assert esito.evento is not None
+        assert giocatore._indice_cartella_focus == 0  # 1-based → 0-based
+
+    def test_imposta_focus_cartella_fuori_range_ritorna_errore(self, giocatore):
+        """Verifica che un indice fuori range ritorni ok=False con codice errore."""
+        esito = giocatore.imposta_focus_cartella(99)
+        assert esito.ok is False
+        assert esito.errore == "NUMERO_CARTELLA_FUORI_RANGE"
 ```
 
 **Naming convention test:**
 - `test_<method>_<scenario>_<expected_behavior>`
-- Esempio: `test_record_session_with_invalid_profile_id_returns_false`
+- Esempio: `test_imposta_focus_cartella_fuori_range_ritorna_errore`
 
 ---
 
@@ -554,20 +546,20 @@ processo. Qualsiasi test che chiama `setup_logging()` o `setup_categorized_loggi
 
 Prima di ogni commit, verifica silentemente:
 
-1. **Syntax**: `python -m py_compile src/**/*.py` (0 errori)
-2. **Type Hints**: `mypy src/ --strict --python-version 3.8` (0 errori, 100% copertura type hints)
-3. **Imports**: `pylint src/ --disable=all --enable=cyclic-import` (nessun import circolare)
-4. **Logging**: `grep -r "print(" src/ --include="*.py" --exclude="__main__.py"` (must return 0 occorrenze)
+1. **Syntax**: `python -m py_compile bingo_game/**/*.py` (0 errori)
+2. **Type Hints**: `mypy bingo_game/ --strict --python-version 3.8` (0 errori, 100% copertura type hints)
+3. **Imports**: `pylint bingo_game/ --disable=all --enable=cyclic-import` (nessun import circolare)
+4. **Logging**: `grep -r "print(" bingo_game/ --include="*.py" --exclude="__main__.py"` (must return 0 occorrenze)
 5. **Docs Sync**: Changelog modificato nelle ultime 48h? (verifica manuale)
-6. **Tests**: `pytest tests/ --cov=src --cov-report=term --cov-fail-under=85` (100% pass, coverage >= 85%)
+6. **Tests**: `pytest tests/ --cov=bingo_game --cov-report=term --cov-fail-under=85` (100% pass, coverage >= 85%)
 
 **Output esempio comando Git:**
 ```bash
 # Ottenere SHA prima di update file
-git ls-tree HEAD src/domain/services/profile_service.py
+git ls-tree HEAD bingo_game/players/giocatore_umano.py
 
 # Output:
-# 100644 blob 47f9717e9064973963357a3cbf64eac57b4a8fe3	src/domain/services/profile_service.py
+# 100644 blob 47f9717e9064973963357a3cbf64eac57b4a8fe3	bingo_game/players/giocatore_umano.py
 #              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #              Questo è il SHA da usare in create_or_update_file
 ```
@@ -575,7 +567,7 @@ git ls-tree HEAD src/domain/services/profile_service.py
 **Se uno fallisce:**
 ```
 ⚠️ Pre-commit check FAILED:
-- mypy: Found 3 type errors in src/domain/services/profile_service.py
+- mypy: Found 3 type errors in bingo_game/players/giocatore_umano.py
 - docs: CHANGELOG.md non aggiornato (ultima modifica: 2 giorni fa)
 
 Vuoi che fixo automaticamente o preferisci revisione manuale?
@@ -624,10 +616,10 @@ Vuoi che fixo automaticamente o preferisci revisione manuale?
 
 **Esempio:**
 ```
-fix(domain): corretto return type ProfileService.ensure_guest_profile
+fix(domain): corretto return type GiocatoreUmano.imposta_focus_cartella
 
 - Cambiato da `-> None` a `-> bool`
-- Aggiornato docs/API.md sezione ProfileService
+- Aggiornato docs/API.md sezione GiocatoreUmano
 - Aggiunto test per error handling (coverage +2%)
 
 Refs: #42, docs/3 - coding plans/PLAN-docs-allineamento-v3.2.2.md
@@ -642,7 +634,7 @@ Refs: #42, docs/3 - coding plans/PLAN-docs-allineamento-v3.2.2.md
 | Tipo | Pattern | Esempio |
 |---|---|---|
 | Feature | `feature/<slug>` | `feature/timer-overtime` |
-| Fix | `fix/<slug>` | `fix/pile-count-crash` |
+| Fix | `fix/<slug>` | `fix/focus-cartella-crash` |
 | Hotfix | `hotfix/<slug>` | `hotfix/guest-profile-null` |
 | Refactor | `refactor/<slug>` | `refactor/clean-arch-domain` |
 | Docs | `docs/<slug>` | `docs/api-update-v3.3` |
@@ -682,45 +674,61 @@ Refs: #42, docs/3 - coding plans/PLAN-docs-allineamento-v3.2.2.md
 
 ## 🚨 Critical Warnings (Non Ignorare Mai)
 
-1. **Guest Profile Protection**: Il profilo `profile_000` (Ospite) è **intoccabile**:
-   - Non eliminare
-   - Non rinominare
-   - Usato come fallback
-   
-2. **Timer Overtime**: Distingui sempre:
-   - `EndReason.VICTORY` = vittoria entro tempo limite
-   - `EndReason.VICTORY_OVERTIME` = vittoria oltre tempo (PERMISSIVE mode)
-   
-3. **Draw Count Duality**: Esistono **due contatori separati**:
-   - `GameService.draw_count` = azioni di pescata (per stats)
-   - `ScoringService.stock_draw_count` = carte pescate (per penaltà)
-   
-4. **Pile.count() Bug**: Il metodo **NON ESISTE**. Usa sempre:
-   - ✅ `pile.get_card_count()`
-   - ❌ `pile.count()` → AttributeError
+1. **NO IMPORT DOMAIN DALLA TUI**:
+   La TUI (tui_partita.py, tui_menu.py) non deve mai importare classi Domain
+   direttamente. Tutto il dominio è accessibile solo tramite game_controller.py.
+   - ❌ VIETATO: `from bingo_game.players.giocatore_umano import GiocatoreUmano`
+   - ✅ CORRETTO: `from bingo_game.game_controller import ottieni_giocatore_umano`
+
+2. **ESITO_AZIONE: CONTROLLA SEMPRE ok PRIMA DI LEGGERE evento**:
+   Ogni metodo di GiocatoreUmano ritorna EsitoAzione. Non accedere mai
+   a esito.evento senza aver prima verificato esito.ok is True.
+   - ❌ VIETATO: `renderer.render(esito.evento)`
+   - ✅ CORRETTO: `if esito.ok: renderer.render(esito.evento)`
+
+3. **FOCUS CARTELLA NON SI AUTO-IMPOSTA NEI COMANDI DI AZIONE**:
+   I metodi che modificano stato (segna_numero_manuale, annuncia_vittoria,
+   vai_a_riga_avanzata, vai_a_colonna_avanzata) hanno auto_imposta=False.
+   Se il focus cartella è None, ritornano errore. È responsabilità dell'utente
+   selezionare prima la cartella con imposta_focus_cartella(n).
+
+4. **NESSUN print() NEL CODICE DI PRODUZIONE**:
+   Tutta la produzione di output passa per TerminalRenderer.
+   Usare print() direttamente nel codice applicativo viola l'architettura
+   e produce output non tracciabile e non localizzabile.
+   - ❌ VIETATO: `print("Numero segnato!")`
+   - ✅ CORRETTO: `_renderer.render(esito.evento)`
+
+5. **NESSUNA STRINGA DI TESTO NEL DOMAIN LAYER**:
+   I metodi di GiocatoreUmano, Partita, Tabellone e Cartella non producono
+   mai stringhe pronte per l'utente. Producono solo EsitoAzione con eventi
+   dati. Le stringhe esistono solo in ui/locales/it.py e vengono assemblate
+   dal TerminalRenderer.
 
 ---
 
-## 🎯 TTS Feedback Tracking (Experimental - v2.4+)
+## 🎯 Output verso NVDA in Tombola Stark
 
+NVDA su Windows 11 legge automaticamente l'output standard del terminale (cmd.exe
+o Windows Terminal) riga per riga, non appena viene stampato con print().
+Non è necessario nessun metodo speak() esplicito.
+
+Per garantire che NVDA legga correttamente ogni messaggio:
+- Ogni messaggio deve essere su una riga separata (no \r, no escape ANSI)
+- Messaggi lunghi vanno spezzati in righe tematiche autonome
+- I messaggi di errore devono essere self-contained: NVDA non ha contesto visivo
+- Non usare caratteri speciali, simboli Unicode decorativi o emoji
+
+Esempio di output corretto per NVDA:
 ```python
-def tts_spoken(message: str, interrupt: bool) -> None:
-    """
-    Log TTS vocalization (DEBUG level).
-    
-    Args:
-        message: Text vocalized
-        interrupt: Whether previous speech interrupted
-    
-    Note:
-        **Experimental feature** - not yet integrated in all dialogs.
-        Call this after `screen_reader.speak()` for analytics and UX testing.
-        Molto verboso (ogni azione genera TTS) - solo per accessibility audits.
-    
-    Example:
-        >>> tts_spoken("7 di cuori su 8 di picche", True)
-        2026-02-14 15:15:00 - DEBUG - ui - TTS: "7 di cuori su 8 di picche" (interrupt=True)
-    """
+print("Cartella 1 selezionata.")
+print("Numeri mancanti per ambo: 2.")
+print("Numeri mancanti per terno: 3.")
+```
+
+Esempio di output non accessibile:
+```python
+print(f"🎯 Cartella 1 | Ambo: 2 | Terno: 3")
 ```
 
 ---
