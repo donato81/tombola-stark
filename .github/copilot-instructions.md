@@ -47,14 +47,15 @@ from bingo_game.players.giocatore_umano import GiocatoreUmano  # ❌
 
 # ✅ CORRETTO (TUI accede Domain solo via Controller)
 # bingo_game/ui/tui/tui_partita.py
-from bingo_game.game_controller import ottieni_stato_sintetico, esegui_turno_sicuro
+from bingo_game.game_controller import ottieni_giocatore_umano, esegui_turno_sicuro
 
-def gestisci_comando_cartella(numero: str) -> None:
-    esito = esegui_turno_sicuro('imposta_focus_cartella', int(numero))
+def gestisci_comando_cartella(partita, numero: int) -> None:
+    giocatore = ottieni_giocatore_umano(partita)
+    esito = giocatore.imposta_focus_cartella(numero)
     if esito.ok:
-        renderer.render(esito.evento)
+        _renderer.render_esito(esito)
     else:
-        renderer.render_errore(esito.errore)
+        _stampa(MESSAGGI_ERRORI[esito.errore][0])
 ```
 
 ---
@@ -72,10 +73,10 @@ def gestisci_comando_cartella(numero: str) -> None:
 def imposta_focus_cartella(self, numero_cartella: int) -> EsitoAzione:
     """
     Imposta il focus su una cartella specifica (input umano 1-based).
-    
+
     Args:
         numero_cartella: Numero cartella in formato umano (1..N)
-        
+
     Returns:
         EsitoAzione con ok=True e EventoFocusCartellaImpostato se riesce,
         ok=False con codice errore standardizzato altrimenti
@@ -103,7 +104,7 @@ def controlla_cartella(cartella):
     if cartella.count() > 0:  # AttributeError!
         return True
 
-# ✅ CORRETTO  
+# ✅ CORRETTO
 def controlla_cartella(cartella: Cartella) -> bool:
     if cartella.get_numeri_cartella():
         return True
@@ -112,7 +113,7 @@ def controlla_cartella(cartella: Cartella) -> bool:
 
 ---
 
-### Logging (Sistema Categorizzato v0.4.0)
+### Logging (Sistema Categorizzato)
 
 **MAI usare `print()` nel codice di produzione.** Usa i named logger dedicati per categoria:
 
@@ -135,15 +136,8 @@ _logger_errori   = logging.getLogger('tombola_stark.errori')    # errori, warnin
 NON finiscono su `tombola_stark.log`. Questo è intenzionale. Non modificare mai
 questo comportamento senza aggiornare `game_logger.py`.
 
-**Usare i semantic helpers di `game_logger.py`:**
-```python
-from bingo_game.logging.game_logger import (
-    GameLogger,
-)
-```
-
 **Vietato:**
-- ❌ `print(f"Debug: {variable}")` → usa `logging.getLogger('tombola_stark.partita').debug()`
+- ❌ `print(f"Debug: {variable}")` → usa `logging.getLogger('tombola_stark.tui').debug()`
 - ❌ Log con emoji o box ASCII → screen reader unfriendly
 - ❌ `logging.getLogger()` (root logger) nel codice applicativo → usa named loggers
 - ❌ Log in Domain layer senza dependency injection
@@ -179,32 +173,43 @@ print("└─────────────────────┘")
 
 ## 📚 Protocollo Allineamento Documentazione (Mandatorio)
 
-### Struttura Cartella `docs/`
+### Struttura Cartella `documentations/`
 
 ```
-docs/
-├── 1 - templates/          # Template riutilizzabili (PR body, design doc, TODO)
-├── 2 - projects/           # Design doc e piani pre-merge per feature attive
-│   ├── DESIGN_*.md         # Analisi architetturale di una feature
-│   └── PLAN_*.md           # Piano di implementazione/fix con checklist
-├── 3 - coding plans/       # Piani di coding dettagliati (step-by-step implementazione)
-├── API.md                  # Riferimento API pubblica di tutti i moduli
-├── ARCHITECTURE.md         # Architettura del sistema e data flow
-├── TESTING.md              # Guida testing e convenzioni
-└── TODO.md                 # Cruscotto operativo del branch attivo (stato: IN PROGRESS / DONE)
+documentations/
+├── 1 - templates/                        # Template riutilizzabili
+│   ├── TEMPLATE_example_DESIGN_DOCUMENT.md
+│   ├── TEMPLATE_example_PIANO_IMPLEMENTAZIONE.md
+│   ├── TEMPLATE_exaple_TODO.md
+│   ├── TEMPLATE_example_API.md
+│   ├── TEMPLATE_example_ARCHITECTURE.md
+│   └── TEMPLATE_example_CHANGELOG.md
+├── 2 - project/                          # Design doc per feature attive
+│   └── DESIGN_*.md
+├── 3 - planning/                         # Piani di implementazione
+│   └── PLAN_*_vX.Y.Z.md
+├── 4 - todo file/                        # Cruscotto operativo attivo
+│   └── TODO_vX.Y.Z.md
+├── API.md                                # Riferimento API pubblica
+├── ARCHITECTURE.md                       # Architettura del sistema
+└── RAPPORTO_ANALISI_SISTEMA.md           # Analisi di sistema
 ```
+
+**File root del repository:**
+- `README.md` → presentazione pubblica del progetto
+- `CHANGELOG.md` → storia delle versioni rilasciate
 
 **Regole di posizionamento:**
-- Un nuovo design doc → `docs/2 - projects/DESIGN_<feature>.md`
-- Un piano di fix/implementazione → `docs/2 - projects/PLAN_<descrizione>_vX.Y.Z.md`
-- `docs/TODO.md` esiste solo durante un branch di lavoro attivo; è il cruscotto
-  operativo da spuntare durante l'implementazione. Va aggiornato dopo ogni commit.
+- Un nuovo design doc → `documentations/2 - project/DESIGN_<feature>.md`
+- Un piano di implementazione → `documentations/3 - planning/PLAN_<descrizione>_vX.Y.Z.md`
+- Il cruscotto operativo → `documentations/4 - todo file/TODO_vX.Y.Z.md`
+  (un solo file attivo per volta, sostituisce il precedente ad ogni branch)
 
 ---
 
 ### Creazione File di Progetto (Design Doc, Piano, TODO)
 
-Ogni nuovo task non banale richiede la creazione di uno o più file di progetto **prima** di scrivere codice. I modelli si trovano in `docs/1 - templates/`.
+Ogni nuovo task non banale richiede la creazione di uno o più file di progetto **prima** di scrivere codice. I template si trovano in `documentations/1 - templates/`.
 
 #### Quando creare un DESIGN Document
 
@@ -214,9 +219,9 @@ Ogni nuovo task non banale richiede la creazione di uno o più file di progetto 
 - La feature coinvolge più di 3 file distinti in layer diversi
 - Ci sono alternative di design da confrontare
 
-**Template da usare:** `docs/1 - templates/TEMPLATE_example_DESIGN_DOCUMENT.md`
+**Template da usare:** `documentations/1 - templates/TEMPLATE_example_DESIGN_DOCUMENT.md`
 
-**Nome file output:** `docs/2 - projects/DESIGN_<feature-slug>.md`
+**Nome file output:** `documentations/2 - project/DESIGN_<feature-slug>.md`
 
 **Contenuto minimo obbligatorio:**
 - Metadata (data, stato, versione target)
@@ -226,8 +231,8 @@ Ogni nuovo task non banale richiede la creazione di uno o più file di progetto 
 
 **Esempio creazione:**
 ```
-Utente: "Voglio aggiungere un sistema audio con varianti per difficoltà"
-→ Crea: docs/2 - projects/DESIGN_audio_system.md
+Utente: "Voglio aggiungere i tasti rapidi alla TUI"
+→ Crea: documentations/2 - project/DESIGN_tasti-rapidi-tui.md
 → Usa: TEMPLATE_example_DESIGN_DOCUMENT.md come base
 → Stato iniziale: DRAFT
 ```
@@ -242,9 +247,9 @@ Utente: "Voglio aggiungere un sistema audio con varianti per difficoltà"
 - Si tratta di un bugfix con root cause analisi richiesta
 - Il task è un refactoring su più file
 
-**Template da usare:** `docs/1 - templates/TEMPLATE_example_PIANO_IMPLEMENTAZIONE.md`
+**Template da usare:** `documentations/1 - templates/TEMPLATE_example_PIANO_IMPLEMENTAZIONE.md`
 
-**Nome file output:** `docs/2 - projects/PLAN_<descrizione-slug>_vX.Y.Z.md`
+**Nome file output:** `documentations/3 - planning/PLAN_<descrizione-slug>_vX.Y.Z.md`
 
 **Contenuto minimo obbligatorio:**
 - Executive Summary (tipo, priorità, stato, branch, versione target)
@@ -256,8 +261,8 @@ Utente: "Voglio aggiungere un sistema audio con varianti per difficoltà"
 
 **Esempio creazione:**
 ```
-Utente: "Implementa il sistema audio descritto nel DESIGN"
-→ Crea: docs/2 - projects/PLAN_audio-system_v3.4.0.md
+Utente: "Implementa i tasti rapidi descritti nel DESIGN"
+→ Crea: documentations/3 - planning/PLAN_tasti-rapidi-tui_v0.10.0.md
 → Usa: TEMPLATE_example_PIANO_IMPLEMENTAZIONE.md come base
 → Stato iniziale: DRAFT → poi READY prima del primo commit
 ```
@@ -271,16 +276,17 @@ Utente: "Implementa il sistema audio descritto nel DESIGN"
 - Il branch di lavoro è attivo
 - L'implementazione multi-fase è appena iniziata
 
-**Template da usare:** `docs/1 - templates/TEMPLATE_exaple_TODO.md`
+**Template da usare:** `documentations/1 - templates/TEMPLATE_exaple_TODO.md`
 
-**Nome file output:** `docs/TODO.md` (uno solo, sostituisce il precedente ad ogni branch)
+**Nome file output:** `documentations/4 - todo file/TODO_vX.Y.Z.md`
+(un solo file attivo per volta, il nome rispecchia la versione target)
 
 **Regole operative:**
 - Il TODO è un **cruscotto**, non un documento tecnico: sommario operativo consultabile in 30 secondi
 - Il link al PLAN completo (fonte di verità) deve essere in cima al TODO
 - Ogni checkbox spuntata corrisponde a un commit già eseguito
 - Va aggiornato **dopo ogni commit**, non in batch a fine lavoro
-- Al merge su `main` il TODO viene archiviato o eliminato
+- Al merge su `main` il TODO viene archiviato nella stessa cartella con suffisso `_DONE`
 
 **Contenuto minimo obbligatorio:**
 - Riferimento al PLAN completo (link relativo)
@@ -292,10 +298,10 @@ Utente: "Implementa il sistema audio descritto nel DESIGN"
 
 **Esempio aggiornamento post-commit:**
 ```
-Dopo commit "feat(domain): aggiunto AudioEvent model":
-→ Apri docs/TODO.md
-→ Spunta: [x] Modifica modello / entità (Domain layer)
-→ Salva e includi nel commit successivo (o commit separato "docs: aggiorna TODO fase 1")
+Dopo commit "feat(tui): aggiunto codici_tasti_tui.py":
+→ Apri documentations/4 - todo file/TODO_v0.10.0.md
+→ Spunta: [x] Blocco 1 — Creato codici_tasti_tui.py
+→ Salva e includi nel commit successivo
 ```
 
 ---
@@ -303,31 +309,31 @@ Dopo commit "feat(domain): aggiunto AudioEvent model":
 #### Relazione tra i Tre File (Flusso Canonico)
 
 ```
-DESIGN_<feature>.md          (CONCEPT - "cosa vogliamo")
+documentations/2 - project/DESIGN_<feature>.md       (CONCEPT - "cosa vogliamo")
       ↓  approva
-PLAN_<feature>_vX.Y.Z.md     (TECNICO - "come lo facciamo")
+documentations/3 - planning/PLAN_<feature>_vX.Y.Z.md (TECNICO - "come lo facciamo")
       ↓  inizia
-docs/TODO.md                 (OPERATIVO - "dove siamo")
+documentations/4 - todo file/TODO_vX.Y.Z.md          (OPERATIVO - "dove siamo")
       ↓  aggiorna dopo ogni commit
-      ↓  a merge completato → archivia/elimina TODO
+      ↓  a merge completato → rinomina in TODO_vX.Y.Z_DONE.md
 ```
 
 **Vincoli di sequenza:**
 - Non creare un PLAN senza aver prima chiarito i requisiti (DESIGN o discussione esplicita)
 - Non iniziare commit di codice senza un TODO aggiornato se il task ha più di 2 fasi
-- Non modificare uno DESIGN doc a FROZEN senza aggiornare il PLAN corrispondente
+- Non modificare un DESIGN doc a stato FROZEN senza aggiornare il PLAN corrispondente
 
 #### Workflow Completo di Creazione (Step-by-Step)
 
 Quando l'utente introduce un nuovo task significativo:
 
 1. **Valuta la complessità**: meno di 2 file e 1 commit → nessun file di progetto necessario
-2. **Crea DESIGN** (se architetturale): copia `TEMPLATE_example_DESIGN_DOCUMENT.md`, compila sezioni obbligatorie, salva in `docs/2 - projects/`
-3. **Crea PLAN**: copia `TEMPLATE_example_PIANO_IMPLEMENTAZIONE.md`, collega al DESIGN se esiste, definisci fasi, salva in `docs/2 - projects/`
-4. **Crea TODO**: copia `TEMPLATE_exaple_TODO.md`, metti link al PLAN in cima, trascrivi le fasi come checklist, salva come `docs/TODO.md`
+2. **Crea DESIGN** (se architetturale): copia `TEMPLATE_example_DESIGN_DOCUMENT.md`, compila sezioni obbligatorie, salva in `documentations/2 - project/`
+3. **Crea PLAN**: copia `TEMPLATE_example_PIANO_IMPLEMENTAZIONE.md`, collega al DESIGN se esiste, definisci fasi, salva in `documentations/3 - planning/`
+4. **Crea TODO**: copia `TEMPLATE_exaple_TODO.md`, metti link al PLAN in cima, trascrivi le fasi come checklist, salva in `documentations/4 - todo file/`
 5. **Inizia implementazione**: segui il workflow incrementale descritto nel TODO
 6. **Aggiorna TODO** dopo ogni commit (spunta checkbox)
-7. **A merge completato**: aggiorna CHANGELOG, archivia o elimina `docs/TODO.md`
+7. **A merge completato**: aggiorna `CHANGELOG.md`, rinomina TODO in `TODO_vX.Y.Z_DONE.md`
 
 ---
 
@@ -335,7 +341,7 @@ Quando l'utente introduce un nuovo task significativo:
 
 Dopo **ogni modifica al codice** (`.py`), esegui questo audit:
 
-**1. API.md**  
+**1. documentations/API.md**
 Aggiorna se modifichi:
 - Signature metodi pubblici (parametri, return type, nome)
 - Classi esportate da `__init__.py`
@@ -345,29 +351,29 @@ Aggiorna se modifichi:
 **Esempio:**
 ```python
 # Prima
-def create_profile(self, name: str, set_as_default: bool = False) -> Optional[UserProfile]:
+def sposta_focus_riga_su_semplice(self) -> EsitoAzione:
 
-# Dopo
-def create_profile(self, name: str, is_guest: bool = False) -> Optional[UserProfile]:
+# Dopo — aggiunto parametro opzionale
+def sposta_focus_riga_su_semplice(self, loop: bool = False) -> EsitoAzione:
 ```
-→ **Aggiorna `docs/API.md`**: sezione `## GiocatoreUmano.imposta_focus_cartella` — parametro aggiunto, aggiorna esempio d'uso
+→ **Aggiorna `documentations/API.md`**: sezione `## GiocatoreUmano.sposta_focus_riga_su_semplice` — parametro aggiunto, aggiorna esempio d'uso
 
 ---
 
-**2. ARCHITECTURE.md**  
+**2. documentations/ARCHITECTURE.md**
 Aggiorna se modifichi:
-- Struttura cartelle (`bingo_game/`, `docs/`, `tests/`)
-- Data flow tra layer (nuovi adapter, repositories)
-- Design patterns adottati (nuovi command, observers)
+- Struttura cartelle (`bingo_game/`, `documentations/`, `tests/`)
+- Data flow tra layer (nuovi moduli, nuovi adapter)
+- Design patterns adottati (nuovi commander, dispatcher)
 - Dipendenze esterne (nuove librerie in `requirements.txt`)
 
 **Esempio:**
-- Aggiungi `bingo_game/events/` per event sourcing
-→ **Aggiorna `docs/ARCHITECTURE.md`**: sezione "Domain Layer" + diagramma struttura cartelle
+- Aggiungi `bingo_game/ui/tui/tui_commander.py`
+→ **Aggiorna `documentations/ARCHITECTURE.md`**: sezione "UI/TUI Layer" + diagramma struttura cartelle
 
 ---
 
-**3. CHANGELOG.md**  
+**3. CHANGELOG.md** (nella root del repository)
 Aggiorna **sempre** dopo merge su `main`:
 - Nuove feature → sezione `## [Unreleased] - Added`
 - Bug fix → `## [Unreleased] - Fixed`
@@ -378,22 +384,22 @@ Aggiorna **sempre** dopo merge su `main`:
 ## [Unreleased]
 
 ### Added
-- GiocatoreUmano: Aggiunto metodo `ottieni_stato_focus()` per informazioni focus corrente (#PR)
+- tui_commander.py: Nuovo modulo commander per mappatura tasti rapidi TUI
 
 ### Fixed
-- API.md: Corretto return type `ensure_guest_profile()` (None → bool) (#Issue)
+- tui_partita.py: Corretto reset focus riga al cambio cartella
 
 ### Changed
-- ⚠️ BREAKING: `create_profile()` parametro `set_as_default` rinominato `is_guest`
+- ⚠️ BREAKING: Rimosso comando testuale `c` sostituito da tasto PagGiù
 ```
 
 ---
 
-**4. README.md**  
+**4. README.md** (nella root del repository)
 Aggiorna se modifichi:
-- Entry point (`acs.py` → `acs_wx.py`)
-- Comandi CLI (nuove opzioni `--verbose`, `--profile`)
-- Requisiti sistema (Python 3.9 → 3.11, nuove dipendenze)
+- Entry point (`main.py`)
+- Comandi disponibili durante la partita (nuovi tasti rapidi)
+- Requisiti sistema (nuove dipendenze in `requirements.txt`)
 - Setup environment (nuovi passi installazione)
 
 ---
@@ -406,27 +412,28 @@ Quando l'utente dice *"applica le modifiche"*:
 2. **Audit immediato**:
    ```
    Modifiche a bingo_game/players/giocatore_umano.py (line 105):
-   - Cambiato return type: None → bool
-   
+   - Aggiunto metodo sposta_focus_riga_su_semplice()
+
    📋 Impatto documentazione:
-   - docs/API.md: ✅ Richiede aggiornamento (sezione GiocatoreUmano.imposta_focus_cartella)
-   - docs/ARCHITECTURE.md: ⬜ Nessun impatto
-   - CHANGELOG.md: ✅ Aggiungi entry [Unreleased] - Fixed
+   - documentations/API.md: ✅ Richiede aggiornamento (nuova sezione GiocatoreUmano)
+   - documentations/ARCHITECTURE.md: ⬜ Nessun impatto strutturale
+   - CHANGELOG.md: ✅ Aggiungi entry [Unreleased] - Added
+   - README.md: ⬜ Nessun impatto
    ```
 3. **Proposta aggiornamento**:
    ```
    Vuoi che aggiorni:
-   1. docs/API.md (fix return type + esempio)
-   2. CHANGELOG.md (entry Fixed)
-   
-   Rispondi "sì" per procedere, "solo 1" per docs/API.md, "no" per saltare.
+   1. documentations/API.md (nuova sezione metodo)
+   2. CHANGELOG.md (entry Added)
+
+   Rispondi "sì" per procedere, "solo 1" per API.md, "no" per saltare.
    ```
 4. **Applica aggiornamenti docs** se confermato
 5. **Verifica finale**:
    ```
    ✅ Codice e documentazione sincronizzati:
    - bingo_game/players/giocatore_umano.py (modified)
-   - docs/API.md (updated, sezione GiocatoreUmano.imposta_focus_cartella)
+   - documentations/API.md (updated, sezione GiocatoreUmano)
    - CHANGELOG.md (updated, [Unreleased] section)
    ```
 
@@ -436,19 +443,11 @@ Quando l'utente dice *"applica le modifiche"*:
 
 Prima di chiudere un task, verifica:
 
-- [ ] Ogni file Python pubblico ha entry in `docs/API.md`
-- [ ] Ogni sezione `docs/API.md` ha link a `docs/ARCHITECTURE.md` per contesto
-- [ ] `docs/TODO.md` riflette task aperti (nessun TODO completato dimenticato)
+- [ ] Ogni file Python pubblico ha entry in `documentations/API.md`
+- [ ] Ogni sezione `documentations/API.md` ha link a `documentations/ARCHITECTURE.md` per contesto
+- [ ] Il TODO attivo in `documentations/4 - todo file/` riflette il progresso reale
 - [ ] `CHANGELOG.md` ha entry per ogni modifica in `main`
-- [ ] Nessun link rotto (es. `[GiocatoreUmano](docs/API.md#giocatoreumano)` → verifica anchor esiste)
-
-**Comando verifica** (chiedi all'utente di eseguire):
-```bash
-# Verifica link rotti in Markdown
-grep -r '\[.*\](.*)' docs/ | grep -v http | while read line; do
-  # Parse e verifica esistenza file/anchor
-done
-```
+- [ ] Nessun link rotto nei file Markdown
 
 ---
 
@@ -462,7 +461,7 @@ done
 
 **Comando pre-commit:**
 ```bash
-pytest tests/ --cov=src --cov-report=term-missing --cov-fail-under=85
+pytest tests/ --cov=bingo_game --cov-report=term-missing --cov-fail-under=85
 ```
 
 ---
@@ -485,13 +484,7 @@ class TestImpostaFocusCartella:
 
     def test_imposta_focus_cartella_valida_ritorna_successo(self, giocatore):
         """Verifica che il focus su cartella valida ritorni EsitoAzione ok=True."""
-        # Arrange
-        # (fixture già pronta)
-
-        # Act
         esito = giocatore.imposta_focus_cartella(1)
-
-        # Assert
         assert esito.ok is True
         assert esito.evento is not None
         assert giocatore._indice_cartella_focus == 0  # 1-based → 0-based
@@ -509,36 +502,26 @@ class TestImpostaFocusCartella:
 
 ---
 
-### Marker Pytest e CI Strategy
+### Marker Pytest
 
 **Marker obbligatori — applicali sempre:**
 
 ```python
-@pytest.mark.unit   # Test senza dipendenze esterne (no wx, no filesystem reale)
-@pytest.mark.gui    # Test che richiedono wx e display (Xvfb o Windows)
+@pytest.mark.unit        # Test senza dipendenze esterne (no filesystem reale, no msvcrt)
+@pytest.mark.integration # Test che coinvolgono più layer insieme
 ```
-
-**Regole di assegnazione:**
-- Test che usano solo `tmp_path`, mock, o oggetti puri → `@pytest.mark.unit`
-- Test che istanziano `wx.App`, dialog, o frame → `@pytest.mark.gui`
-- Test di integrazione tra layer senza UI → `@pytest.mark.unit`
 
 **Comandi standard:**
 ```bash
-# CI-safe (headless, niente display): smoke test obbligatorio pre-merge
-pytest -m "not gui" -v
+# Smoke test obbligatorio pre-merge
+pytest -m "unit" -v
 
-# Test completi (richiede display o Xvfb)
+# Test completi
 pytest -v
 
-# Solo unit test di un modulo specifico (esempio)
-pytest tests/infrastructure/test_categorized_logger.py -v
+# Solo test di un modulo specifico
+pytest tests/players/test_giocatore_umano.py -v
 ```
-
-**Isolamento test logging:** il modulo `logging` di Python è un singleton di
-processo. Qualsiasi test che chiama `setup_logging()` o `setup_categorized_logging()`
-**deve** avere una fixture `reset_logging` con cleanup pre+post yield. Vedi
-`tests/infrastructure/test_categorized_logger.py` come riferimento canonico.
 
 ---
 
@@ -547,19 +530,18 @@ processo. Qualsiasi test che chiama `setup_logging()` o `setup_categorized_loggi
 Prima di ogni commit, verifica silentemente:
 
 1. **Syntax**: `python -m py_compile bingo_game/**/*.py` (0 errori)
-2. **Type Hints**: `mypy bingo_game/ --strict --python-version 3.8` (0 errori, 100% copertura type hints)
+2. **Type Hints**: `mypy bingo_game/ --strict --python-version 3.8` (0 errori)
 3. **Imports**: `pylint bingo_game/ --disable=all --enable=cyclic-import` (nessun import circolare)
-4. **Logging**: `grep -r "print(" bingo_game/ --include="*.py" --exclude="__main__.py"` (must return 0 occorrenze)
-5. **Docs Sync**: Changelog modificato nelle ultime 48h? (verifica manuale)
-6. **Tests**: `pytest tests/ --cov=bingo_game --cov-report=term --cov-fail-under=85` (100% pass, coverage >= 85%)
+4. **Logging**: `grep -r "print(" bingo_game/ --include="*.py"` (0 occorrenze fuori da TerminalRenderer)
+5. **Docs Sync**: `CHANGELOG.md` modificato nelle ultime 48h? (verifica manuale)
+6. **Tests**: `pytest tests/ --cov=bingo_game --cov-report=term --cov-fail-under=85` (100% pass)
 
-**Output esempio comando Git:**
+**Output esempio comando Git per ottenere SHA:**
 ```bash
-# Ottenere SHA prima di update file
 git ls-tree HEAD bingo_game/players/giocatore_umano.py
 
 # Output:
-# 100644 blob 47f9717e9064973963357a3cbf64eac57b4a8fe3	bingo_game/players/giocatore_umano.py
+# 100644 blob 98184f34cc642e2b393591a1dad4f45b0108e49c    bingo_game/players/giocatore_umano.py
 #              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #              Questo è il SHA da usare in create_or_update_file
 ```
@@ -567,7 +549,7 @@ git ls-tree HEAD bingo_game/players/giocatore_umano.py
 **Se uno fallisce:**
 ```
 ⚠️ Pre-commit check FAILED:
-- mypy: Found 3 type errors in bingo_game/players/giocatore_umano.py
+- mypy: Found 3 type errors in bingo_game/ui/tui/tui_commander.py
 - docs: CHANGELOG.md non aggiornato (ultima modifica: 2 giorni fa)
 
 Vuoi che fixo automaticamente o preferisci revisione manuale?
@@ -582,16 +564,16 @@ Vuoi che fixo automaticamente o preferisci revisione manuale?
 **Un commit = una unità logica di cambiamento.** Regole operative:
 
 - ✅ Un commit per file modificato se le modifiche hanno motivazioni diverse
-- ✅ Un commit per task logico (es. "fix firma", "aggiunta test", "fix docstring")
+- ✅ Un commit per task logico (es. "aggiunta costanti tasti", "aggiunto commander")
 - ❌ No mega-commit che mescolano fix di codice + aggiornamenti docs + test
 - ❌ No commit "WIP" o "fix fix fix" su branch destinati alla PR
 
 **Ordine di commit consigliato** quando si lavora su un task con dipendenze:
-1. Pre-requisiti (es. aggiungere un parametro a una firma)
+1. Pre-requisiti (es. aggiungere costanti o codici necessari)
 2. Implementazione principale
 3. Test
-4. Aggiornamento documentazione (API.md, CHANGELOG.md)
-5. Aggiornamento cruscotto operativo (TODO.md)
+4. Aggiornamento documentazione (API.md, ARCHITECTURE.md, CHANGELOG.md)
+5. Aggiornamento cruscotto operativo (TODO)
 
 ---
 
@@ -612,17 +594,18 @@ Vuoi che fixo automaticamente o preferisci revisione manuale?
 - `test`: Aggiunta/modifica test
 - `chore`: Maintenance (deps, build, config)
 
-**Scope:** `domain`, `application`, `infrastructure`, `presentation`, `docs`, `tests`
+**Scope:** `domain`, `players`, `events`, `tui`, `controller`, `docs`, `tests`
 
 **Esempio:**
 ```
-fix(domain): corretto return type GiocatoreUmano.imposta_focus_cartella
+feat(tui): aggiunto tui_commander.py con mappatura tasti rapidi
 
-- Cambiato da `-> None` a `-> bool`
-- Aggiornato docs/API.md sezione GiocatoreUmano
-- Aggiunto test per error handling (coverage +2%)
+- Creato bingo_game/ui/tui/tui_commander.py
+- Creato bingo_game/events/codici_tasti_tui.py
+- Aggiornato documentations/ARCHITECTURE.md sezione UI/TUI
+- Aggiornato documentations/API.md con nuove funzioni pubbliche
 
-Refs: #42, docs/3 - coding plans/PLAN-docs-allineamento-v3.2.2.md
+Refs: documentations/3 - planning/PLAN_tasti-rapidi-tui_v0.10.0.md
 ```
 
 ---
@@ -633,77 +616,85 @@ Refs: #42, docs/3 - coding plans/PLAN-docs-allineamento-v3.2.2.md
 
 | Tipo | Pattern | Esempio |
 |---|---|---|
-| Feature | `feature/<slug>` | `feature/timer-overtime` |
+| Feature | `feature/<slug>` | `feature/tasti-rapidi-tui` |
 | Fix | `fix/<slug>` | `fix/focus-cartella-crash` |
-| Hotfix | `hotfix/<slug>` | `hotfix/guest-profile-null` |
-| Refactor | `refactor/<slug>` | `refactor/clean-arch-domain` |
-| Docs | `docs/<slug>` | `docs/api-update-v3.3` |
+| Hotfix | `hotfix/<slug>` | `hotfix/segna-numero-errore` |
+| Refactor | `refactor/<slug>` | `refactor/clean-arch-tui` |
+| Docs | `docs/<slug>` | `docs/api-update-v0.10` |
 
 ### Quando creare un branch vs committare su `main`
 
-- **Branch separato**: qualsiasi feature, fix non banale, refactor, o lavoro
-  che richiede più di 1 commit.
-- **Commit diretto su `main`**: solo hotfix monocommit urgenti o aggiornamenti
-  di documentazione pura (nessun `.py` modificato).
+- **Branch separato**: qualsiasi feature, fix non banale, refactor, o lavoro che richiede più di 1 commit.
+- **Commit diretto su `main`**: solo hotfix monocommit urgenti o aggiornamenti di documentazione pura (nessun `.py` modificato).
 
 ### Release process (step obbligatori)
 
 1. Tutti i fix e i task del branch completati e verificati
-2. PR aperta verso `main` con body che linka design doc e piano (se esistono)
-3. Checklist PR spuntata (vedi template `docs/1 - templates/`)
-4. Merge con **merge commit** (`--no-ff`) — preserva storia del branch
-5. Subito dopo il merge, creare il tag di versione:
+2. PR aperta verso `main` con body che linka design doc e piano
+3. Merge con **merge commit** (`--no-ff`) — preserva storia del branch
+4. Subito dopo il merge, creare il tag di versione:
    ```bash
    git checkout main && git pull origin main
    git tag vX.Y.Z
    git push origin vX.Y.Z
    ```
-6. Aggiornare footer `CHANGELOG.md`:
+5. Aggiornare `CHANGELOG.md`:
    - Rinominare `## [Unreleased]` in `## [X.Y.Z] — YYYY-MM-DD`
    - Aggiungere nuovo `## [Unreleased]` vuoto in cima
-   - Aggiornare i link di comparazione in fondo al file
+6. Rinominare il TODO attivo in `TODO_vX.Y.Z_DONE.md`
 
 ### Versionamento (SemVer)
 
 - `MAJOR` (X): breaking changes all'API pubblica
 - `MINOR` (Y): nuove feature retrocompatibili
 - `PATCH` (Z): bug fix retrocompatibili
-- `BUILD` (W) *(facoltativo)*: bugfix minori o aggiornamenti di documentazione pura (es. `v3.3.0.1`)
 
 ---
 
 ## 🚨 Critical Warnings (Non Ignorare Mai)
 
 1. **NO IMPORT DOMAIN DALLA TUI**:
-   La TUI (tui_partita.py, tui_menu.py) non deve mai importare classi Domain
-   direttamente. Tutto il dominio è accessibile solo tramite game_controller.py.
+   La TUI (`tui_partita.py`, `tui_commander.py`) non deve mai importare classi Domain
+   direttamente. Tutto il dominio è accessibile solo tramite `game_controller.py`.
    - ❌ VIETATO: `from bingo_game.players.giocatore_umano import GiocatoreUmano`
    - ✅ CORRETTO: `from bingo_game.game_controller import ottieni_giocatore_umano`
 
 2. **ESITO_AZIONE: CONTROLLA SEMPRE ok PRIMA DI LEGGERE evento**:
    Ogni metodo di GiocatoreUmano ritorna EsitoAzione. Non accedere mai
-   a esito.evento senza aver prima verificato esito.ok is True.
-   - ❌ VIETATO: `renderer.render(esito.evento)`
-   - ✅ CORRETTO: `if esito.ok: renderer.render(esito.evento)`
+   a `esito.evento` senza aver prima verificato `esito.ok is True`.
+   - ❌ VIETATO: `renderer.render_esito(esito.evento)`
+   - ✅ CORRETTO: `if esito.ok: renderer.render_esito(esito)`
 
 3. **FOCUS CARTELLA NON SI AUTO-IMPOSTA NEI COMANDI DI AZIONE**:
-   I metodi che modificano stato (segna_numero_manuale, annuncia_vittoria,
-   vai_a_riga_avanzata, vai_a_colonna_avanzata) hanno auto_imposta=False.
+   I metodi che modificano stato (`segna_numero_manuale`, `annuncia_vittoria`,
+   `vai_a_riga_avanzata`, `vai_a_colonna_avanzata`) hanno `auto_imposta=False`.
    Se il focus cartella è None, ritornano errore. È responsabilità dell'utente
-   selezionare prima la cartella con imposta_focus_cartella(n).
+   selezionare prima la cartella con `imposta_focus_cartella(n)`.
 
 4. **NESSUN print() NEL CODICE DI PRODUZIONE**:
-   Tutta la produzione di output passa per TerminalRenderer.
-   Usare print() direttamente nel codice applicativo viola l'architettura
-   e produce output non tracciabile e non localizzabile.
-   - ❌ VIETATO: `print("Numero segnato!")`
-   - ✅ CORRETTO: `_renderer.render(esito.evento)`
+   Tutta la produzione di output passa per `TerminalRenderer`.
+   L'unica eccezione è la funzione `_stampa()` in `tui_partita.py`,
+   che è un wrapper esplicito su print() creato appositamente per il mock nei test.
+   - ❌ VIETATO: `print("Numero segnato!")` nel codice applicativo
+   - ✅ CORRETTO: `_stampa(riga)` oppure `_renderer.render_esito(esito)`
 
 5. **NESSUNA STRINGA DI TESTO NEL DOMAIN LAYER**:
-   I metodi di GiocatoreUmano, Partita, Tabellone e Cartella non producono
-   mai stringhe pronte per l'utente. Producono solo EsitoAzione con eventi
-   dati. Le stringhe esistono solo in ui/locales/it.py e vengono assemblate
-   dal TerminalRenderer.
+   I metodi di `GiocatoreUmano`, `Partita`, `Tabellone` e `Cartella` non producono
+   mai stringhe pronte per l'utente. Producono solo `EsitoAzione` con eventi dati.
+   Le stringhe esistono solo in `bingo_game/ui/locales/it.py` e vengono assemblate
+   dal `TerminalRenderer`.
+
+6. **I TASTI SPECIALI CON msvcrt PRODUCONO DUE BYTE**:
+   Su Windows, msvcrt.getwch() ritorna `\x00` o `\xe0` come primo byte per i tasti
+   speciali (frecce, PagSu, PagGiù). In quel caso va letto immediatamente un secondo
+   byte per ottenere il codice completo. Non trattare mai il primo byte `\xe0` o `\x00`
+   come un comando standalone.
+   ```python
+   # Lettura corretta tasto singolo con msvcrt
+   tasto = msvcrt.getwch()
+   if tasto in ('\x00', '\xe0'):
+       tasto = tasto + msvcrt.getwch()  # legge secondo byte
+   ```
 
 ---
 
@@ -714,7 +705,7 @@ o Windows Terminal) riga per riga, non appena viene stampato con print().
 Non è necessario nessun metodo speak() esplicito.
 
 Per garantire che NVDA legga correttamente ogni messaggio:
-- Ogni messaggio deve essere su una riga separata (no \r, no escape ANSI)
+- Ogni messaggio deve essere su una riga separata (no `\r`, no escape ANSI)
 - Messaggi lunghi vanno spezzati in righe tematiche autonome
 - I messaggi di errore devono essere self-contained: NVDA non ha contesto visivo
 - Non usare caratteri speciali, simboli Unicode decorativi o emoji
@@ -738,13 +729,13 @@ print(f"🎯 Cartella 1 | Ambo: 2 | Terno: 3")
 **Quando l'utente chiede modifiche:**
 1. ✅ Applica modifiche con type hints completi
 2. ✅ Aggiungi logging semantico (no print)
-3. ✅ Verifica accessibilità (ARIA, keyboard, screen reader)
+3. ✅ Verifica accessibilità (keyboard, screen reader, NVDA)
 4. ✅ Audit documentazione (proponi sync)
 5. ✅ Esegui test coverage check
 6. ✅ Fornisci riepilogo testuale strutturato
 
 **Frase magica per audit completo:**
-*"Codice, documentazione e test sono sincronizzati al 100% secondo gli standard v2.3+"*
+*"Codice, documentazione e test sono sincronizzati al 100% secondo gli standard Tombola Stark."*
 
 Quando l'utente la richiede, esegui tutti i 6 check pre-commit + verifica manuale cross-references docs prima di confermare sync.
 
