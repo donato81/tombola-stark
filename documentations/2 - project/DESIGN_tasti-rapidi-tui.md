@@ -9,6 +9,8 @@
 ## 📌 Metadata
 
 - **Data Inizio**: 2026-02-22
+- **Ultimo Aggiornamento**: 2026-02-23
+- **Reviewer**: Copilot (incongruenze API corrette)
 - **Stato**: FROZEN
 - **Versione Target**: v0.10.0
 - **Autore**: AI Assistant + Donato81
@@ -148,7 +150,7 @@ NVDA legge il feedback all'utente
 
 **Flusso**:
 
-1. **Sistema** (estrattore automatico): Estrae numero 45, annuncia "Estratto: 45."
+1. **Sistema**: Estrae automaticamente numero 45, annuncia "Estratto: 45."
 
 2. **Utente**: Naviga fino alla cella che contiene 45 con Frecce
    → **Sistema**: Annuncia contenuto di ogni cella durante la navigazione
@@ -329,11 +331,6 @@ NVDA legge il feedback all'utente
   - Quando disponibile? Sempre durante la partita
   - Feedback atteso: lista ultimi estratti
 
-- **Tasto `E`**:
-  - Fa cosa? Avanza l'estrazione (turno automatico o manuale)
-  - Quando disponibile? Quando è il turno di estrazione
-  - Feedback atteso: "Estratto: N."
-
 #### Uscita e Controllo
 
 - **Tasto `Q` o `ESC`**:
@@ -373,7 +370,6 @@ NVDA legge il feedback all'utente
 
 ### Domande Aperte
 
-- [ ] Il tasto `E` per l'estrazione è necessario o l'estrazione è sempre automatica?
 - [ ] Quando si segna un numero con Invio, deve verificare che sia effettivamente estratto
   o si permette la marcatura libera?
 
@@ -515,8 +511,8 @@ Questo design è pronto per la fase tecnica (PLAN) quando:
 - **GiocatoreUmano (`bingo_game/players/giocatore_umano.py`)**: Espone già tutti
   i metodi di navigazione focus necessari (imposta_focus_cartella,
   sposta_focus_riga_su_semplice, sposta_focus_riga_giu_semplice,
-  sposta_focus_colonna_sinistra_semplice, sposta_focus_colonna_destra_semplice,
-  vai_a_cartella_precedente, vai_a_cartella_successiva).
+  sposta_focus_colonna_sinistra, sposta_focus_colonna_destra,
+  riepilogo_cartella_precedente, riepilogo_cartella_successiva).
 - **EsitoAzione (`bingo_game/events/`)**: Ogni operazione sul dominio ritorna
   EsitoAzione. Il Commander verifica sempre esito.ok prima di chiamare il renderer.
 - **TerminalRenderer (`bingo_game/ui/tui/`)**: Produce l'output testuale.
