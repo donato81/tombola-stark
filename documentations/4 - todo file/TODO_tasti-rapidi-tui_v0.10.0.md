@@ -113,10 +113,10 @@ Fase 3: Loop tui_partita
 - [x] Messaggio tasto non valido aggiornato ("Premi ? per conoscere il focus")
 - [x] Nessun messaggio hardcoded nel Commander
 
-**FASE 5 — Verifica controller**
-- [ ] Verificato che esistano tutti i 27 metodi richiamati dal Commander
-- [ ] Nessuna modifica apportata salvo approvazione esplicita
-- [ ] Se metodo mancante: sub-task documentato e approvazione ricevuta
+**FASE 5 — Verifica controller** ✅ COMPLETATA (nessuna modifica applicata)
+- [x] Verificato che esistano tutti i 27 metodi richiamati dal Commander
+- [x] Nessuna modifica apportata (tutti i metodi presenti in GiocatoreUmano e game_controller)
+- [x] Se metodo mancante: sub-task documentato e approvazione ricevuta
 
 **FASE 6 — Test unitari**
 - [ ] Test per ogni tasto → comando nel Commander
