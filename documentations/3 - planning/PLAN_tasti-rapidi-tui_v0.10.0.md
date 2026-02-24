@@ -13,7 +13,8 @@
 **Stato**: DRAFT  
 **Branch**: `refactory-mappatura-tasti-game-play`  
 **Versione Target**: `v0.10.0`  
-**Data Creazione**: 2026-02-24  - **Ultimo Aggiornamento**: 2026-02-24  **Autore**: AI Assistant + Donato81  
+**Data Creazione**: 2026-02-24  
+**Ultimo Aggiornamento**: 2026-02-24  **Autore**: AI Assistant + Donato81  
 **Effort Stimato**: 16 ore totali (10 ore Copilot + 6 ore review/testing)  
 **Commits Previsti**: 8 commit atomici
 
