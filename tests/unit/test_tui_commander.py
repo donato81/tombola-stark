@@ -150,7 +150,7 @@ def test_comando_da_tasto_azione_diretta_tasti_estesi(costante, nome_atteso):
     ("g", "visualizza_tutte_cartelle_semplice"),
     ("h", "visualizza_tutte_cartelle_avanzata"),
     ("u", "comunica_ultimo_numero_estratto"),
-    ("i", "visualizzaultiminumeriestratti"),
+    ("i", "visualizza_ultimi_numeri_estratti"),
     ("o", "riepilogo_tabellone"),
     ("l", "lista_numeri_estratti"),
     ("p", "passa_turno"),

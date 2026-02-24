@@ -56,7 +56,7 @@ _renderer = TerminalRenderer()
 # Metodi AZIONE_DIRETTA su GiocatoreUmano che richiedono (tabellone) come unico arg.
 _METODI_DIRETTI_CON_TABELLONE: frozenset = frozenset({
     "comunica_ultimo_numero_estratto",
-    "visualizzaultiminumeriestratti",
+    "visualizza_ultimi_numeri_estratti",
     "riepilogo_tabellone",
     "lista_numeri_estratti",
 })

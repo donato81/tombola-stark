@@ -186,7 +186,9 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 | File | Ruolo |
 |---|---|
 | `bingo_game/ui/ui_terminale.py` | `TerminalUI`: flusso configurazione pre-partita (Fase 1) |
-| `bingo_game/ui/tui/tui_partita.py` | `_loop_partita()`: macchina a stati Game Loop interattivo (v0.9.0) |
+| `bingo_game/ui/tui/tui_partita.py` | `_loop_partita()`: macchina a stati Game Loop interattivo; v0.9.0 (comandi testuali) + v0.10.0 (tasti rapidi via tui_commander) |
+| `bingo_game/ui/tui/tui_commander.py` | `leggi_tasto()`, `comando_da_tasto()`: input rapido a tasto singolo via msvcrt; classifica ogni pressione in un `ComandoTasto` (`TipoComando` enum + frozen dataclass). Gestisce tasti estesi a 2 byte (v0.10.0) |
+| `bingo_game/ui/tui/codici_tasti_tui.py` | Costanti per 26 codici tasto (Gruppi 1-10): frecce, PagSu/PagGiu, lettere, numeri cartella 1-6. Include `TASTI_CARTELLE` e `PREFISSO_TASTO_ESTESO` (v0.10.0) |
 | `bingo_game/ui/locales/it.py` | Testi localizzati (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, `MESSAGGI_CONTROLLER`, chiavi `LOOP_*`) |
 | `bingo_game/events/codici_controller.py` | Costanti chiave (`CTRL_*`) per `MESSAGGI_CONTROLLER` (v0.8.0) |
 | `bingo_game/events/codici_loop.py` | Costanti codici evento Game Loop (`LOOP_*`) (v0.9.0) |

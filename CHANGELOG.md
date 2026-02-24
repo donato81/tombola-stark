@@ -7,6 +7,45 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ---
 
+## [Unreleased]
+
+### Added
+- Tasti rapidi TUI: navigazione e azioni di gioco via msvcrt senza Invio (v0.10.0).
+- `bingo_game/ui/tui/tui_commander.py`: modulo di input rapido con `TipoComando`,
+  `ComandoTasto` (frozen dataclass), `leggi_tasto()`, `comando_da_tasto()`. Supporta
+  tasti estesi a 2 byte (frecce, PagSu/PagGiu) e mappa 26 tasti in O(1).
+- `bingo_game/ui/tui/codici_tasti_tui.py`: costanti per 26 codici tasto (Gruppi 1-10)
+  con coppie byte msvcrt documentate. Include `TASTI_CARTELLE` (frozenset) e
+  `PREFISSO_TASTO_ESTESO`.
+- `bingo_game/ui/locales/it.py`: 8 nuove chiavi `LOOP_*` per feedback tasti rapidi
+  (`LOOP_TASTO_NON_VALIDO`, `LOOP_QUIT_CONFERMA_TASTO`, `LOOP_PROMPT_R_VAI_RIGA`,
+  `LOOP_PROMPT_C_VAI_COLONNA`, `LOOP_PROMPT_E_VERIFICA`, `LOOP_PROMPT_N_CERCA`,
+  `LOOP_PROMPT_V_VITTORIA`, `LOOP_HELP_TASTI_RAPIDI`).
+- `tests/unit/test_tui_commander.py`: 13 test unitari per `tui_commander`
+  (leggi_tasto, comando_da_tasto, TipoComando, ComandoTasto frozen).
+- `tests/unit/test_tui_partita.py`: 12 nuovi test v0.10.0 (Tests 16-27) per le
+  funzioni di dispatch `_esegui_seleziona_cartella`, `_esegui_azione_giocatore`,
+  `_esegui_con_prompt_numero`, `_esegui_conferma_esci`.
+- `tests/integration/test_game_loop_tasti.py`: 6 scenari di integrazione del game
+  loop (tasto non valido, selezione cartella, prompt valido, prompt non valido,
+  uscita con conferma, partita completa).
+
+### Changed
+- `bingo_game/ui/tui/tui_partita.py`: loop v0.10.0 sostituisce il parser testuale
+  (comandi seguiti da Invio) con il dispatch via `tui_commander`. Aggiunte 4
+  funzioni di dispatch: `_esegui_seleziona_cartella`, `_esegui_azione_giocatore`,
+  `_esegui_con_prompt_numero`, `_esegui_conferma_esci`. Le funzioni legacy v0.9.0
+  (`_gestisci_quit`, `_gestisci_segna`, ecc.) sono preservate per compatibilità.
+- `bingo_game/players/giocatore_umano.py`: metodo rinominato da
+  `visualizzaultiminumeriestratti` a `visualizza_ultimi_numeri_estratti`
+  (conformita snake_case).
+
+### Removed
+- Parsing comandi testuali (seguito da Invio) rimosso dal game loop principale.
+  Il loop v0.10.0 usa esclusivamente `leggi_tasto()` via msvcrt.
+
+---
+
 ## [v0.9.1] — 2026-02-21
 
 ### Fixed

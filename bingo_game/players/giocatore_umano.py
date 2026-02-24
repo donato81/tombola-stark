@@ -1836,7 +1836,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         )
 
 
-    def visualizzaultiminumeriestratti(self, tabellone: object) -> EsitoAzione:
+    def visualizza_ultimi_numeri_estratti(self, tabellone: object) -> EsitoAzione:
         """
         Comando UI: richiede al tabellone gli ultimi 5 numeri estratti e ritorna un evento
         pronto per il renderer (senza costruire stringhe nel dominio).

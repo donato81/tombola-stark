@@ -175,7 +175,7 @@ _CMD_H = ComandoTasto(TipoComando.AZIONE_DIRETTA, "visualizza_tutte_cartelle_ava
 
 # -- Gruppo 8: consultazione tabellone --
 _CMD_U = ComandoTasto(TipoComando.AZIONE_DIRETTA, "comunica_ultimo_numero_estratto")
-_CMD_I = ComandoTasto(TipoComando.AZIONE_DIRETTA, "visualizzaultiminumeriestratti")
+_CMD_I = ComandoTasto(TipoComando.AZIONE_DIRETTA, "visualizza_ultimi_numeri_estratti")
 _CMD_O = ComandoTasto(TipoComando.AZIONE_DIRETTA, "riepilogo_tabellone")
 _CMD_L = ComandoTasto(TipoComando.AZIONE_DIRETTA, "lista_numeri_estratti")
 _CMD_E = ComandoTasto(TipoComando.RICHIEDE_PROMPT_NUM, "verifica_numero_estratto")
