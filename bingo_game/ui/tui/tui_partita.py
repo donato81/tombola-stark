@@ -110,7 +110,7 @@ def _loop_partita(partita) -> None:
         cmd = comando_da_tasto(tasto)
 
         if cmd.tipo == TipoComando.TASTO_NON_VALIDO:
-            _stampa(MESSAGGI_OUTPUT_UI_UMANI["LOOP_COMANDO_NON_RICONOSCIUTO"][0])
+            _stampa(MESSAGGI_OUTPUT_UI_UMANI["LOOP_TASTO_NON_VALIDO"][0])
 
         elif cmd.tipo == TipoComando.SELEZIONA_CARTELLA:
             _esegui_seleziona_cartella(giocatore, cmd.valore)

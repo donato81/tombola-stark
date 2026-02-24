@@ -108,10 +108,10 @@ Fase 3: Loop tui_partita
 - [x] Dipendenze da `comandi_partita` rimosse
 - [x] `_stampa()` aggiornata per nuovi messaggi
 
-**FASE 4 — Localizzazione**
-- [ ] Stringhe aggiunte per tutti i feedback attesi (Gruppi 1-10 del DESIGN)
-- [ ] Messaggio tasto non valido aggiornato ("Premi ? per conoscere il focus")
-- [ ] Nessun messaggio hardcoded nel Commander
+**FASE 4 — Localizzazione** ✅ COMPLETATA
+- [x] Stringhe aggiunte per tutti i feedback attesi (Gruppi 1-10 del DESIGN)
+- [x] Messaggio tasto non valido aggiornato ("Premi ? per conoscere il focus")
+- [x] Nessun messaggio hardcoded nel Commander
 
 **FASE 5 — Verifica controller**
 - [ ] Verificato che esistano tutti i 27 metodi richiamati dal Commander
