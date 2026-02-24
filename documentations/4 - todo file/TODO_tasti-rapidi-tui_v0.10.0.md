@@ -94,13 +94,13 @@ Fase 3: Loop tui_partita
 - [x] Coppie byte documentate nei commenti per tasti speciali
 - [x] File salvato in `bingo_game/ui/tui/codici_tasti_tui.py`
 
-**FASE 2 — tui_commander**
-- [ ] Funzione `leggi_tasto()` implementata con msvcrt
-- [ ] Funzione `comando_da_tasto(tasto)` implementata con mappatura completa
-- [ ] Gestione stato Attesa Prompt distinto da Attesa Conferma S/N
-- [ ] Prompt numerici usano `input()` standard (non msvcrt)
-- [ ] Input non valido ai prompt gestito con messaggio + nuovo prompt
-- [ ] Tasto non riconosciuto restituisce messaggio corretto
+**FASE 2 — tui_commander** ✅ COMPLETATA
+- [x] Funzione `leggi_tasto()` implementata con msvcrt
+- [x] Funzione `comando_da_tasto(tasto)` implementata con mappatura completa
+- [x] Gestione stato Attesa Prompt distinto da Attesa Conferma S/N
+- [x] Prompt numerici usano `input()` standard (non msvcrt)
+- [x] Input non valido ai prompt gestito con messaggio + nuovo prompt
+- [x] Tasto non riconosciuto restituisce messaggio corretto
 
 **FASE 3 — Loop tui_partita**
 - [ ] Parser comandi testuali sostituito con chiamate a tui_commander
