@@ -200,6 +200,13 @@ L'implementazione è considerata completa quando:
   v0.10.0. Commit: `fix(tui_partita): rimuovi vecchio loop testuale da
   _loop_partita [Fix]`.
 
+- **FIX — chiave LOOP_TASTO_NON_VALIDO aggiunta** (24/02/2026): Tasto
+  non mappato (es. Escape) causava `KeyError: 'LOOP_TASTO_NON_VALIDO'`
+  in `it.py`. Aggiunta la chiave mancante in `MESSAGGI_OUTPUT_UI_UMANI`
+  con testo: "Tasto non valido. Premi ? per conoscere il focus."
+  Commit: `fix(locales): aggiungi chiavi LOOP mancanti in
+  MESSAGGI_OUTPUT_UI_UMANI [Fix]`.
+
 ---
 
 **Fine.**
