@@ -88,11 +88,11 @@ Fase 3: Loop tui_partita
 
 🛠 Checklist Implementazione
 
-**FASE 1 — Modulo codici tasti**
-- [ ] Costanti definite per tutti i 26 tasti (frecce, PagSu/PagGiù, lettere
+**FASE 1 — Modulo codici tasti** ✅ COMPLETATA
+- [x] Costanti definite per tutti i 26 tasti (frecce, PagSu/PagGiù, lettere
       A,Z,Q,W,R,C,D,F,G,H,U,I,O,L,E,N,?,S,V,P,X)
-- [ ] Coppie byte documentate nei commenti per tasti speciali
-- [ ] File salvato in `bingo_game/ui/tui/codici_tasti_tui.py`
+- [x] Coppie byte documentate nei commenti per tasti speciali
+- [x] File salvato in `bingo_game/ui/tui/codici_tasti_tui.py`
 
 **FASE 2 — tui_commander**
 - [ ] Funzione `leggi_tasto()` implementata con msvcrt
