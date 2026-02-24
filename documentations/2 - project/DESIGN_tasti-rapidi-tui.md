@@ -10,7 +10,7 @@
 
 - **Data Inizio**: 2026-02-22
 - **Ultimo Aggiornamento**: 2026-02-24
-- **Reviewer**: Copilot (mappatura tasti allineata)
+- **Reviewer**: Copilot (correzioni minori post-revisione)
 - **Stato**: FROZEN
 - **Versione Target**: v0.10.0
 - **Autore**: AI Assistant + Donato81
@@ -508,7 +508,7 @@ NVDA legge il feedback all'utente
 
 ### Feedback Sistema
 
-- **Quando tasto non riconosciuto**: "Tasto non valido. Premi H per l'elenco dei comandi."
+- **Quando tasto non riconosciuto**: "Tasto non valido. Premi ? per conoscere il focus corrente."
 - **Quando azione non disponibile nel contesto**: "[Azione] non disponibile ora. [Motivo]."
 - **Quando navigazione oltre il bordo**: "Già [prima/ultima] [riga/colonna/cartella]."
 - **Quando numero già segnato**: "Numero N già segnato su questa cartella."
@@ -654,7 +654,7 @@ i comandi testuali esistenti. Motivazione:
 
 Questo design è pronto per la fase tecnica (PLAN) quando:
 
-- [x] Tutti gli scenari principali mappati (7 scenari inclusi edge case)
+- [x] Tutti gli scenari principali mappati (8 scenari inclusi edge case)
 - [x] Stati del sistema chiari e completi (4 stati del game loop)
 - [x] Flussi logici coprono tutti i casi d'uso
 - [x] Domande aperte risolte o documentate
@@ -676,8 +676,8 @@ Questo design è pronto per la fase tecnica (PLAN) quando:
   interfaccia web (es. Flask + WebSocket) senza toccare il dominio
 - Il pattern Commander è facilmente estendibile per aggiungere nuovi tasti
   in future versioni senza rischiare regressioni
-- Possibile estensione futura: tasto `R` per ripetere l'ultimo messaggio
-  (utile se NVDA non ha letto in tempo)
+- Possibile estensione futura: tasto dedicato per ripetere l'ultimo messaggio
+  (attualmente non assegnato — da valutare in v0.11.0)
 - Il file di localizzazione `it.py` deve contenere tutti i messaggi di errore
   e feedback in italiano, mai hardcoded nel Commander
 
