@@ -13,8 +13,7 @@
 **Stato**: DRAFT  
 **Branch**: `refactory-mappatura-tasti-game-play`  
 **Versione Target**: `v0.10.0`  
-**Data Creazione**: 2026-02-24  
-**Autore**: AI Assistant + Donato81  
+**Data Creazione**: 2026-02-24  - **Ultimo Aggiornamento**: 2026-02-24  **Autore**: AI Assistant + Donato81  
 **Effort Stimato**: 16 ore totali (10 ore Copilot + 6 ore review/testing)  
 **Commits Previsti**: 8 commit atomici
 
@@ -237,6 +236,10 @@ tests/integration/test_game_loop_tasti.py     # NEW
 
 - Aggiungere tutte le stringhe utilizzate da comandi rapidi e dai feedback
   definiti nel design document.
+- Usare come riferimento i campi 'Feedback atteso' di ogni tasto nel file
+  documentations/2 - project/DESIGN_tasti-rapidi-tui.md (sezione Mappatura
+  Tasti Rapidi, Gruppi 1-10). Ogni tasto ha un feedback atteso esplicito
+  che deve corrispondere a una stringa nel file it.py.
 - Aggiornare messaggio di help e di errore tasto non valido.
 
 ### FASE/COMMIT 5: Verifica controller (nessuna modifica prevista)
@@ -250,6 +253,10 @@ tests/integration/test_game_loop_tasti.py     # NEW
   necessità prima dell'aggiunta.
 - Aggiornare docstring se si aggiungono nuovi wrapper.
 
+  Se la verifica rileva un metodo mancante nel controller, **NON aggiungerlo
+  in questo commit.** Aprire un sub-task documentato e procedere al Commit 6
+  solo dopo aver ricevuto approvazione esplicita per l'aggiunta.
+
 
 ### FASE/COMMIT 6: Test unitari
 
@@ -259,6 +266,15 @@ tests/integration/test_game_loop_tasti.py     # NEW
 - `tests/unit/test_tui_partita.py` (modifiche)
 
 - Scrivere casi per ogni tasto/coppia.
+
+- Edge case obbligatori da coprire:
+  1. Tasto premuto senza cartella selezionata → messaggio di errore corretto
+  2. Navigazione oltre il bordo (prima riga, ultima riga, prima colonna,
+     ultima colonna, prima cartella, ultima cartella) → nessun crash, messaggio corretto
+  3. Prompt con input non valido (es. lettera in campo numerico) →
+     messaggio di errore e nuovo prompt senza uscire dal flusso
+  4. Tasto non riconosciuto → messaggio "Tasto non valido. Premi ? per
+     conoscere il focus corrente."
 - Simulare sequenze complete e verificare interazione con controller.
 
 ### FASE/COMMIT 7: Test di integrazione
