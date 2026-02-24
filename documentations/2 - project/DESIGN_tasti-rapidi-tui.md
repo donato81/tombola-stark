@@ -9,8 +9,8 @@
 ## 📌 Metadata
 
 - **Data Inizio**: 2026-02-22
-- **Ultimo Aggiornamento**: 2026-02-23
-- **Reviewer**: Copilot (incongruenze API corrette)
+- **Ultimo Aggiornamento**: 2026-02-24
+- **Reviewer**: Copilot (mappatura tasti allineata)
 - **Stato**: FROZEN
 - **Versione Target**: v0.10.0
 - **Autore**: AI Assistant + Donato81
@@ -155,9 +155,13 @@ NVDA legge il feedback all'utente
 2. **Utente**: Naviga fino alla cella che contiene 45 con Frecce
    → **Sistema**: Annuncia contenuto di ogni cella durante la navigazione
 
-3. **Utente**: Preme `Invio` sulla cella con 45
-   → **Sistema**: Segna il numero 45 sulla Cartella 1, annuncia
+3. **Utente**: Preme `S`
+   → **Sistema**: Chiede: "Numero da segnare:"
+   → **Utente**: Digita il numero e preme Invio
+   → **Sistema**: Segna il numero sulla cartella in focus, annuncia
    "Numero 45 segnato. Ambo a 1 numero."
+
+**Nota**: La segnatura verifica sempre che il numero sia già stato estratto (protezione anti-baro già implementata nel dominio).
 
 4. **Sistema**: Verifica condizioni di vittoria (ambo, terno, tombola)
    → **Sistema**: Se condizione raggiunta, annuncia la vincita
@@ -168,19 +172,19 @@ NVDA legge il feedback all'utente
 
 ---
 
-### Scenario 4: Annuncio Stato Cartella
+### Scenario 4: Consultazione Stato Cartella e Tabellone
 
 **Punto di partenza**: Qualsiasi stato di partita
 
 **Flusso**:
 
-1. **Utente**: Preme `I` (info)
-   → **Sistema**: Annuncia stato completo della cartella attiva:
-   "Cartella 2. Numeri segnati: 3 di 15. Ambo: 1. Terno: 0. Tombola: 0."
-
-2. **Utente**: Preme `T` (tabellone)
-   → **Sistema**: Annuncia gli ultimi numeri estratti:
+1. **Utente**: Preme `I`
+   → **Sistema**: Annuncia gli ultimi cinque numeri estratti in ordine di estrazione:
    "Ultimi estratti: 45, 12, 67, 3, 88."
+
+2. **Utente**: Preme `F`
+   → **Sistema**: Annuncia riepilogo cartella avanzato con indicazione numeri segnati,
+   riepiloghi per riga e totale complessivo della cartella in focus.
 
 **Punto di arrivo**: Utente informato sullo stato corrente
 
@@ -193,7 +197,7 @@ NVDA legge il feedback all'utente
 **Cosa succede se**: Utente preme Freccia Giù senza aver prima selezionato una cartella
 
 **Sistema dovrebbe**: Restituire messaggio di errore descrittivo:
-"Nessuna cartella selezionata. Premi un numero da 1 a 3 per selezionare una cartella."
+"Nessuna cartella selezionata. Premi un numero da 1 a 6 per selezionare una cartella."
 
 ---
 
@@ -217,13 +221,31 @@ NVDA legge il feedback all'utente
 
 **Flusso**:
 
-1. **Utente**: Preme `Q` o `ESC`
+1. **Utente**: Preme `X`
    → **Sistema**: Chiede conferma: "Vuoi uscire dalla partita? Premi S per confermare, N per annullare."
 
 2. **Utente**: Preme `S`
    → **Sistema**: Termina la partita, torna al menu principale
 
 **Punto di arrivo**: Utente torna al menu
+
+---
+
+### Scenario 8: Dichiarazione Vittoria
+
+**Punto di partenza**: Partita in corso, giocatore ritiene di aver raggiunto una vincita
+
+**Flusso**:
+
+1. **Utente**: Preme `V`
+   → **Sistema**: Chiede il tipo di vincita: "Tipo di vincita (ambo/terno/quaterna/cinquina/tombola):"
+
+2. **Utente**: Digita il tipo e preme Invio
+   → **Sistema**: Verifica la condizione di vittoria sulla cartella in focus
+   → Se valida: annuncia la vincita e aggiorna lo stato
+   → Se non valida: annuncia il motivo del rifiuto
+
+**Punto di arrivo**: Vincita registrata o rifiutata con spiegazione
 
 ---
 
@@ -275,73 +297,214 @@ NVDA legge il feedback all'utente
 
 ### Mappatura Tasti Rapidi
 
-#### Navigazione Cartelle
+#### Gruppo 1 — Navigazione riga semplice
 
-- **Tasto `1` / `2` / `3` (e oltre se più cartelle)**:
-  - Fa cosa? Seleziona direttamente la cartella corrispondente al numero
-  - Quando disponibile? Sempre durante la partita
-  - Feedback atteso: "Cartella N selezionata."
-
-- **Tasto PagGiù**:
-  - Fa cosa? Sposta il focus alla cartella successiva
-  - Quando disponibile? Sempre durante la partita
-  - Feedback atteso: "Cartella N selezionata." oppure "Già sull'ultima cartella."
-
-- **Tasto PagSu**:
-  - Fa cosa? Sposta il focus alla cartella precedente
-  - Quando disponibile? Sempre durante la partita
-  - Feedback atteso: "Cartella N selezionata." oppure "Già sulla prima cartella."
-
-#### Navigazione Righe e Colonne
-
-- **Freccia Giù**:
-  - Fa cosa? Sposta il focus alla riga successiva della cartella attiva
+- **Tasto `Freccia Su`**:
+  - Fa cosa? Sposta il cursore alla riga precedente e legge i numeri grezzi della riga
+  - Metodo chiamato: sposta_focus_riga_su_semplice
   - Quando disponibile? Quando una cartella è selezionata
   - Feedback atteso: "Riga N. Numeri: [contenuto riga]."
 
-- **Freccia Su**:
-  - Fa cosa? Sposta il focus alla riga precedente della cartella attiva
+- **Tasto `Freccia Giù`**:
+  - Fa cosa? Sposta il cursore alla riga successiva e legge i numeri grezzi della riga
+  - Metodo chiamato: sposta_focus_riga_giu_semplice
   - Quando disponibile? Quando una cartella è selezionata
   - Feedback atteso: "Riga N. Numeri: [contenuto riga]."
 
-- **Freccia Destra**:
-  - Fa cosa? Sposta il focus alla colonna successiva della riga attiva
+#### Gruppo 2 — Navigazione riga avanzata
+
+- **Tasto `A`**:
+  - Fa cosa? Sale alla riga precedente con analisi completa: numeri segnati, numeri mancanti e stato della vincita
+  - Metodo chiamato: sposta_focus_riga_su_avanzata
+  - Quando disponibile? Quando una cartella è selezionata
+  - Feedback atteso: "[riga con analisi completa del contenuto]"
+  - Perché questo tasto? Si trova in colonna verticale sulla tastiera italiana e risulta intuitivo insieme a Z
+
+- **Tasto `Z`**:
+  - Fa cosa? Scende alla riga successiva con analisi completa: numeri segnati, numeri mancanti e stato della vincita
+  - Metodo chiamato: sposta_focus_riga_giu_avanzata
+  - Quando disponibile? Quando una cartella è selezionata
+  - Feedback atteso: "[riga con analisi completa del contenuto]"
+  - Perché questo tasto? Si trova in colonna verticale con A sulla tastiera italiana, intuitivi come coppia su/giù
+
+#### Gruppo 3 — Navigazione colonna semplice
+
+- **Tasto `Freccia Sinistra`**:
+  - Fa cosa? Sposta il cursore alla colonna precedente e legge il numero della singola cella
+  - Metodo chiamato: sposta_focus_colonna_sinistra
   - Quando disponibile? Quando una riga è selezionata
   - Feedback atteso: "Colonna N. Numero: [valore]."
 
-- **Freccia Sinistra**:
-  - Fa cosa? Sposta il focus alla colonna precedente della riga attiva
+- **Tasto `Freccia Destra`**:
+  - Fa cosa? Sposta il cursore alla colonna successiva e legge il numero della singola cella
+  - Metodo chiamato: sposta_focus_colonna_destra
   - Quando disponibile? Quando una riga è selezionata
   - Feedback atteso: "Colonna N. Numero: [valore]."
 
-#### Azioni di Gioco
+#### Gruppo 4 — Navigazione colonna avanzata
 
-- **Tasto `Invio`**:
-  - Fa cosa? Segna il numero nella cella attualmente a fuoco
-  - Quando disponibile? Quando una cella è selezionata
-  - Feedback atteso: "Numero N segnato." oppure messaggio di errore
+- **Tasto `Q`**:
+  - Fa cosa? Va alla colonna precedente con analisi verticale completa della colonna
+  - Metodo chiamato: sposta_focus_colonna_sinistra_avanzata
+  - Quando disponibile? Quando una riga è selezionata
+  - Feedback atteso: "[analisi verticale completa della colonna]"
+  - Perché questo tasto? È il primo tasto in alto a sinistra della tastiera, facile da trovare senza guardare
+
+- **Tasto `W`**:
+  - Fa cosa? Va alla colonna successiva con analisi verticale completa della colonna
+  - Metodo chiamato: sposta_focus_colonna_destra_avanzata
+  - Quando disponibile? Quando una riga è selezionata
+  - Feedback atteso: "[analisi verticale completa della colonna]"
+  - Perché questo tasto? È il secondo tasto in alto a sinistra dopo Q, facile da trovare senza guardare
+
+#### Gruppo 5 — Salto diretto a riga o colonna specifica
+
+- **Tasto `R`**:
+  - Fa cosa? Chiede il numero di riga da raggiungere (1-3), salta direttamente a quella riga e mostra l'analisi avanzata
+  - Metodo chiamato: vai_a_riga_avanzata
+  - Quando disponibile? Quando una cartella è selezionata
+  - Feedback atteso: "[prompt numerico] → [analisi avanzata riga]"
+  - Perché questo tasto? R come iniziale di Riga
+
+- **Tasto `C`**:
+  - Fa cosa? Chiede il numero di colonna da raggiungere (1-9), salta direttamente a quella colonna e mostra l'analisi avanzata
+  - Metodo chiamato: vai_a_colonna_avanzata
+  - Quando disponibile? Quando una cartella è selezionata
+  - Feedback atteso: "[prompt numerico] → [analisi avanzata colonna]"
+  - Perché questo tasto? C come iniziale di Colonna
+
+#### Gruppo 6 — Gestione e navigazione cartelle
+
+- **Tasto `PagGiù`**:
+  - Fa cosa? Avanza alla cartella successiva e legge immediatamente il riepilogo con i numeri mancanti ai vari premi
+  - Metodo chiamato: riepilogo_cartella_successiva
+  - Quando disponibile? Sempre durante la partita
+  - Feedback atteso: "Cartella N selezionata. [riepilogo premi]"
+
+- **Tasto `PagSu`**:
+  - Fa cosa? Torna alla cartella precedente con lo stesso riepilogo
+  - Metodo chiamato: riepilogo_cartella_precedente
+  - Quando disponibile? Sempre durante la partita
+  - Feedback atteso: "Cartella N selezionata. [riepilogo premi]"
+
+- **Tasti `1` / `2` / `3` / `4` / `5` / `6`**:
+  - Fa cosa? Salta direttamente alla cartella corrispondente al numero e ascolta subito lo stato di quella cartella
+  - Metodo chiamato: imposta_focus_cartella + riepilogo_cartella_corrente
+  - Quando disponibile? Sempre durante la partita (fino al numero di cartelle possedute)
+  - Feedback atteso: "Cartella N selezionata. [riepilogo stato]"
+
+#### Gruppo 7 — Visualizzazione cartella corrente e tutte le cartelle
+
+- **Tasto `D`**:
+  - Fa cosa? Mostra tutti i numeri della cartella in focus nella forma grezza, senza indicare lo stato di segnazione
+  - Metodo chiamato: visualizza_cartella_corrente_semplice
+  - Quando disponibile? Quando una cartella è selezionata
+  - Feedback atteso: "[tutti i numeri della cartella senza stato]"
+  - Perché questo tasto? D come iniziale di Display
+
+- **Tasto `F`**:
+  - Fa cosa? Mostra la cartella in focus con indicazione dei numeri segnati, riepiloghi per riga e totale complessivo
+  - Metodo chiamato: visualizza_cartella_corrente_avanzata
+  - Quando disponibile? Quando una cartella è selezionata
+  - Feedback atteso: "[cartella con analisi completa numeri segnati e riepiloghi]"
+  - Perché questo tasto? F come Full display
+
+- **Tasto `G`**:
+  - Fa cosa? Mostra in sequenza tutte le cartelle del giocatore nella forma semplice
+  - Metodo chiamato: visualizza_tutte_cartelle_semplice
+  - Quando disponibile? Sempre durante la partita
+  - Feedback atteso: "[sequenza tutte le cartelle forma semplice]"
+  - Perché questo tasto? G come iniziale di Globale
+
+- **Tasto `H`**:
+  - Fa cosa? Mostra tutte le cartelle con analisi avanzata completa di ogni riga e colonna
+  - Metodo chiamato: visualizza_tutte_cartelle_avanzata
+  - Quando disponibile? Sempre durante la partita
+  - Feedback atteso: "[tutte le cartelle con analisi completa]"
+  - Perché questo tasto? Sulla stessa fila centrale dei tasti D, F, G, premibili comodamente con la mano destra
+
+#### Gruppo 8 — Consultazione del tabellone
+
+- **Tasto `U`**:
+  - Fa cosa? Legge l'ultimo numero uscito nell'estrazione più recente
+  - Metodo chiamato: comunica_ultimo_numero_estratto
+  - Quando disponibile? Sempre durante la partita
+  - Feedback atteso: "Ultimo estratto: N"
+  - Perché questo tasto? U come iniziale di Ultimo
 
 - **Tasto `I`**:
-  - Fa cosa? Annuncia lo stato completo della cartella attiva
+  - Fa cosa? Legge gli ultimi cinque numeri estratti in ordine di estrazione
+  - Metodo chiamato: visualizza_ultimi_numeri_estratti
+  - Quando disponibile? Sempre durante la partita
+  - Feedback atteso: "Ultimi estratti: N1, N2, N3, N4, N5"
+  - Perché questo tasto? I come "Indietro", per richiamare la cronologia recente
+
+- **Tasto `O`**:
+  - Fa cosa? Fornisce una panoramica completa del tabellone: numeri usciti, mancanti, percentuale avanzamento e ultimi estratti
+  - Metodo chiamato: riepilogo_tabellone
+  - Quando disponibile? Sempre durante la partita
+  - Feedback atteso: "[panoramica completa tabellone]"
+  - Perché questo tasto? O come iniziale di Overview
+
+- **Tasto `L`**:
+  - Fa cosa? Legge la lista completa e ordinata di tutti i numeri usciti dall'inizio della partita
+  - Metodo chiamato: lista_numeri_estratti
+  - Quando disponibile? Sempre durante la partita
+  - Feedback atteso: "[lista completa numeri estratti ordinata]"
+  - Perché questo tasto? L come iniziale di Lista
+
+- **Tasto `E`**:
+  - Fa cosa? Chiede quale numero verificare e risponde se quel numero è già stato estratto oppure no
+  - Metodo chiamato: verifica_numero_estratto
+  - Quando disponibile? Sempre durante la partita
+  - Feedback atteso: "[prompt numerico] → [numero estratto/non estratto]"
+  - Perché questo tasto? E come iniziale di Estratto
+
+- **Tasto `N`**:
+  - Fa cosa? Chiede quale numero cercare e risponde in quali cartelle del giocatore si trova quel numero e se è già stato segnato
+  - Metodo chiamato: cerca_numero_nelle_cartelle
+  - Quando disponibile? Sempre durante la partita
+  - Feedback atteso: "[prompt numerico] → [posizione numero nelle cartelle]"
+  - Perché questo tasto? N come iniziale di Numero
+
+#### Gruppo 9 — Orientamento e stato corrente
+
+- **Tasto `?`**:
+  - Fa cosa? In qualsiasi momento dice in quale cartella, riga e colonna si trova il cursore
+  - Metodo chiamato: stato_focus_corrente
+  - Quando disponibile? Sempre durante la partita
+  - Feedback atteso: "Focus: Cartella N, Riga N, Colonna N"
+  - Perché questo tasto? È il comando di orientamento universale da usare quando si perde il filo della navigazione
+
+#### Gruppo 10 — Azioni di gioco
+
+- **Tasto `S`**:
+  - Fa cosa? Chiede quale numero segnare sulla cartella in focus
+  - Metodo chiamato: segna_numero_manuale
   - Quando disponibile? Quando una cartella è selezionata
-  - Feedback atteso: riepilogo numeri segnati, ambo, terno, tombola
+  - Feedback atteso: "[prompt numerico] → [numero segnato/errore]"
+  - Perché questo tasto? S come iniziale di Segna
 
-- **Tasto `T`**:
-  - Fa cosa? Annuncia gli ultimi numeri estratti dal tabellone
+- **Tasto `V`**:
+  - Fa cosa? Chiede il tipo di vincita da dichiarare tra ambo, terno, quaterna, cinquina e tombola
+  - Metodo chiamato: annuncia_vittoria
+  - Quando disponibile? Quando una cartella è selezionata
+  - Feedback atteso: "[prompt tipo vincita] → [vincita registrata/rifiutata]"
+  - Perché questo tasto? V come iniziale di Vittoria
+
+- **Tasto `P`**:
+  - Fa cosa? Passa al turno successivo e avvia l'estrazione del numero successivo
+  - Metodo chiamato: passa_turno (+ estrazione automatica)
   - Quando disponibile? Sempre durante la partita
-  - Feedback atteso: lista ultimi estratti
+  - Feedback atteso: "Estratto: N"
+  - Perché questo tasto? P come iniziale di Prosegui
 
-#### Uscita e Controllo
-
-- **Tasto `Q` o `ESC`**:
-  - Fa cosa? Avvia procedura di uscita dalla partita
+- **Tasto `X`**:
+  - Fa cosa? Avvia la procedura di uscita dalla partita con richiesta di conferma esplicita
+  - Metodo chiamato: [procedura uscita]
   - Quando disponibile? Sempre durante la partita
-  - Feedback atteso: richiesta conferma S/N
-
-- **Tasto `H` o `?`**:
-  - Fa cosa? Legge l'elenco dei comandi disponibili
-  - Quando disponibile? Sempre durante la partita
-  - Feedback atteso: lista tasti e relative azioni
+  - Feedback atteso: "Vuoi uscire dalla partita? Premi S per confermare, N per annullare."
+  - Perché questo tasto? X come iniziale di eXit e per la sua posizione angolare sulla tastiera, difficile da premere per sbaglio
 
 ### Feedback Sistema
 
@@ -349,19 +512,19 @@ NVDA legge il feedback all'utente
 - **Quando azione non disponibile nel contesto**: "[Azione] non disponibile ora. [Motivo]."
 - **Quando navigazione oltre il bordo**: "Già [prima/ultima] [riga/colonna/cartella]."
 - **Quando numero già segnato**: "Numero N già segnato su questa cartella."
-- **Quando nessuna cartella selezionata**: "Nessuna cartella selezionata. Premi 1, 2 o 3 per scegliere."
+- **Quando nessuna cartella selezionata**: "Nessuna cartella selezionata. Premi 1, 2, 3, 4, 5 o 6 per scegliere."
 
 ### Navigazione Concettuale
 
 ```
 1. Utente avvia partita → game loop attivo
-2. Utente preme '1' → Cartella 1 attiva
-3. Utente preme Freccia Giù → Riga 1 attiva, NVDA legge contenuto
-4. Utente preme Freccia Destra → Colonna 1 attiva, NVDA legge numero
-5. Sistema estrae numero → NVDA legge "Estratto: N"
-6. Utente naviga fino al numero estratto con Frecce
-7. Utente preme Invio → numero segnato, NVDA legge conferma
-8. Ciclo riparte dal punto 5
+2. Sistema estrae automaticamente il primo numero → NVDA legge "Estratto: N"
+3. Utente preme 1-6 → cartella selezionata, NVDA legge riepilogo
+4. Utente preme Freccia Giù (o A) → riga attiva, NVDA legge contenuto
+5. Utente preme Freccia Destra (o Q/W) → colonna attiva, NVDA legge numero
+6. Utente preme S → digita numero → numero segnato, NVDA legge conferma
+7. Utente preme P → turno successivo, sistema estrae nuovo numero
+8. Ciclo riparte dal punto 2
 ```
 
 ---
@@ -370,8 +533,9 @@ NVDA legge il feedback all'utente
 
 ### Domande Aperte
 
-- [ ] Quando si segna un numero con Invio, deve verificare che sia effettivamente estratto
-  o si permette la marcatura libera?
+- [x] **RISOLTA — La segnatura tramite tasto S verifica sempre che il numero sia
+  già stato estratto (protezione anti-baro implementata nel metodo
+  segna_numero_manuale del dominio). Non è possibile segnare numeri non estratti.**
 
 ### Decisioni Prese
 
@@ -397,6 +561,23 @@ NVDA legge il feedback all'utente
 - ✅ **I numeri da 1 a 6 selezionano la cartella corrispondente**: Scelta coerente
   con il numero massimo di cartelle per giocatore nel dominio attuale.
   Se in futuro il numero massimo cambia, si aggiorna solo il Commander.
+
+- ✅ **Decisione A — Segnatura con tasto S e prompt**: La segnatura di un numero 
+  avviene tramite il tasto `S` seguito da un prompt numerico. Non si usa `Invio` 
+  sulla cella navigata. Questa scelta evita segnature accidentali durante la 
+  navigazione e mantiene un gesto esplicito per un'azione irreversibile.
+
+- ✅ **Decisione B — Metodi avanzati inclusi nella v0.10.0**: Per navigazione 
+  riga e colonna sono previsti sia i metodi semplici (frecce) sia i metodi 
+  avanzati (A/Z per righe, Q/W per colonne). I metodi avanzati leggono anche 
+  lo stato di segnatura di ogni cella, informazione essenziale per un utente 
+  NVDA che naviga senza vedere la cartella.
+
+- ✅ **Decisione C — Estrazione automatica a inizio turno**: L'estrazione del 
+  numero avviene automaticamente all'inizio di ogni turno, prima che il sistema 
+  aspetti il tasto dell'utente. Il ciclo di ogni turno è: estrai numero → 
+  annuncia a NVDA → attendi tasto utente. Il tasto `P` avanza al turno successivo 
+  e innesca la prossima estrazione automatica.
 
 ### Assunzioni
 
@@ -508,11 +689,20 @@ Questo design è pronto per la fase tecnica (PLAN) quando:
 
 - **Game Controller (`bingo_game/game_controller.py`)**: Unico punto di accesso
   al dominio dalla TUI. Il Commander chiama solo funzioni esposte dal Controller.
-- **GiocatoreUmano (`bingo_game/players/giocatore_umano.py`)**: Espone già tutti
-  i metodi di navigazione focus necessari (imposta_focus_cartella,
+- **GiocatoreUmano (`bingo_game/players/giocatore_umano.py`)**: GiocatoreUmano espone tutti i metodi di navigazione e azione necessari:
+  imposta_focus_cartella, riepilogo_cartella_corrente,
+  riepilogo_cartella_precedente, riepilogo_cartella_successiva,
   sposta_focus_riga_su_semplice, sposta_focus_riga_giu_semplice,
+  sposta_focus_riga_su_avanzata, sposta_focus_riga_giu_avanzata,
   sposta_focus_colonna_sinistra, sposta_focus_colonna_destra,
-  riepilogo_cartella_precedente, riepilogo_cartella_successiva).
+  sposta_focus_colonna_sinistra_avanzata, sposta_focus_colonna_destra_avanzata,
+  vai_a_riga_avanzata, vai_a_colonna_avanzata,
+  visualizza_cartella_corrente_semplice, visualizza_cartella_corrente_avanzata,
+  visualizza_tutte_cartelle_semplice, visualizza_tutte_cartelle_avanzata,
+  comunica_ultimo_numero_estratto, visualizza_ultimi_numeri_estratti,
+  riepilogo_tabellone, lista_numeri_estratti,
+  verifica_numero_estratto, cerca_numero_nelle_cartelle,
+  stato_focus_corrente, segna_numero_manuale, annuncia_vittoria.
 - **EsitoAzione (`bingo_game/events/`)**: Ogni operazione sul dominio ritorna
   EsitoAzione. Il Commander verifica sempre esito.ok prima di chiamare il renderer.
 - **TerminalRenderer (`bingo_game/ui/tui/`)**: Produce l'output testuale.
@@ -535,12 +725,19 @@ Questo design è pronto per la fase tecnica (PLAN) quando:
 
 Una volta implementato, l'utente potrà:
 
-✅ Selezionare una cartella premendo il suo numero (1, 2, 3…) o con PagSu/PagGiù
-✅ Navigare righe e colonne della cartella con i tasti freccia
-✅ Ascoltare il contenuto di ogni cella letto da NVDA in tempo reale
-✅ Segnare un numero estratto premendo Invio sulla cella corrispondente
-✅ Consultare lo stato della cartella con il tasto I e il tabellone con il tasto T
-✅ Uscire dalla partita in sicurezza con Q o ESC + conferma
+✅ Selezionare una cartella premendo il suo numero (1-6) o con PagSu/PagGiù
+✅ Navigare righe con frecce (lettura semplice) o con A/Z (lettura avanzata con stato segnatura)
+✅ Navigare colonne con frecce (lettura semplice) o con Q/W (lettura avanzata verticale)
+✅ Saltare direttamente a una riga (R) o colonna (C) specifica con prompt numerico
+✅ Visualizzare la cartella corrente in modo semplice (D) o avanzato (F)
+✅ Visualizzare tutte le cartelle in modo semplice (G) o avanzato (H)
+✅ Consultare il tabellone: ultimo estratto (U), ultimi 5 (I), panoramica (O), lista completa (L)
+✅ Verificare se un numero è stato estratto (E) o cercarlo nelle cartelle (N)
+✅ Segnare un numero estratto con S + prompt (protezione anti-baro attiva)
+✅ Dichiarare una vincita con V + tipo di vincita
+✅ Avanzare al turno successivo e innescare la prossima estrazione con P
+✅ Uscire dalla partita in sicurezza con X + conferma
+✅ Sapere sempre dove si trova il cursore premendo ?
 ✅ Giocare una partita completa da terminale senza mai digitare comandi testuali
 
 ---
