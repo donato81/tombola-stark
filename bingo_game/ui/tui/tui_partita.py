@@ -88,7 +88,9 @@ def _loop_partita(partita) -> None:
         game_controller.
 
     Version:
-        v0.9.0: Prima implementazione.
+        v0.9.0: Prima implementazione (comandi testuali con input()).
+        v0.10.0: Sostituiti comandi testuali con tasti rapidi via msvcrt
+                 (tui_commander). Vecchio loop input() rimosso completamente.
     """
     turno: int = 0
 

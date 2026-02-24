@@ -189,6 +189,17 @@ L'implementazione è considerata completa quando:
   importa `ComandiSistema` da esso. Prima di eliminare, occorre aggiornare
   o rimuovere quel test. Azione da pianificare in un ticket separato.
 
+- **FIX — loop testuale confermato rimosso** (24/02/2026): Verifica
+  eseguita su branch `refactory-mappatura-tasti-game-play`. La funzione
+  `_loop_partita` contiene ESCLUSIVAMENTE il nuovo loop v0.10.0 con
+  `leggi_tasto()` e `comando_da_tasto()`. Nessun `while True` con
+  `input("Comando...")` presente. Le funzioni legacy (`_gestisci_segna`,
+  `_gestisci_riepilogo_cartella`, `_gestisci_riepilogo_tabellone`,
+  `_gestisci_quit`, `_gestisci_help`) esistono per compatibilità test
+  v0.9.0 ma NON sono chiamate dal nuovo loop. Docstring aggiornata a
+  v0.10.0. Commit: `fix(tui_partita): rimuovi vecchio loop testuale da
+  _loop_partita [Fix]`.
+
 ---
 
 **Fine.**
