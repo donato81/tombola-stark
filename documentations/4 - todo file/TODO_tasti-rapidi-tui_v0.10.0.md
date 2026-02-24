@@ -102,11 +102,11 @@ Fase 3: Loop tui_partita
 - [x] Input non valido ai prompt gestito con messaggio + nuovo prompt
 - [x] Tasto non riconosciuto restituisce messaggio corretto
 
-**FASE 3 — Loop tui_partita**
-- [ ] Parser comandi testuali sostituito con chiamate a tui_commander
-- [ ] Prompt numerici e conferme S/N gestiti correttamente nel loop
-- [ ] Dipendenze da `comandi_partita` rimosse
-- [ ] `_stampa()` aggiornata per nuovi messaggi
+**FASE 3 — Loop tui_partita** ✅ COMPLETATA
+- [x] Parser comandi testuali sostituito con chiamate a tui_commander
+- [x] Prompt numerici e conferme S/N gestiti correttamente nel loop
+- [x] Dipendenze da `comandi_partita` rimosse
+- [x] `_stampa()` aggiornata per nuovi messaggi
 
 **FASE 4 — Localizzazione**
 - [ ] Stringhe aggiunte per tutti i feedback attesi (Gruppi 1-10 del DESIGN)

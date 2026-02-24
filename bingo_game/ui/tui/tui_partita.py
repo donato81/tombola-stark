@@ -1,21 +1,30 @@
 """
 Modulo: bingo_game.ui.tui.tui_partita
 
-TUI Game Loop interattivo a funzioni — v0.9.0.
+TUI Game Loop interattivo a funzioni — v0.10.0.
 
 Implementa la macchina a stati `_loop_partita` che governa ogni turno di gioco.
-Comandi supportati: p (prosegui), s <N> (segna), c (cartella), v (tabellone),
-q (esci con conferma), ? (aiuto).
+Input: tasto singolo via msvcrt (Windows), gestito da tui_commander.
+Ogni tasto è mappato a un ComandoTasto che descrive il comportamento atteso.
 
 Vincoli architetturali:
 - Nessun import di classi Domain (GiocatoreUmano, Partita, Tabellone, Cartella).
-- Accesso al dominio esclusivamente tramite bingo_game.game_controller.
-- Solo il comando `p` chiama esegui_turno_sicuro: i comandi informativi non avanzano il turno.
-- Il comando `q` richiede sempre conferma esplicita e logga WARNING.
-- Ogni riga di output è autonoma e ≤ 120 caratteri (screen reader compatibility).
+- Accesso al dominio esclusivamente tramite bingo_game.game_controller e i metodi
+  del giocatore umano recuperato tramite ottieni_giocatore_umano().
+- Solo il tasto P chiama esegui_turno_sicuro: i comandi informativi non avanzano il turno.
+- Il tasto X richiede sempre conferma esplicita e logga WARNING.
+- Ogni riga di output è autonoma e <= 120 caratteri (screen reader compatibility).
+
+Routing delle azioni:
+    AZIONE_DIRETTA      — chiamata al metodo GiocatoreUmano (o esegui_turno_sicuro per P).
+    RICHIEDE_PROMPT_NUM — prompt input() -> intero -> metodo con argomento.
+    RICHIEDE_CONFERMA   — prompt S/N -> esci se confermato (tasto X).
+    SELEZIONA_CARTELLA  — imposta_focus_cartella(valore) direttamente (tasti 1-6).
+    TASTO_NON_VALIDO    — mostra messaggio errore.
 
 Version:
-    v0.9.0: Prima implementazione.
+    v0.9.0: Prima implementazione (comandi testuali).
+    v0.10.0: Tasti rapidi via msvcrt (tui_commander).
 """
 from __future__ import annotations
 
@@ -30,9 +39,33 @@ from bingo_game.game_controller import (
 )
 from bingo_game.ui.locales.it import MESSAGGI_ERRORI, MESSAGGI_OUTPUT_UI_UMANI
 from bingo_game.ui.renderers.renderer_terminal import TerminalRenderer
+from bingo_game.ui.tui.tui_commander import (
+    ComandoTasto,
+    TipoComando,
+    comando_da_tasto,
+    leggi_tasto,
+)
 
 _logger_tui = logging.getLogger("tombola_stark.tui")
 _renderer = TerminalRenderer()
+
+# ---------------------------------------------------------------------------
+# Routing: insiemi di nomi-metodo che richiedono argomenti speciali
+# ---------------------------------------------------------------------------
+
+# Metodi AZIONE_DIRETTA su GiocatoreUmano che richiedono (tabellone) come unico arg.
+_METODI_DIRETTI_CON_TABELLONE: frozenset = frozenset({
+    "comunica_ultimo_numero_estratto",
+    "visualizzaultiminumeriestratti",
+    "riepilogo_tabellone",
+    "lista_numeri_estratti",
+})
+
+# Metodi RICHIEDE_PROMPT_NUM su GiocatoreUmano che richiedono (numero, tabellone).
+_METODI_PROMPT_CON_TABELLONE: frozenset = frozenset({
+    "segna_numero_manuale",
+    "verifica_numero_estratto",
+})
 
 
 # ---------------------------------------------------------------------------
@@ -72,60 +105,198 @@ def _loop_partita(partita) -> None:
                 _logger_tui.debug("[LOOP] Focus fallback impostato su cartella 1 (cartella singola).")
 
     while not partita_terminata(partita):
-        _stampa(MESSAGGI_OUTPUT_UI_UMANI["LOOP_PROMPT_COMANDO"][0])
-        raw = input("> ").strip()
+        tasto = leggi_tasto()
+        _logger_tui.debug("[LOOP] tasto letto: %r", tasto)
+        cmd = comando_da_tasto(tasto)
 
-        if not raw:
-            continue
-
-        parti = raw.split(maxsplit=1)
-        cmd = parti[0].lower()
-        args = parti[1] if len(parti) > 1 else ""
-
-        if cmd == "p":
-            risultato = esegui_turno_sicuro(partita)
-            if risultato is None:
-                _logger_tui.warning("[LOOP] esegui_turno_sicuro ha ritornato None.")
-                break
-            turno += 1
-            numero = risultato.get("numero_estratto")
-            if numero is not None:
-                _stampa(
-                    MESSAGGI_OUTPUT_UI_UMANI["LOOP_NUMERO_ESTRATTO"][0].format(
-                        numero=numero
-                    )
-                )
-            if risultato.get("tombola_rilevata") or risultato.get("partita_terminata"):
-                break
-
-        elif cmd == "s":
-            for riga in _gestisci_segna(partita, args):
-                _stampa(riga)
-
-        elif cmd == "c":
-            for riga in _gestisci_riepilogo_cartella(partita):
-                _stampa(riga)
-
-        elif cmd == "v":
-            for riga in _gestisci_riepilogo_tabellone(partita):
-                _stampa(riga)
-
-        elif cmd == "q":
-            if _gestisci_quit(partita, turno):
-                break
-
-        elif cmd == "?":
-            for riga in _gestisci_help(partita):
-                _stampa(riga)
-
-        else:
+        if cmd.tipo == TipoComando.TASTO_NON_VALIDO:
             _stampa(MESSAGGI_OUTPUT_UI_UMANI["LOOP_COMANDO_NON_RICONOSCIUTO"][0])
+
+        elif cmd.tipo == TipoComando.SELEZIONA_CARTELLA:
+            _esegui_seleziona_cartella(giocatore, cmd.valore)
+
+        elif cmd.tipo == TipoComando.RICHIEDE_CONFERMA:
+            # Solo TASTO_X (esci): conferma S/N prima di uscire.
+            if _esegui_conferma_esci(partita, turno):
+                break
+
+        elif cmd.tipo == TipoComando.AZIONE_DIRETTA:
+            if cmd.nome == "passa_turno":
+                # Tasto P: avanza il turno estraendo il prossimo numero.
+                risultato = esegui_turno_sicuro(partita)
+                if risultato is None:
+                    _logger_tui.warning("[LOOP] esegui_turno_sicuro ha ritornato None.")
+                    break
+                turno += 1
+                numero = risultato.get("numero_estratto")
+                if numero is not None:
+                    _stampa(
+                        MESSAGGI_OUTPUT_UI_UMANI["LOOP_NUMERO_ESTRATTO"][0].format(
+                            numero=numero
+                        )
+                    )
+                if risultato.get("tombola_rilevata") or risultato.get("partita_terminata"):
+                    break
+            else:
+                # Tutti gli altri tasti AZIONE_DIRETTA: delega al giocatore.
+                _esegui_azione_giocatore(cmd.nome, partita, giocatore)
+
+        elif cmd.tipo == TipoComando.RICHIEDE_PROMPT_NUM:
+            _esegui_con_prompt_numero(cmd, partita, giocatore)
 
     _emetti_report_finale(partita)
 
 
 # ---------------------------------------------------------------------------
-# Comandi
+# Dispatch comandi tasti rapidi (v0.10.0)
+# ---------------------------------------------------------------------------
+
+def _esegui_seleziona_cartella(giocatore, numero_cartella: int) -> None:
+    """Seleziona la cartella numero_cartella (1-based) come focus (tasti 1-6).
+
+    Args:
+        giocatore: Istanza GiocatoreUmano corrente (può essere None).
+        numero_cartella: Numero cartella 1-based (da ComandoTasto.valore).
+
+    Version:
+        v0.10.0: Introdotto con i tasti rapidi.
+    """
+    if giocatore is None:
+        _stampa(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
+        return
+    try:
+        esito = giocatore.imposta_focus_cartella(numero_cartella)
+        for riga in _renderer.render_esito(esito):
+            _stampa(riga)
+    except Exception as exc:
+        _logger_tui.warning("[LOOP] _esegui_seleziona_cartella: %s", exc)
+        _stampa(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
+
+
+def _esegui_azione_giocatore(nome: str, partita, giocatore) -> None:
+    """Esegue un'AZIONE_DIRETTA sul giocatore umano recuperando il metodo per nome.
+
+    I metodi in _METODI_DIRETTI_CON_TABELLONE vengono chiamati con
+    (partita.tabellone) come argomento. Tutti gli altri vengono chiamati
+    senza argomenti.
+
+    Args:
+        nome: Nome del metodo GiocatoreUmano da invocare.
+        partita: Istanza Partita corrente (per accedere a partita.tabellone).
+        giocatore: Istanza GiocatoreUmano corrente (può essere None).
+
+    Version:
+        v0.10.0: Introdotto con i tasti rapidi.
+    """
+    if giocatore is None:
+        _stampa(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
+        return
+    try:
+        metodo = getattr(giocatore, nome, None)
+        if metodo is None:
+            _logger_tui.warning("[LOOP] Metodo non trovato su giocatore: %s", nome)
+            return
+        if nome in _METODI_DIRETTI_CON_TABELLONE:
+            esito = metodo(partita.tabellone)
+        else:
+            esito = metodo()
+        for riga in _renderer.render_esito(esito):
+            _stampa(riga)
+    except Exception as exc:
+        _logger_tui.warning("[LOOP] _esegui_azione_giocatore '%s': %s", nome, exc)
+        _stampa(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
+
+
+def _esegui_con_prompt_numero(cmd: ComandoTasto, partita, giocatore) -> None:
+    """Gestisce un tasto che richiede un prompt numerico prima dell'azione.
+
+    Flusso:
+        1. Mostra prompt testuale (generico; Phase 4 aggiunge chiavi specifiche).
+        2. Legge input tramite input() standard (non msvcrt).
+        3. Valida che sia un intero (se non lo è, mostra errore e ritorna).
+        4. Chiama il metodo corrispondente su giocatore.
+        5. Stampa il risultato tramite renderer.
+
+    La validazione del range (es. 1-3 per riga, 1-9 per colonna) è delegata
+    al dominio: GiocatoreUmano ritorna EsitoAzione(ok=False) con codice errore.
+
+    Caso speciale: "annuncia_vittoria" mostra un placeholder finché il controller
+    wrapper non sarà disponibile (TODO Fase 5).
+
+    Args:
+        cmd: ComandoTasto con tipo RICHIEDE_PROMPT_NUM.
+        partita: Istanza Partita corrente.
+        giocatore: Istanza GiocatoreUmano corrente.
+
+    Version:
+        v0.10.0: Introdotto con i tasti rapidi.
+    """
+    if giocatore is None:
+        _stampa(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
+        return
+
+    # Caso speciale: annuncia_vittoria richiede Tipo_Vittoria (enum dominio).
+    # TODO (Fase 5): aggiungere wrapper in game_controller e rimuovere placeholder.
+    if cmd.nome == "annuncia_vittoria":
+        _logger_tui.debug("[LOOP] annuncia_vittoria: placeholder attivo (Fase 5 pendente).")
+        _stampa("Comando V (annuncia vittoria): non disponibile in questa versione. Premi ? per lo stato focus.")
+        return
+
+    # Prompt generico (Phase 4 aggiunge chiavi specifiche per ogni tasto).
+    _stampa(MESSAGGI_OUTPUT_UI_UMANI["LOOP_SEGNA_CHIEDI_NUMERO"][0])
+    raw_val = input("> ").strip()
+
+    try:
+        numero = int(raw_val)
+    except ValueError:
+        for riga in MESSAGGI_ERRORI["NUMERO_TIPO_NON_VALIDO"]:
+            _stampa(riga)
+        return
+
+    try:
+        metodo = getattr(giocatore, cmd.nome)
+        if cmd.nome in _METODI_PROMPT_CON_TABELLONE:
+            esito = metodo(numero, partita.tabellone)
+        else:
+            esito = metodo(numero)
+        for riga in _renderer.render_esito(esito):
+            _stampa(riga)
+    except Exception as exc:
+        _logger_tui.warning("[LOOP] _esegui_con_prompt_numero '%s': %s", cmd.nome, exc)
+        _stampa(MESSAGGI_ERRORI["NUMERO_TIPO_NON_VALIDO"][0])
+
+
+def _esegui_conferma_esci(partita, turno: int) -> bool:
+    """Richiede conferma S/N e gestisce l'uscita dalla partita (tasto X).
+
+    Usa input() standard per permettere editing della risposta.
+    Se confermato logga un WARNING con il numero di turno corrente.
+
+    Args:
+        partita: Istanza Partita corrente (contesto per il log).
+        turno: Numero di turno corrente, per il messaggio di allerta nel log.
+
+    Returns:
+        True se l'utente conferma l'uscita ('s'), False altrimenti.
+
+    Version:
+        v0.10.0: Introduce il tasto X al posto del comando testuale q.
+    """
+    _stampa(MESSAGGI_OUTPUT_UI_UMANI["LOOP_QUIT_CONFERMA"][0])
+    risposta = input("> ").strip().lower()
+
+    if risposta == "s":
+        _logger_tui.warning(
+            "[ALERT] Partita interrotta dall'utente al turno #%s.", turno
+        )
+        return True
+
+    _stampa(MESSAGGI_OUTPUT_UI_UMANI["LOOP_QUIT_ANNULLATO"][0])
+    return False
+
+
+# ---------------------------------------------------------------------------
+# Comandi legacy (v0.9.0 — mantenuti per compatibilità test)
 # ---------------------------------------------------------------------------
 
 def _gestisci_segna(partita, args: str) -> List[str]:
