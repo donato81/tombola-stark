@@ -40,6 +40,15 @@ coprire i nuovi comportamenti.
 
 ---
 
+### Rischi Tecnici
+
+- **Gestione byte msvcrt**: la lettura di due byte per frecce/pagine va gestita correttamente o si rischia di interpretare comandi sbagliati.
+- **Inconsistenza stato focus**: modifiche al focus riga/colonna devono rimanere atomiche; regressioni possono bloccare la navigazione.
+- **Compatibilità NVDA**: output deve rimanere privo di caratteri speciali e <=120 colonne; verificare manualmente durante lo sviluppo.
+- **Performance in sessioni lunghe**: la gestione dei prompt e dell'estrazione automatica non deve degradare dopo molte iterazioni.
+
+**Mitigazioni**: test dedicati per ogni rischio, logging dettagliato, review del codice del loop e pulizia periodica di eventuali buffer.
+
 ### Impact Assessment
 
 | Aspetto | Impatto | Note |
@@ -85,7 +94,14 @@ coprire i nuovi comportamenti.
 2. Ogni tasto definito nella mappatura attiva il metodo corrispondente del
    controller (es. `sposta_focus_riga_su_semplice`).
 3. Azioni con prompt (R, C, S, V, E, N) devono restituire un indicatore per
-   richiedere input successivo.
+   richiedere input successivo. Il game loop entra in uno stato specifico
+   **Attesa Prompt**; dopo la pressione l'utente digita un valore e preme Invio.
+   Invalid input (es. lettera in un prompt numerico) viene gestito con un
+   messaggio di errore e nuovo prompt. Si usa `input()` standard per i prompt
+   successivi al tasto, non msvcrt, così da permettere l'editing del valore.
+
+   Il loop considera l'Attesa Prompt distinto da Attesa Conferma S/N per
+   evitare ambiguità.
 
 **File Coinvolti**:
 - `bingo_game/ui/tui/tui_commander.py` - [NUOVO]
@@ -140,6 +156,7 @@ coprire i nuovi comportamenti.
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │ tui_partita.py (loop + rendering)                     │   │
 │  │ tui_commander.py (input handler)                      │   │
+│  │ codici_tasti_tui.py (costanti tasti)                  │   │
 │  └──────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
                             ▲
@@ -147,7 +164,7 @@ coprire i nuovi comportamenti.
 ┌─────────────────────────────────────────────────────────────┐
 │                    APPLICATION LAYER                         │
 │  ┌────────────────────────┐  ┌─────────────────────────┐    │
-│  │ game_controller.py     │  │ codici_tasti_tui.py?    │    │
+│  │ game_controller.py     │                            │    │
 │  └────────────────────────┘  └─────────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
                             ▲
@@ -171,7 +188,10 @@ bingo_game/ui/locales/it.py                  # MODIFIED
 bingo_game/game_controller.py                # POSSIBLE minor
 
 tests/unit/test_tui_commander.py            # NEW
-tests/unit/test_tui_partita.py               # MODIFIED
+- includere edge case: tasto premuto senza cartella, navigazione oltre bordo,
+  prompt con input non valido, tasto non riconosciuto
+
+ tests/unit/test_tui_partita.py               # MODIFIED
 tests/integration/test_game_loop_tasti.py     # NEW
 ```
 
@@ -219,15 +239,17 @@ tests/integration/test_game_loop_tasti.py     # NEW
   definiti nel design document.
 - Aggiornare messaggio di help e di errore tasto non valido.
 
-### FASE/COMMIT 5: Modifiche minori al controller
+### FASE/COMMIT 5: Verifica controller (nessuna modifica prevista)
 
 **Priorità**: 🟡 MEDIA  
 **File**: `bingo_game/game_controller.py`
 
-- Verificare che esistano tutti i metodi richiamati dal Commander.
-- Aggiungere eventuali semplici wrapper se serve uniformità (es. segna_numero_manuale
-  vs metodo precedente).  
-- Aggiornare eventuali docstring.
+- *Solo verifica* che esistano tutti i metodi richiamati dal Commander.
+- Non apportare modifiche al file a meno che non emerga un metodo proprio
+  mancante nel corso dell'implementazione. In tal caso documentare la
+  necessità prima dell'aggiunta.
+- Aggiornare docstring se si aggiungono nuovi wrapper.
+
 
 ### FASE/COMMIT 6: Test unitari
 
@@ -254,9 +276,12 @@ tests/integration/test_game_loop_tasti.py     # NEW
 **Priorità**: 🟡 MEDIA  
 **File**: vari
 
-- Rimuovere codice inutilizzato (`comandi_partita.py` se non serve più).
+- Rimuovere codice inutilizzato (`comandi_partita.py` se non serve più) **dopo**
+  aver eseguito grep/ricerche di import per garantire nessuna dipendenza residua.
 - Aggiornare README.md con le istruzioni tasti rapidi.
 - Aggiornare documentations/4 - todo file con checklist commit.
+- Aggiornare `documentations/ARCHITECTURE.md` per includere il nuovo
+  `tui_commander` e `codici_tasti_tui.py` nella Presentation Layer.
 
 ---
 
@@ -264,12 +289,15 @@ tests/integration/test_game_loop_tasti.py     # NEW
 
 - Tutte le funzionalità elencate nei requisiti funzionano con tasti rapidi.
 - Tutti i test unitari e di integrazione passano con copertura ≥ 85% sui moduli
-  interessati.
+  interessati, includendo edge case specificati.
 - Non rimangono comandi testuali attivi nel codice.
+- Il file `comandi_partita.py` è rimosso solo dopo aver verificato assenza di
+  dipendenze.
+- Output NFC e leggibile: verificato manualmente con NVDA che ogni tasto produce
+  un feedback leggibile senza caratteri estranei.
 - Documenti aggiornati: README.md, CHANGELOG.md (entry `Unreleased - Added`),
-  TODO v0.10.0.
+  TODO v0.10.0, ARCHITECTURE.md.
 - Il branch è pronto per la review e merge su `main` con merge commit.
-
 ---
 
 *Fine del piano.*
