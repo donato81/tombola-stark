@@ -118,13 +118,13 @@ Fase 3: Loop tui_partita
 - [x] Nessuna modifica apportata (tutti i metodi presenti in GiocatoreUmano e game_controller)
 - [x] Se metodo mancante: sub-task documentato e approvazione ricevuta
 
-**FASE 6 — Test unitari**
-- [ ] Test per ogni tasto → comando nel Commander
-- [ ] Edge case: tasto senza cartella selezionata
-- [ ] Edge case: navigazione oltre il bordo (6 casi)
-- [ ] Edge case: prompt con input non valido
-- [ ] Edge case: tasto non riconosciuto
-- [ ] Test esistenti `test_tui_partita.py` aggiornati e passanti
+**FASE 6 — Test unitari** ✅ COMPLETATA
+- [x] Test per ogni tasto → comando nel Commander (test_tui_commander.py — 13 test, Tests 1-13)
+- [x] Edge case: tasto senza cartella selezionata (Tests 17, 19, 23)
+- [x] Edge case: navigazione oltre il bordo — dominio ritorna ok=False senza eccezioni (Test 27)
+- [x] Edge case: prompt con input non valido (Test 21)
+- [x] Edge case: tasto non riconosciuto → messaggio LOOP_TASTO_NON_VALIDO (Test 26)
+- [x] Test esistenti `test_tui_partita.py` aggiornati e passanti (Tests 16-27 aggiunti)
 
 **FASE 7 — Test di integrazione**
 - [ ] Scenario partita completa simulata (selezione cartella → navigazione

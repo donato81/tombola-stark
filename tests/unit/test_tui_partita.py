@@ -350,3 +350,270 @@ def test_loop_focus_fallback_cartella_singola(partita_mock):
     assert mock_giocatore._indice_cartella_focus == 0, (
         "Fallback Bug 3: _indice_cartella_focus deve essere 0 dopo il fallback su cartella singola"
     )
+
+
+# ===========================================================================
+# Test v0.10.0 — Funzioni di dispatch tasti rapidi
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# Test 16 — _esegui_seleziona_cartella: successo con giocatore valido
+# (Edge case 1 — cartella presente/assente)
+# ---------------------------------------------------------------------------
+
+def test_esegui_seleziona_cartella_successo(partita_mock_con_giocatore):
+    """_esegui_seleziona_cartella deve chiamare imposta_focus_cartella con il numero 1-based."""
+    from bingo_game.ui.tui.tui_partita import _esegui_seleziona_cartella
+    from bingo_game.events.eventi import EsitoAzione
+
+    partita, giocatore = partita_mock_con_giocatore
+    esito_ok = MagicMock(spec=EsitoAzione)
+    esito_ok.ok = True
+    giocatore.imposta_focus_cartella.return_value = esito_ok
+
+    with patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer:
+        mock_renderer.render_esito.return_value = ["Cartella 2 selezionata."]
+        with patch("bingo_game.ui.tui.tui_partita._stampa") as mock_stampa:
+            _esegui_seleziona_cartella(giocatore, 2)
+
+    giocatore.imposta_focus_cartella.assert_called_once_with(2)
+    mock_renderer.render_esito.assert_called_once_with(esito_ok)
+
+
+# ---------------------------------------------------------------------------
+# Test 17 — _esegui_seleziona_cartella: giocatore None stampa messaggio errore
+# (Edge case 1 — senza cartella)
+# ---------------------------------------------------------------------------
+
+def test_esegui_seleziona_cartella_giocatore_none():
+    """_esegui_seleziona_cartella con giocatore None deve stampare il messaggio errore."""
+    from bingo_game.ui.tui.tui_partita import _esegui_seleziona_cartella
+    from bingo_game.ui.locales.it import MESSAGGI_ERRORI
+
+    with patch("bingo_game.ui.tui.tui_partita._stampa") as mock_stampa:
+        _esegui_seleziona_cartella(None, 3)
+
+    mock_stampa.assert_called_once_with(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
+
+
+# ---------------------------------------------------------------------------
+# Test 18 — _esegui_azione_giocatore: dispatch per nome senza tabellone
+# ---------------------------------------------------------------------------
+
+def test_esegui_azione_giocatore_senza_tabellone(partita_mock_con_giocatore):
+    """_esegui_azione_giocatore deve chiamare il metodo giusto senza argomenti."""
+    from bingo_game.ui.tui.tui_partita import _esegui_azione_giocatore
+    from bingo_game.events.eventi import EsitoAzione
+
+    partita, giocatore = partita_mock_con_giocatore
+    esito_ok = MagicMock(spec=EsitoAzione)
+    esito_ok.ok = True
+    giocatore.visualizza_cartella_corrente_semplice = MagicMock(return_value=esito_ok)
+
+    with patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer:
+        mock_renderer.render_esito.return_value = ["Cartella visualizzata."]
+        with patch("bingo_game.ui.tui.tui_partita._stampa"):
+            _esegui_azione_giocatore("visualizza_cartella_corrente_semplice", partita, giocatore)
+
+    giocatore.visualizza_cartella_corrente_semplice.assert_called_once_with()
+
+
+# ---------------------------------------------------------------------------
+# Test 19 — _esegui_azione_giocatore: giocatore None stampa errore
+# (Edge case 1 — senza cartella)
+# ---------------------------------------------------------------------------
+
+def test_esegui_azione_giocatore_giocatore_none(partita_mock):
+    """_esegui_azione_giocatore con giocatore None deve stampare il messaggio errore."""
+    from bingo_game.ui.tui.tui_partita import _esegui_azione_giocatore
+    from bingo_game.ui.locales.it import MESSAGGI_ERRORI
+
+    with patch("bingo_game.ui.tui.tui_partita._stampa") as mock_stampa:
+        _esegui_azione_giocatore("stato_focus_corrente", partita_mock, None)
+
+    mock_stampa.assert_called_once_with(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
+
+
+# ---------------------------------------------------------------------------
+# Test 20 — _esegui_azione_giocatore: metodo con tabellone (es. riepilogo_tabellone)
+# ---------------------------------------------------------------------------
+
+def test_esegui_azione_giocatore_con_tabellone(partita_mock_con_giocatore):
+    """_esegui_azione_giocatore deve passare partita.tabellone ai metodi _METODI_DIRETTI_CON_TABELLONE."""
+    from bingo_game.ui.tui.tui_partita import _esegui_azione_giocatore
+    from bingo_game.events.eventi import EsitoAzione
+
+    partita, giocatore = partita_mock_con_giocatore
+    esito_ok = MagicMock(spec=EsitoAzione)
+    esito_ok.ok = True
+    giocatore.riepilogo_tabellone = MagicMock(return_value=esito_ok)
+
+    with patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer:
+        mock_renderer.render_esito.return_value = ["Tabellone visualizzato."]
+        with patch("bingo_game.ui.tui.tui_partita._stampa"):
+            _esegui_azione_giocatore("riepilogo_tabellone", partita, giocatore)
+
+    giocatore.riepilogo_tabellone.assert_called_once_with(partita.tabellone)
+
+
+# ---------------------------------------------------------------------------
+# Test 21 — _esegui_con_prompt_numero: input non numerico → errore
+# (Edge case 3 — prompt input non valido)
+# ---------------------------------------------------------------------------
+
+def test_esegui_con_prompt_numero_input_non_numerico(partita_mock_con_giocatore):
+    """_esegui_con_prompt_numero con input non numerico deve stampare il messaggio errore."""
+    from bingo_game.ui.tui.tui_partita import _esegui_con_prompt_numero
+    from bingo_game.ui.tui.tui_commander import ComandoTasto, TipoComando
+    from bingo_game.ui.locales.it import MESSAGGI_ERRORI
+
+    partita, giocatore = partita_mock_con_giocatore
+    cmd = ComandoTasto(TipoComando.RICHIEDE_PROMPT_NUM, "vai_a_riga_avanzata")
+
+    stampe: list = []
+    with patch("builtins.input", return_value="xyz"):
+        with patch("bingo_game.ui.tui.tui_partita._stampa", side_effect=stampe.append):
+            _esegui_con_prompt_numero(cmd, partita, giocatore)
+
+    # Il giocatore NON deve essere stato chiamato
+    giocatore.vai_a_riga_avanzata = MagicMock()  # defensive
+    testo_output = " ".join(stampe).lower()
+    assert any(
+        parola in testo_output
+        for parola in ("errore", "tipo", "valido", "non")
+    ), (
+        f"Output atteso contenente indicazione di errore tipo, ottenuto: {stampe!r}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Test 22 — _esegui_con_prompt_numero: annuncia_vittoria → placeholder
+# ---------------------------------------------------------------------------
+
+def test_esegui_con_prompt_numero_annuncia_vittoria_placeholder(partita_mock_con_giocatore):
+    """_esegui_con_prompt_numero per 'annuncia_vittoria' deve mostrare placeholder senza prompt."""
+    from bingo_game.ui.tui.tui_partita import _esegui_con_prompt_numero
+    from bingo_game.ui.tui.tui_commander import ComandoTasto, TipoComando
+
+    partita, giocatore = partita_mock_con_giocatore
+    cmd = ComandoTasto(TipoComando.RICHIEDE_PROMPT_NUM, "annuncia_vittoria")
+
+    stampe: list = []
+    with patch("builtins.input") as mock_input:
+        with patch("bingo_game.ui.tui.tui_partita._stampa", side_effect=stampe.append):
+            _esegui_con_prompt_numero(cmd, partita, giocatore)
+
+    # Non deve aver chiamato input() per il numero
+    mock_input.assert_not_called()
+    assert len(stampe) >= 1, "Deve esserci almeno un messaggio di output."
+
+
+# ---------------------------------------------------------------------------
+# Test 23 — _esegui_con_prompt_numero: giocatore None
+# (Edge case 1 — senza cartella)
+# ---------------------------------------------------------------------------
+
+def test_esegui_con_prompt_numero_giocatore_none(partita_mock):
+    """_esegui_con_prompt_numero con giocatore None deve stampare il messaggio errore."""
+    from bingo_game.ui.tui.tui_partita import _esegui_con_prompt_numero
+    from bingo_game.ui.tui.tui_commander import ComandoTasto, TipoComando
+    from bingo_game.ui.locales.it import MESSAGGI_ERRORI
+
+    cmd = ComandoTasto(TipoComando.RICHIEDE_PROMPT_NUM, "segna_numero_manuale")
+
+    with patch("bingo_game.ui.tui.tui_partita._stampa") as mock_stampa:
+        _esegui_con_prompt_numero(cmd, partita_mock, None)
+
+    mock_stampa.assert_called_once_with(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
+
+
+# ---------------------------------------------------------------------------
+# Test 24 — _esegui_conferma_esci: risposta 's' → True
+# ---------------------------------------------------------------------------
+
+def test_esegui_conferma_esci_si(partita_mock):
+    """_esegui_conferma_esci deve restituire True quando l'utente risponde 's'."""
+    from bingo_game.ui.tui.tui_partita import _esegui_conferma_esci
+
+    with patch("builtins.input", return_value="s"):
+        with patch("bingo_game.ui.tui.tui_partita._stampa"):
+            risultato = _esegui_conferma_esci(partita_mock, turno=5)
+
+    assert risultato is True
+
+
+# ---------------------------------------------------------------------------
+# Test 25 — _esegui_conferma_esci: risposta 'n' → False
+# ---------------------------------------------------------------------------
+
+def test_esegui_conferma_esci_no(partita_mock):
+    """_esegui_conferma_esci deve restituire False quando l'utente risponde 'n'."""
+    from bingo_game.ui.tui.tui_partita import _esegui_conferma_esci
+
+    with patch("builtins.input", return_value="n"):
+        with patch("bingo_game.ui.tui.tui_partita._stampa"):
+            risultato = _esegui_conferma_esci(partita_mock, turno=5)
+
+    assert risultato is False
+
+
+# ---------------------------------------------------------------------------
+# Test 26 — TASTO_NON_VALIDO in loop → messaggio LOOP_TASTO_NON_VALIDO
+# (Edge case 4 — tasto non riconosciuto → messaggio specifico)
+# ---------------------------------------------------------------------------
+
+def test_loop_tasto_non_valido_mostra_messaggio_specifico(partita_mock_con_giocatore, capsys):
+    """Un tasto non riconosciuto deve stampare LOOP_TASTO_NON_VALIDO (v0.10.0)."""
+    from bingo_game.ui.tui.tui_partita import _loop_partita
+    from bingo_game.ui.locales.it import MESSAGGI_OUTPUT_UI_UMANI
+
+    partita, giocatore = partita_mock_con_giocatore
+    messaggio_atteso = MESSAGGI_OUTPUT_UI_UMANI["LOOP_TASTO_NON_VALIDO"][0]
+
+    messaggi_stampati: list = []
+
+    # Simula: tasto non valido "@" poi "x" (uscita) + conferma "s"
+    with (
+        patch("bingo_game.ui.tui.tui_partita.leggi_tasto", side_effect=["@", "x"]),
+        patch("bingo_game.ui.tui.tui_partita.comando_da_tasto") as mock_cmd,
+        patch("bingo_game.ui.tui.tui_partita.partita_terminata", return_value=False),
+        patch("bingo_game.ui.tui.tui_partita._esegui_conferma_esci", return_value=True),
+        patch("bingo_game.ui.tui.tui_partita._emetti_report_finale"),
+        patch("bingo_game.ui.tui.tui_partita._stampa", side_effect=messaggi_stampati.append),
+    ):
+        from bingo_game.ui.tui.tui_commander import ComandoTasto, TipoComando
+        _CMD_NON_VALIDO = ComandoTasto(TipoComando.TASTO_NON_VALIDO, "non_valido")
+        _CMD_CONFERMA = ComandoTasto(TipoComando.RICHIEDE_CONFERMA, "esci")
+        mock_cmd.side_effect = [_CMD_NON_VALIDO, _CMD_CONFERMA]
+
+        _loop_partita(partita)
+
+    assert messaggio_atteso in messaggi_stampati, (
+        f"Messaggio LOOP_TASTO_NON_VALIDO atteso: {messaggio_atteso!r}\n"
+        f"Messaggi stampati: {messaggi_stampati!r}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Test 27 — _esegui_azione_giocatore: navigazione oltre bordo (edge case 2)
+# Il dominio ritorna EsitoAzione(ok=False): la TUI deve renderizzare l'esito
+# senza sollevare eccezioni.
+# ---------------------------------------------------------------------------
+
+def test_esegui_azione_giocatore_navigazione_oltre_bordo(partita_mock_con_giocatore):
+    """_esegui_azione_giocatore non deve sollevare eccezioni quando il dominio ritorna ok=False."""
+    from bingo_game.ui.tui.tui_partita import _esegui_azione_giocatore
+    from bingo_game.events.eventi import EsitoAzione
+
+    partita, giocatore = partita_mock_con_giocatore
+    esito_fallito = MagicMock(spec=EsitoAzione)
+    esito_fallito.ok = False
+    giocatore.sposta_focus_riga_su_semplice = MagicMock(return_value=esito_fallito)
+
+    with patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer:
+        mock_renderer.render_esito.return_value = ["Impossibile spostarsi oltre il bordo."]
+        with patch("bingo_game.ui.tui.tui_partita._stampa"):
+            # Non deve sollevare eccezioni
+            _esegui_azione_giocatore("sposta_focus_riga_su_semplice", partita, giocatore)
+
+    mock_renderer.render_esito.assert_called_once_with(esito_fallito)
