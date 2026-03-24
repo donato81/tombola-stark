@@ -532,6 +532,22 @@ class TestGameController(unittest.TestCase):
         self.assertEqual(giocatori[0]["nome"], "Mario")
         self.assertEqual(giocatori[0]["num_cartelle"], 2)
 
+    def test_ottieni_stato_sintetico_delega_snapshot_premi_a_partita(self) -> None:
+        """Verifica che il controller non ridefinisca i premi gia' owned da Partita."""
+        partita = crea_partita_standard()
+        partita.premi_gia_assegnati.update({
+            "cartella_2_riga_1_terno",
+            "cartella_1_riga_0_ambo",
+        })
+
+        stato_partita = partita.get_stato_completo()
+        stato_controller = ottieni_stato_sintetico(partita)
+
+        self.assertEqual(
+            stato_controller["premi_gia_assegnati"],
+            stato_partita["premi_gia_assegnati"],
+        )
+
 
 
     """===============================

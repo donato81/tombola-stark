@@ -61,7 +61,6 @@ _logger_errors = logging.getLogger("tombola_stark.errors")
 
 # Stato di sessione — variabili di modulo (reset in crea_partita_standard)
 _turno_corrente: int = 0
-_premi_totali: int = 0
 
 
 # =========================
@@ -150,7 +149,7 @@ def _log_game_summary(partita: Partita) -> None:
         )
         _log_safe(
             "[PRIZE] Riepilogo premi: %d premi totali assegnati",
-            "info", _premi_totali, logger=_logger_prizes
+            "info", _conta_premi_assegnati(partita), logger=_logger_prizes
         )
         if vincitore:
             _log_safe(
@@ -164,6 +163,20 @@ def _log_game_summary(partita: Partita) -> None:
             )
     except Exception:
         pass  # Il riepilogo non deve mai interrompere la chiusura
+
+
+def _conta_premi_assegnati(partita: Partita) -> int:
+    """Deriva il numero totale dei premi dallo stato owned da Partita."""
+    try:
+        stato_completo = partita.get_stato_completo()
+    except Exception:
+        return 0
+
+    premi_assegnati = stato_completo.get("premi_gia_assegnati", [])
+    if not isinstance(premi_assegnati, list):
+        return 0
+
+    return len(premi_assegnati)
 
 
 # =========================
@@ -264,12 +277,11 @@ def crea_partita_standard(
     - ControllerBotNegativeException: Se num_bot < 0.
     - ControllerBotExcessException: Se num_bot > 7.
     """
-    global _partita_terminata_logged, _turno_corrente, _premi_totali
+    global _partita_terminata_logged, _turno_corrente
 
     # Reset flag terminazione e contatori per nuova partita
     _partita_terminata_logged = False
     _turno_corrente = 0
-    _premi_totali = 0
 
     if not nome_giocatore_umano or not nome_giocatore_umano.strip():
         raise ControllerNomeGiocatoreException(nome_giocatore_umano)
@@ -385,10 +397,11 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
         _log_safe(f"[GAME] esegui_turno_sicuro: stato '{stato_attuale}' non in corso.", "warning", logger=_logger_game)
         return None
 
-    global _turno_corrente, _premi_totali
+    global _turno_corrente
     try:
         risultato_turno = partita.esegui_turno()
         _turno_corrente += 1
+        premi_totali = _conta_premi_assegnati(partita)
 
         if not isinstance(risultato_turno, dict):
             _log_safe("[SYS] esegui_turno_sicuro: risultato turno non valido (non dict).", "warning", logger=_logger_system)
@@ -411,12 +424,11 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
         )
         _log_safe(
             "[GAME] Stato: estratti=%d/90, premi_sessione=%d",
-            "debug", partita.tabellone.get_conteggio_estratti(), _premi_totali,
+            "debug", partita.tabellone.get_conteggio_estratti(), premi_totali,
             logger=_logger_game
         )
 
         for evento in risultato_turno.get("premi_nuovi", []):
-            _premi_totali += 1
             _log_prize_event(evento)
 
         reclami_bot = risultato_turno.get("reclami_bot", [])
@@ -526,9 +538,6 @@ def ottieni_stato_sintetico(partita: Partita) -> Dict[str, Any]:
     stati_validi = {"non_iniziata", "in_corso", "terminata"}
     if stato_partita not in stati_validi:
         raise ValueError(f"stato_partita invalido: '{stato_partita}', deve essere: {stati_validi}")
-
-    premi_ordinati = sorted(stato_completo["premi_gia_assegnati"])
-    stato_completo["premi_gia_assegnati"] = premi_ordinati
 
     _log_safe("[GAME] ottieni_stato_sintetico: stato='%s', estratti=%d, giocatori=%d.", "debug", stato_partita, len(numeri_estratti), len(giocatori), logger=_logger_game)
 
