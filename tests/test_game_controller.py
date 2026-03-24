@@ -508,6 +508,16 @@ class TestGameController(unittest.TestCase):
         with self.assertRaises(ValueError):
             ottieni_stato_sintetico("non una partita")
 
+    def test_ottieni_stato_sintetico_traduce_eccezione_interna_di_partita(self) -> None:
+        """Verifica che il controller traduca eccezioni interne di Partita in un ValueError di bordo."""
+        partita = crea_partita_standard()
+
+        with patch.object(partita, "get_stato_sintetico", side_effect=RuntimeError("errore snapshot")):
+            with self.assertRaises(ValueError) as context:
+                ottieni_stato_sintetico(partita)
+
+        self.assertIn("Errore interno Partita.get_stato_sintetico()", str(context.exception))
+
     def test_ottieni_stato_sintetico_tutte_chiavi_presenti(self) -> None:
         """
         Verifica tutte le chiavi obbligatorie sono presenti.
@@ -580,8 +590,8 @@ class TestGameController(unittest.TestCase):
             with self.assertRaises(ValueError):
                 ottieni_stato_sintetico(partita)
 
-    def test_ottieni_stato_sintetico_numeri_estratti_non_lista_raises(self) -> None:
-        """Verifica errore se numeri_estratti non mantiene il formato lista atteso dalla TUI."""
+    def test_ottieni_stato_sintetico_numeri_estratti_non_lista_pass_through(self) -> None:
+        """Verifica che il controller non reinterpreti piu' il tipo di numeri_estratti se le chiavi richieste esistono."""
         partita = crea_partita_standard()
         stato_non_valido = {
             "stato_partita": "non_iniziata",
@@ -592,11 +602,12 @@ class TestGameController(unittest.TestCase):
         }
 
         with patch.object(partita, "get_stato_sintetico", return_value=stato_non_valido):
-            with self.assertRaises(ValueError):
-                ottieni_stato_sintetico(partita)
+            stato = ottieni_stato_sintetico(partita)
 
-    def test_ottieni_stato_sintetico_giocatori_non_lista_raises(self) -> None:
-        """Verifica errore se giocatori non mantiene il formato lista atteso dal bordo UI."""
+        self.assertEqual(stato["numeri_estratti"], "1,2,3")
+
+    def test_ottieni_stato_sintetico_giocatori_non_lista_pass_through(self) -> None:
+        """Verifica che il controller non reinterpreti piu' il tipo di giocatori se le chiavi richieste esistono."""
         partita = crea_partita_standard()
         stato_non_valido = {
             "stato_partita": "non_iniziata",
@@ -607,11 +618,12 @@ class TestGameController(unittest.TestCase):
         }
 
         with patch.object(partita, "get_stato_sintetico", return_value=stato_non_valido):
-            with self.assertRaises(ValueError):
-                ottieni_stato_sintetico(partita)
+            stato = ottieni_stato_sintetico(partita)
 
-    def test_ottieni_stato_sintetico_stato_partita_invalido_raises(self) -> None:
-        """Verifica errore se stato_partita esce dal contratto pubblico atteso."""
+        self.assertEqual(stato["giocatori"], {"nome": "Mario"})
+
+    def test_ottieni_stato_sintetico_stato_partita_invalido_pass_through(self) -> None:
+        """Verifica che il controller non reinterpreti piu' il valore semantico di stato_partita."""
         partita = crea_partita_standard()
         stato_non_valido = {
             "stato_partita": "pausa",
@@ -622,8 +634,25 @@ class TestGameController(unittest.TestCase):
         }
 
         with patch.object(partita, "get_stato_sintetico", return_value=stato_non_valido):
-            with self.assertRaises(ValueError):
-                ottieni_stato_sintetico(partita)
+            stato = ottieni_stato_sintetico(partita)
+
+        self.assertEqual(stato["stato_partita"], "pausa")
+
+    def test_ottieni_stato_sintetico_non_valida_formato_premi_gia_assegnati(self) -> None:
+        """Fotografa che il controller oggi non valida il tipo di premi_gia_assegnati."""
+        partita = crea_partita_standard()
+        stato_non_valido = {
+            "stato_partita": "non_iniziata",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": [],
+            "giocatori": [],
+            "premi_gia_assegnati": "ambo",
+        }
+
+        with patch.object(partita, "get_stato_sintetico", return_value=stato_non_valido):
+            stato = ottieni_stato_sintetico(partita)
+
+        self.assertEqual(stato["premi_gia_assegnati"], "ambo")
 
 
 

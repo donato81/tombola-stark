@@ -527,17 +527,8 @@ def ottieni_stato_sintetico(partita: Partita) -> Dict[str, Any]:
         raise ValueError(f"Stato incompleto, mancano chiavi: {chiavi_mancanti}")
 
     numeri_estratti = stato_completo["numeri_estratti"]
-    if not isinstance(numeri_estratti, list):
-        raise ValueError("numeri_estratti non è lista")
-
     giocatori = stato_completo["giocatori"]
-    if not isinstance(giocatori, list):
-        raise ValueError("giocatori non è lista")
-
     stato_partita = stato_completo["stato_partita"]
-    stati_validi = {"non_iniziata", "in_corso", "terminata"}
-    if stato_partita not in stati_validi:
-        raise ValueError(f"stato_partita invalido: '{stato_partita}', deve essere: {stati_validi}")
 
     _log_safe("[GAME] ottieni_stato_sintetico: stato='%s', estratti=%d, giocatori=%d.", "debug", stato_partita, len(numeri_estratti), len(giocatori), logger=_logger_game)
 
