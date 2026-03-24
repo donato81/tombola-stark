@@ -366,6 +366,62 @@ def _gestisci_riepilogo_cartella(partita) -> List[str]:
         return list(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"])
 
 
+def _normalizza_stato_sintetico(stato: object) -> dict:
+    """Normalizza e sanitizza lo stato sintetico fornito dal controller.
+
+    Il controller oggi può passare valori non standarda a livello di elenco e
+    chiavi (valori pass-through da Partita). Il TUI deve restare robusto e non
+    crashare in presenza di tipi non list per le liste attese.
+
+    Args:
+        stato: Valore restituito da ottieni_stato_sintetico().
+
+    Returns:
+        Dict con chiavi note e tipi sicuri per la UI.
+    """
+    if not isinstance(stato, dict):
+        _logger_tui.warning("[LOOP] stato sintetico non dict: %r", stato)
+        return {
+            "numeri_estratti": [],
+            "ultimo_numero_estratto": None,
+            "giocatori": [],
+            "premi_gia_assegnati": [],
+            "stato_partita": "sconosciuto",
+        }
+
+    numeri = stato.get("numeri_estratti", [])
+    if not isinstance(numeri, list):
+        _logger_tui.warning("[LOOP] numeri_estratti non è lista, fallback a []: %r", numeri)
+        numeri = []
+
+    giocatori = stato.get("giocatori", [])
+    if not isinstance(giocatori, list):
+        _logger_tui.warning("[LOOP] giocatori non è lista, fallback a []: %r", giocatori)
+        giocatori = []
+
+    premi = stato.get("premi_gia_assegnati", [])
+    if not isinstance(premi, list):
+        _logger_tui.warning("[LOOP] premi_gia_assegnati non è lista, fallback a []: %r", premi)
+        premi = []
+
+    stato_partita = stato.get("stato_partita", "sconosciuto")
+    if not isinstance(stato_partita, str):
+        stato_partita = str(stato_partita)
+
+    ultimo = stato.get("ultimo_numero_estratto")
+    if ultimo is not None and not isinstance(ultimo, int):
+        _logger_tui.warning("[LOOP] ultimo_numero_estratto non è int/None, fallback None: %r", ultimo)
+        ultimo = None
+
+    return {
+        "numeri_estratti": numeri,
+        "ultimo_numero_estratto": ultimo,
+        "giocatori": giocatori,
+        "premi_gia_assegnati": premi,
+        "stato_partita": stato_partita,
+    }
+
+
 def _gestisci_riepilogo_tabellone(partita) -> List[str]:
     """Comando `v`: mostra il riepilogo del tabellone.
 
@@ -381,7 +437,7 @@ def _gestisci_riepilogo_tabellone(partita) -> List[str]:
         v0.9.0: Prima implementazione.
     """
     try:
-        stato = ottieni_stato_sintetico(partita)
+        stato = _normalizza_stato_sintetico(ottieni_stato_sintetico(partita))
     except Exception as exc:
         _logger_tui.warning("[LOOP] _gestisci_riepilogo_tabellone: errore — %s", exc)
         return list(MESSAGGI_ERRORI["TABELLONE_NON_DISPONIBILE"])
@@ -537,7 +593,7 @@ def _emetti_report_finale(partita) -> None:
         v0.9.0: Prima implementazione.
     """
     try:
-        stato = ottieni_stato_sintetico(partita)
+        stato = _normalizza_stato_sintetico(ottieni_stato_sintetico(partita))
     except Exception as exc:
         _logger_tui.warning("[LOOP] _emetti_report_finale: errore stato — %s", exc)
         return

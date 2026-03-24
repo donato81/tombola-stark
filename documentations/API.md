@@ -1071,6 +1071,7 @@ def ottieni_stato_sintetico(partita: Partita) -> Dict[str, Any]:
 
 **Note refactor confini**:
 - Il controller non costruisce piu' direttamente il riepilogo: delega a `Partita.get_stato_sintetico()` e mantiene solo guardie difensive, validazione minima del contratto e logging di bordo.
+- Valida solo: parametro `Partita`, eccezioni da `Partita`, tipo restituito `dict`, chiavi obbligatorie presenti. Non reinterpreta più i dettagli semantici di `stato_partita`, `numeri_estratti` o `giocatori`.
 
 ---
 
