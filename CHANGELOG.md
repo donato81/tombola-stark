@@ -31,6 +31,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   uscita con conferma, partita completa).
 
 ### Changed
+- `documentations/`: aggiunge design, piano, TODO del refactor Partita/GameController e report di analisi qualitativa.
 - `bingo_game/ui/tui/tui_partita.py`: loop v0.10.0 sostituisce il parser testuale
   (comandi seguiti da Invio) con il dispatch via `tui_commander`. Aggiunte 4
   funzioni di dispatch: `_esegui_seleziona_cartella`, `_esegui_azione_giocatore`,
