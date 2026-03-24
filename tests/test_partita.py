@@ -1379,3 +1379,20 @@ class TestPartita(unittest.TestCase):
         stato_completo = self.partita.get_stato_completo()
 
         self.assertEqual(stato_sintetico, stato_completo)
+
+    def test_get_stato_sintetico_defensive_copy_and_types(self):
+        """Verifica che il riepilogo sintetico sia robusto e non aliasi lo stato interno."""
+        stato = self.partita.get_stato_sintetico()
+
+        self.assertIsInstance(stato, dict)
+        self.assertIsInstance(stato["numeri_estratti"], list)
+        self.assertIsInstance(stato["giocatori"], list)
+        self.assertIsInstance(stato["premi_gia_assegnati"], list)
+
+        # Modifica il risultato deve essere isolata dallo stato interno
+        stato["numeri_estratti"].append(999)
+        self.assertNotIn(999, self.partita.tabellone.get_numeri_estratti())
+
+        orig_giocatori = self.partita.get_stato_giocatori()
+        stato["giocatori"].clear()
+        self.assertEqual(orig_giocatori, self.partita.get_stato_giocatori())
