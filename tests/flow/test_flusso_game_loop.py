@@ -64,8 +64,10 @@ def test_flusso_p_avanza_turno(partita_mock, capsys):
         "partita_terminata": False,
         "premi_nuovi": [],
     }
-    inputs = iter(["p", "q", "s"])
+    commands = iter(["p", "q", "s"])
+    inputs = iter(["s"])  # solo conferma uscita
     with (
+        patch("bingo_game.ui.tui.tui_partita.leggi_tasto", side_effect=commands),
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False]),
         patch("bingo_game.ui.tui.tui_partita.esegui_turno_sicuro", return_value=risultato_turno),
@@ -84,9 +86,11 @@ def test_flusso_p_avanza_turno(partita_mock, capsys):
 
 def test_flusso_q_conferma_log_warning(partita_mock):
     """Flusso 'q' + 's': deve loggare un WARNING su tombola_stark.tui."""
-    inputs = iter(["q", "s"])
+    commands = iter(["q", "s"])
+    inputs = iter(["s"])
     with (
         patch("bingo_game.ui.tui.tui_partita._logger_tui") as mock_logger,
+        patch("bingo_game.ui.tui.tui_partita.leggi_tasto", side_effect=commands),
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", return_value=False),
         patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
@@ -107,9 +111,11 @@ def test_flusso_q_conferma_log_warning(partita_mock):
 
 def test_flusso_q_annulla_nessun_warning(partita_mock):
     """Flusso 'q' + 'n': il primo quit non deve emettere WARNING."""
-    inputs = iter(["q", "n", "q", "s"])
+    commands = iter(["q", "q"])
+    inputs = iter(["n", "s"])
     with (
         patch("bingo_game.ui.tui.tui_partita._logger_tui") as mock_logger,
+        patch("bingo_game.ui.tui.tui_partita.leggi_tasto", side_effect=commands),
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False, False]),
         patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
@@ -133,9 +139,11 @@ def test_flusso_q_annulla_nessun_warning(partita_mock):
 
 def test_flusso_q_input_invalido_annullato(partita_mock):
     """Flusso 'q' + 'x' (input non valido): deve trattare come annullato."""
-    inputs = iter(["q", "x", "q", "s"])
+    commands = iter(["q", "q"])
+    inputs = iter(["x", "s"])
     with (
         patch("bingo_game.ui.tui.tui_partita._logger_tui") as mock_logger,
+        patch("bingo_game.ui.tui.tui_partita.leggi_tasto", side_effect=commands),
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False, False]),
         patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
