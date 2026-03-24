@@ -32,6 +32,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ### Changed
 - `documentations/`: aggiunge design, piano, TODO del refactor Partita/GameController e report di analisi qualitativa.
+- `CHANGELOG.md`: aggiornamento sezione [Unreleased] per includere i nuovi miglioramenti di stato e reporting del refactor.
 - `bingo_game/game_controller.py`: il controller non mantiene piu' un conteggio premi duplicato; il riepilogo premi viene derivato dallo snapshot di `Partita`, mantenendo il dominio come owner dello stato di gioco.
 - `bingo_game/partita.py`: aggiunto `get_stato_sintetico()` come snapshot pubblico primario dello stato di partita; `get_stato_completo()` delega allo stesso punto di costruzione.
 - `bingo_game/game_controller.py`: `ottieni_stato_sintetico()` delega a `Partita.get_stato_sintetico()` e conserva solo guardie, validazione minima e logging di bordo.
