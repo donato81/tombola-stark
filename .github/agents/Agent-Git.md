@@ -6,10 +6,8 @@ description: >
   Unico agente autorizzato a eseguire comandi git tramite run_in_terminal.
   Invocabile manualmente dal dropdown o tramite subagent delegation
   da git-commit.prompt.md, git-merge.prompt.md e Agent-Orchestrator.
-tools:
-  - run_in_terminal
-  - read_file
-  - replace_string_in_file
+
+
 model: ['GPT-5 mini (copilot)', 'Raptor mini (copilot)']
 user-invocable: true
 ---
