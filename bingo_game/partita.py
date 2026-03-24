@@ -887,6 +887,39 @@ class Partita:
 
 
 
+    #metodo che ritorna un riepilogo sintetico e stabile dello stato di gioco.
+    def get_stato_sintetico(self) -> Dict[str, Any]:
+      """
+      Ritorna la fotografia sintetica pubblica dello stato attuale della partita.
+
+      Questo metodo rappresenta il contratto primario verso i layer esterni che
+      hanno bisogno di conoscere la situazione corrente di gioco senza leggere
+      direttamente gli attributi interni di Partita.
+
+      Ritorna:
+      - Dict[str, Any]: Dizionario con chiavi pubbliche e stabili per il bordo
+        applicativo:
+        - "stato_partita"
+        - "ultimo_numero_estratto"
+        - "numeri_estratti"
+        - "giocatori"
+        - "premi_gia_assegnati"
+      """
+      numeri_estratti = self.tabellone.get_numeri_estratti()
+      stato_giocatori = self.get_stato_giocatori()
+      lista_premi = list(self.premi_gia_assegnati)
+      lista_premi.sort()
+
+      return {
+        "stato_partita": self.stato_partita,
+        "ultimo_numero_estratto": self.ultimo_numero_estratto,
+        "numeri_estratti": numeri_estratti,
+        "giocatori": stato_giocatori,
+        "premi_gia_assegnati": lista_premi,
+      }
+
+
+
     #metodo che ritorna un riepilogo complessivo della partita (stato, ultimo numero estratto, premi assegnati, elenco sintetico dei giocatori).
     #metodo che ritorna un riepilogo complessivo della partita (stato, ultimo numero estratto, premi assegnati, elenco sintetico dei giocatori).
     def get_stato_completo(self) -> Dict[str, Any]:
@@ -910,28 +943,6 @@ class Partita:
             - "premi_gia_assegnati": List[str] (elenco delle chiavi dei premi già vinti, es. "cartella_1_riga_0_ambo")
         """
         
-        # 1. Recupero informazioni dal Tabellone
-        # Uso i metodi pubblici del tabellone per avere i dati puliti
-        numeri_estratti = self.tabellone.get_numeri_estratti()
-        
-        # 2. Recupero informazioni sui Giocatori
-        # Riuso il metodo che abbiamo appena scritto per non duplicare la logica
-        stato_giocatori = self.get_stato_giocatori()
-        
-        # 3. Preparo la lista dei premi
-        # Converto il set in lista per renderlo serializzabile (es. in JSON) e leggibile
-        lista_premi = list(self.premi_gia_assegnati)
-        lista_premi.sort()  # Li ordino per avere un output stabile e prevedibile
-        
-        # 4. Assemblo il pacchetto finale
-        stato_completo = {
-            "stato_partita": self.stato_partita,
-            "ultimo_numero_estratto": self.ultimo_numero_estratto,
-            "numeri_estratti": numeri_estratti,
-            "giocatori": stato_giocatori,
-            "premi_gia_assegnati": lista_premi
-        }
-        
-        return stato_completo
+        return self.get_stato_sintetico()
 
 

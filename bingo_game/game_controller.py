@@ -511,12 +511,12 @@ def ottieni_stato_sintetico(partita: Partita) -> Dict[str, Any]:
         raise ValueError("ottieni_stato_sintetico: parametro deve essere Partita, ricevuto: " + str(type(partita)))
 
     try:
-        stato_completo = partita.get_stato_completo()
+        stato_completo = partita.get_stato_sintetico()
     except Exception as exc:
-        raise ValueError(f"Errore interno Partita.get_stato_completo(): {exc}") from exc
+        raise ValueError(f"Errore interno Partita.get_stato_sintetico(): {exc}") from exc
 
     if not isinstance(stato_completo, dict):
-        raise ValueError("Partita.get_stato_completo() non ha ritornato un dizionario valido")
+        raise ValueError("Partita.get_stato_sintetico() non ha ritornato un dizionario valido")
 
     chiavi_obbligatorie = {
         "stato_partita", "ultimo_numero_estratto", "numeri_estratti",

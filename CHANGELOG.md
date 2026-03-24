@@ -33,7 +33,10 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ### Changed
 - `documentations/`: aggiunge design, piano, TODO del refactor Partita/GameController e report di analisi qualitativa.
 - `bingo_game/game_controller.py`: il controller non mantiene piu' un conteggio premi duplicato; il riepilogo premi viene derivato dallo snapshot di `Partita`, mantenendo il dominio come owner dello stato di gioco.
+- `bingo_game/partita.py`: aggiunto `get_stato_sintetico()` come snapshot pubblico primario dello stato di partita; `get_stato_completo()` delega allo stesso punto di costruzione.
+- `bingo_game/game_controller.py`: `ottieni_stato_sintetico()` delega a `Partita.get_stato_sintetico()` e conserva solo guardie, validazione minima e logging di bordo.
 - `tests/test_game_controller.py`: aggiunge una regressione che fissa la delega dello snapshot premi tra `Partita` e `GameController`.
+- `tests/test_game_controller.py`, `tests/test_partita.py`: consolidano il contratto del riepilogo sintetico e la coerenza tra snapshot di `Partita` e facade del controller.
 - `bingo_game/ui/tui/tui_partita.py`: loop v0.10.0 sostituisce il parser testuale
   (comandi seguiti da Invio) con il dispatch via `tui_commander`. Aggiunte 4
   funzioni di dispatch: `_esegui_seleziona_cartella`, `_esegui_azione_giocatore`,

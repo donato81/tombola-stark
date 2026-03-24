@@ -663,6 +663,31 @@ def get_stato_giocatori() -> List[Dict[str, Any]]:
 
 ---
 
+#### get_stato_sintetico()
+
+```python
+def get_stato_sintetico() -> Dict[str, Any]:
+```
+
+**Scopo**: Espone il riepilogo sintetico pubblico della partita, pensato come snapshot stabile per i layer esterni.
+
+**Ritorna**:
+```python
+{
+    "stato_partita": str,
+    "ultimo_numero_estratto": int | None,
+    "numeri_estratti": List[int],
+    "giocatori": List[dict],
+    "premi_gia_assegnati": List[str]
+}
+```
+
+**Note**:
+- I premi vengono restituiti come lista ordinata.
+- Questo metodo rappresenta il confine pubblico primario per il riepilogo dello stato verso controller e interfaccia.
+
+---
+
 #### get_stato_completo()
 
 ```python
@@ -681,6 +706,9 @@ def get_stato_completo() -> Dict[str, Any]:
     "premi_gia_assegnati": List[str]
 }
 ```
+
+**Note**:
+- Attualmente delega a `get_stato_sintetico()` per mantenere stabile un unico punto di costruzione dello snapshot pubblico.
 
 ---
 
@@ -1040,6 +1068,9 @@ def ottieni_stato_sintetico(partita: Partita) -> Dict[str, Any]:
 - `ValueError`: Se il parametro non è un oggetto `Partita` valido o lo stato è incompleto.
 
 **Note v0.8.0**: La TUI cattura `ValueError` tramite l'helper `_ottieni_stato_sicuro`. Nessun output su stdout.
+
+**Note refactor confini**:
+- Il controller non costruisce piu' direttamente il riepilogo: delega a `Partita.get_stato_sintetico()` e mantiene solo guardie difensive, validazione minima del contratto e logging di bordo.
 
 ---
 

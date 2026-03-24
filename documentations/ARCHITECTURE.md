@@ -149,7 +149,7 @@ class Partita:
 - `crea_partita_standard()` – Factory completa per una partita configurata
 - `avvia_partita_sicura()` – Avvio con gestione sicura delle eccezioni
 - `esegui_turno_sicuro()` – Esecuzione turno con intercettazione di tutti gli errori
-- `ottieni_stato_sintetico()` – Snapshot validato per l'interfaccia
+- `ottieni_stato_sintetico()` – Guardia e validazione del riepilogo sintetico esposto dal dominio
 - `ha_partita_tombola()` / `partita_terminata()` – Sensori di stato per il loop di gioco
 
 **Regole di Dipendenza**:
@@ -212,6 +212,8 @@ TerminalUI._avvia_partita() → TuiGameLoop.avvia()
 6. `_loop_partita()` gestisce il ciclo interattivo: comandi `p/s/c/v/q/?`, report finale
 
 > **Vincolo architetturale v0.9.0**: `tui_partita.py` non importa classi Domain (`GiocatoreUmano`, `Partita`, `Tabellone`, `Cartella`). Ogni accesso al dominio passa esclusivamente tramite `game_controller` (es. `ottieni_giocatore_umano()`, `esegui_turno_sicuro()`, `ottieni_stato_sintetico()`).
+
+> **Nota refactor confini 2026-03-24**: il riepilogo sintetico della partita nasce ora esplicitamente in `Partita.get_stato_sintetico()`. `GameController.ottieni_stato_sintetico()` resta un bordo applicativo: verifica il parametro, valida il contratto minimo del dizionario e inoltra il risultato alla TUI senza reinterpretare lo stato di dominio.
 
 > **Nota v0.9.1 — `imposta_focus_cartella_fallback()`**: In `_loop_partita()`, se `imposta_focus_cartella(1)` solleva eccezione e il giocatore ha esattamente 1 cartella, il focus viene impostato tramite `giocatore.imposta_focus_cartella_fallback()`. Questo è l'**unico punto** in cui la TUI invoca un metodo sul domain object `giocatore` al di fuori di `game_controller`: è consentito perché il metodo è pubblico, non espone stato interno e rappresenta un fallback di emergenza documentato. Il metodo è definito in `bingo_game/players/helper_focus.py` (mixin `GestioneFocusMixin`).
 

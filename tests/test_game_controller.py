@@ -31,6 +31,7 @@ Filosofia: "Tutto ciò che può rompersi, DEVE essere testato"
 """
 
 import unittest
+from unittest.mock import patch
 from typing import List, Optional
 from bingo_game.game_controller import (
     crea_tabellone_standard,
@@ -540,13 +541,89 @@ class TestGameController(unittest.TestCase):
             "cartella_1_riga_0_ambo",
         })
 
-        stato_partita = partita.get_stato_completo()
+        stato_partita = partita.get_stato_sintetico()
         stato_controller = ottieni_stato_sintetico(partita)
 
         self.assertEqual(
             stato_controller["premi_gia_assegnati"],
             stato_partita["premi_gia_assegnati"],
         )
+
+    def test_ottieni_stato_sintetico_snapshot_identico_a_partita(self) -> None:
+        """Verifica che il controller inoltri lo snapshot completo prodotto da Partita."""
+        partita = crea_partita_standard("Mario", 2, 2)
+
+        stato_partita = partita.get_stato_sintetico()
+        stato_controller = ottieni_stato_sintetico(partita)
+
+        self.assertEqual(stato_controller, stato_partita)
+
+    def test_ottieni_stato_sintetico_stato_non_dict_raises(self) -> None:
+        """Verifica errore se Partita ritorna uno stato non serializzabile come dizionario."""
+        partita = crea_partita_standard()
+
+        with patch.object(partita, "get_stato_sintetico", return_value="stato-non-valido"):
+            with self.assertRaises(ValueError):
+                ottieni_stato_sintetico(partita)
+
+    def test_ottieni_stato_sintetico_chiavi_mancanti_raises(self) -> None:
+        """Verifica errore se lo snapshot di Partita non espone tutte le chiavi pubbliche attese."""
+        partita = crea_partita_standard()
+        stato_incompleto = {
+            "stato_partita": "non_iniziata",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": [],
+            "giocatori": [],
+        }
+
+        with patch.object(partita, "get_stato_sintetico", return_value=stato_incompleto):
+            with self.assertRaises(ValueError):
+                ottieni_stato_sintetico(partita)
+
+    def test_ottieni_stato_sintetico_numeri_estratti_non_lista_raises(self) -> None:
+        """Verifica errore se numeri_estratti non mantiene il formato lista atteso dalla TUI."""
+        partita = crea_partita_standard()
+        stato_non_valido = {
+            "stato_partita": "non_iniziata",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": "1,2,3",
+            "giocatori": [],
+            "premi_gia_assegnati": [],
+        }
+
+        with patch.object(partita, "get_stato_sintetico", return_value=stato_non_valido):
+            with self.assertRaises(ValueError):
+                ottieni_stato_sintetico(partita)
+
+    def test_ottieni_stato_sintetico_giocatori_non_lista_raises(self) -> None:
+        """Verifica errore se giocatori non mantiene il formato lista atteso dal bordo UI."""
+        partita = crea_partita_standard()
+        stato_non_valido = {
+            "stato_partita": "non_iniziata",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": [],
+            "giocatori": {"nome": "Mario"},
+            "premi_gia_assegnati": [],
+        }
+
+        with patch.object(partita, "get_stato_sintetico", return_value=stato_non_valido):
+            with self.assertRaises(ValueError):
+                ottieni_stato_sintetico(partita)
+
+    def test_ottieni_stato_sintetico_stato_partita_invalido_raises(self) -> None:
+        """Verifica errore se stato_partita esce dal contratto pubblico atteso."""
+        partita = crea_partita_standard()
+        stato_non_valido = {
+            "stato_partita": "pausa",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": [],
+            "giocatori": [],
+            "premi_gia_assegnati": [],
+        }
+
+        with patch.object(partita, "get_stato_sintetico", return_value=stato_non_valido):
+            with self.assertRaises(ValueError):
+                ottieni_stato_sintetico(partita)
 
 
 
