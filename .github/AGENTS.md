@@ -1,8 +1,8 @@
 # Framework Copilot — Solitario Classico Accessibile
 
-> **Versione Framework**: v1.6.0 — 23 Marzo 2026
+> **Versione Framework**: v1.6.0 — 24 Marzo 2026
 
-Questo framework orchestra lo sviluppo del progetto tramite 13 agenti specializzati
+Questo framework orchestra lo sviluppo del progetto tramite 14 agenti specializzati
 e prompt files nativi di VS Code. Ogni agente ha un ruolo specifico nel ciclo di
 sviluppo (dal concept al rilascio) con trigger di attivazione, output e gate di
 validazione. Il flusso E2E completo e descritto in [docs/WORKFLOW.md](../docs/WORKFLOW.md).
@@ -14,6 +14,11 @@ validazione. Il flusso E2E completo e descritto in [docs/WORKFLOW.md](../docs/WO
 Gli agenti sono disponibili nel dropdown agenti della chat di VS Code.
 Ogni file agente contiene: scopo, trigger, deliverable, gate e workflow.
 
+- [Agent-Helper](agents/Agent-Helper.md) — Consultivo read-only sul Framework Copilot
+  Agente consultivo. Risponde a domande su agenti, prompt, skill, istruzioni
+  e struttura del framework. Non modifica file, non esegue comandi git.
+  Modalità: read-only. Scope esclusivo: lettura di .github/.
+  Modelli: Claude Sonnet 4.6, gpt-5-mini.
 - [Agent-Welcome](agents/Agent-Welcome.md) — Setup profilo progetto
   Agente di inizializzazione. Raccoglie le info fondamentali
   del progetto, genera .github/project-profile.md come
@@ -108,6 +113,11 @@ Si trovano in `.github/instructions/`.
 - `tests.instructions.md` — standard test (applyTo: `tests/**/*.py`)
 - `domain.instructions.md` — regole layer domain (applyTo: `src/domain/**/*.py`)
 - `ui.instructions.md` — regole wxPython + accessibilità NVDA (applyTo: `src/presentation/**/*.py`)
+- `project-init-gate.instructions.md` — gate inizializzazione progetto (applyTo: `**` —
+  attivo in tutti i contesti)
+- `workflow-standard.instructions.md` — sequenza operativa standard
+  per ogni richiesta di modifica (applyTo: `**`): TODO gate, pre-commit
+  checklist, sync documentazione, feedback strutturato.
 
 ## Agent Skills
 
@@ -122,16 +132,28 @@ Si trovano in `.github/skills/`.
 - `accessibility-output.skill.md` — standard output accessibile (tutti gli agenti)
 - `project-profile.skill.md` — struttura project-profile.md,
   matrice componenti per linguaggio, template instructions
+- `project-profile.template.md` *(template)* — struttura
+  neutra resettabile del profilo progetto. Sorgente canonica
+  per Agent-Welcome in OP-1 e OP-2. Percorso:
+  `.github/templates/`
 - `git-execution.skill.md` — matrice autorizzazioni comandi git per contesto
 - `file-deletion-guard.skill.md` — guardia con conferma
   obbligatoria prima di eliminare file o directory
 - `changelog-entry.skill.md` — regole generazione voce
   CHANGELOG da git diff: sezione, formato, struttura file
 - `code-routing.skill.md` — classificazione fasi GUI/non-GUI per Agent-CodeRouter
+- `framework-query.skill.md` — contratto output per risposte descrittive,
+  comparative e di workflow (Agent-Helper)
+- `framework-index.skill.md` — sequenza lettura e formato panoramica
+  framework da fonti interne (Agent-Helper, Agent-Orchestrator)
+- `agent-selector.skill.md` — routing deterministico per selezione
+  agente dato un task (Agent-Helper, Agent-Orchestrator)
+- `framework-scope-guard.skill.md` — limiti operativi e risposte
+  standard per agenti read-only (Agent-Helper)
 
 | Agente | Skills referenziate |
 | ------ | ------------------ |
-| Agent-Welcome | project-profile, accessibility-output, file-deletion-guard |
+| Agent-Welcome | project-profile, accessibility-output, file-deletion-guard, project-profile-template¹ |
 | Agent-Analyze | clean-architecture-rules, accessibility-output |
 | Agent-Design | clean-architecture-rules, document-template, accessibility-output |
 | Agent-Plan | document-template, accessibility-output |
@@ -144,6 +166,9 @@ Si trovano in `.github/skills/`.
 | Agent-Orchestrator | accessibility-output, git-execution |
 | Agent-CodeRouter | code-routing, accessibility-output, git-execution |
 | Agent-CodeUI | validate-accessibility, conventional-commit, accessibility-output, git-execution |
+| Agent-Helper | framework-query, framework-index, agent-selector, framework-scope-guard, accessibility-output |
+
+¹ `project-profile-template` non è una skill ma un template in `.github/templates/`. Agent-Welcome lo usa in lettura; la manutenzione è di Agent-FrameworkDocs.
 
 ---
 
@@ -171,6 +196,8 @@ Per il flusso dettagliato: [docs/WORKFLOW.md](../docs/WORKFLOW.md)
 - `CHANGELOG.md` — source of truth per versioni
 - `pyproject.toml` — entry point build
 - `.github/workflows/` -- CI/CD (GitHub Actions: ci.yml, assistant-commit.yml)
+- `.github/templates/project-profile.template.md` —
+  template neutro profilo progetto (non eliminare)
 
 ---
 
@@ -178,6 +205,11 @@ Per il flusso dettagliato: [docs/WORKFLOW.md](../docs/WORKFLOW.md)
 
 Script Python per automazione del framework:
 
+- `scripts/git_runner.py` — Wrapper CLI operazioni git per
+  Agent-Git. Sottocomandi: status, commit, push, merge, tag.
+  Esegue sequenze git atomiche con gestione exit code e
+  output strutturato prefissato GIT_RUNNER: per rilevamento
+  esito da parte dell'agente. Dipendenze: solo stdlib Python.
 - `scripts/detect_agent.py` -- Rileva l'agente appropriato dalla descrizione di un task
 - `scripts/validate_gates.py` -- Valida il frontmatter YAML dei documenti DESIGN/PLAN/TODO
 - `scripts/ci-local-validate.py` -- Pre-commit checklist (syntax, types, coverage)

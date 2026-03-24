@@ -18,6 +18,8 @@ screen_reader: ""
 > Questo file è la source of truth del progetto.
 > Compilato da Agent-Welcome durante il setup iniziale.
 > Non modificare manualmente i valori del frontmatter YAML.
+> Per resettare: elimina il file o imposta initialized: false,
+> poi esegui #project-setup.prompt.md.
 
 ## Identità
 
