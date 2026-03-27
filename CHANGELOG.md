@@ -33,6 +33,13 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   uscita con conferma, partita completa).
 
 ### Changed
+- `docs/API.md`: aggiornato a [Unreleased] (2026-03-27); aggiunta sezione
+  `GiocatoreUmano` con `imposta_focus_cartella_fallback()` (v0.9.1) e
+  `visualizza_ultimi_numeri_estratti()` (v0.10.0).
+- `docs/ARCHITECTURE.md`: aggiornato a [Unreleased] (2026-03-27); struttura
+  directory allineata alla nuova cartella `docs/`; aggiunti `tui_commander.py`
+  e `codici_tasti_tui.py` nella sezione `tui/`; rimossi riferimenti a
+  `documentations/` ovunque presenti nel documento.
 - `documentations/`: aggiunge design, piano, TODO del refactor Partita/GameController e report di analisi qualitativa.
 - `CHANGELOG.md`: aggiornamento sezione [Unreleased] per includere i nuovi miglioramenti di stato e reporting del refactor.
 - `bingo_game/game_controller.py`: il controller non mantiene piu' un conteggio premi duplicato; il riepilogo premi viene derivato dallo snapshot di `Partita`, mantenendo il dominio come owner dello stato di gioco.

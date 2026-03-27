@@ -1,8 +1,8 @@
 # 📚 API.md - Tombola Stark
 
 > **Riferimento API pubblico per tombola-stark**  
-> Versione: v0.8.0  
-> Ultimo aggiornamento: 2026-02-20
+> Versione: [Unreleased]  
+> Ultimo aggiornamento: 2026-03-27
 
 ---
 
@@ -849,12 +849,44 @@ mantenendo il pattern "programma verso l'interfaccia", evitando l'uso di `isinst
 
 **File**: `bingo_game/players/giocatore_umano.py`
 
-**Scopo**: Specializzazione di `GiocatoreBase` per il giocatore umano. Espone metodi per la gestione dell'interazione con l'interfaccia tramite il sistema di eventi.
+**Scopo**: Specializzazione di `GiocatoreBase` per il giocatore umano. Espone metodi per la gestione dell'interazione con l'interfaccia tramite il sistema di eventi. Include i mixin `GestioneFocusMixin` (`helper_focus.py`) e `GestioneReclami` (`helper_reclami_focus.py`) per la navigazione accessibile e il flusso di reclamo.
 
 **Costruttore**:
 ```python
 GiocatoreUmano(nome: str, id_giocatore: Optional[int] = None)
 ```
+
+---
+
+#### imposta_focus_cartella_fallback()
+
+```python
+def imposta_focus_cartella_fallback() -> None:
+```
+
+**Versione**: v0.9.1  
+**Definito in**: `bingo_game/players/helper_focus.py` (`GestioneFocusMixin`)
+
+**Scopo**: Fallback di emergenza che imposta il focus sulla prima cartella disponibile senza passare per la logica `imposta_focus_cartella()`. Usato dalla TUI quando `imposta_focus_cartella(1)` solleva eccezione e il giocatore ha esattamente 1 cartella.
+
+**Note architetturali**: È l'**unico punto** in cui la TUI chiama un metodo su un domain object (`giocatore`) al di fuori di `game_controller`. Consentito perché il metodo è pubblico, non espone stato interno e rappresenta un fallback documentato.
+
+**Raises**: Nessuna eccezione propagata.
+
+---
+
+#### visualizza_ultimi_numeri_estratti()
+
+```python
+def visualizza_ultimi_numeri_estratti() -> EsitoAzione:
+```
+
+**Versione**: v0.10.0 (rinominato da `visualizzaultiminumeriestratti` per conformità snake_case)
+
+**Scopo**: Ritorna un `EsitoAzione` contenente gli ultimi numeri estratti dal tabellone, pronto per la vocalizzazione TTS.
+
+**Ritorna**:
+- `EsitoAzione` con `ok=True` e `evento` contenente la lista degli ultimi numeri
 
 ---
 

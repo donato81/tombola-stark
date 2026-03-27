@@ -1,7 +1,7 @@
 # 🏛️ ARCHITECTURE.md - Tombola Stark
 
 > **Documentazione architetturale di tombola-stark**  
-> Ultimo aggiornamento: 2026-02-21 (v0.9.0)
+> Ultimo aggiornamento: 2026-03-27 ([Unreleased])
 
 ---
 
@@ -483,7 +483,9 @@ tombola-stark/
 │       ├── ui_terminale.py          # TerminalUI: menu + config (v0.7.0)
 │       ├── tui/
 │       │   ├── __init__.py
-│       │   └── tui_partita.py       # _loop_partita(): Game Loop canonico (v0.9.0)
+│       │   ├── tui_partita.py       # _loop_partita(): Game Loop canonico (v0.9.0)
+│       │   ├── tui_commander.py     # leggi_tasto(), comando_da_tasto(): input msvcrt (v0.10.0)
+│       │   └── codici_tasti_tui.py  # Costanti 26 tasti (Gruppi 1-10), TASTI_CARTELLE (v0.10.0)
 │       ├── locales/
 │       │   ├── __init__.py
 │       │   └── it.py                # Testi IT (MESSAGGI_*, chiavi LOOP_*)
@@ -492,13 +494,15 @@ tombola-stark/
 ├── my_lib/                      # Libreria di supporto
 ├── tests/                       # Suite di test
 │   └── test_silent_controller.py    # 15 test capsys + contratti (v0.8.0)
-├── documentations/
-│   ├── API.md
-│   ├── ARCHITECTURE.md
-│   ├── CHANGELOG.md
-│   └── templates/
-│       ├── TEMPLATE_example_API.md
-│       └── TEMPLATE_example_ARCHITECTURE.md
+├── docs/
+│   ├── API.md                   # Riferimento API pubblico
+│   ├── ARCHITECTURE.md          # Documentazione architetturale
+│   ├── todo.md                  # Task correnti
+│   ├── 1 - templates/           # Template DESIGN/PLAN/TODO
+│   ├── 2 - projects/            # Documenti DESIGN_*.md
+│   ├── 3 - coding plans/        # Documenti PLAN_*.md
+│   ├── 4 - reports/             # Report analisi e stato
+│   └── 5 - todo list/           # TODO completati / archiviati
 ├── main.py                      # Entry point
 ├── requirements.txt
 └── README.md
@@ -528,6 +532,8 @@ tombola-stark/
 #### `bingo_game/ui/`
 - `ui_terminale.py`: `TerminalUI` con macchina a stati A→E (v0.7.0)
 - `tui/tui_partita.py`: `_loop_partita()` — Game Loop interattivo canonico (v0.9.0). **Non importa classi Domain**: accesso al dominio esclusivamente tramite `game_controller`.
+- `tui/tui_commander.py`: `leggi_tasto()`, `comando_da_tasto()`, `TipoComando`, `ComandoTasto` — input a tasto singolo via `msvcrt`, senza necessità di Invio (v0.10.0).
+- `tui/codici_tasti_tui.py`: costanti per 26 tasti riconosciuti (Gruppi 1-10), `TASTI_CARTELLE`, `PREFISSO_TASTO_ESTESO` (v0.10.0).
 - `locales/it.py`: tutti i testi italiani (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, `MESSAGGI_CONTROLLER`, chiavi `LOOP_*`)
 - `renderers/`: `TerminalRenderer` — vocalizzazione gerarchica eventi di gioco
 
@@ -833,12 +839,13 @@ class TestControllerSilenzioso:
 ## 📚 Documentazione Correlata
 
 **Interna**:
-- `documentations/API.md` – Riferimento API pubblico per tutte le classi e funzioni
-- `documentations/CHANGELOG.md` – Cronologia completa delle versioni
-- `documentations/templates/` – Template per nuovi documenti
+- `docs/API.md` – Riferimento API pubblico per tutte le classi e funzioni
+- `CHANGELOG.md` – Cronologia completa delle versioni
+- `docs/1 - templates/` – Template per nuovi documenti (DESIGN, PLAN, TODO)
+- `docs/4 - reports/` – Report di analisi e stato del progetto
 - `README.md` – Guida utente e installazione
 
 ---
 
-*Ultimo aggiornamento: 2026-02-20 (v0.8.0)*  
+*Ultimo aggiornamento: 2026-03-27 ([Unreleased])*  
 *Documento vivente: aggiornare ad ogni cambiamento architetturale significativo.*
