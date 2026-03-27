@@ -108,6 +108,70 @@ Avvia il gioco con `python main.py`, inserisci nome, numero di bot e cartelle, p
 
 ---
 
+## Tasti Rapidi (v0.10.0)
+
+A partire dalla versione 0.10.0, il Game Loop usa tasti singoli via msvcrt (Windows). Non è necessario premere Invio.
+
+### Gruppo 1 — Navigazione riga (semplice)
+
+Freccia Su — sposta il focus di lettura alla riga precedente della cartella.
+Freccia Giu — sposta il focus di lettura alla riga successiva della cartella.
+
+### Gruppo 2 — Navigazione riga (avanzata)
+
+A — vai alla prima riga disponibile superiore con numeri non ancora segnati.
+Z — vai alla prima riga disponibile inferiore con numeri non ancora segnati.
+
+### Gruppo 3 — Navigazione colonna (semplice)
+
+Freccia Sinistra — sposta il focus alla colonna precedente nella riga corrente.
+Freccia Destra — sposta il focus alla colonna successiva nella riga corrente.
+
+### Gruppo 4 — Navigazione colonna (avanzata)
+
+Q — vai alla prima colonna a sinistra non ancora segnata nella riga corrente.
+W — vai alla prima colonna a destra non ancora segnata nella riga corrente.
+
+### Gruppo 5 — Salto diretto (richiede numero)
+
+R — vai direttamente alla riga indicata (prompt: numero da 1 a 3).
+C — vai direttamente alla colonna indicata (prompt: numero da 1 a 9).
+
+### Gruppo 6 — Navigazione cartella
+
+Pagina Su — mostra il riepilogo della cartella precedente e sposta il focus su di essa.
+Pagina Giu — mostra il riepilogo della cartella successiva e sposta il focus su di essa.
+Tasti 1 a 6 — seleziona direttamente la cartella corrispondente.
+
+### Gruppo 7 — Visualizzazione cartella
+
+D — visualizza la cartella corrente in modalita semplice (numeri e stato segnatura).
+F — visualizza la cartella corrente in modalita avanzata (dettaglio riga per riga).
+G — visualizza tutte le cartelle in modalita semplice.
+H — visualizza tutte le cartelle in modalita avanzata.
+
+### Gruppo 8 — Consultazione tabellone
+
+U — comunica l'ultimo numero estratto.
+I — mostra gli ultimi 5 numeri estratti in ordine cronologico.
+O — riepilogo tabellone (estratti, mancanti, percentuale avanzamento).
+L — lista completa di tutti i numeri estratti finora.
+E — verifica se un numero specifico e stato estratto (prompt: numero da 1 a 90).
+N — cerca un numero nelle tue cartelle (prompt: numero da 1 a 90).
+
+### Gruppo 9 — Orientamento
+
+? — mostra lo stato del focus corrente (cartella, riga, colonna in focus).
+
+### Gruppo 10 — Azioni di gioco
+
+S — segna un numero sulla cartella in focus (prompt: numero da 1 a 90).
+V — annuncia una vittoria (richiede configurazione avanzata).
+P — passa al turno successivo ed estrai il prossimo numero.
+X — esci dalla partita (chiede conferma: S per confermare, N per annullare).
+
+---
+
 ## ▶️ Utilizzo
 
 ### Avvio del gioco

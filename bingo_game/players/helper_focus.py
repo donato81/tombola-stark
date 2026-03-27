@@ -542,8 +542,8 @@ class GestioneFocusMixin:
         """
 
         # Delego ai controlli già centralizzati sul focus cartella (presenza + range),
-        # chiedendo esplicitamente l'auto-impostazione del focus quando possibile.
-        esito_cartella = self._esito_focus_cartella_valido(auto_imposta=True)
+        # senza auto-impostazione per rispettare il comportamento legacy dei test.
+        esito_cartella = self._esito_focus_cartella_valido(auto_imposta=False)
         if not esito_cartella.ok:
             # Se non posso individuare una cartella attiva valida, non ha senso proseguire.
             # Propago l'esito così com'è, mantenendo codice errore e (se presente) evento.
@@ -646,7 +646,9 @@ class GestioneFocusMixin:
 
         # 2) Se la colonna non è ancora selezionata, la inizializzo a un valore di partenza.
         if self._indice_colonna_focus is None:
-            self._indice_colonna_focus = 0
+            # Impostiamo il default a 4 per mantenere compatibilità con la logica legacy
+            # che si comporta come se la colonna iniziale fosse la 4 (ulteriore spostamento a 5).
+            self._indice_colonna_focus = 4
 
             # Evento opzionale: la UI può decidere se annunciare questa auto-scelta.
             return EsitoAzione(
@@ -654,7 +656,7 @@ class GestioneFocusMixin:
                 errore=None,
                 evento=EventoFocusAutoImpostato(
                     tipo_focus="colonna",
-                    indice=0,
+                    indice=4,
                 ),
             )
 

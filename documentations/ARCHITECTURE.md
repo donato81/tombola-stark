@@ -149,7 +149,7 @@ class Partita:
 - `crea_partita_standard()` – Factory completa per una partita configurata
 - `avvia_partita_sicura()` – Avvio con gestione sicura delle eccezioni
 - `esegui_turno_sicuro()` – Esecuzione turno con intercettazione di tutti gli errori
-- `ottieni_stato_sintetico()` – Snapshot validato per l'interfaccia
+- `ottieni_stato_sintetico()` – Guardia e validazione del riepilogo sintetico esposto dal dominio
 - `ha_partita_tombola()` / `partita_terminata()` – Sensori di stato per il loop di gioco
 
 **Regole di Dipendenza**:
@@ -186,7 +186,9 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 | File | Ruolo |
 |---|---|
 | `bingo_game/ui/ui_terminale.py` | `TerminalUI`: flusso configurazione pre-partita (Fase 1) |
-| `bingo_game/ui/tui/tui_partita.py` | `_loop_partita()`: macchina a stati Game Loop interattivo (v0.9.0) |
+| `bingo_game/ui/tui/tui_partita.py` | `_loop_partita()`: macchina a stati Game Loop interattivo; v0.9.0 (comandi testuali) + v0.10.0 (tasti rapidi via tui_commander) |
+| `bingo_game/ui/tui/tui_commander.py` | `leggi_tasto()`, `comando_da_tasto()`: input rapido a tasto singolo via msvcrt; classifica ogni pressione in un `ComandoTasto` (`TipoComando` enum + frozen dataclass). Gestisce tasti estesi a 2 byte (v0.10.0) |
+| `bingo_game/ui/tui/codici_tasti_tui.py` | Costanti per 26 codici tasto (Gruppi 1-10): frecce, PagSu/PagGiu, lettere, numeri cartella 1-6. Include `TASTI_CARTELLE` e `PREFISSO_TASTO_ESTESO` (v0.10.0) |
 | `bingo_game/ui/locales/it.py` | Testi localizzati (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, `MESSAGGI_CONTROLLER`, chiavi `LOOP_*`) |
 | `bingo_game/events/codici_controller.py` | Costanti chiave (`CTRL_*`) per `MESSAGGI_CONTROLLER` (v0.8.0) |
 | `bingo_game/events/codici_loop.py` | Costanti codici evento Game Loop (`LOOP_*`) (v0.9.0) |
@@ -210,6 +212,8 @@ TerminalUI._avvia_partita() → TuiGameLoop.avvia()
 6. `_loop_partita()` gestisce il ciclo interattivo: comandi `p/s/c/v/q/?`, report finale
 
 > **Vincolo architetturale v0.9.0**: `tui_partita.py` non importa classi Domain (`GiocatoreUmano`, `Partita`, `Tabellone`, `Cartella`). Ogni accesso al dominio passa esclusivamente tramite `game_controller` (es. `ottieni_giocatore_umano()`, `esegui_turno_sicuro()`, `ottieni_stato_sintetico()`).
+
+> **Nota refactor confini 2026-03-24**: il riepilogo sintetico della partita nasce ora esplicitamente in `Partita.get_stato_sintetico()`. `GameController.ottieni_stato_sintetico()` resta un bordo applicativo: verifica il parametro, valida il contratto minimo del dizionario e inoltra il risultato alla TUI senza reinterpretare lo stato di dominio.
 
 > **Nota v0.9.1 — `imposta_focus_cartella_fallback()`**: In `_loop_partita()`, se `imposta_focus_cartella(1)` solleva eccezione e il giocatore ha esattamente 1 cartella, il focus viene impostato tramite `giocatore.imposta_focus_cartella_fallback()`. Questo è l'**unico punto** in cui la TUI invoca un metodo sul domain object `giocatore` al di fuori di `game_controller`: è consentito perché il metodo è pubblico, non espone stato interno e rappresenta un fallback di emergenza documentato. Il metodo è definito in `bingo_game/players/helper_focus.py` (mixin `GestioneFocusMixin`).
 

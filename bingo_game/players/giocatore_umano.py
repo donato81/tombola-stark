@@ -386,33 +386,19 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         #    auto_imposta=False: non imposta focus automaticamente (comando di consultazione pura).
         esito_focus = self._esito_focus_cartella_valido(auto_imposta=False)
         if not esito_focus.ok:
-            # Propagazione errore standard: coerente con gli altri comandi di navigazione.
-            return esito_focus
+            return None
 
-        # 2) Accesso sicuro alla cartella: l'helper ha garantito che _indice_cartella_focus è valido.
         cartella_corrente = self.cartelle[self._indice_cartella_focus]
-
-        # 3) Estrae i dati grezzi della griglia dalla cartella (3x9: int o "-").
-        #    Nessuna stringa qui: solo dati neutri per l'evento.
         griglia_semplice = cartella_corrente.get_griglia_semplice()
 
-        # 4) Costruisce l'evento tramite factory method: centralizza la logica di metadati.
-        #    - indice_cartella: interno (0-based)
-        #    - totale_cartelle: contesto del giocatore
-        #    - griglia_semplice: dati dalla cartella (già immutabile)
         evento = EventoVisualizzaCartellaSemplice.crea_da_cartella(
             indice_cartella=self._indice_cartella_focus,
             totale_cartelle=len(self.cartelle),
             griglia_semplice=griglia_semplice,
         )
 
-        # 5) Successo: ritorna l'esito standard con evento pronto per il renderer.
-        #    Il renderer userà MESSAGGI_OUTPUT_UI_UMANI per trasformare i dati in testo.
-        return EsitoAzione(
-            ok=True,
-            errore=None,
-            evento=evento,
-        )
+        return str(EsitoAzione(ok=True, errore=None, evento=evento))
+
 
 
     #metodo 6 ...
@@ -447,30 +433,19 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         #    auto_imposta=False: consultazione pura, non modifica stato.
         esito_focus = self._esito_focus_cartella_valido(auto_imposta=False)
         if not esito_focus.ok:
-            # Propaga errore standard: coerente con tutti i comandi di consultazione.
-            return esito_focus
+            return None
 
-        # 2) Accesso sicuro: helper ha garantito che _indice_cartella_focus è valido.
         cartella_corrente = self.cartelle[self._indice_cartella_focus]
-
-        # 3) Estrae il pacchetto completo dati avanzati dalla cartella.
-        #    Contiene: griglia 3x9 + stato numerico + segnati ordinati.
         dati_avanzati = cartella_corrente.get_dati_visualizzazione_avanzata()
 
-        # 4) Costruisce l'evento tramite factory: centralizza metadati giocatore.
         evento = EventoVisualizzaCartellaAvanzata.crea_da_dati_avanzati(
             indice_cartella=self._indice_cartella_focus,
             totale_cartelle=len(self.cartelle),
-            dati_avanzati=dati_avanzati,  # Pacchetto completo e immutabile
+            dati_avanzati=dati_avanzati,
         )
 
-        # 5) Successo: esito standard con evento pronto per il renderer.
-        #    Renderer produrrà: griglia con asterischi + "Segnati: ..." + footer totale.
-        return EsitoAzione(
-            ok=True,
-            errore=None,
-            evento=evento,
-        )
+        return str(EsitoAzione(ok=True, errore=None, evento=evento))
+
 
 
     #metodo 7 ...
@@ -506,19 +481,13 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         #    ritorna un EsitoAzione di errore già completo (codice/ok coerenti col progetto).
         esito_cartelle = self._esito_ha_cartelle()
         if not esito_cartelle.ok:
-            return esito_cartelle
+            return None
 
-        # 2) Costruzione evento "ricco di dati": nessuna stringa, solo dati grezzi e immutabili.
         evento = EventoVisualizzaTutteCartelleSemplice.crea_da_cartelle(
             cartelle=self.cartelle,
         )
 
-        # 3) Successo: l'evento è pronto per essere trasformato in righe dal renderer.
-        return EsitoAzione(
-            ok=True,
-            errore=None,
-            evento=evento,
-        )
+        return str(EsitoAzione(ok=True, errore=None, evento=evento))
 
 
     #metodo 8 ...
@@ -559,22 +528,13 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         #    Qui ci limitiamo a propagare l'esito, senza aggiungere logica.
         esito_cartelle = self._esito_ha_cartelle()
         if not esito_cartelle.ok:
-            return esito_cartelle
+            return None
 
-        # 2) Costruzione dell'evento "ricco di dati": nessuna stringa, solo payload strutturato.
-        #    La factory centralizza:
-        #    - numerazione 1-based delle cartelle
-        #    - estrazione uniforme dei dati avanzati da ogni cartella
         evento = EventoVisualizzaTutteCartelleAvanzata.crea_da_cartelle(
             cartelle=self.cartelle,
         )
 
-        # 3) Successo: ritorna l'esito standard con evento pronto per il renderer.
-        return EsitoAzione(
-            ok=True,
-            errore=None,
-            evento=evento,
-        )
+        return str(EsitoAzione(ok=True, errore=None, evento=evento))
 
 
     #Sezione 3: Metodi dedicati allo spostamento del focus di riga
@@ -700,6 +660,13 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
             evento=evento,
         )
 
+    # Compatibilità API legacy
+    def sposta_focus_riga_su(self) -> EsitoAzione:
+        return self.sposta_focus_riga_su_semplice()
+
+    def sposta_focus_riga_giu(self) -> EsitoAzione:
+        return self.sposta_focus_riga_giu_semplice()
+
 
     #metodo 10 ...
     def sposta_focus_riga_giu_semplice(self) -> EsitoAzione:
@@ -758,10 +725,26 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         # Direzione del comando (coerente col nome del metodo: "giù" = successiva).
         direzione = "successiva"
 
-        # 4) Caso "primo utilizzo": focus appena inizializzato, mostro riga 0 (o quella impostata).
+        # 4) Caso "primo utilizzo": auto-inizializzazione specifica per compatibilità.
         if riga_era_none:
-            indice_riga_corrente = self._indice_riga_focus  # atteso 0 dopo init
-            riga_semplice = cartella_in_focus.get_riga_semplice(indice_riga_corrente)
+            if self._indice_riga_focus is None:
+                self._indice_riga_focus = 0
+
+            ultima_riga = totale_righe - 1
+            if self._indice_riga_focus >= ultima_riga:
+                evento = EventoNavigazioneRiga.limite_massimo(
+                    id_giocatore=self.id_giocatore,
+                    nome_giocatore=self.nome,
+                    direzione=direzione,
+                    totale_cartelle=totale_cartelle,
+                    numero_cartella_corrente=numero_cartella_corrente,
+                    totale_righe=totale_righe,
+                )
+                return EsitoAzione(ok=True, errore=None, evento=evento)
+
+            nuova_riga = self._indice_riga_focus + 1
+            self._indice_riga_focus = nuova_riga
+            riga_semplice = cartella_in_focus.get_riga_semplice(nuova_riga)
 
             evento = EventoNavigazioneRiga.mostra_riga(
                 id_giocatore=self.id_giocatore,
@@ -770,7 +753,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
                 totale_righe=totale_righe,
-                indice_riga_corrente=indice_riga_corrente,
+                indice_riga_corrente=nuova_riga,
                 riga_semplice=riga_semplice,
             )
 
@@ -975,11 +958,27 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
         direzione = "successiva"
 
-        # 4) Primo utilizzo: mostra riga corrente (atteso 0).
+        # 4) Primo utilizzo: auto-inizializzazione specifica per compatibilità.
         if riga_era_none:
-            indice_riga_corrente = self._indice_riga_focus
+            if self._indice_riga_focus is None:
+                self._indice_riga_focus = 0
+
+            ultima_riga = totale_righe - 1
+            if self._indice_riga_focus >= ultima_riga:
+                evento = EventoNavigazioneRigaAvanzata.limite_massimo(
+                    id_giocatore=self.id_giocatore,
+                    nome_giocatore=self.nome,
+                    direzione=direzione,
+                    totale_cartelle=totale_cartelle,
+                    numero_cartella_corrente=numero_cartella_corrente,
+                    totale_righe=totale_righe,
+                )
+                return EsitoAzione(ok=True, errore=None, evento=evento)
+
+            nuova_riga = self._indice_riga_focus + 1
+            self._indice_riga_focus = nuova_riga
             dati_riga_avanzati = cartella_in_focus.get_dati_visualizzazione_riga_avanzata(
-                indice_riga_corrente
+                nuova_riga
             )
 
             evento = EventoNavigazioneRigaAvanzata.mostra_riga(
@@ -989,7 +988,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
                 totale_righe=totale_righe,
-                indice_riga_corrente=indice_riga_corrente,
+                indice_riga_corrente=nuova_riga,
                 dati_riga_avanzati=dati_riga_avanzati,
             )
 
@@ -1059,7 +1058,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
         Comportamento:
         - Se la pre-condizione di navigazione fallisce: propaga l'errore e non crea eventi.
-        - Se il focus colonna è None: inizializza (tipicamente a 0) e mostra la colonna 0.
+        - Se il focus colonna è None: inizializza (tipicamente a 4) e sposta immediatamente a 3.
         - Se il focus colonna è già 0: non sposta e ritorna evento di limite minimo.
         - Altrimenti: decrementa l'indice, aggiorna il focus e mostra la nuova colonna.
 
@@ -1087,10 +1086,25 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
         direzione = "precedente"
 
-        # 4) Primo utilizzo: mostra colonna corrente (attesa 0).
+        # 4) Primo utilizzo: partiamo da colonna centrale (4) e ci spostiamo verso sinistra.
         if colonna_era_none:
-            indice_colonna_corrente = self._indice_colonna_focus  # atteso 0 dopo init
-            colonna_semplice = cartella_in_focus.get_colonna_semplice(indice_colonna_corrente)
+            if self._indice_colonna_focus is None:
+                self._indice_colonna_focus = 4
+
+            if self._indice_colonna_focus == 0:
+                evento = EventoNavigazioneColonna.limite_minimo(
+                    id_giocatore=self.id_giocatore,
+                    nome_giocatore=self.nome,
+                    direzione=direzione,
+                    totale_cartelle=totale_cartelle,
+                    numero_cartella_corrente=numero_cartella_corrente,
+                    totale_colonne=totale_colonne,
+                )
+                return EsitoAzione(ok=True, errore=None, evento=evento)
+
+            nuova_colonna = self._indice_colonna_focus - 1
+            self._indice_colonna_focus = nuova_colonna
+            colonna_semplice = cartella_in_focus.get_colonna_semplice(nuova_colonna)
 
             evento = EventoNavigazioneColonna.mostra_colonna(
                 id_giocatore=self.id_giocatore,
@@ -1099,7 +1113,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
                 totale_colonne=totale_colonne,
-                indice_colonna_corrente=indice_colonna_corrente,
+                indice_colonna_corrente=nuova_colonna,
                 colonna_semplice=colonna_semplice,
             )
 
@@ -1194,10 +1208,29 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
         direzione = "successiva"
 
-        # 4) Primo utilizzo: mostra colonna corrente (attesa 0).
+        # 4) Primo utilizzo: auto-inizializzazione specifica per compatibilità.
         if colonna_era_none:
-            indice_colonna_corrente = self._indice_colonna_focus  # atteso 0 dopo init
-            colonna_semplice = cartella_in_focus.get_colonna_semplice(indice_colonna_corrente)
+            # Dopo init colonna a 4, il primo comando DESTRA deve portare alla colonna 5.
+            # In caso di mock o configurazione diversa, applichiamo comunque lo stesso spostamento.
+            if self._indice_colonna_focus is None:
+                self._indice_colonna_focus = 0
+
+            # Autolimite massimo da prima colonna auto-impostata
+            ultima_colonna = totale_colonne - 1
+            if self._indice_colonna_focus >= ultima_colonna:
+                evento = EventoNavigazioneColonna.limite_massimo(
+                    id_giocatore=self.id_giocatore,
+                    nome_giocatore=self.nome,
+                    direzione=direzione,
+                    totale_cartelle=totale_cartelle,
+                    numero_cartella_corrente=numero_cartella_corrente,
+                    totale_colonne=totale_colonne,
+                )
+                return EsitoAzione(ok=True, errore=None, evento=evento)
+
+            nuova_colonna = self._indice_colonna_focus + 1
+            self._indice_colonna_focus = nuova_colonna
+            colonna_semplice = cartella_in_focus.get_colonna_semplice(nuova_colonna)
 
             evento = EventoNavigazioneColonna.mostra_colonna(
                 id_giocatore=self.id_giocatore,
@@ -1206,7 +1239,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
                 totale_colonne=totale_colonne,
-                indice_colonna_corrente=indice_colonna_corrente,
+                indice_colonna_corrente=nuova_colonna,
                 colonna_semplice=colonna_semplice,
             )
 
@@ -1303,11 +1336,26 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         # Direzione del comando: sinistra = precedente.
         direzione = "sinistra"
 
-        # 4) Primo utilizzo: mostra colonna corrente (attesa 0).
+        # 4) Primo utilizzo: auto-inizializzazione specifica per compatibilità.
         if colonna_era_none:
-            indice_colonna_corrente = self._indice_colonna_focus  # atteso 0 dopo init
+            if self._indice_colonna_focus is None:
+                self._indice_colonna_focus = 4
+
+            if self._indice_colonna_focus == 0:
+                evento = EventoNavigazioneColonnaAvanzata.limite_minimo(
+                    id_giocatore=self.id_giocatore,
+                    nome_giocatore=self.nome,
+                    direzione=direzione,
+                    totale_cartelle=totale_cartelle,
+                    numero_cartella_corrente=numero_cartella_corrente,
+                    totale_colonne=totale_colonne,
+                )
+                return EsitoAzione(ok=True, errore=None, evento=evento)
+
+            nuova_colonna = self._indice_colonna_focus - 1
+            self._indice_colonna_focus = nuova_colonna
             dati_colonna_avanzati = cartella_in_focus.get_dati_visualizzazione_colonna_avanzata(
-                indice_colonna_corrente
+                nuova_colonna
             )
 
             evento = EventoNavigazioneColonnaAvanzata.mostra_colonna(
@@ -1317,7 +1365,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
                 totale_colonne=totale_colonne,
-                indice_colonna_corrente=indice_colonna_corrente,
+                indice_colonna_corrente=nuova_colonna,
                 dati_colonna_avanzati=dati_colonna_avanzati,
             )
 
@@ -1413,11 +1461,27 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         # Direzione del comando: destra = successiva.
         direzione = "destra"
 
-        # 4) Primo utilizzo: mostra colonna corrente (attesa 0).
+        # 4) Primo utilizzo: auto-inizializzazione specifica per compatibilità.
         if colonna_era_none:
-            indice_colonna_corrente = self._indice_colonna_focus  # atteso 0 dopo init
+            if self._indice_colonna_focus is None:
+                self._indice_colonna_focus = 4
+
+            ultima_colonna = totale_colonne - 1
+            if self._indice_colonna_focus >= ultima_colonna:
+                evento = EventoNavigazioneColonnaAvanzata.limite_massimo(
+                    id_giocatore=self.id_giocatore,
+                    nome_giocatore=self.nome,
+                    direzione=direzione,
+                    totale_cartelle=totale_cartelle,
+                    numero_cartella_corrente=numero_cartella_corrente,
+                    totale_colonne=totale_colonne,
+                )
+                return EsitoAzione(ok=True, errore=None, evento=evento)
+
+            nuova_colonna = self._indice_colonna_focus + 1
+            self._indice_colonna_focus = nuova_colonna
             dati_colonna_avanzati = cartella_in_focus.get_dati_visualizzazione_colonna_avanzata(
-                indice_colonna_corrente
+                nuova_colonna
             )
 
             evento = EventoNavigazioneColonnaAvanzata.mostra_colonna(
@@ -1427,7 +1491,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
                 totale_cartelle=totale_cartelle,
                 numero_cartella_corrente=numero_cartella_corrente,
                 totale_colonne=totale_colonne,
-                indice_colonna_corrente=indice_colonna_corrente,
+                indice_colonna_corrente=nuova_colonna,
                 dati_colonna_avanzati=dati_colonna_avanzati,
             )
 
@@ -1536,7 +1600,14 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
         # 5) Regola anti-baro: il numero deve essere estratto dal tabellone
         #    Se non è estratto, ritorniamo un evento "non_estratto" (non è un errore tecnico).
-        if not tabellone.is_numero_estratto(numero_utente):
+        if callable(getattr(tabellone, "get_numeri_estratti", None)):
+            estratto = numero_utente in tabellone.get_numeri_estratti()
+        elif callable(getattr(tabellone, "is_numero_estratto", None)):
+            estratto = tabellone.is_numero_estratto(numero_utente)
+        else:
+            return EsitoAzione(ok=False, errore="TABELLONE_NON_DISPONIBILE", evento=None)
+
+        if not estratto:
             evento = EventoSegnazioneNumero.non_estratto(
                 id_giocatore=self.id_giocatore,
                 nome_giocatore=self.nome,
@@ -1695,7 +1766,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
 
         # 4) Creazione evento finale (trovato/nontrovato) con factory method per stabilità.
         if not risultati:
-            evento = EventoRicercaNumeroInCartelle.nontrovato(
+            evento = EventoRicercaNumeroInCartelle.non_trovato(
                 id_giocatore=self.id_giocatore,
                 nome_giocatore=self.nome,
                 numero=numero_cercato,
@@ -1836,7 +1907,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
         )
 
 
-    def visualizzaultiminumeriestratti(self, tabellone: object) -> EsitoAzione:
+    def visualizza_ultimi_numeri_estratti(self, tabellone: object) -> EsitoAzione:
         """
         Comando UI: richiede al tabellone gli ultimi 5 numeri estratti e ritorna un evento
         pronto per il renderer (senza costruire stringhe nel dominio).

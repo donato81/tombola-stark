@@ -31,6 +31,7 @@ Filosofia: "Tutto ciò che può rompersi, DEVE essere testato"
 """
 
 import unittest
+from unittest.mock import patch
 from typing import List, Optional
 from bingo_game.game_controller import (
     crea_tabellone_standard,
@@ -507,6 +508,16 @@ class TestGameController(unittest.TestCase):
         with self.assertRaises(ValueError):
             ottieni_stato_sintetico("non una partita")
 
+    def test_ottieni_stato_sintetico_traduce_eccezione_interna_di_partita(self) -> None:
+        """Verifica che il controller traduca eccezioni interne di Partita in un ValueError di bordo."""
+        partita = crea_partita_standard()
+
+        with patch.object(partita, "get_stato_sintetico", side_effect=RuntimeError("errore snapshot")):
+            with self.assertRaises(ValueError) as context:
+                ottieni_stato_sintetico(partita)
+
+        self.assertIn("Errore interno Partita.get_stato_sintetico()", str(context.exception))
+
     def test_ottieni_stato_sintetico_tutte_chiavi_presenti(self) -> None:
         """
         Verifica tutte le chiavi obbligatorie sono presenti.
@@ -531,6 +542,117 @@ class TestGameController(unittest.TestCase):
         self.assertEqual(len(giocatori), 4)  # 1 umano + 3 bot
         self.assertEqual(giocatori[0]["nome"], "Mario")
         self.assertEqual(giocatori[0]["num_cartelle"], 2)
+
+    def test_ottieni_stato_sintetico_delega_snapshot_premi_a_partita(self) -> None:
+        """Verifica che il controller non ridefinisca i premi gia' owned da Partita."""
+        partita = crea_partita_standard()
+        partita.premi_gia_assegnati.update({
+            "cartella_2_riga_1_terno",
+            "cartella_1_riga_0_ambo",
+        })
+
+        stato_partita = partita.get_stato_sintetico()
+        stato_controller = ottieni_stato_sintetico(partita)
+
+        self.assertEqual(
+            stato_controller["premi_gia_assegnati"],
+            stato_partita["premi_gia_assegnati"],
+        )
+
+    def test_ottieni_stato_sintetico_snapshot_identico_a_partita(self) -> None:
+        """Verifica che il controller inoltri lo snapshot completo prodotto da Partita."""
+        partita = crea_partita_standard("Mario", 2, 2)
+
+        stato_partita = partita.get_stato_sintetico()
+        stato_controller = ottieni_stato_sintetico(partita)
+
+        self.assertEqual(stato_controller, stato_partita)
+
+    def test_ottieni_stato_sintetico_stato_non_dict_raises(self) -> None:
+        """Verifica errore se Partita ritorna uno stato non serializzabile come dizionario."""
+        partita = crea_partita_standard()
+
+        with patch.object(partita, "get_stato_sintetico", return_value="stato-non-valido"):
+            with self.assertRaises(ValueError):
+                ottieni_stato_sintetico(partita)
+
+    def test_ottieni_stato_sintetico_chiavi_mancanti_raises(self) -> None:
+        """Verifica errore se lo snapshot di Partita non espone tutte le chiavi pubbliche attese."""
+        partita = crea_partita_standard()
+        stato_incompleto = {
+            "stato_partita": "non_iniziata",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": [],
+            "giocatori": [],
+        }
+
+        with patch.object(partita, "get_stato_sintetico", return_value=stato_incompleto):
+            with self.assertRaises(ValueError):
+                ottieni_stato_sintetico(partita)
+
+    def test_ottieni_stato_sintetico_numeri_estratti_non_lista_pass_through(self) -> None:
+        """Verifica che il controller non reinterpreti piu' il tipo di numeri_estratti se le chiavi richieste esistono."""
+        partita = crea_partita_standard()
+        stato_non_valido = {
+            "stato_partita": "non_iniziata",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": "1,2,3",
+            "giocatori": [],
+            "premi_gia_assegnati": [],
+        }
+
+        with patch.object(partita, "get_stato_sintetico", return_value=stato_non_valido):
+            stato = ottieni_stato_sintetico(partita)
+
+        self.assertEqual(stato["numeri_estratti"], "1,2,3")
+
+    def test_ottieni_stato_sintetico_giocatori_non_lista_pass_through(self) -> None:
+        """Verifica che il controller non reinterpreti piu' il tipo di giocatori se le chiavi richieste esistono."""
+        partita = crea_partita_standard()
+        stato_non_valido = {
+            "stato_partita": "non_iniziata",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": [],
+            "giocatori": {"nome": "Mario"},
+            "premi_gia_assegnati": [],
+        }
+
+        with patch.object(partita, "get_stato_sintetico", return_value=stato_non_valido):
+            stato = ottieni_stato_sintetico(partita)
+
+        self.assertEqual(stato["giocatori"], {"nome": "Mario"})
+
+    def test_ottieni_stato_sintetico_stato_partita_invalido_pass_through(self) -> None:
+        """Verifica che il controller non reinterpreti piu' il valore semantico di stato_partita."""
+        partita = crea_partita_standard()
+        stato_non_valido = {
+            "stato_partita": "pausa",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": [],
+            "giocatori": [],
+            "premi_gia_assegnati": [],
+        }
+
+        with patch.object(partita, "get_stato_sintetico", return_value=stato_non_valido):
+            stato = ottieni_stato_sintetico(partita)
+
+        self.assertEqual(stato["stato_partita"], "pausa")
+
+    def test_ottieni_stato_sintetico_non_valida_formato_premi_gia_assegnati(self) -> None:
+        """Fotografa che il controller oggi non valida il tipo di premi_gia_assegnati."""
+        partita = crea_partita_standard()
+        stato_non_valido = {
+            "stato_partita": "non_iniziata",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": [],
+            "giocatori": [],
+            "premi_gia_assegnati": "ambo",
+        }
+
+        with patch.object(partita, "get_stato_sintetico", return_value=stato_non_valido):
+            stato = ottieni_stato_sintetico(partita)
+
+        self.assertEqual(stato["premi_gia_assegnati"], "ambo")
 
 
 

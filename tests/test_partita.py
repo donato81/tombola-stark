@@ -1360,3 +1360,39 @@ class TestPartita(unittest.TestCase):
             premi_lista,
             "La chiave del premio fittizio deve risultare presente in premi_gia_assegnati."
         )
+
+    def test_get_stato_sintetico_coincide_con_get_stato_completo(self):
+        """
+        Verifica che il riepilogo sintetico pubblico della partita coincida con
+        lo snapshot completo attualmente esposto al controller.
+        """
+        giocatore = GiocatoreBase(nome="Giocatore Sintetico", id_giocatore=501)
+        cartella = Cartella()
+        giocatore.aggiungi_cartella(cartella)
+        self.partita.aggiungi_giocatore(giocatore)
+        self.partita.aggiungi_giocatore(GiocatoreBase(nome="Bot Sintetico", id_giocatore=502))
+        self.partita.avvia_partita()
+        self.partita.estrai_prossimo_numero()
+        self.partita.premi_gia_assegnati.add("cartella_1_riga_0_ambo")
+
+        stato_sintetico = self.partita.get_stato_sintetico()
+        stato_completo = self.partita.get_stato_completo()
+
+        self.assertEqual(stato_sintetico, stato_completo)
+
+    def test_get_stato_sintetico_defensive_copy_and_types(self):
+        """Verifica che il riepilogo sintetico sia robusto e non aliasi lo stato interno."""
+        stato = self.partita.get_stato_sintetico()
+
+        self.assertIsInstance(stato, dict)
+        self.assertIsInstance(stato["numeri_estratti"], list)
+        self.assertIsInstance(stato["giocatori"], list)
+        self.assertIsInstance(stato["premi_gia_assegnati"], list)
+
+        # Modifica il risultato deve essere isolata dallo stato interno
+        stato["numeri_estratti"].append(999)
+        self.assertNotIn(999, self.partita.tabellone.get_numeri_estratti())
+
+        orig_giocatori = self.partita.get_stato_giocatori()
+        stato["giocatori"].clear()
+        self.assertEqual(orig_giocatori, self.partita.get_stato_giocatori())

@@ -607,6 +607,12 @@ MESSAGGI_OUTPUT_UI_UMANI: Mapping[Codici_Output_Ui_Umani, tuple[str, ...]] = Map
         "Quale numero vuoi segnare? (1-90):",
     ),
 
+    # Tasto non riconosciuto dal Commander (v0.10.0).
+    # Messaggio breve, self-contained, leggibile da NVDA.
+    "LOOP_TASTO_NON_VALIDO": (
+        "Tasto non valido. Premi ? per conoscere il focus.",
+    ),
+
 })
 
 

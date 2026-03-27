@@ -887,51 +887,80 @@ class Partita:
 
 
 
+    #metodo che ritorna un riepilogo sintetico e stabile dello stato di gioco.
+    def get_stato_sintetico(self) -> Dict[str, Any]:
+      """
+      Ritorna la fotografia sintetica pubblica dello stato attuale della partita.
+
+      È una vista ridotta di get_stato_completo(): include solo i campi minimi
+      richiesti dal layer controller/UI secondo il contratto di bordo.
+
+      Ritorna:
+      - Dict[str, Any]: Dizionario con chiavi pubbliche e stabili per il bordo
+        applicativo:
+        - "stato_partita"
+        - "ultimo_numero_estratto"
+        - "numeri_estratti"
+        - "giocatori"
+        - "premi_gia_assegnati"
+      """
+      completo = self.get_stato_completo()
+
+      # Copie difensive per evitare alias sullo stato interno.
+      return {
+        "stato_partita": completo["stato_partita"],
+        "ultimo_numero_estratto": completo["ultimo_numero_estratto"],
+        "numeri_estratti": list(completo["numeri_estratti"]),
+        "giocatori": list(completo["giocatori"]),
+        "premi_gia_assegnati": list(completo["premi_gia_assegnati"]),
+      }
+
+
+
     #metodo che ritorna un riepilogo complessivo della partita (stato, ultimo numero estratto, premi assegnati, elenco sintetico dei giocatori).
     #metodo che ritorna un riepilogo complessivo della partita (stato, ultimo numero estratto, premi assegnati, elenco sintetico dei giocatori).
     def get_stato_completo(self) -> Dict[str, Any]:
         """
         Ritorna una fotografia completa e dettagliata dello stato attuale della partita.
 
-        Questo metodo è fondamentale per l'interfaccia utente (o per il salvataggio partita),
-        perché in una sola chiamata fornisce TUTTE le informazioni necessarie a ricostruire
-        la scena di gioco:
-        - A che punto siamo (stato partita, ultimo numero).
-        - Cosa è successo sul tabellone (numeri estratti, numeri mancanti).
-        - Come stanno i giocatori (chi sono, quante cartelle hanno, se hanno vinto).
-        - Quali premi sono già stati assegnati (lo storico delle vittorie).
+        Questo metodo fornisce lo snapshot più esteso e autoritativo del dominio.
+        Il controller e l'interfaccia possono usarlo direttamente oppure prendere una
+        vista sintetica via get_stato_sintetico().
 
         Ritorna:
-        - Dict[str, Any]: Un dizionario contenitore con le seguenti chiavi:
-            - "stato_partita": str ("non_iniziata", "in_corso", "terminata")
-            - "ultimo_numero_estratto": int o None
-            - "numeri_estratti": List[int] (tutti i numeri usciti sul tabellone finora)
-            - "giocatori": List[Dict] (la lista sintetica generata da get_stato_giocatori)
-            - "premi_gia_assegnati": List[str] (elenco delle chiavi dei premi già vinti, es. "cartella_1_riga_0_ambo")
+        - Dict[str, Any] con chiavi:
+            - "stato_partita": str ("non_iniziata", "in_corso", "terminata" o altro)
+            - "ultimo_numero_estratto": int | None
+            - "numeri_estratti": List[int]
+            - "numeri_mancanti": List[int]
+            - "giocatori": List[Dict[str, Any]]
+            - "premi_gia_assegnati": List[str]
+            - "conteggio_giocatori": int
         """
-        
-        # 1. Recupero informazioni dal Tabellone
-        # Uso i metodi pubblici del tabellone per avere i dati puliti
-        numeri_estratti = self.tabellone.get_numeri_estratti()
-        
-        # 2. Recupero informazioni sui Giocatori
-        # Riuso il metodo che abbiamo appena scritto per non duplicare la logica
-        stato_giocatori = self.get_stato_giocatori()
-        
-        # 3. Preparo la lista dei premi
-        # Converto il set in lista per renderlo serializzabile (es. in JSON) e leggibile
-        lista_premi = list(self.premi_gia_assegnati)
-        lista_premi.sort()  # Li ordino per avere un output stabile e prevedibile
-        
-        # 4. Assemblo il pacchetto finale
-        stato_completo = {
-            "stato_partita": self.stato_partita,
+
+        numeri_estratti_raw = self.tabellone.get_numeri_estratti()
+        numeri_estratti = list(numeri_estratti_raw) if isinstance(numeri_estratti_raw, list) else list(numeri_estratti_raw)
+
+        numeri_mancanti_raw = self.tabellone.get_numeri_disponibili()
+        numeri_mancanti = list(numeri_mancanti_raw) if isinstance(numeri_mancanti_raw, list) else list(numeri_mancanti_raw)
+
+        stato_giocatori_raw = self.get_stato_giocatori()
+        stato_giocatori = list(stato_giocatori_raw) if isinstance(stato_giocatori_raw, list) else list(stato_giocatori_raw)
+
+        premi_gia_assegnati = sorted(list(self.premi_gia_assegnati))
+
+        stato_partita = self.stato_partita
+        if not isinstance(stato_partita, str):
+            stato_partita = str(stato_partita)
+
+        return {
+            "stato_partita": stato_partita,
             "ultimo_numero_estratto": self.ultimo_numero_estratto,
             "numeri_estratti": numeri_estratti,
+            "numeri_mancanti": numeri_mancanti,
             "giocatori": stato_giocatori,
-            "premi_gia_assegnati": lista_premi
+            "premi_gia_assegnati": premi_gia_assegnati,
+            "conteggio_giocatori": len(stato_giocatori),
         }
-        
-        return stato_completo
 
 

@@ -21,7 +21,7 @@ from unittest.mock import patch, MagicMock, call
 
 import pytest
 
-from bingo_game.ui.tui.tui_partita import _loop_partita
+from bingo_game.ui.tui.tui_partita import _loop_partita, _gestisci_riepilogo_tabellone, _costruisci_report_finale, _normalizza_stato_sintetico
 
 
 # ---------------------------------------------------------------------------
@@ -64,8 +64,10 @@ def test_flusso_p_avanza_turno(partita_mock, capsys):
         "partita_terminata": False,
         "premi_nuovi": [],
     }
-    inputs = iter(["p", "q", "s"])
+    commands = iter(["p", "q", "s"])
+    inputs = iter(["s"])  # solo conferma uscita
     with (
+        patch("bingo_game.ui.tui.tui_partita.leggi_tasto", side_effect=commands),
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False]),
         patch("bingo_game.ui.tui.tui_partita.esegui_turno_sicuro", return_value=risultato_turno),
@@ -84,9 +86,11 @@ def test_flusso_p_avanza_turno(partita_mock, capsys):
 
 def test_flusso_q_conferma_log_warning(partita_mock):
     """Flusso 'q' + 's': deve loggare un WARNING su tombola_stark.tui."""
-    inputs = iter(["q", "s"])
+    commands = iter(["q", "s"])
+    inputs = iter(["s"])
     with (
         patch("bingo_game.ui.tui.tui_partita._logger_tui") as mock_logger,
+        patch("bingo_game.ui.tui.tui_partita.leggi_tasto", side_effect=commands),
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", return_value=False),
         patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
@@ -107,9 +111,11 @@ def test_flusso_q_conferma_log_warning(partita_mock):
 
 def test_flusso_q_annulla_nessun_warning(partita_mock):
     """Flusso 'q' + 'n': il primo quit non deve emettere WARNING."""
-    inputs = iter(["q", "n", "q", "s"])
+    commands = iter(["q", "q"])
+    inputs = iter(["n", "s"])
     with (
         patch("bingo_game.ui.tui.tui_partita._logger_tui") as mock_logger,
+        patch("bingo_game.ui.tui.tui_partita.leggi_tasto", side_effect=commands),
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False, False]),
         patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
@@ -133,9 +139,11 @@ def test_flusso_q_annulla_nessun_warning(partita_mock):
 
 def test_flusso_q_input_invalido_annullato(partita_mock):
     """Flusso 'q' + 'x' (input non valido): deve trattare come annullato."""
-    inputs = iter(["q", "x", "q", "s"])
+    commands = iter(["q", "q"])
+    inputs = iter(["x", "s"])
     with (
         patch("bingo_game.ui.tui.tui_partita._logger_tui") as mock_logger,
+        patch("bingo_game.ui.tui.tui_partita.leggi_tasto", side_effect=commands),
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False, False]),
         patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
@@ -357,3 +365,43 @@ def test_flusso_v_riepilogo_tabellone_almeno_due_righe(partita_mock, capsys):
     assert len(righe_non_vuote) >= 2, (
         f"Attese almeno 2 righe di output, trovate {len(righe_non_vuote)}: {out!r}"
     )
+
+
+def test_gestisci_riepilogo_tabellone_mappa_tipo_non_standard(partita_mock):
+    """Con dati non-lista in stato sintetico la UI deve rimanere robusta."""
+    stato_non_standard = {
+        "numeri_estratti": "1,2,3",  # non list
+        "ultimo_numero_estratto": "42",  # non int
+        "giocatori": {"nome": "Mario", "ha_tombola": True},  # non list
+        "premi_gia_assegnati": "ambo",  # non list
+        "stato_partita": "pausa",
+    }
+
+    with (
+        patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value=stato_non_standard),
+        patch("bingo_game.ui.tui.tui_partita._logger_tui") as mock_logger,
+    ):
+        righe = _gestisci_riepilogo_tabellone(partita_mock)
+
+    assert len(righe) >= 2
+    assert any("Nessun numero ancora estratto" in r for r in righe)
+
+    warning_msgs = [args for args, _ in mock_logger.warning.call_args_list]
+    assert any("numeri_estratti non è lista" in str(msg) for msg in warning_msgs)
+    assert any("giocatori non è lista" in str(msg) for msg in warning_msgs)
+
+
+def test_costruisci_report_finale_non_lista_giocatori(partita_mock):
+    """Il report finale deve essere costruito anche da stato normalizzato non-standard."""
+    stato_input = {
+        "numeri_estratti": [5, 10, 15],
+        "ultimo_numero_estratto": None,
+        "giocatori": {"nome": "Mario", "ha_tombola": True},
+        "premi_gia_assegnati": 123,
+        "stato_partita": "pausa",
+    }
+    stato = _normalizza_stato_sintetico(stato_input)
+
+    righe = _costruisci_report_finale(stato)
+    assert "FINE PARTITA" in " ".join(righe) or len(righe) >= 4
+    assert "Nessun vincitore" in " ".join(righe).lower()
