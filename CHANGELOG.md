@@ -10,6 +10,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ## [Unreleased]
 
 ### Added
+- `docs/4 - reports/REPORT_ANALISI_STATO_2026-03-27.md`: aggiunge report di analisi
+  stato progetto con roadmap prioritizzata (v0.11.0 → v2.0.0+).
 - Tasti rapidi TUI: navigazione e azioni di gioco via msvcrt senza Invio (v0.10.0).
 - `bingo_game/ui/tui/tui_commander.py`: modulo di input rapido con `TipoComando`,
   `ComandoTasto` (frozen dataclass), `leggi_tasto()`, `comando_da_tasto()`. Supporta
@@ -50,6 +52,9 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   (conformita snake_case).
 
 ### Removed
+- `documentations/`: rimossa la cartella legacy; tutta la documentazione
+  migrata nella nuova struttura `docs/` (templates, projects, coding plans,
+  reports, todo list, API.md, ARCHITECTURE.md).
 - Parsing comandi testuali (seguito da Invio) rimosso dal game loop principale.
   Il loop v0.10.0 usa esclusivamente `leggi_tasto()` via msvcrt.
 
