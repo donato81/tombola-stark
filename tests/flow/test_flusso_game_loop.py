@@ -1,19 +1,19 @@
-"""
+﻿"""
 Test di flusso end-to-end per il Game Loop interattivo v0.9.0.
 
 Scenari testati:
-1.  Flusso `p`: avanza turno → numero estratto vocalizzato.
-2.  Flusso `q` + conferma 's' → WARNING loggato con numero turno.
-3.  Flusso `q` + annulla 'n' → loop continua, nessun WARNING sulla prima uscita.
-4.  Flusso `q` + input invalido → trattato come annullato.
-5.  Flusso `s abc` con argomento non numerico → messaggio errore.
-6.  Flusso `s` senza argomento → messaggio errore.
-7.  Comando sconosciuto 'zzz' → messaggio errore, nessun crash.
-8.  Flusso partita completa → report finale con vincitore (tombola).
-9.  Flusso partita completa → report finale senza vincitore.
-10. Flusso `s <N>` su numero estratto → segnazione (no crash).
-11. Flusso `c` → riepilogo cartella (no crash).
-12. Flusso `v` → riepilogo tabellone (almeno 2 righe).
+1.  Flusso `p`: avanza turno â†’ numero estratto vocalizzato.
+2.  Flusso `q` + conferma 's' â†’ WARNING loggato con numero turno.
+3.  Flusso `q` + annulla 'n' â†’ loop continua, nessun WARNING sulla prima uscita.
+4.  Flusso `q` + input invalido â†’ trattato come annullato.
+5.  Flusso `s abc` con argomento non numerico â†’ messaggio errore.
+6.  Flusso `s` senza argomento â†’ messaggio errore.
+7.  Comando sconosciuto 'zzz' â†’ messaggio errore, nessun crash.
+8.  Flusso partita completa â†’ report finale con vincitore (tombola).
+9.  Flusso partita completa â†’ report finale senza vincitore.
+10. Flusso `s <N>` su numero estratto â†’ segnazione (no crash).
+11. Flusso `c` â†’ riepilogo cartella (no crash).
+12. Flusso `v` â†’ riepilogo tabellone (almeno 2 righe).
 """
 from __future__ import annotations
 
@@ -53,7 +53,7 @@ def partita_mock():
 
 
 # ---------------------------------------------------------------------------
-# Scenario 1 — Flusso `p`: avanza turno → numero estratto vocalizzato
+# Scenario 1 â€” Flusso `p`: avanza turno â†’ numero estratto vocalizzato
 # ---------------------------------------------------------------------------
 
 def test_flusso_p_avanza_turno(partita_mock, capsys):
@@ -71,7 +71,6 @@ def test_flusso_p_avanza_turno(partita_mock, capsys):
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False]),
         patch("bingo_game.ui.tui.tui_partita.esegui_turno_sicuro", return_value=risultato_turno),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value=_crea_stato_mock([42])),
     ):
         _loop_partita(partita_mock)
@@ -81,7 +80,7 @@ def test_flusso_p_avanza_turno(partita_mock, capsys):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 2 — Flusso `q` + conferma → WARNING loggato
+# Scenario 2 â€” Flusso `q` + conferma â†’ WARNING loggato
 # ---------------------------------------------------------------------------
 
 def test_flusso_q_conferma_log_warning(partita_mock):
@@ -93,7 +92,6 @@ def test_flusso_q_conferma_log_warning(partita_mock):
         patch("bingo_game.ui.tui.tui_partita.leggi_tasto", side_effect=commands),
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", return_value=False),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value=_crea_stato_mock()),
     ):
         _loop_partita(partita_mock)
@@ -106,7 +104,7 @@ def test_flusso_q_conferma_log_warning(partita_mock):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 3 — Flusso `q` + annulla → loop continua, nessun WARNING sulla prima uscita
+# Scenario 3 â€” Flusso `q` + annulla â†’ loop continua, nessun WARNING sulla prima uscita
 # ---------------------------------------------------------------------------
 
 def test_flusso_q_annulla_nessun_warning(partita_mock):
@@ -118,7 +116,6 @@ def test_flusso_q_annulla_nessun_warning(partita_mock):
         patch("bingo_game.ui.tui.tui_partita.leggi_tasto", side_effect=commands),
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False, False]),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value=_crea_stato_mock()),
     ):
         _loop_partita(partita_mock)
@@ -134,7 +131,7 @@ def test_flusso_q_annulla_nessun_warning(partita_mock):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 4 — Flusso `q` + input invalido → trattato come annullato
+# Scenario 4 â€” Flusso `q` + input invalido â†’ trattato come annullato
 # ---------------------------------------------------------------------------
 
 def test_flusso_q_input_invalido_annullato(partita_mock):
@@ -146,12 +143,11 @@ def test_flusso_q_input_invalido_annullato(partita_mock):
         patch("bingo_game.ui.tui.tui_partita.leggi_tasto", side_effect=commands),
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False, False]),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value=_crea_stato_mock()),
     ):
         _loop_partita(partita_mock)
 
-    # Il primo quit ('x') è annullato; il secondo ('s') è confermato
+    # Il primo quit ('x') Ã¨ annullato; il secondo ('s') Ã¨ confermato
     alert_calls = [
         c for c in mock_logger.warning.call_args_list
         if "ALERT" in str(c)
@@ -162,7 +158,7 @@ def test_flusso_q_input_invalido_annullato(partita_mock):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 5 — Flusso `s abc`: argomento non numerico → errore
+# Scenario 5 â€” Flusso `s abc`: argomento non numerico â†’ errore
 # ---------------------------------------------------------------------------
 
 def test_flusso_s_arg_non_numerico_errore(partita_mock, capsys):
@@ -171,7 +167,6 @@ def test_flusso_s_arg_non_numerico_errore(partita_mock, capsys):
     with (
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False]),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value=_crea_stato_mock()),
     ):
         _loop_partita(partita_mock)
@@ -183,7 +178,7 @@ def test_flusso_s_arg_non_numerico_errore(partita_mock, capsys):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 6 — Flusso `s` senza argomento → prompt interattivo → errore su input non valido
+# Scenario 6 â€” Flusso `s` senza argomento â†’ prompt interattivo â†’ errore su input non valido
 # ---------------------------------------------------------------------------
 
 def test_flusso_s_senza_argomento_errore(partita_mock, capsys):
@@ -193,7 +188,6 @@ def test_flusso_s_senza_argomento_errore(partita_mock, capsys):
     with (
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False]),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value=_crea_stato_mock()),
     ):
         _loop_partita(partita_mock)
@@ -210,7 +204,7 @@ def test_flusso_s_senza_argomento_errore(partita_mock, capsys):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 7 — Comando sconosciuto → messaggio errore, nessun crash
+# Scenario 7 â€” Comando sconosciuto â†’ messaggio errore, nessun crash
 # ---------------------------------------------------------------------------
 
 def test_flusso_comando_sconosciuto_no_crash(partita_mock, capsys):
@@ -219,7 +213,6 @@ def test_flusso_comando_sconosciuto_no_crash(partita_mock, capsys):
     with (
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False]),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value=_crea_stato_mock()),
     ):
         _loop_partita(partita_mock)
@@ -231,7 +224,7 @@ def test_flusso_comando_sconosciuto_no_crash(partita_mock, capsys):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 8 — Partita completa con vincitore → report finale con nome vincitore
+# Scenario 8 â€” Partita completa con vincitore â†’ report finale con nome vincitore
 # ---------------------------------------------------------------------------
 
 def test_flusso_partita_completa_con_vincitore(partita_mock, capsys):
@@ -252,7 +245,6 @@ def test_flusso_partita_completa_con_vincitore(partita_mock, capsys):
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", return_value=False),
         patch("bingo_game.ui.tui.tui_partita.esegui_turno_sicuro", return_value=risultato_turno),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value=stato_finale),
     ):
         _loop_partita(partita_mock)
@@ -263,7 +255,7 @@ def test_flusso_partita_completa_con_vincitore(partita_mock, capsys):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 9 — Partita completa senza vincitore → report finale
+# Scenario 9 â€” Partita completa senza vincitore â†’ report finale
 # ---------------------------------------------------------------------------
 
 def test_flusso_partita_completa_senza_vincitore(partita_mock, capsys):
@@ -284,7 +276,6 @@ def test_flusso_partita_completa_senza_vincitore(partita_mock, capsys):
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", return_value=False),
         patch("bingo_game.ui.tui.tui_partita.esegui_turno_sicuro", return_value=risultato_turno),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value=stato_finale),
     ):
         _loop_partita(partita_mock)
@@ -295,7 +286,7 @@ def test_flusso_partita_completa_senza_vincitore(partita_mock, capsys):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 10 — Flusso `s <N>` su numero estratto → segnazione (no crash)
+# Scenario 10 â€” Flusso `s <N>` su numero estratto â†’ segnazione (no crash)
 # ---------------------------------------------------------------------------
 
 def test_flusso_s_numero_estratto_no_crash(partita_mock, capsys):
@@ -310,7 +301,6 @@ def test_flusso_s_numero_estratto_no_crash(partita_mock, capsys):
     with (
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False]),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=mock_giocatore),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value=_crea_stato_mock([42])),
     ):
         _loop_partita(partita_mock)
@@ -319,7 +309,7 @@ def test_flusso_s_numero_estratto_no_crash(partita_mock, capsys):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 11 — Flusso `c` → riepilogo cartella (no crash)
+# Scenario 11 â€” Flusso `c` â†’ riepilogo cartella (no crash)
 # ---------------------------------------------------------------------------
 
 def test_flusso_c_riepilogo_cartella_no_crash(partita_mock, capsys):
@@ -331,7 +321,6 @@ def test_flusso_c_riepilogo_cartella_no_crash(partita_mock, capsys):
     with (
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False]),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value=_crea_stato_mock()),
     ):
         _loop_partita(partita_mock)
@@ -344,7 +333,7 @@ def test_flusso_c_riepilogo_cartella_no_crash(partita_mock, capsys):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 12 — Flusso `v` → riepilogo tabellone (almeno 2 righe)
+# Scenario 12 â€” Flusso `v` â†’ riepilogo tabellone (almeno 2 righe)
 # ---------------------------------------------------------------------------
 
 def test_flusso_v_riepilogo_tabellone_almeno_due_righe(partita_mock, capsys):
@@ -354,7 +343,6 @@ def test_flusso_v_riepilogo_tabellone_almeno_due_righe(partita_mock, capsys):
     with (
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False]),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value=stato),
     ):
         _loop_partita(partita_mock)
@@ -387,8 +375,8 @@ def test_gestisci_riepilogo_tabellone_mappa_tipo_non_standard(partita_mock):
     assert any("Nessun numero ancora estratto" in r for r in righe)
 
     warning_msgs = [args for args, _ in mock_logger.warning.call_args_list]
-    assert any("numeri_estratti non è lista" in str(msg) for msg in warning_msgs)
-    assert any("giocatori non è lista" in str(msg) for msg in warning_msgs)
+    assert any("numeri_estratti non Ã¨ lista" in str(msg) for msg in warning_msgs)
+    assert any("giocatori non Ã¨ lista" in str(msg) for msg in warning_msgs)
 
 
 def test_costruisci_report_finale_non_lista_giocatori(partita_mock):

@@ -869,7 +869,7 @@ def imposta_focus_cartella_fallback() -> None:
 
 **Scopo**: Fallback di emergenza che imposta il focus sulla prima cartella disponibile senza passare per la logica `imposta_focus_cartella()`. Usato dalla TUI quando `imposta_focus_cartella(1)` solleva eccezione e il giocatore ha esattamente 1 cartella.
 
-**Note architetturali**: È l'**unico punto** in cui la TUI chiama un metodo su un domain object (`giocatore`) al di fuori di `game_controller`. Consentito perché il metodo è pubblico, non espone stato interno e rappresenta un fallback documentato.
+**Note architetturali**: A partire da v0.11.0, questo metodo viene invocato esclusivamente tramite il wrapper `game_controller.imposta_focus_cartella_fallback(partita)`. La TUI non chiama più direttamente alcun metodo su domain object al di fuori del controller.
 
 **Raises**: Nessuna eccezione propagata.
 
@@ -1166,6 +1166,132 @@ giocatore = ottieni_giocatore_umano(partita)
 if giocatore is not None:
     esito = giocatore.riepilogo_cartella_corrente()
 ```
+
+---
+
+#### imposta_focus_cartella() — controller wrapper
+
+```python
+def imposta_focus_cartella(partita: Partita, numero_cartella: int) -> Optional[EsitoAzione]:
+```
+
+**Modulo**: `bingo_game.game_controller`  
+**Versione introdotta**: v0.11.0
+
+**Scopo**: Imposta il focus sulla cartella `numero_cartella` (1-based) per il giocatore umano. Wrapper che evita alla TUI di accedere direttamente al domain object.
+
+**Args**:
+- `partita` — istanza `Partita` corrente
+- `numero_cartella` — numero cartella 1-based
+
+**Returns**: `EsitoAzione` del metodo, oppure `None` se nessun giocatore umano trovato
+
+**Raises**: nessuna eccezione propagata
+
+---
+
+#### imposta_focus_cartella_fallback() — controller wrapper
+
+```python
+def imposta_focus_cartella_fallback(partita: Partita) -> None:
+```
+
+**Modulo**: `bingo_game.game_controller`  
+**Versione introdotta**: v0.11.0
+
+**Scopo**: Fallback di emergenza: imposta il focus sulla prima cartella disponibile senza passare per la logica `imposta_focus_cartella()`. Chiamato dalla TUI quando `imposta_focus_cartella(partita, 1)` solleva eccezione.
+
+**Args**:
+- `partita` — istanza `Partita` corrente
+
+**Returns**: `None`
+
+**Raises**: nessuna eccezione propagata
+
+---
+
+#### esegui_azione_giocatore()
+
+```python
+def esegui_azione_giocatore(partita: Partita, nome_metodo: str) -> Optional[EsitoAzione]:
+```
+
+**Modulo**: `bingo_game.game_controller`  
+**Versione introdotta**: v0.11.0
+
+**Scopo**: Dispatch un'azione diretta sul giocatore umano per nome. I metodi in `_METODI_CON_TABELLONE` vengono chiamati con `tabellone` come argomento; tutti gli altri senza argomenti.
+
+**Args**:
+- `partita` — istanza `Partita` corrente
+- `nome_metodo` — nome del metodo `GiocatoreUmano` da invocare
+
+**Returns**: `EsitoAzione` del metodo, oppure `None` se il giocatore non è trovato o il metodo non esiste
+
+**Raises**: nessuna eccezione propagata
+
+---
+
+#### esegui_azione_giocatore_con_numero()
+
+```python
+def esegui_azione_giocatore_con_numero(
+    partita: Partita, nome_metodo: str, numero: int
+) -> Optional[EsitoAzione]:
+```
+
+**Modulo**: `bingo_game.game_controller`  
+**Versione introdotta**: v0.11.0
+
+**Scopo**: Dispatch un'azione sul giocatore umano con argomento numerico. I metodi in `_METODI_PROMPT_CON_TABELLONE` vengono chiamati con `(numero, tabellone)`; tutti gli altri con `(numero)`.
+
+**Args**:
+- `partita` — istanza `Partita` corrente
+- `nome_metodo` — nome del metodo `GiocatoreUmano` da invocare
+- `numero` — argomento intero da passare al metodo
+
+**Returns**: `EsitoAzione` del metodo, oppure `None` se il giocatore non è trovato o il metodo non esiste
+
+**Raises**: nessuna eccezione propagata
+
+---
+
+#### stato_focus_corrente()
+
+```python
+def stato_focus_corrente(partita: Partita) -> Optional[EsitoAzione]:
+```
+
+**Modulo**: `bingo_game.game_controller`  
+**Versione introdotta**: v0.11.0
+
+**Scopo**: Ritorna lo stato del focus corrente del giocatore umano (cartella, riga, colonna in focus).
+
+**Args**:
+- `partita` — istanza `Partita` corrente
+
+**Returns**: `EsitoAzione` con stato focus, oppure `None` se nessun giocatore umano trovato
+
+**Raises**: nessuna eccezione propagata
+
+---
+
+#### riepilogo_cartella_corrente()
+
+```python
+def riepilogo_cartella_corrente(partita: Partita) -> Optional[EsitoAzione]:
+```
+
+**Modulo**: `bingo_game.game_controller`  
+**Versione introdotta**: v0.11.0
+
+**Scopo**: Ritorna il riepilogo della cartella in focus del giocatore umano.
+
+**Args**:
+- `partita` — istanza `Partita` corrente
+
+**Returns**: `EsitoAzione` con riepilogo cartella, oppure `None` se nessun giocatore umano trovato
+
+**Raises**: nessuna eccezione propagata
 
 ---
 

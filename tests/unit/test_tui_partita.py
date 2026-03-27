@@ -161,7 +161,7 @@ def test_gestisci_help_contiene_comandi(partita_mock):
     from bingo_game.ui.tui.tui_partita import _gestisci_help
     from bingo_game.ui.locales.it import MESSAGGI_OUTPUT_UI_UMANI
     righe_attese = MESSAGGI_OUTPUT_UI_UMANI["LOOP_HELP_COMANDI"]
-    with patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None):
+    with patch("bingo_game.ui.tui.tui_partita.stato_focus_corrente", return_value=None):
         righe = _gestisci_help(partita_mock)
     for attesa in righe_attese:
         assert attesa in righe, f"Riga attesa mancante nell'help: {attesa!r}"
@@ -274,7 +274,6 @@ def test_loop_comando_non_riconosciuto_no_crash(partita_mock, capsys):
     with (
         patch("builtins.input", side_effect=inputs),
         patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False, False]),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=None),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value={
             "numeri_estratti": [],
             "giocatori": [],
@@ -296,11 +295,11 @@ def test_loop_focus_auto_impostato(partita_mock_con_giocatore):
     from bingo_game.ui.tui.tui_partita import _loop_partita
     partita, giocatore = partita_mock_con_giocatore
 
-    # Simula uscita immediata con 'q' + 's'
-    inputs = iter(["q", "s"])
+    # Simula uscita immediata con tasto 'x' (esci) + conferma 's' — stile v0.10.0
     with (
-        patch("builtins.input", side_effect=inputs),
-        patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False]),
+        patch("bingo_game.ui.tui.tui_partita.leggi_tasto", return_value="x"),
+        patch("builtins.input", return_value="s"),
+        patch("bingo_game.ui.tui.tui_partita.partita_terminata", return_value=False),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value={
             "numeri_estratti": [],
             "giocatori": [],
@@ -308,6 +307,8 @@ def test_loop_focus_auto_impostato(partita_mock_con_giocatore):
             "stato_partita": "in_corso",
             "ultimo_numero_estratto": None,
         }),
+        patch("bingo_game.ui.tui.tui_partita._emetti_report_finale"),
+        patch("bingo_game.ui.tui.tui_partita._stampa"),
     ):
         _loop_partita(partita)
 
@@ -323,19 +324,21 @@ def test_loop_focus_fallback_cartella_singola(partita_mock):
     """Se imposta_focus_cartella() solleva eccezione e il giocatore ha 1 cartella,
     _loop_partita deve impostare _indice_cartella_focus = 0 come fallback [v0.9.1]."""
     from bingo_game.ui.tui.tui_partita import _loop_partita
+    from bingo_game.players.giocatore_umano import GiocatoreUmano
 
     mock_giocatore = MagicMock()
+    mock_giocatore.__class__ = GiocatoreUmano  # rende isinstance() True
     mock_giocatore.imposta_focus_cartella.side_effect = AttributeError("metodo mancante")
     mock_giocatore.cartelle = [MagicMock()]  # esattamente 1 cartella
     mock_giocatore._indice_cartella_focus = None
 
     partita_mock.get_giocatori.return_value = [mock_giocatore]
 
-    inputs = iter(["q", "s"])
+    inputs = iter(["s"])  # conferma uscita per tasto 'x'
     with (
+        patch("bingo_game.ui.tui.tui_partita.leggi_tasto", return_value="x"),
         patch("builtins.input", side_effect=inputs),
-        patch("bingo_game.ui.tui.tui_partita.partita_terminata", side_effect=[False, False]),
-        patch("bingo_game.ui.tui.tui_partita.ottieni_giocatore_umano", return_value=mock_giocatore),
+        patch("bingo_game.ui.tui.tui_partita.partita_terminata", return_value=False),
         patch("bingo_game.ui.tui.tui_partita.ottieni_stato_sintetico", return_value={
             "numeri_estratti": [],
             "giocatori": [],
@@ -343,13 +346,13 @@ def test_loop_focus_fallback_cartella_singola(partita_mock):
             "stato_partita": "in_corso",
             "ultimo_numero_estratto": None,
         }),
+        patch("bingo_game.ui.tui.tui_partita._emetti_report_finale"),
+        patch("bingo_game.ui.tui.tui_partita._stampa"),
     ):
         _loop_partita(partita_mock)
 
-    # Il fallback deve aver impostato _indice_cartella_focus a 0
-    assert mock_giocatore._indice_cartella_focus == 0, (
-        "Fallback Bug 3: _indice_cartella_focus deve essere 0 dopo il fallback su cartella singola"
-    )
+    # Il fallback deve aver chiamato imposta_focus_cartella_fallback() sul giocatore
+    mock_giocatore.imposta_focus_cartella_fallback.assert_called_once()
 
 
 # ===========================================================================
@@ -369,14 +372,16 @@ def test_esegui_seleziona_cartella_successo(partita_mock_con_giocatore):
     partita, giocatore = partita_mock_con_giocatore
     esito_ok = MagicMock(spec=EsitoAzione)
     esito_ok.ok = True
-    giocatore.imposta_focus_cartella.return_value = esito_ok
 
-    with patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer:
+    with (
+        patch("bingo_game.ui.tui.tui_partita.imposta_focus_cartella", return_value=esito_ok) as mock_imposta,
+        patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer,
+        patch("bingo_game.ui.tui.tui_partita._stampa"),
+    ):
         mock_renderer.render_esito.return_value = ["Cartella 2 selezionata."]
-        with patch("bingo_game.ui.tui.tui_partita._stampa") as mock_stampa:
-            _esegui_seleziona_cartella(giocatore, 2)
+        _esegui_seleziona_cartella(partita, 2)
 
-    giocatore.imposta_focus_cartella.assert_called_once_with(2)
+    mock_imposta.assert_called_once_with(partita, 2)
     mock_renderer.render_esito.assert_called_once_with(esito_ok)
 
 
@@ -410,12 +415,15 @@ def test_esegui_azione_giocatore_senza_tabellone(partita_mock_con_giocatore):
     esito_ok.ok = True
     giocatore.visualizza_cartella_corrente_semplice = MagicMock(return_value=esito_ok)
 
-    with patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer:
+    with (
+        patch("bingo_game.ui.tui.tui_partita.esegui_azione_giocatore", return_value=esito_ok) as mock_esegui,
+        patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer,
+        patch("bingo_game.ui.tui.tui_partita._stampa"),
+    ):
         mock_renderer.render_esito.return_value = ["Cartella visualizzata."]
-        with patch("bingo_game.ui.tui.tui_partita._stampa"):
-            _esegui_azione_giocatore("visualizza_cartella_corrente_semplice", partita, giocatore)
+        _esegui_azione_giocatore("visualizza_cartella_corrente_semplice", partita)
 
-    giocatore.visualizza_cartella_corrente_semplice.assert_called_once_with()
+    mock_esegui.assert_called_once_with(partita, "visualizza_cartella_corrente_semplice")
 
 
 # ---------------------------------------------------------------------------
@@ -428,8 +436,11 @@ def test_esegui_azione_giocatore_giocatore_none(partita_mock):
     from bingo_game.ui.tui.tui_partita import _esegui_azione_giocatore
     from bingo_game.ui.locales.it import MESSAGGI_ERRORI
 
-    with patch("bingo_game.ui.tui.tui_partita._stampa") as mock_stampa:
-        _esegui_azione_giocatore("stato_focus_corrente", partita_mock, None)
+    with (
+        patch("bingo_game.ui.tui.tui_partita.esegui_azione_giocatore", return_value=None),
+        patch("bingo_game.ui.tui.tui_partita._stampa") as mock_stampa,
+    ):
+        _esegui_azione_giocatore("stato_focus_corrente", partita_mock)
 
     mock_stampa.assert_called_once_with(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
 
@@ -448,12 +459,15 @@ def test_esegui_azione_giocatore_con_tabellone(partita_mock_con_giocatore):
     esito_ok.ok = True
     giocatore.riepilogo_tabellone = MagicMock(return_value=esito_ok)
 
-    with patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer:
+    with (
+        patch("bingo_game.ui.tui.tui_partita.esegui_azione_giocatore", return_value=esito_ok) as mock_esegui,
+        patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer,
+        patch("bingo_game.ui.tui.tui_partita._stampa"),
+    ):
         mock_renderer.render_esito.return_value = ["Tabellone visualizzato."]
-        with patch("bingo_game.ui.tui.tui_partita._stampa"):
-            _esegui_azione_giocatore("riepilogo_tabellone", partita, giocatore)
+        _esegui_azione_giocatore("riepilogo_tabellone", partita)
 
-    giocatore.riepilogo_tabellone.assert_called_once_with(partita.tabellone)
+    mock_esegui.assert_called_once_with(partita, "riepilogo_tabellone")
 
 
 # ---------------------------------------------------------------------------
@@ -473,7 +487,7 @@ def test_esegui_con_prompt_numero_input_non_numerico(partita_mock_con_giocatore)
     stampe: list = []
     with patch("builtins.input", return_value="xyz"):
         with patch("bingo_game.ui.tui.tui_partita._stampa", side_effect=stampe.append):
-            _esegui_con_prompt_numero(cmd, partita, giocatore)
+            _esegui_con_prompt_numero(cmd, partita)
 
     # Il giocatore NON deve essere stato chiamato
     giocatore.vai_a_riga_avanzata = MagicMock()  # defensive
@@ -501,7 +515,7 @@ def test_esegui_con_prompt_numero_annuncia_vittoria_placeholder(partita_mock_con
     stampe: list = []
     with patch("builtins.input") as mock_input:
         with patch("bingo_game.ui.tui.tui_partita._stampa", side_effect=stampe.append):
-            _esegui_con_prompt_numero(cmd, partita, giocatore)
+            _esegui_con_prompt_numero(cmd, partita)
 
     # Non deve aver chiamato input() per il numero
     mock_input.assert_not_called()
@@ -521,10 +535,19 @@ def test_esegui_con_prompt_numero_giocatore_none(partita_mock):
 
     cmd = ComandoTasto(TipoComando.RICHIEDE_PROMPT_NUM, "segna_numero_manuale")
 
-    with patch("bingo_game.ui.tui.tui_partita._stampa") as mock_stampa:
-        _esegui_con_prompt_numero(cmd, partita_mock, None)
+    with (
+        patch("builtins.input", return_value="42"),
+        patch("bingo_game.ui.tui.tui_partita.esegui_azione_giocatore_con_numero", return_value=None),
+        patch("bingo_game.ui.tui.tui_partita._stampa") as mock_stampa,
+    ):
+        _esegui_con_prompt_numero(cmd, partita_mock)
 
-    mock_stampa.assert_called_once_with(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
+    # Tra i messaggi deve esserci l'errore "nessuna cartella"
+    errore_atteso = MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0]
+    chiamate = [c.args[0] for c in mock_stampa.call_args_list]
+    assert errore_atteso in chiamate, (
+        f"Messaggio CARTELLE_NESSUNA_ASSEGNATA atteso tra le stampe: {chiamate!r}"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -610,10 +633,13 @@ def test_esegui_azione_giocatore_navigazione_oltre_bordo(partita_mock_con_giocat
     esito_fallito.ok = False
     giocatore.sposta_focus_riga_su_semplice = MagicMock(return_value=esito_fallito)
 
-    with patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer:
+    with (
+        patch("bingo_game.ui.tui.tui_partita.esegui_azione_giocatore", return_value=esito_fallito) as mock_esegui,
+        patch("bingo_game.ui.tui.tui_partita._renderer") as mock_renderer,
+        patch("bingo_game.ui.tui.tui_partita._stampa"),
+    ):
         mock_renderer.render_esito.return_value = ["Impossibile spostarsi oltre il bordo."]
-        with patch("bingo_game.ui.tui.tui_partita._stampa"):
-            # Non deve sollevare eccezioni
-            _esegui_azione_giocatore("sposta_focus_riga_su_semplice", partita, giocatore)
+        # Non deve sollevare eccezioni
+        _esegui_azione_giocatore("sposta_focus_riga_su_semplice", partita)
 
     mock_renderer.render_esito.assert_called_once_with(esito_fallito)

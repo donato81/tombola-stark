@@ -46,6 +46,7 @@ from bingo_game.exceptions import (
 
 # Import sistema di logging centralizzato
 from bingo_game.logging import GameLogger
+from bingo_game.events.eventi import EsitoAzione
 
 
 # =========================
@@ -657,3 +658,162 @@ def ottieni_giocatore_umano(partita: Partita) -> Optional[GiocatoreUmano]:
         "warning", logger=_logger_game
     )
     return None
+
+
+# =========================
+# Sezione 4: Wrapper azioni giocatore — v0.11.0
+# =========================
+
+# Metodi AZIONE_DIRETTA su GiocatoreUmano che richiedono tabellone come unico arg.
+_METODI_CON_TABELLONE: frozenset = frozenset({
+    "comunica_ultimo_numero_estratto",
+    "visualizza_ultimi_numeri_estratti",
+    "riepilogo_tabellone",
+    "lista_numeri_estratti",
+})
+
+# Metodi RICHIEDE_PROMPT_NUM su GiocatoreUmano che richiedono (numero, tabellone).
+_METODI_PROMPT_CON_TABELLONE: frozenset = frozenset({
+    "segna_numero_manuale",
+    "verifica_numero_estratto",
+})
+
+
+def imposta_focus_cartella(
+    partita: Partita, numero_cartella: int
+) -> Optional[EsitoAzione]:
+    """Imposta il focus sulla cartella numero_cartella (1-based) per il giocatore umano.
+
+    Args:
+        partita: Istanza Partita corrente.
+        numero_cartella: Numero cartella 1-based.
+
+    Returns:
+        EsitoAzione ritornato dal giocatore, oppure None se nessun giocatore umano.
+
+    Version:
+        v0.11.0: Aggiunto per eliminare accesso diretto Domain dalla TUI.
+    """
+    giocatore = ottieni_giocatore_umano(partita)
+    if giocatore is None:
+        return None
+    return giocatore.imposta_focus_cartella(numero_cartella)
+
+
+def imposta_focus_cartella_fallback(partita: Partita) -> None:
+    """Fallback di emergenza: imposta focus sulla prima cartella disponibile.
+
+    Args:
+        partita: Istanza Partita corrente.
+
+    Version:
+        v0.11.0: Aggiunto per eliminare accesso diretto Domain dalla TUI.
+    """
+    giocatore = ottieni_giocatore_umano(partita)
+    if giocatore is not None:
+        giocatore.imposta_focus_cartella_fallback()
+
+
+def esegui_azione_giocatore(
+    partita: Partita, nome_metodo: str
+) -> Optional[EsitoAzione]:
+    """Dispatch un'azione diretta sul giocatore umano per nome.
+
+    I metodi in _METODI_CON_TABELLONE vengono chiamati con tabellone.
+    Tutti gli altri vengono chiamati senza argomenti.
+
+    Args:
+        partita: Istanza Partita corrente.
+        nome_metodo: Nome del metodo GiocatoreUmano da invocare.
+
+    Returns:
+        EsitoAzione del metodo, oppure None se giocatore non presente
+        o metodo non trovato.
+
+    Version:
+        v0.11.0: Aggiunto per eliminare accesso diretto Domain dalla TUI.
+    """
+    giocatore = ottieni_giocatore_umano(partita)
+    if giocatore is None:
+        return None
+    metodo = getattr(giocatore, nome_metodo, None)
+    if metodo is None:
+        _log_safe(
+            "[ERR] esegui_azione_giocatore: metodo '%s' non trovato.",
+            "warning", nome_metodo, logger=_logger_errors
+        )
+        return None
+    if nome_metodo in _METODI_CON_TABELLONE:
+        return metodo(partita.tabellone)
+    return metodo()
+
+
+def esegui_azione_giocatore_con_numero(
+    partita: Partita, nome_metodo: str, numero: int
+) -> Optional[EsitoAzione]:
+    """Dispatch un'azione sul giocatore umano con argomento numerico.
+
+    I metodi in _METODI_PROMPT_CON_TABELLONE vengono chiamati con
+    (numero, tabellone). Tutti gli altri vengono chiamati con (numero).
+
+    Args:
+        partita: Istanza Partita corrente.
+        nome_metodo: Nome del metodo GiocatoreUmano da invocare.
+        numero: Argomento intero da passare al metodo.
+
+    Returns:
+        EsitoAzione del metodo, oppure None se giocatore non presente
+        o metodo non trovato.
+
+    Version:
+        v0.11.0: Aggiunto per eliminare accesso diretto Domain dalla TUI.
+    """
+    giocatore = ottieni_giocatore_umano(partita)
+    if giocatore is None:
+        return None
+    metodo = getattr(giocatore, nome_metodo, None)
+    if metodo is None:
+        _log_safe(
+            "[ERR] esegui_azione_giocatore_con_numero: metodo '%s' non trovato.",
+            "warning", nome_metodo, logger=_logger_errors
+        )
+        return None
+    if nome_metodo in _METODI_PROMPT_CON_TABELLONE:
+        return metodo(numero, partita.tabellone)
+    return metodo(numero)
+
+
+def stato_focus_corrente(partita: Partita) -> Optional[EsitoAzione]:
+    """Ritorna lo stato del focus corrente del giocatore umano.
+
+    Args:
+        partita: Istanza Partita corrente.
+
+    Returns:
+        EsitoAzione con stato focus, oppure None se nessun giocatore umano.
+
+    Version:
+        v0.11.0: Aggiunto per eliminare accesso diretto Domain dalla TUI.
+    """
+    giocatore = ottieni_giocatore_umano(partita)
+    if giocatore is None:
+        return None
+    return giocatore.stato_focus_corrente()
+
+
+def riepilogo_cartella_corrente(partita: Partita) -> Optional[EsitoAzione]:
+    """Ritorna il riepilogo della cartella in focus del giocatore umano.
+
+    Args:
+        partita: Istanza Partita corrente.
+
+    Returns:
+        EsitoAzione con riepilogo cartella, oppure None se nessun giocatore umano.
+
+    Version:
+        v0.11.0: Aggiunto per eliminare accesso diretto Domain dalla TUI.
+    """
+    giocatore = ottieni_giocatore_umano(partita)
+    if giocatore is None:
+        return None
+    return giocatore.riepilogo_cartella_corrente()

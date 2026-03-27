@@ -57,6 +57,21 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `bingo_game/players/giocatore_umano.py`: metodo rinominato da
   `visualizzaultiminumeriestratti` a `visualizza_ultimi_numeri_estratti`
   (conformita snake_case).
+- `bingo_game/game_controller.py`: aggiunta Sezione 4 (v0.11.0) — 6 funzioni wrapper
+  (`imposta_focus_cartella`, `imposta_focus_cartella_fallback`, `esegui_azione_giocatore`,
+  `esegui_azione_giocatore_con_numero`, `stato_focus_corrente`, `riepilogo_cartella_corrente`)
+  e 2 frozenset (`_METODI_CON_TABELLONE`, `_METODI_PROMPT_CON_TABELLONE`) come unica
+  interfaccia autorizzata tra TUI e domain layer.
+- `bingo_game/ui/tui/tui_partita.py`: eliminato ogni accesso diretto al domain layer (v0.11.0);
+  rimosso `ottieni_giocatore_umano` dagli import; tutti gli 8 metodi di dispatch ora delegano
+  esclusivamente ai 6 wrapper del controller; rimossi `_METODI_DIRETTI_CON_TABELLONE` e
+  `_METODI_PROMPT_CON_TABELLONE` dalla TUI (spostati nel controller).
+- `tests/unit/test_tui_partita.py`: aggiornati 11 test per le nuove firme dei metodi di
+  dispatch e i nuovi mock del controller (v0.11.0).
+- `tests/integration/test_game_loop_tasti.py`: rimossi 6 patch `ottieni_giocatore_umano`
+  (il controller ora esegue internamente); i mock partita con `get_giocatori` coprono
+  l'intera catena (v0.11.0).
+- `tests/flow/test_flusso_game_loop.py`: rimossi 12 patch `ottieni_giocatore_umano` (v0.11.0).
 
 ### Removed
 - `documentations/`: rimossa la cartella legacy; tutta la documentazione

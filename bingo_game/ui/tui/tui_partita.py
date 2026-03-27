@@ -32,10 +32,15 @@ import logging
 from typing import List
 
 from bingo_game.game_controller import (
+    esegui_azione_giocatore,
+    esegui_azione_giocatore_con_numero,
     esegui_turno_sicuro,
-    ottieni_giocatore_umano,
+    imposta_focus_cartella,
+    imposta_focus_cartella_fallback,
     ottieni_stato_sintetico,
     partita_terminata,
+    riepilogo_cartella_corrente,
+    stato_focus_corrente,
 )
 from bingo_game.ui.locales.it import MESSAGGI_ERRORI, MESSAGGI_OUTPUT_UI_UMANI
 from bingo_game.ui.renderers.renderer_terminal import TerminalRenderer
@@ -52,21 +57,6 @@ _renderer = TerminalRenderer()
 # ---------------------------------------------------------------------------
 # Routing: insiemi di nomi-metodo che richiedono argomenti speciali
 # ---------------------------------------------------------------------------
-
-# Metodi AZIONE_DIRETTA su GiocatoreUmano che richiedono (tabellone) come unico arg.
-_METODI_DIRETTI_CON_TABELLONE: frozenset = frozenset({
-    "comunica_ultimo_numero_estratto",
-    "visualizza_ultimi_numeri_estratti",
-    "riepilogo_tabellone",
-    "lista_numeri_estratti",
-})
-
-# Metodi RICHIEDE_PROMPT_NUM su GiocatoreUmano che richiedono (numero, tabellone).
-_METODI_PROMPT_CON_TABELLONE: frozenset = frozenset({
-    "segna_numero_manuale",
-    "verifica_numero_estratto",
-})
-
 
 # ---------------------------------------------------------------------------
 # Entry point pubblico
@@ -95,16 +85,16 @@ def _loop_partita(partita) -> None:
     turno: int = 0
 
     # Focus auto su prima cartella (indice 0 → numero_cartella=1 in 1-based)
-    giocatore = ottieni_giocatore_umano(partita)
-    if giocatore is not None:
-        try:
-            giocatore.imposta_focus_cartella(1)
+    try:
+        esito_focus_auto = imposta_focus_cartella(partita, 1)
+        if esito_focus_auto is None:
+            _logger_tui.debug("[LOOP] Nessun giocatore umano: focus auto non impostato.")
+        else:
             _logger_tui.debug("[LOOP] Focus impostato su cartella 1.")
-        except Exception as exc:
-            _logger_tui.warning("[LOOP] Impossibile impostare focus auto: %s", exc)
-            if len(giocatore.cartelle) == 1:
-                giocatore._indice_cartella_focus = 0
-                _logger_tui.debug("[LOOP] Focus fallback impostato su cartella 1 (cartella singola).")
+    except Exception as exc:
+        _logger_tui.warning("[LOOP] Impossibile impostare focus auto: %s", exc)
+        imposta_focus_cartella_fallback(partita)
+        _logger_tui.debug("[LOOP] Focus fallback impostato.")
 
     while not partita_terminata(partita):
         tasto = leggi_tasto()
@@ -115,7 +105,7 @@ def _loop_partita(partita) -> None:
             _stampa(MESSAGGI_OUTPUT_UI_UMANI["LOOP_TASTO_NON_VALIDO"][0])
 
         elif cmd.tipo == TipoComando.SELEZIONA_CARTELLA:
-            _esegui_seleziona_cartella(giocatore, cmd.valore)
+            _esegui_seleziona_cartella(partita, cmd.valore)
 
         elif cmd.tipo == TipoComando.RICHIEDE_CONFERMA:
             # Solo TASTO_X (esci): conferma S/N prima di uscire.
@@ -141,10 +131,10 @@ def _loop_partita(partita) -> None:
                     break
             else:
                 # Tutti gli altri tasti AZIONE_DIRETTA: delega al giocatore.
-                _esegui_azione_giocatore(cmd.nome, partita, giocatore)
+                _esegui_azione_giocatore(cmd.nome, partita)
 
         elif cmd.tipo == TipoComando.RICHIEDE_PROMPT_NUM:
-            _esegui_con_prompt_numero(cmd, partita, giocatore)
+            _esegui_con_prompt_numero(cmd, partita)
 
     _emetti_report_finale(partita)
 
@@ -153,21 +143,22 @@ def _loop_partita(partita) -> None:
 # Dispatch comandi tasti rapidi (v0.10.0)
 # ---------------------------------------------------------------------------
 
-def _esegui_seleziona_cartella(giocatore, numero_cartella: int) -> None:
+def _esegui_seleziona_cartella(partita, numero_cartella: int) -> None:
     """Seleziona la cartella numero_cartella (1-based) come focus (tasti 1-6).
 
     Args:
-        giocatore: Istanza GiocatoreUmano corrente (può essere None).
+        partita: Istanza Partita corrente.
         numero_cartella: Numero cartella 1-based (da ComandoTasto.valore).
 
     Version:
         v0.10.0: Introdotto con i tasti rapidi.
+        v0.11.0: Sostituito accesso diretto a giocatore con wrapper controller.
     """
-    if giocatore is None:
-        _stampa(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
-        return
     try:
-        esito = giocatore.imposta_focus_cartella(numero_cartella)
+        esito = imposta_focus_cartella(partita, numero_cartella)
+        if esito is None:
+            _stampa(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
+            return
         for riga in _renderer.render_esito(esito):
             _stampa(riga)
     except Exception as exc:
@@ -175,33 +166,25 @@ def _esegui_seleziona_cartella(giocatore, numero_cartella: int) -> None:
         _stampa(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
 
 
-def _esegui_azione_giocatore(nome: str, partita, giocatore) -> None:
-    """Esegue un'AZIONE_DIRETTA sul giocatore umano recuperando il metodo per nome.
+def _esegui_azione_giocatore(nome: str, partita) -> None:
+    """Esegue un'AZIONE_DIRETTA delegando al controller.
 
-    I metodi in _METODI_DIRETTI_CON_TABELLONE vengono chiamati con
-    (partita.tabellone) come argomento. Tutti gli altri vengono chiamati
-    senza argomenti.
+    Il dispatch con/senza tabellone è gestito interamente da
+    game_controller.esegui_azione_giocatore.
 
     Args:
         nome: Nome del metodo GiocatoreUmano da invocare.
-        partita: Istanza Partita corrente (per accedere a partita.tabellone).
-        giocatore: Istanza GiocatoreUmano corrente (può essere None).
+        partita: Istanza Partita corrente.
 
     Version:
         v0.10.0: Introdotto con i tasti rapidi.
+        v0.11.0: Sostituito accesso diretto a giocatore con wrapper controller.
     """
-    if giocatore is None:
-        _stampa(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
-        return
     try:
-        metodo = getattr(giocatore, nome, None)
-        if metodo is None:
-            _logger_tui.warning("[LOOP] Metodo non trovato su giocatore: %s", nome)
+        esito = esegui_azione_giocatore(partita, nome)
+        if esito is None:
+            _stampa(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
             return
-        if nome in _METODI_DIRETTI_CON_TABELLONE:
-            esito = metodo(partita.tabellone)
-        else:
-            esito = metodo()
         for riga in _renderer.render_esito(esito):
             _stampa(riga)
     except Exception as exc:
@@ -209,14 +192,14 @@ def _esegui_azione_giocatore(nome: str, partita, giocatore) -> None:
         _stampa(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
 
 
-def _esegui_con_prompt_numero(cmd: ComandoTasto, partita, giocatore) -> None:
+def _esegui_con_prompt_numero(cmd: ComandoTasto, partita) -> None:
     """Gestisce un tasto che richiede un prompt numerico prima dell'azione.
 
     Flusso:
         1. Mostra prompt testuale (generico; Phase 4 aggiunge chiavi specifiche).
         2. Legge input tramite input() standard (non msvcrt).
         3. Valida che sia un intero (se non lo è, mostra errore e ritorna).
-        4. Chiama il metodo corrispondente su giocatore.
+        4. Chiama il metodo tramite game_controller.esegui_azione_giocatore_con_numero.
         5. Stampa il risultato tramite renderer.
 
     La validazione del range (es. 1-3 per riga, 1-9 per colonna) è delegata
@@ -228,15 +211,11 @@ def _esegui_con_prompt_numero(cmd: ComandoTasto, partita, giocatore) -> None:
     Args:
         cmd: ComandoTasto con tipo RICHIEDE_PROMPT_NUM.
         partita: Istanza Partita corrente.
-        giocatore: Istanza GiocatoreUmano corrente.
 
     Version:
         v0.10.0: Introdotto con i tasti rapidi.
+        v0.11.0: Sostituito accesso diretto a giocatore con wrapper controller.
     """
-    if giocatore is None:
-        _stampa(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
-        return
-
     # Caso speciale: annuncia_vittoria richiede Tipo_Vittoria (enum dominio).
     # TODO (Fase 5): aggiungere wrapper in game_controller e rimuovere placeholder.
     if cmd.nome == "annuncia_vittoria":
@@ -256,11 +235,10 @@ def _esegui_con_prompt_numero(cmd: ComandoTasto, partita, giocatore) -> None:
         return
 
     try:
-        metodo = getattr(giocatore, cmd.nome)
-        if cmd.nome in _METODI_PROMPT_CON_TABELLONE:
-            esito = metodo(numero, partita.tabellone)
-        else:
-            esito = metodo(numero)
+        esito = esegui_azione_giocatore_con_numero(partita, cmd.nome, numero)
+        if esito is None:
+            _stampa(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"][0])
+            return
         for riga in _renderer.render_esito(esito):
             _stampa(riga)
     except Exception as exc:
@@ -328,12 +306,10 @@ def _gestisci_segna(partita, args: str) -> List[str]:
     if not (1 <= numero <= 90):
         return list(MESSAGGI_ERRORI["NUMERO_NON_VALIDO"])
 
-    giocatore = ottieni_giocatore_umano(partita)
-    if giocatore is None:
-        return list(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"])
-
     try:
-        esito = giocatore.segna_numero_manuale(numero, partita.tabellone)
+        esito = esegui_azione_giocatore_con_numero(partita, "segna_numero_manuale", numero)
+        if esito is None:
+            return list(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"])
         return list(_renderer.render_esito(esito))
     except Exception as exc:
         _logger_tui.warning("[LOOP] _gestisci_segna: errore — %s", exc)
@@ -354,12 +330,10 @@ def _gestisci_riepilogo_cartella(partita) -> List[str]:
     Version:
         v0.9.0: Prima implementazione.
     """
-    giocatore = ottieni_giocatore_umano(partita)
-    if giocatore is None:
-        return list(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"])
-
     try:
-        esito = giocatore.riepilogo_cartella_corrente()
+        esito = riepilogo_cartella_corrente(partita)
+        if esito is None:
+            return list(MESSAGGI_ERRORI["CARTELLE_NESSUNA_ASSEGNATA"])
         return list(_renderer.render_esito(esito))
     except Exception as exc:
         _logger_tui.warning("[LOOP] _gestisci_riepilogo_cartella: errore — %s", exc)
@@ -512,15 +486,13 @@ def _gestisci_help(partita) -> List[str]:
     righe: List[str] = list(MESSAGGI_OUTPUT_UI_UMANI["LOOP_HELP_COMANDI"])
 
     numero_cartella: object = "nessuna"
-    giocatore = ottieni_giocatore_umano(partita)
-    if giocatore is not None:
-        try:
-            esito_focus = giocatore.stato_focus_corrente()
-            if esito_focus.ok and esito_focus.evento is not None:
-                nc = getattr(esito_focus.evento, "numero_cartella", None)
-                numero_cartella = nc if nc is not None else "nessuna"
-        except Exception:
-            pass
+    try:
+        esito_focus = stato_focus_corrente(partita)
+        if esito_focus is not None and esito_focus.ok and esito_focus.evento is not None:
+            nc = getattr(esito_focus.evento, "numero_cartella", None)
+            numero_cartella = nc if nc is not None else "nessuna"
+    except Exception:
+        pass
 
     riga_focus = MESSAGGI_OUTPUT_UI_UMANI["LOOP_HELP_FOCUS"][0].format(
         numero_cartella=numero_cartella
