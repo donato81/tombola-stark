@@ -1,15 +1,19 @@
-initialized: true
-project_name: "tombola-stark"
-version: "0.10.0"
-primary_language: "Python"
+---
+initialized: false
+project_name: ""
+version: ""
+primary_language: ""
 secondary_languages: []
-ui_framework: "wxPython"
-test_runner: "pytest"
-build_system: "cx_freeze"
-architecture: "clean-architecture-simplified"
-accessibility: true
-platform: "Windows 10/11"
-screen_reader: "NVDA, JAWS, Orca"
+ui_framework: ""
+test_runner: ""
+build_system: ""
+architecture: ""
+accessibility: false
+framework_edit_mode: false
+verbosity: "collaborator"
+personality: "pragmatico"
+platform: ""
+screen_reader: ""
 ---
 
 # Profilo Progetto
@@ -20,42 +24,54 @@ screen_reader: "NVDA, JAWS, Orca"
 
 ## Identità
 
-- **Nome**: tombola-stark
-- **Versione corrente**: 0.10.0
-- **Descrizione**: Tombola accessibile agli screen reader per non vedenti.
+- **Nome**: —
+- **Versione corrente**: —
+- **Descrizione**: —
 
 ## Stack Tecnico
 
-- **Linguaggio primario**: Python
-- **Linguaggi secondari**: nessuno
-- **Framework UI**: wxPython
-- **Test runner**: pytest
-- **Build system**: cx_freeze
-- **Piattaforma target**: Windows 10/11
+- **Linguaggio primario**: —
+- **Linguaggi secondari**: —
+- **Framework UI**: —
+- **Test runner**: —
+- **Build system**: —
+- **Piattaforma target**: —
 
 ## Architettura
 
-- **Pattern**: Clean Architecture semplificata
-- **Layer**: Dominio -> Controller/Application -> Interfaccia
-- **Riferimento**: README.md, documentations/ARCHITECTURE.md
+- **Pattern**: —
+- **Layer**: —
+- **Riferimento**: —
 
 ## Accessibilità
 
-- **Richiesta**: obbligatoria
-- **Screen reader**: NVDA, JAWS, Orca
-- **Standard**: output lineare, tastiera-first, messaggi brevi e semanticamente vocalizzabili
-- **Riferimento**: README.md, CHANGELOG.md, bingo_game/ui/
+- **Richiesta**: —
+- **Screen reader**: —
+- **Standard**: —
+- **Riferimento**: —
 
 ## Componenti Framework Attivi
 
 Instructions language-specific attive per questo progetto:
-- .github/instructions/python.instructions.md
-- .github/instructions/tests.instructions.md
-- .github/instructions/ui.instructions.md
-- .github/instructions/domain.instructions.md
+-(da compilare durante setup)
 
 ## Note Progetto
 
-- Repository applicativo per Windows con focus su accessibilita screen reader.
-- Il framework e stato reinizializzato dopo aggiornamento a Framework Copilot v1.6.0.
-- Topic sospeso in memoria sessione: refactor confini Partita/GameController.
+- **Framework Edit Mode**: Variabile di controllo sicurezza. Se `false`,
+  i componenti del framework sono protetti da modifiche accidentali.
+  Modificabile solo tramite il prompt `#framework-unlock`.
+- **Verbosity**: Livello di verbosita comunicativa globale degli
+    agenti. Valori: `tutor` | `collaborator` | `nerd`. Default:
+    `collaborator`. Modificabile tramite `#verbosity`.
+    Override temporaneo di sessione: dichiaralo verbalmente in chat
+    senza modificare questo file.
+- **Personality**: Postura operativa e stile relazionale degli
+    agenti. Valori: `mentor` | `pragmatico` | `reviewer` |
+    `architect`. Default: `pragmatico`. Modificabile tramite
+    `#personality`. Override temporaneo di sessione: dichiaralo
+    verbalmente in chat senza modificare questo file.
+
+framework_edit_mode: true
+
+(spazio per note contestuali — aggiornabile tramite
+`#project-update` in qualsiasi momento)
