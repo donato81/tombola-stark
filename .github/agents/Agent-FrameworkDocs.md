@@ -5,11 +5,6 @@ description: >
   Aggiorna FRAMEWORK_CHANGELOG.md, AGENTS.md, copilot-instructions.md,
   README.md di .github/ e README.md delle sottocartelle agents/ e prompts/.
   Non tocca mai file fuori da .github/.
-tools:
-  - read_file
-  - create_file
-  - insert_edit_into_file
-  - agent
 model: ['Claude Sonnet 4.6 (copilot)', 'GPT-5 mini (copilot)']
 ---
 
@@ -17,6 +12,9 @@ model: ['Claude Sonnet 4.6 (copilot)', 'GPT-5 mini (copilot)']
 
 Scopo: manutenzione documentazione e changelog del Framework Copilot.
 Scope esclusivo: `.github/**`. Nessun file fuori da questo perimetro.
+
+Verbosita: `inherit`.
+Personalita: `pragmatico`.
 
 ---
 
@@ -64,6 +62,12 @@ All'avvio, prima di qualsiasi scrittura:
 
 - **Standard output accessibile** (struttura, NVDA, report):
   → `.github/skills/accessibility-output.skill.md`
+- **Verbosita comunicativa** (profili, cascata, regole):
+  → `.github/skills/verbosity.skill.md`
+- **Postura operativa e stile relazionale** (profili, cascata, regole):
+  → `.github/skills/personality.skill.md`
+- **Protezione componenti framework** (blocco scrittura su path protetti):
+  → `.github/skills/framework-guard.skill.md`
 
 ---
 
@@ -72,6 +76,9 @@ All'avvio, prima di qualsiasi scrittura:
 - NON modificare file fuori da `.github/`
 - NON toccare `CHANGELOG.md` della root
 - NON toccare file in `src/`, `docs/`, `tests/`
+- Se il task richiede scrittura su un path framework protetto e
+  `framework_edit_mode: false`, bloccare l'operazione e indirizzare
+  l'utente al prompt `#framework-unlock`
 - FRAMEWORK_CHANGELOG.md: usare [Unreleased] fino a release esplicita
 - Seguire formato Conventional Changelog (Added/Changed/Fixed/Removed)
 - Proporre sempre i comandi git, mai eseguirli
@@ -84,4 +91,4 @@ All'avvio, prima di qualsiasi scrittura:
 - `AGENTS.md` riflette conteggio e versione corretti
 - README `.github/` e sottocartelle allineati con stato reale
 - Nessun link interno broken
-- Report finale: "Framework docs synced. Versione: vX.Y.Z"
+  - Report finale: "Framework docs synced. Versione: vX.Y.Z"

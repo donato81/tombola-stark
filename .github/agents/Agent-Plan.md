@@ -3,16 +3,15 @@ name: Agent-Plan
 description: >
   Agente per breaking down architetturale in fasi implementabili.
   Crea PLAN_*.md in docs/3 - coding plans/ e docs/TODO.md.
-tools:
-  - read_file
-  - create_file
-  - insert_edit_into_file
 model: ['Claude Sonnet 4.6 (copilot)', 'GPT-5.4 (copilot)']
 ---
 
 # Agent-Plan
 
 Scopo: Breaking down architetturale in fasi implementabili, creazione PLAN doc e TODO.
+
+Verbosita: `inherit`.
+Personalita: `architect`.
 
 ---
 
@@ -41,19 +40,29 @@ Scopo: Breaking down architetturale in fasi implementabili, creazione PLAN doc e
   - Fasi sequenziali di implementazione
   - Test plan (unit + integration)
 
-- **docs/TODO.md** (sostituisce precedente)
+- **docs/5 - todolist/TODO_<feature>_vX.Y.Z.md** (creato per il task corrente)
   - Checklist spuntabile per ogni fase
   - Link al PLAN completo (fonte di verita)
-  - Istruzioni per Copilot Agent (workflow incrementale)
+  - Istruzioni per Agent-Code (workflow incrementale)
+
+- **docs/TODO.md** (coordinatore persistente)
+  - Aggiungere in append il link al nuovo TODO per-task creato
+  - NON sovrascrivere: append-only nella sezione Tasks
 
 ---
 
 ## Riferimenti Skills
 
-- **Template documenti** (struttura PLAN e TODO, frontmatter, stati):
+- **Template documenti** (struttura PLAN e TODO per-task, frontmatter, stati):
   → `.github/skills/document-template.skill.md`
+- **Gestione documenti** (path canonici, naming, bootstrap, coordinatore):
+  → `.github/skills/docs_manager.skill.md`
 - **Standard output accessibile** (struttura, NVDA, report):
   → `.github/skills/accessibility-output.skill.md`
+- **Verbosita comunicativa** (profili, cascata, regole):
+  → `.github/skills/verbosity.skill.md`
+- **Postura operativa e stile relazionale** (profili, cascata, regole):
+  → `.github/skills/personality.skill.md`
 
 ---
 
@@ -61,7 +70,8 @@ Scopo: Breaking down architetturale in fasi implementabili, creazione PLAN doc e
 
 - PLAN_*.md completato (tutte le fasi dettagliate)
 - Status PLAN escalato a **READY**
-- docs/TODO.md creato e pronto
+- docs/5 - todolist/TODO_<feature>_vX.Y.Z.md creato e pronto
+- docs/TODO.md aggiornato con il link al nuovo TODO per-task
 - User ha confermato priorita + versione target
 - Pronto per Agent-Code
 
@@ -78,7 +88,9 @@ Genera PLAN_robust_profiles_v3.6.0.md:
   Fase 3: Test coverage (unit + integration)
   Fase 4: Update docs (API.md, ARCHITECTURE.md)
   |
-Genera docs/TODO.md con checklist
+Genera docs/5 - todolist/TODO_robust-profiles_v3.6.0.md con checklist
+  |
+Aggiorna docs/TODO.md: append link in sezione Tasks
   |
 User review + confirm versione
   |
@@ -92,5 +104,6 @@ Agent-Code attende (pronto per Fase 1)
 - Seguire il template PLAN presente in docs/1 - templates/ (se disponibile)
 - Ogni fase deve essere atomica e committable separatamente
 - Specificare sempre i file coinvolti per ogni fase (CREATE/MODIFY/DELETE)
-- Il TODO.md deve contenere link al PLAN di riferimento
+- Il TODO per-task (`docs/5 - todolist/TODO_<feature>_vX.Y.Z.md`) deve contenere link al PLAN
+- Aggiornare `docs/TODO.md` append-only: aggiungere link al nuovo TODO nella sezione Tasks
 - Non produrre codice implementativo: solo pianificazione

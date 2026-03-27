@@ -1,19 +1,19 @@
 ---
-initialized: false
-project_name: ""
-version: ""
-primary_language: ""
+initialized: true
+project_name: "Tombola Stark"
+version: "0.9.0"
+primary_language: "Python"
 secondary_languages: []
-ui_framework: ""
-test_runner: ""
-build_system: ""
-architecture: ""
-accessibility: false
+ui_framework: "wxPython"
+test_runner: "pytest"
+build_system: "cx_Freeze"
+architecture: "clean-architecture-4-layer"
+accessibility: true
 framework_edit_mode: false
 verbosity: "collaborator"
-personality: "pragmatico"
-platform: ""
-screen_reader: ""
+personality: "mentor"
+platform: "Windows 10/11"
+screen_reader: "NVDA/JAWS"
 ---
 
 # Profilo Progetto
@@ -24,36 +24,36 @@ screen_reader: ""
 
 ## Identità
 
-- **Nome**: —
-- **Versione corrente**: —
-- **Descrizione**: —
+- **Nome**: Tombola Stark
+- **Versione corrente**: 0.9.0
+- **Descrizione**: Tombola digitale accessibile ai nonvedenti con screen reader.
 
 ## Stack Tecnico
 
-- **Linguaggio primario**: —
-- **Linguaggi secondari**: —
-- **Framework UI**: —
-- **Test runner**: —
-- **Build system**: —
-- **Piattaforma target**: —
+- **Linguaggio primario**: Python
+- **Linguaggi secondari**: nessuno
+- **Framework UI**: wxPython
+- **Test runner**: pytest
+- **Build system**: cx_Freeze
+- **Piattaforma target**: Windows 10/11
 
 ## Architettura
 
-- **Pattern**: —
-- **Layer**: —
-- **Riferimento**: —
+- **Pattern**: Clean Architecture 4-layer
+- **Layer**: Presentation → Application → Domain → Infrastructure
+- **Riferimento**: docs/ARCHITECTURE.md
 
 ## Accessibilità
 
-- **Richiesta**: —
-- **Screen reader**: —
-- **Standard**: —
-- **Riferimento**: —
+- **Richiesta**: sì
+- **Screen reader**: NVDA / JAWS
+- **Standard**: output lineare, navigazione da tastiera, zero dipendenza dal mouse
+- **Riferimento**: .github/instructions/ui.instructions.md
 
 ## Componenti Framework Attivi
 
 Instructions language-specific attive per questo progetto:
--(da compilare durante setup)
+- python.instructions.md (già presente)
 
 ## Note Progetto
 

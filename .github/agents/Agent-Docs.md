@@ -3,13 +3,14 @@ name: Agent-Docs
 description: >
   Agente per sincronizzazione documentazione. Aggiorna API.md,
   ARCHITECTURE.md, CHANGELOG.md dopo commit di codice.
-tools:vscode/getProjectSetupInfo, vscode/installExtension, vscode/memory, vscode/newWorkspace, vscode/runCommand, vscode/vscodeAPI, vscode/extensions, vscode/askQuestions, execute/runNotebookCell, execute/testFailure, execute/getTerminalOutput, execute/awaitTerminal, execute/killTerminal, execute/createAndRunTask, execute/runInTerminal, execute/runTests, read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, agent/runSubagent, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/changes, search/codebase, search/fileSearch, search/listDirectory, search/searchResults, search/textSearch, search/searchSubagent, search/usages, web/fetch, web/githubRepo, browser/openBrowserPage, pylance-mcp-server/pylanceDocString, pylance-mcp-server/pylanceDocuments, pylance-mcp-server/pylanceFileSyntaxErrors, pylance-mcp-server/pylanceImports, pylance-mcp-server/pylanceInstalledTopLevelModules, pylance-mcp-server/pylanceInvokeRefactoring, pylance-mcp-server/pylancePythonEnvironments, pylance-mcp-server/pylanceRunCodeSnippet, pylance-mcp-server/pylanceSettings, pylance-mcp-server/pylanceSyntaxErrors, pylance-mcp-server/pylanceUpdatePythonEnvironment, pylance-mcp-server/pylanceWorkspaceRoots, pylance-mcp-server/pylanceWorkspaceUserFiles, vscode.mermaid-chat-features/renderMermaidDiagram, github.vscode-pull-request-github/issue_fetch, github.vscode-pull-request-github/labels_fetch, github.vscode-pull-request-github/notification_fetch, github.vscode-pull-request-github/doSearch, github.vscode-pull-request-github/activePullRequest, github.vscode-pull-request-github/pullRequestStatusChecks, github.vscode-pull-request-github/openPullRequest, ms-python.python/getPythonEnvironmentInfo, ms-python.python/getPythonExecutableCommand, ms-python.python/installPythonPackage, ms-python.python/configurePythonEnvironment, todo
-[vscode/getProjectSetupInfo, vscode/installExtension, vscode/memory, vscode/newWorkspace, vscode/runCommand, vscode/vscodeAPI, vscode/extensions, vscode/askQuestions, execute/runNotebookCell, execute/testFailure, execute/getTerminalOutput, execute/awaitTerminal, execute/killTerminal, execute/createAndRunTask, execute/runInTerminal, execute/runTests, read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, agent/runSubagent, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/changes, search/codebase, search/fileSearch, search/listDirectory, search/searchResults, search/textSearch, search/searchSubagent, search/usages, web/fetch, web/githubRepo, browser/openBrowserPage, pylance-mcp-server/pylanceDocString, pylance-mcp-server/pylanceDocuments, pylance-mcp-server/pylanceFileSyntaxErrors, pylance-mcp-server/pylanceImports, pylance-mcp-server/pylanceInstalledTopLevelModules, pylance-mcp-server/pylanceInvokeRefactoring, pylance-mcp-server/pylancePythonEnvironments, pylance-mcp-server/pylanceRunCodeSnippet, pylance-mcp-server/pylanceSettings, pylance-mcp-server/pylanceSyntaxErrors, pylance-mcp-server/pylanceUpdatePythonEnvironment, pylance-mcp-server/pylanceWorkspaceRoots, pylance-mcp-server/pylanceWorkspaceUserFiles, vscode.mermaid-chat-features/renderMermaidDiagram, github.vscode-pull-request-github/issue_fetch, github.vscode-pull-request-github/labels_fetch, github.vscode-pull-request-github/notification_fetch, github.vscode-pull-request-github/doSearch, github.vscode-pull-request-github/activePullRequest, github.vscode-pull-request-github/pullRequestStatusChecks, github.vscode-pull-request-github/openPullRequest, ms-python.python/getPythonEnvironmentInfo, ms-python.python/getPythonExecutableCommand, ms-python.python/installPythonPackage, ms-python.python/configurePythonEnvironment, todo]
-model: ['GPT-5 mini (copilot)', 'Raptor mini (copilot)']
+model: ['GPT-5 mini (copilot)']
 ---
 # Agent-Docs
 
 Scopo: Sincronizzazione documentazione, CHANGELOG update, link validation.
+
+Verbosita: `inherit`.
+Personalita: `pragmatico`.
 
 ---
 
@@ -34,6 +35,8 @@ Scopo: Sincronizzazione documentazione, CHANGELOG update, link validation.
 - **API.md** aggiornato (entry per ogni public class/function/constant)
 - **ARCHITECTURE.md** aggiornato (reflection di struttura folder, data flow changes)
 - **CHANGELOG.md** con sezione draft per next versione
+- **Validazione strutturale docs/**: verificare presenza cartelle canoniche,
+  naming file, frontmatter e link tra design, piani, TODO e report
 
 ---
 
@@ -63,7 +66,8 @@ Agent-Docs:
   4. Aggiorna ARCHITECTURE.md (se necessario)
   5. Aggiorna CHANGELOG.md: [UNRELEASED] -> Features sezione
   6. Valida cross-links (no broken links)
-  7. Genera report: "Docs synced. Prossimo: release (Agent-Release)?"
+  7. Valida struttura docs/ (cartelle, naming, frontmatter, coordinatore)
+  8. Genera report: "Docs synced. Prossimo: release (Agent-Release)?"
 ```
 
 ---
@@ -72,8 +76,14 @@ Agent-Docs:
 
 - **Logica SemVer** (regole bump MAJOR/MINOR/PATCH per proposta versione):
   → `.github/skills/semver-bump.skill.md`
+- **Gestione documenti** (path canonici, validazione struttura, coordinatore):
+  → `.github/skills/docs_manager.skill.md`
 - **Standard output accessibile** (struttura, NVDA, report):
   → `.github/skills/accessibility-output.skill.md`
+- **Verbosita comunicativa** (profili, cascata, regole):
+  → `.github/skills/verbosity.skill.md`
+- **Postura operativa e stile relazionale** (profili, cascata, regole):
+  → `.github/skills/personality.skill.md`
 
 ---
 
@@ -83,6 +93,7 @@ Agent-Docs:
 - ARCHITECTURE.md allineato con struttura codebase
 - CHANGELOG.md ha sezione feature completa
 - Cross-link validation: 0 broken
+- Struttura docs/ valida (cartelle canoniche, naming, frontmatter, coordinatore aggiornato)
 - Pronto per Agent-Release
 
 ---
@@ -93,3 +104,5 @@ Agent-Docs:
 - CHANGELOG.md: usare [Unreleased] nel branch, finalizzare alla release
 - Seguire formato Conventional Changelog (Added/Fixed/Changed/Removed)
 - Verificare che i link interni puntino a percorsi esistenti
+- Non produrre file in docs/2 - projects/, docs/3 - coding plans/, docs/4 - reports/, docs/5 - todolist/:
+  queste cartelle sono di ownership degli agenti specializzati; Agent-Docs le valida, non le scrive
