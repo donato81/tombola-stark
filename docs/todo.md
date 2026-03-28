@@ -17,6 +17,7 @@ stato: attivo
 - [DESIGN_migrazione_test_silent_controller_unittest.md](2%20-%20projects/DESIGN_migrazione_test_silent_controller_unittest.md)
 - [DESIGN_aggiornamento_documentazione_post_TUI_2026-03-28.md](2%20-%20projects/DESIGN_aggiornamento_documentazione_post_TUI_2026-03-28.md)
 - [DESIGN_main_placeholder.md](2%20-%20projects/DESIGN_main_placeholder.md)
+- [DESIGN_FIX_FAIL1_COLONNA_AVANZATA.md](2%20-%20projects/DESIGN_FIX_FAIL1_COLONNA_AVANZATA.md)
 
 ### Piani
 
@@ -27,6 +28,7 @@ stato: attivo
 - [PLAN_migrazione_test_silent_controller_unittest_v0.9.1.md](3%20-%20coding%20plans/PLAN_migrazione_test_silent_controller_unittest_v0.9.1.md)
 - [PLAN_aggiornamento_documentazione_post_TUI_2026-03-28.md](3%20-%20coding%20plans/PLAN_aggiornamento_documentazione_post_TUI_2026-03-28.md)
 - [PLAN_main_placeholder.md](3%20-%20coding%20plans/PLAN_main_placeholder.md)
+- [PLAN_FIX_FAIL1_COLONNA_AVANZATA.md](3%20-%20coding%20plans/PLAN_FIX_FAIL1_COLONNA_AVANZATA.md)
 
 ### Reports
 
@@ -35,6 +37,7 @@ stato: attivo
 - [REPORT_FIX_UNICODE_PRINT_2026-03-28.md](4%20-%20reports/REPORT_FIX_UNICODE_PRINT_2026-03-28.md)
 - [ANALISI_aggiornamento_documentazione_post_TUI_2026-03-28.md](4%20-%20reports/ANALISI_aggiornamento_documentazione_post_TUI_2026-03-28.md)
 - [REPORT_ANALISI_main_placeholder_2026-03-28.md](4%20-%20reports/REPORT_ANALISI_main_placeholder_2026-03-28.md)
+- [REPORT_FIX_FAIL1_COLONNA_AVANZATA_2026-03-29.md](4%20-%20reports/REPORT_FIX_FAIL1_COLONNA_AVANZATA_2026-03-29.md)
 
 ### Tasks
 
@@ -45,6 +48,15 @@ stato: attivo
 - [TODO_migrazione_test_silent_controller_unittest_v0.9.1.md](5%20-%20todolist/TODO_migrazione_test_silent_controller_unittest_v0.9.1.md)
 - [TODO_aggiornamento_documentazione_post_TUI_2026-03-28.md](5%20-%20todolist/TODO_aggiornamento_documentazione_post_TUI_2026-03-28.md) — COMPLETED
 - [TODO_main_placeholder_v0.9.2.md](5%20-%20todolist/TODO_main_placeholder_v0.9.2.md) — COMPLETED
+- [TODO_FIX_FAIL1_COLONNA_AVANZATA.md](5%20-%20todolist/TODO_FIX_FAIL1_COLONNA_AVANZATA.md)
+
+### In lavorazione
+
+- Fix FAIL-1 su test sposta_focus_colonna_sinistra_avanzata
+	- Report: [REPORT_FIX_FAIL1_COLONNA_AVANZATA_2026-03-29.md](4%20-%20reports/REPORT_FIX_FAIL1_COLONNA_AVANZATA_2026-03-29.md)
+	- Design: [DESIGN_FIX_FAIL1_COLONNA_AVANZATA.md](2%20-%20projects/DESIGN_FIX_FAIL1_COLONNA_AVANZATA.md)
+	- Plan: [PLAN_FIX_FAIL1_COLONNA_AVANZATA.md](3%20-%20coding%20plans/PLAN_FIX_FAIL1_COLONNA_AVANZATA.md)
+	- TODO: [TODO_FIX_FAIL1_COLONNA_AVANZATA.md](5%20-%20todolist/TODO_FIX_FAIL1_COLONNA_AVANZATA.md)
 
 ### Task completati
 
