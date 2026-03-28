@@ -1,0 +1,44 @@
+---
+type: todo
+feature: migrazione_test_silent_controller_unittest
+status: DRAFT
+version: 0.9.1
+date: 2026-03-28
+plan: docs/3 - coding plans/PLAN_migrazione_test_silent_controller_unittest_v0.9.1.md
+---
+
+# TODO migrazione_test_silent_controller_unittest v0.9.1
+
+Piano padre: [PLAN_migrazione_test_silent_controller_unittest_v0.9.1.md](../3%20-%20coding%20plans/PLAN_migrazione_test_silent_controller_unittest_v0.9.1.md)
+
+Istruzioni per Agent-Code: eseguire una fase alla volta. Non toccare codice applicativo. Validare il file target con unittest dopo ogni blocco significativo.
+
+## Fase 1 — Portare le classi a TestCase
+
+- [ ] Aggiungere import unittest e io nel file tests/test_silent_controller.py.
+- [ ] Far ereditare tutte e tre le classi da unittest.TestCase.
+- [ ] Convertire gli assert nativi in assert unittest coerenti con il contratto di ogni test.
+
+## Fase 2 — Sostituire le fixture pytest
+
+- [ ] Convertire partita_mock in helper privato o pattern equivalente unittest.
+- [ ] Convertire partita_terminata_mock in helper privato o pattern equivalente unittest.
+- [ ] Rimuovere i parametri fixture dalle firme dei test method.
+- [ ] Garantire un mock fresco nei test che impostano side_effect o cambiano return_value.
+
+## Fase 3 — Convertire capsys
+
+- [ ] Sostituire capsys con patch di sys.stdout e io.StringIO nei test di silenziosita.
+- [ ] Verificare che ogni test confronti stdout con stringa vuota.
+
+## Fase 4 — Convertire pytest.raises e chiudere i residui pytest
+
+- [ ] Sostituire pytest.raises(ValueError) con self.assertRaises(ValueError).
+- [ ] Rimuovere ogni riferimento a pytest dal file.
+- [ ] Valutare subTest nel loop finale di TestMESSAGGICONTROLLER.
+
+## Fase 5 — Validazione
+
+- [ ] Eseguire python -m unittest tests.test_silent_controller.
+- [ ] Verificare che grep pytest sul file target non trovi dipendenze residue.
+- [ ] Confermare allineamento stilistico con i file unittest di riferimento.

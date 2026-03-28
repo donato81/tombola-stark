@@ -68,6 +68,12 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   `DESIGN_fix_unicode_print.md`, `PLAN_fix_unicode_print_v0.9.1.md`,
   `REPORT_FIX_UNICODE_PRINT_2026-03-28.md` e
   `TODO_fix_unicode_print_v0.9.1.md`.
+- `docs/todo.md`: aggiunge i link a design, piano e todo della migrazione
+  `test_silent_controller` verso `unittest`.
+- `docs/2 - projects/DESIGN_migrazione_test_silent_controller_unittest.md`,
+  `docs/3 - coding plans/PLAN_migrazione_test_silent_controller_unittest_v0.9.1.md`,
+  `docs/5 - todolist/TODO_migrazione_test_silent_controller_unittest_v0.9.1.md`:
+  definisce analisi, strategia e checklist operative con stop prima del coding.
 - `tests`: converte i batch 3, 4 e 5 della migrazione pytest → unittest e chiude
   la validazione finale con `python -m unittest discover` verde (303 test OK, 1 skip).
 - `docs/3 - coding plans/PLAN_conversione_test_pytest_unittest_v0.9.0.md`:
