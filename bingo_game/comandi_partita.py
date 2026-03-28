@@ -69,11 +69,9 @@ class ComandiSistema:
                 num_cartelle_umano=num_cartelle_umano,
                 num_bot=num_bot
             )
-            print(f"✅ Partita creata: {nome_umano} vs {num_bot} bot")
             return partita
             
         except Exception as exc:
-            print(f"❌ Errore creazione partita: {exc}")
             return None
 
     def avvia_partita(self, partita: Partita) -> bool:
@@ -88,12 +86,9 @@ class ComandiSistema:
         - False: errore (giocatori insufficienti, già avviata)
         """
         if not isinstance(partita, Partita):
-            print("❌ Parametro non è Partita valida")
             return False
         
         successo = avvia_partita_sicura(partita)
-        if successo:
-            print("🚀 Partita AVVIATA - Buon divertimento!")
         return successo
 
     def esegui_turno(self, partita: Partita) -> Optional[Dict[str, Any]]:
@@ -108,17 +103,9 @@ class ComandiSistema:
         - None: errore (partita non in corso, numeri finiti)
         """
         if not isinstance(partita, Partita):
-            print("❌ Parametro non è Partita valida")
             return None
         
         risultato = esegui_turno_sicuro(partita)
-        if risultato:
-            numero = risultato["numero_estratto"]
-            print(f"🎲 Estratto numero: {numero}")
-            if risultato["premi_nuovi"]:
-                print(f"   🏆 {len(risultato['premi_nuovi'])} nuovi premi!")
-            if risultato["tombola_rilevata"]:
-                print("   🎉 TOMBOLA RILEVATA!")
         return risultato
 
     def stato_partita(self, partita: Partita) -> Optional[Dict[str, Any]]:
@@ -133,15 +120,12 @@ class ComandiSistema:
         - None: errore parametro
         """
         if not isinstance(partita, Partita):
-            print("❌ Parametro non è Partita valida")
             return None
         
         try:
             stato = ottieni_stato_sintetico(partita)
-            print(f"📊 Stato: {stato['stato_partita']} - {len(stato['numeri_estratti'])} estratti")
             return stato
         except Exception as exc:
-            print(f"❌ Errore stato partita: {exc}")
             return None
 
     def ha_tombola(self, partita: Partita) -> bool:
@@ -156,12 +140,9 @@ class ComandiSistema:
         - False: nessuna tombola
         """
         if not isinstance(partita, Partita):
-            print("❌ Parametro non è Partita valida")
             return False
         
         tombola = ha_partita_tombola(partita)
-        if tombola:
-            print("🎉 TOMBOLA presente nella partita!")
         return tombola
 
     def is_terminata(self, partita: Partita) -> bool:
@@ -176,12 +157,9 @@ class ComandiSistema:
         - False: partita continua
         """
         if not isinstance(partita, Partita):
-            print("❌ Parametro non è Partita valida")
             return False
         
         terminata = partita_terminata(partita)
-        if terminata:
-            print("🏁 Partita TERMINATA")
         return terminata
 
     def termina_partita(self, partita: Partita) -> bool:
@@ -196,15 +174,12 @@ class ComandiSistema:
         - False: errore parametro
         """
         if not isinstance(partita, Partita):
-            print("❌ Parametro non è Partita valida")
             return False
         
         try:
             partita.termina_partita()
-            print("🛑 Partita TERMINATA forzatamente")
             return True
         except Exception as exc:
-            print(f"❌ Errore terminazione: {exc}")
             return False
 
 
