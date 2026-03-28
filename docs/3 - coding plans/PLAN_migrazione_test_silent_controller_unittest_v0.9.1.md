@@ -67,6 +67,8 @@ Azioni:
 2. Trasformare partita_terminata_mock in factory privata di mock Partita in stato terminata.
 3. Rimuovere i parametri fixture dalle firme dei test method.
 4. Assicurare che i test che mutano il mock ricevano un'istanza nuova ad ogni esecuzione.
+5. Usare setUp() come pattern preferito per lo stato condiviso in TestControllerSilenzioso e TestContrattiRitorno, in coerenza con il pattern gia adottato in tests/unit/test_game_controller_loop.py.
+6. Riservare l'helper privato _build_partita_in_corso() ai soli test che modificano il mock inline (es. impostazione di side_effect o override di return_value), per garantire un mock fresco senza effetti collaterali tra test.
 
 Criteri di completamento:
 
@@ -80,6 +82,7 @@ Azioni:
 1. Sostituire l'uso di capsys.readouterr().out con patch di sys.stdout e io.StringIO.
 2. Applicare la cattura localmente ai soli test della classe TestControllerSilenzioso.
 3. Verificare che ciascun test continui a validare buffer vuoto.
+4. Iniziare la conversione da test_crea_partita_standard_silenzioso, il caso piu articolato (patch annidate + cattura stdout), e usarlo come modello stilistico per i restanti sette test della classe.
 
 Criteri di completamento:
 

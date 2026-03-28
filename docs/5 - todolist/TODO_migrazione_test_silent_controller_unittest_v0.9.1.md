@@ -25,8 +25,11 @@ Istruzioni per Agent-Code: eseguire una fase alla volta. Non toccare codice appl
 - [ ] Convertire partita_terminata_mock in helper privato o pattern equivalente unittest.
 - [ ] Rimuovere i parametri fixture dalle firme dei test method.
 - [ ] Garantire un mock fresco nei test che impostano side_effect o cambiano return_value.
+- [ ] Preferire setUp() come pattern per lo stato condiviso nelle classi TestControllerSilenzioso e TestContrattiRitorno; usare helper privato _build_partita_in_corso() e _build_partita_terminata() solo nei test che modificano il mock inline (es. quelli che impostano side_effect o cambiano return_value).
 
 ## Fase 3 — Convertire capsys
+
+Nota: il test piu complesso della fase e test_crea_partita_standard_silenzioso perche combina patch annidate multiple con la cattura stdout. Convertire questo test per primo e usarlo come riferimento stilistico per gli altri sette.
 
 - [ ] Sostituire capsys con patch di sys.stdout e io.StringIO nei test di silenziosita.
 - [ ] Verificare che ogni test confronti stdout con stringa vuota.

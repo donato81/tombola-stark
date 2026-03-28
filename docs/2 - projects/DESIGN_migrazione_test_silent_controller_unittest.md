@@ -71,7 +71,10 @@ Le attuali funzioni partita_mock e partita_terminata_mock non devono piu essere 
 - un helper _build_partita_terminata per i test sullo stato finale;
 - eventuale riuso tramite setUp solo nelle classi che usano sempre la stessa variante di mock.
 
-Questa scelta evita condivisione accidentale di side effect tra test che mutano il mock, come quelli che impostano avvia_partita.side_effect o cambiano get_stato_partita.return_value.
+La struttura target adottata e:
+- setUp() nelle classi TestControllerSilenzioso e TestContrattiRitorno per inizializzare self.partita_mock e self.partita_terminata_mock, in coerenza con il pattern gia presente in tests/unit/test_game_controller_loop.py.
+- Helper privati _build_partita_in_corso() e _build_partita_terminata() richiamati inline nei soli test che modificano il mock (es. impostazione di side_effect o override di return_value), cosi ogni test riceve un'istanza fresca e isolata.
+Questa scelta risolve l'ambiguita aperta nel draft precedente e garantisce coerenza stilistica con l'intera suite.
 
 ### 3. Cattura stdout con patch locale per test method
 
