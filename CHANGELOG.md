@@ -82,9 +82,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   `GiocatoreUmano` con `imposta_focus_cartella_fallback()` (v0.9.1) e
   `visualizza_ultimi_numeri_estratti()` (v0.10.0).
 - `docs/ARCHITECTURE.md`: aggiornato a [Unreleased] (2026-03-27); struttura
-  directory allineata alla nuova cartella `docs/`; aggiunti `tui_commander.py`
-  e `codici_tasti_tui.py` nella sezione `tui/`; rimossi riferimenti a
-  `documentations/` ovunque presenti nel documento.
+  directory allineata alla nuova cartella `docs/` e fotografia architetturale
+  aggiornata sul layer di presentazione post-rimozione TUI.
 - `documentations/`: aggiunge design, piano, TODO del refactor Partita/GameController e report di analisi qualitativa.
 - `CHANGELOG.md`: aggiornamento sezione [Unreleased] per includere i nuovi miglioramenti di stato e reporting del refactor.
 - `bingo_game/game_controller.py`: il controller non mantiene piu' un conteggio premi duplicato; il riepilogo premi viene derivato dallo snapshot di `Partita`, mantenendo il dominio come owner dello stato di gioco.
@@ -94,11 +93,6 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `tests/test_game_controller.py`: aggiunge una regressione che fissa la delega dello snapshot premi tra `Partita` e `GameController`.
 - `tests/test_game_controller.py`, `tests/test_partita.py`: consolidano il contratto del riepilogo sintetico e la coerenza tra snapshot di `Partita` e facade del controller.
 - `tests/test_game_controller.py`: caratterizza il bordo residuo di `ottieni_stato_sintetico()` e documenta quali controlli restano al controller dopo la semplificazione.
-- `bingo_game/ui/tui/tui_partita.py`: loop v0.10.0 sostituisce il parser testuale
-  (comandi seguiti da Invio) con il dispatch via `tui_commander`. Aggiunte 4
-  funzioni di dispatch: `_esegui_seleziona_cartella`, `_esegui_azione_giocatore`,
-  `_esegui_con_prompt_numero`, `_esegui_conferma_esci`. Le funzioni legacy v0.9.0
-  (`_gestisci_quit`, `_gestisci_segna`, ecc.) sono preservate per compatibilità.
 - `bingo_game/players/giocatore_umano.py`: metodo rinominato da
   `visualizzaultiminumeriestratti` a `visualizza_ultimi_numeri_estratti`
   (conformita snake_case).
@@ -106,17 +100,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   (`imposta_focus_cartella`, `imposta_focus_cartella_fallback`, `esegui_azione_giocatore`,
   `esegui_azione_giocatore_con_numero`, `stato_focus_corrente`, `riepilogo_cartella_corrente`)
   e 2 frozenset (`_METODI_CON_TABELLONE`, `_METODI_PROMPT_CON_TABELLONE`) come unica
-  interfaccia autorizzata tra TUI e domain layer.
-- `bingo_game/ui/tui/tui_partita.py`: eliminato ogni accesso diretto al domain layer (v0.11.0);
-  rimosso `ottieni_giocatore_umano` dagli import; tutti gli 8 metodi di dispatch ora delegano
-  esclusivamente ai 6 wrapper del controller; rimossi `_METODI_DIRETTI_CON_TABELLONE` e
-  `_METODI_PROMPT_CON_TABELLONE` dalla TUI (spostati nel controller).
-- `tests/unit/test_tui_partita.py`: aggiornati 11 test per le nuove firme dei metodi di
-  dispatch e i nuovi mock del controller (v0.11.0).
-- `tests/integration/test_game_loop_tasti.py`: rimossi 6 patch `ottieni_giocatore_umano`
-  (il controller ora esegue internamente); i mock partita con `get_giocatori` coprono
-  l'intera catena (v0.11.0).
-- `tests/flow/test_flusso_game_loop.py`: rimossi 12 patch `ottieni_giocatore_umano` (v0.11.0).
+  interfaccia autorizzata tra layer di presentazione e domain layer.
 
 ### Removed
 - `documentations/`: rimossa la cartella legacy; tutta la documentazione
