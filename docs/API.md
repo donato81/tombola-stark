@@ -1623,6 +1623,21 @@ Il repository non include piu' una UI completa documentata come parte dell'API
 pubblica corrente. Il motore di gioco resta consumabile tramite il controller e
 tramite i dati/eventi strutturati emessi dal dominio.
 
+### Entry Point Applicazione (`main.py`)
+
+`main.py` e' attualmente un placeholder temporaneo dell'avvio applicativo.
+Non importa moduli UI e non avvia alcuna interfaccia definitiva.
+
+Comportamento corrente:
+
+- supporta il flag `--debug` tramite `argparse`;
+- inizializza `GameLogger.initialize(debug_mode=args.debug)` all'avvio;
+- stampa un messaggio informativo sullo stato di transizione della UI;
+- chiude correttamente il logging con `GameLogger.shutdown()` nel blocco `finally`.
+
+Questa sezione dovra' essere aggiornata quando la nuova interfaccia utente sara'
+disponibile e reintegrata nell'entry point.
+
 Nel perimetro di presentazione rimangono componenti di supporto riutilizzabili:
 
 - `bingo_game/ui/locales/it.py` per testi localizzati e codici messaggio

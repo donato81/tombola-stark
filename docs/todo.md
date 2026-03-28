@@ -44,15 +44,15 @@ stato: attivo
 - [TODO_fix_unicode_print_v0.9.1.md](5%20-%20todolist/TODO_fix_unicode_print_v0.9.1.md) — COMPLETED
 - [TODO_migrazione_test_silent_controller_unittest_v0.9.1.md](5%20-%20todolist/TODO_migrazione_test_silent_controller_unittest_v0.9.1.md)
 - [TODO_aggiornamento_documentazione_post_TUI_2026-03-28.md](5%20-%20todolist/TODO_aggiornamento_documentazione_post_TUI_2026-03-28.md) — COMPLETED
-- [TODO_main_placeholder_v0.9.1.md](5%20-%20todolist/TODO_main_placeholder_v0.9.1.md) — IN CORSO
+- [TODO_main_placeholder_v0.9.2.md](5%20-%20todolist/TODO_main_placeholder_v0.9.2.md) — COMPLETED
 
-### Task in corso
+### Task completati
 
 - Placeholder main.py
 	- Report: [REPORT_ANALISI_main_placeholder_2026-03-28.md](4%20-%20reports/REPORT_ANALISI_main_placeholder_2026-03-28.md)
 	- Design: [DESIGN_main_placeholder.md](2%20-%20projects/DESIGN_main_placeholder.md)
 	- Plan: [PLAN_main_placeholder.md](3%20-%20coding%20plans/PLAN_main_placeholder.md)
-	- TODO: [TODO_main_placeholder_v0.9.1.md](5%20-%20todolist/TODO_main_placeholder_v0.9.1.md)
+	- TODO: [TODO_main_placeholder_v0.9.2.md](5%20-%20todolist/TODO_main_placeholder_v0.9.2.md)
 
 ## Stato Avanzamento
 

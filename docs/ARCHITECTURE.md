@@ -193,7 +193,7 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 **Flusso corrente documentabile**:
 
 ```
-main.py o altro chiamante → GameController → (bool/dict/None) → layer di presentazione
+main.py placeholder o altro chiamante → GameController → (bool/dict/None) → layer di presentazione
                                                 → (log) → tombola_stark.log
 ```
 
@@ -224,7 +224,7 @@ main.py o altro chiamante → GameController → (bool/dict/None) → layer di p
 **Caratteristiche**:
 - **Singleton**: Un'unica istanza condivisa per tutta l'applicazione
 - **Flush immediato**: Ogni riga è scritta su disco immediatamente (leggibile in tempo reale)
-- **Modalità DEBUG/INFO**: Controllata dal flag `--debug` in `main.py`
+- **Modalità DEBUG/INFO**: Controllata dal flag `--debug` in `main.py`, anche nello stato placeholder corrente
 - **Marcatori di sessione**: Separano visivamente le esecuzioni nel file cumulativo
 - **Sub-logger per categoria**: 
   - `tombola_stark.game` → eventi ciclo di vita partita (`[GAME]`)
@@ -233,7 +233,7 @@ main.py o altro chiamante → GameController → (bool/dict/None) → layer di p
   - `tombola_stark.errors` → eccezioni e anomalie (`[ERR]`)
 
 **Regole di Dipendenza** (CRITICHE):
-- ✅ Può essere usato da: Controller (`game_controller.py`), Interfaccia (`main.py`)
+- ✅ Può essere usato da: Controller (`game_controller.py`), Entry point placeholder (`main.py`)
 - ❌ **NON può essere usato da**: Dominio (`tabellone.py`, `partita.py`, `cartella.py`, `players/`, `events/`, `exceptions/`)
 - ❌ Il logging **non deve mai interrompere il gioco**: tutte le chiamate sono wrappate in `try/except Exception: pass`
 
@@ -488,7 +488,7 @@ tombola-stark/
 │   ├── 3 - coding plans/        # Documenti PLAN_*.md
 │   ├── 4 - reports/             # Report analisi e stato
 │   └── 5 - todolist/            # TODO operativi per feature
-├── main.py                      # Entry point
+├── main.py                      # Entry point placeholder temporaneo, senza dipendenze UI
 ├── requirements.txt
 └── README.md
 ```

@@ -9,6 +9,11 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Fixed
+- `main.py`: sostituisce l'import rotto di `TerminalUI` con un placeholder
+  temporaneo; il programma torna avviabile con messaggio informativo sullo
+  stato di transizione verso la nuova interfaccia.
+
 ---
 
 ## [0.9.2] — 2026-03-28

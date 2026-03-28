@@ -1,7 +1,8 @@
-"""Entry point dell'applicazione Tombola Stark."""
+"""Placeholder temporaneo dell'entry point di Tombola Stark."""
+
 import argparse
+
 from bingo_game.logging import GameLogger
-from bingo_game.ui.ui_terminale import TerminalUI
 
 
 def _parse_args() -> argparse.Namespace:
@@ -22,18 +23,24 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _build_placeholder_message() -> str:
+    """Restituisce il messaggio temporaneo mostrato all'avvio."""
+    return (
+        "Tombola Stark: interfaccia utente non ancora disponibile.\n"
+        "Il progetto e' in transizione verso una nuova UI.\n"
+        "Il motore applicativo e il logging restano disponibili per lo sviluppo."
+    )
+
+
 def main() -> None:
-    """Main application entry point."""
+    """Avvia il placeholder temporaneo dell'applicazione."""
     args = _parse_args()
-    
-    # Inizializza il sistema di logging come prima cosa
+
     GameLogger.initialize(debug_mode=args.debug)
-    
+
     try:
-        tui = TerminalUI()
-        tui.avvia()
+        print(_build_placeholder_message())
     finally:
-        # Assicura sempre la chiusura pulita del logger
         GameLogger.shutdown()
 
 
