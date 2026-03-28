@@ -25,6 +25,16 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   aggiunge la checklist operativa associata al piano di conversione dei test.
 - `docs/5 - todolist/README.md`: aggiunge il README della cartella canonica per i
   TODO operativi, allineato al validatore documentale.
+- `docs/4 - reports/REPORT_FIX_UNICODE_PRINT_2026-03-28.md`: aggiunge analisi
+  mirata del fix P1 su `print()` con emoji (`comandi_partita.py`,
+  `test_game_controller.py`) con inventario righe e impatto suite.
+- `docs/2 - projects/DESIGN_fix_unicode_print.md`: aggiunge design della
+  rimozione pura dei `print()` Unicode nel perimetro applicativo/test,
+  con vincoli e criteri di accettazione.
+- `docs/3 - coding plans/PLAN_fix_unicode_print_v0.9.1.md`: aggiunge piano
+  operativo v0.9.1 per baseline, due fix incrementali e validazione finale.
+- `docs/5 - todolist/TODO_fix_unicode_print_v0.9.1.md`: aggiunge checklist
+  esecutiva READY allineata al piano `PLAN_fix_unicode_print_v0.9.1.md`.
 - Tasti rapidi TUI: navigazione e azioni di gioco via msvcrt senza Invio (v0.10.0).
 - `bingo_game/ui/tui/tui_commander.py`: modulo di input rapido con `TipoComando`,
   `ComandoTasto` (frozen dataclass), `leggi_tasto()`, `comando_da_tasto()`. Supporta
@@ -49,6 +59,10 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `docs/TODO.md`: aggiornato il coordinatore documentale con i riferimenti al nuovo
   report di analisi, al DESIGN, al PLAN e al TODO della feature
   `conversione_test_pytest_unittest`.
+- `docs/todo.md`: aggiornato il coordinatore documentale con i riferimenti a
+  `DESIGN_fix_unicode_print.md`, `PLAN_fix_unicode_print_v0.9.1.md`,
+  `REPORT_FIX_UNICODE_PRINT_2026-03-28.md` e
+  `TODO_fix_unicode_print_v0.9.1.md`.
 - `tests`: converte i batch 3, 4 e 5 della migrazione pytest → unittest e chiude
   la validazione finale con `python -m unittest discover` verde (303 test OK, 1 skip).
 - `docs/3 - coding plans/PLAN_conversione_test_pytest_unittest_v0.9.0.md`:
