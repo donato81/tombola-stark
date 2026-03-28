@@ -49,7 +49,12 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `docs/TODO.md`: aggiornato il coordinatore documentale con i riferimenti al nuovo
   report di analisi, al DESIGN, al PLAN e al TODO della feature
   `conversione_test_pytest_unittest`.
- - `tests`: converti test standalone in TestCase — codici_loop, focus, ottieni_giocatore, controller_loop, renderer.
+- `tests`: converte i batch 3, 4 e 5 della migrazione pytest → unittest e chiude
+  la validazione finale con `python -m unittest discover` verde (303 test OK, 1 skip).
+- `tests/test_partita.py`: allinea il confronto tra stato sintetico e completo al
+  subset comune di chiavi pubbliche, evitando una regressione su snapshot con ruoli diversi.
+- `tests/flow/test_flusso_game_loop.py`, `tests/test_silent_controller.py`: rimuove
+  la dipendenza import-time da pytest nei moduli legacy che bloccavano la discovery finale.
 - `docs/API.md`: aggiornato a [Unreleased] (2026-03-27); aggiunta sezione
   `GiocatoreUmano` con `imposta_focus_cartella_fallback()` (v0.9.1) e
   `visualizza_ultimi_numeri_estratti()` (v0.10.0).

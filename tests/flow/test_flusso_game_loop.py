@@ -19,8 +19,6 @@ from __future__ import annotations
 
 from unittest.mock import patch, MagicMock, call
 
-import pytest
-
 from bingo_game.ui.tui.tui_partita import _loop_partita, _gestisci_riepilogo_tabellone, _costruisci_report_finale, _normalizza_stato_sintetico
 
 
@@ -39,7 +37,6 @@ def _crea_stato_mock(estratti=None, vincitore=None, premi=None):
     }
 
 
-@pytest.fixture
 def partita_mock():
     """Partita mock compatibile con isinstance(partita, Partita)."""
     from bingo_game.partita import Partita

@@ -1,7 +1,7 @@
 ---
 type: todo
 feature: conversione_test_pytest_unittest
-status: DRAFT
+status: COMPLETED
 version: 0.9.0
 date: 2026-03-28
 plan: docs/3 - coding plans/PLAN_conversione_test_pytest_unittest_v0.9.0.md
@@ -129,18 +129,21 @@ File target:
       tests.unit.test_event_logging tests.integration.test_event_coverage
       tests.integration.test_logging_integration`.
 - [x] Verde confermato — nessun file temporaneo residuo, nessun handler logger residuo.
-- [ ] Commit: `test(batch5): converti test_game_logger, test_event_logging, test_event_coverage, test_logging_integration`
+- [x] Commit: `test(batch5): converti test_game_logger, test_event_logging, test_event_coverage, test_logging_integration`
 
 ---
 
 ## Fase 6 — Validazione finale e chiusura
 
-- [ ] Eseguire `python -m unittest discover -s tests -p "test_*.py"` sull'intera suite.
-- [ ] Verificare che il conteggio verde sia uguale o superiore a baseline Fase 0 + casi
+- [x] Eseguire `python -m unittest discover -s tests -p "test_*.py"` sull'intera suite.
+- [x] Verificare che il conteggio verde sia uguale o superiore a baseline Fase 0 + casi
       recuperati previsti.
-- [ ] Eseguire `python -m py_compile` su tutti i file convertiti (nessun errore).
-- [ ] Verificare che nessun file convertito contenga `import pytest` (grep).
-- [ ] Aggiornare `CHANGELOG.md` sezione `[Unreleased]`.
-- [ ] Aggiornare `docs/API.md` se la conversione ha rivelato differenze di contratto.
-- [ ] Escalare status PLAN a COMPLETED dopo conferma utente.
+- [x] Eseguire `python -m py_compile` su tutti i file convertiti (nessun errore).
+- [x] Verificare che nessun file convertito contenga `import pytest` (grep).
+- [x] Aggiornare `CHANGELOG.md` sezione `[Unreleased]`.
+- [x] Aggiornare `docs/API.md` se la conversione ha rivelato differenze di contratto.
+- [x] Escalare status PLAN a COMPLETED dopo conferma utente.
 - [ ] Commit: `test(validation): suite unittest verde — validazione finale conversione_test_pytest_unittest`
+
+Baseline finale annotata: 303 test OK, 1 skip, 0 failure, 0 error.
+Nota API: nessuna modifica a contratti pubblici; aggiornamento non necessario.

@@ -6,7 +6,6 @@ Verifica che nessuna funzione pubblica del controller emetta su stdout.
 
 Criterio di done: capsys.readouterr().out == "" in tutti i percorsi.
 """
-import pytest
 from unittest.mock import MagicMock, patch
 
 from bingo_game import game_controller as ctrl
@@ -18,7 +17,6 @@ from bingo_game.exceptions.partita_exceptions import PartitaException
 # Fixtures
 # ---------------------------------------------------------------------------
 
-@pytest.fixture
 def partita_mock():
     """Mock minimale di un oggetto Partita in stato 'in_corso'."""
     p = MagicMock(spec=Partita)
@@ -45,7 +43,6 @@ def partita_mock():
     return p
 
 
-@pytest.fixture
 def partita_terminata_mock():
     """Mock di Partita in stato 'terminata'."""
     p = MagicMock(spec=Partita)

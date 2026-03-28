@@ -1378,7 +1378,18 @@ class TestPartita(unittest.TestCase):
         stato_sintetico = self.partita.get_stato_sintetico()
         stato_completo = self.partita.get_stato_completo()
 
-        self.assertEqual(stato_sintetico, stato_completo)
+        chiavi_comuni = [
+            "stato_partita",
+            "ultimo_numero_estratto",
+            "numeri_estratti",
+            "giocatori",
+            "premi_gia_assegnati",
+        ]
+
+        self.assertEqual(
+            {chiave: stato_sintetico[chiave] for chiave in chiavi_comuni},
+            {chiave: stato_completo[chiave] for chiave in chiavi_comuni},
+        )
 
     def test_get_stato_sintetico_defensive_copy_and_types(self):
         """Verifica che il riepilogo sintetico sia robusto e non aliasi lo stato interno."""

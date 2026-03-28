@@ -1,7 +1,7 @@
 ---
 type: plan
 feature: conversione_test_pytest_unittest
-status: READY
+status: COMPLETED
 agent: Agent-Plan
 version: 0.9.0
 date: 2026-03-28
