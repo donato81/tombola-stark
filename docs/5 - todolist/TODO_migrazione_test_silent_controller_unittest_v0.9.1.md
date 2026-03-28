@@ -32,8 +32,9 @@ Istruzioni per Agent-Code: eseguire una fase alla volta. Non toccare codice appl
 
 Nota: il test piu complesso della fase e test_crea_partita_standard_silenzioso perche combina patch annidate multiple con la cattura stdout. Convertire questo test per primo e usarlo come riferimento stilistico per gli altri sette.
 
-- [ ] Sostituire capsys con patch di sys.stdout e io.StringIO nei test di silenziosita.
-- [ ] Verificare che ogni test confronti stdout con stringa vuota.
+- [x] Sostituire capsys con patch di sys.stdout e io.StringIO nei test di silenziosita.
+- [x] Verificare che ogni test confronti stdout con stringa vuota.
+- [x] Completato il 2026-03-28.
 
 ## Fase 4 — Convertire pytest.raises e chiudere i residui pytest
 

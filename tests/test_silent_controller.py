@@ -47,6 +47,13 @@ class TestControllerSilenzioso(unittest.TestCase):
             "giocatori": [],
             "premi_gia_assegnati": [],
         }
+        p.get_stato_sintetico.return_value = {
+            "stato_partita": "in_corso",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": [],
+            "giocatori": [],
+            "premi_gia_assegnati": [],
+        }
         return p
 
     def _build_partita_terminata(self) -> MagicMock:
@@ -158,6 +165,13 @@ class TestContrattiRitorno(unittest.TestCase):
             "premi_nuovi": [],
         }
         p.get_stato_completo.return_value = {
+            "stato_partita": "in_corso",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": [],
+            "giocatori": [],
+            "premi_gia_assegnati": [],
+        }
+        p.get_stato_sintetico.return_value = {
             "stato_partita": "in_corso",
             "ultimo_numero_estratto": None,
             "numeri_estratti": [],
