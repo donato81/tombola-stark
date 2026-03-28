@@ -9,6 +9,10 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+---
+
+## [0.9.2] — 2026-03-28
+
 ### Added
 - `docs/4 - reports/REPORT_ANALISI_STATO_2026-03-27.md`: aggiunge report di analisi
   stato progetto con roadmap prioritizzata (v0.11.0 → v2.0.0+).

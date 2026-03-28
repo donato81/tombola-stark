@@ -1,8 +1,8 @@
 # 📚 API.md - Tombola Stark
 
 > **Riferimento API pubblico per tombola-stark**  
-> Versione: [Unreleased]  
-> Ultimo aggiornamento: 2026-03-27
+> Versione: v0.9.2  
+> Ultimo aggiornamento: 2026-03-28
 
 ---
 

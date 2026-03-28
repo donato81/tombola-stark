@@ -1,7 +1,7 @@
 # 🏛️ ARCHITECTURE.md - Tombola Stark
 
 > **Documentazione architetturale di tombola-stark**  
-> Ultimo aggiornamento: 2026-03-27 ([Unreleased])
+> Ultimo aggiornamento: 2026-03-28 (v0.9.2)
 
 ---
 
@@ -835,5 +835,5 @@ class TestControllerSilenzioso(unittest.TestCase):
 
 ---
 
-*Ultimo aggiornamento: 2026-03-27 ([Unreleased])*  
+*Ultimo aggiornamento: 2026-03-28 (v0.9.2)*  
 *Documento vivente: aggiornare ad ogni cambiamento architetturale significativo.*
