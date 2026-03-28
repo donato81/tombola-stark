@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows&logoColor=white)]()
-[![wxPython](https://img.shields.io/badge/UI-wxPython%204.1.1-green)](https://wxpython.org/)
+[![UI](https://img.shields.io/badge/UI-In%20ridefinizione-lightgrey)]()
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-In%20sviluppo-orange)]()
 
@@ -23,7 +23,6 @@ L'architettura è strutturata a livelli (Dominio → Controller → Interfaccia)
 - 🎯 **Motore di gioco completo** — Gestione di 90 numeri, estrazione casuale certificata, storico estrazioni e percentuale di avanzamento
 - 🎴 **Cartelle automatiche** — Generazione automatica di cartelle (3 righe × 5 numeri) con verifica in tempo reale di ambo, terno, quaterna, cinquina e tombola
 - 👥 **Multiplayer locale** — Da 2 a 8 giocatori, con supporto simultaneo a 1 giocatore umano e fino a 7 bot automatici
-- 🖥️ **Menu TUI accessibile (v0.7.0+)** — Interfaccia da terminale screen reader–friendly (NVDA/JAWS/Orca): 3 prompt sequenziali (nome, bot, cartelle) con validazione in loop e re-prompt automatico
 - ♿️ **Accessibilità screen reader (v0.7.0+)** — Output lineare senza decorazioni grafiche, compatibile con NVDA, JAWS e Orca
 - 🤖 **Bot Attivi (v0.6.0+)** — I bot dichiarano autonomamente i premi conseguiti in tempo reale, simulando il comportamento di giocatori umani. I reclami sono loggati e pronti per vocalizzazione TTS
 - ♿️ **Accessibilità nativa** — Output strutturato compatibile con screen reader; ogni evento di gioco produce dati semantici pronti per la vocalizzazione TTS
@@ -80,121 +79,23 @@ venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-> ⚠️ **Nota**: `wxPython` e `pywin32` sono dipendenze Windows-specifiche. L'installazione su altri sistemi operativi potrebbe richiedere adattamenti.
+> ⚠️ **Nota**: alcune dipendenze restano Windows-specifiche e l'assetto dell'interfaccia utente e' in ridefinizione.
 
 ---
 
-## 🕹️ Come si gioca (v0.9.1)
+## 📌 Stato dell'interfaccia
 
-Avvia il gioco con `python main.py`, inserisci nome, numero di bot e cartelle, poi entra nel **Game Loop interattivo**.
+La TUI storica e' stata rimossa dal repository e la nuova UI non e' ancora documentata.
+Lo stato corrente del progetto e' questo:
 
-### Comandi disponibili
-
-| Comando | Descrizione |
-|---------|-------------|
-| `p` | **Prosegui** — estrai il prossimo numero e avanza al turno successivo |
-| `s <N> [N2 N3 ...]` | **Segna** — segna uno o più numeri sulla cartella in focus (es. `s 42` oppure `s 42 15 7` o `s 42,15,7`) |
-| `c` | **Cartella** — mostra il riepilogo della cartella in focus |
-| `v` | **Tabellone** — mostra il riepilogo del tabellone (estratti / mancanti) |
-| `q` | **Esci** — chiede conferma prima di uscire dalla partita |
-| `?` | **Aiuto** — mostra l'elenco dei comandi e la cartella attualmente in focus |
-
-### Note operative
-
-- **Flessibilità di marcatura**: puoi segnare qualsiasi numero già estratto, non solo l'ultimo.
-- **Azioni informative illimitate**: `s`, `c`, `v`, `?` non avanzano il turno — solo `p` lo fa.
-- **Conferma obbligatoria per uscire**: il comando `q` chiede sempre conferma (`s` per confermare, qualsiasi altro tasto per annullare).
-- **Report finale automatico**: al termine della partita (tombola o numeri esauriti) viene mostrato il riepilogo con vincitore, turni, estratti e premi.
-
----
-
-## Tasti Rapidi (v0.10.0)
-
-A partire dalla versione 0.10.0, il Game Loop usa tasti singoli via msvcrt (Windows). Non è necessario premere Invio.
-
-### Gruppo 1 — Navigazione riga (semplice)
-
-Freccia Su — sposta il focus di lettura alla riga precedente della cartella.
-Freccia Giu — sposta il focus di lettura alla riga successiva della cartella.
-
-### Gruppo 2 — Navigazione riga (avanzata)
-
-A — vai alla prima riga disponibile superiore con numeri non ancora segnati.
-Z — vai alla prima riga disponibile inferiore con numeri non ancora segnati.
-
-### Gruppo 3 — Navigazione colonna (semplice)
-
-Freccia Sinistra — sposta il focus alla colonna precedente nella riga corrente.
-Freccia Destra — sposta il focus alla colonna successiva nella riga corrente.
-
-### Gruppo 4 — Navigazione colonna (avanzata)
-
-Q — vai alla prima colonna a sinistra non ancora segnata nella riga corrente.
-W — vai alla prima colonna a destra non ancora segnata nella riga corrente.
-
-### Gruppo 5 — Salto diretto (richiede numero)
-
-R — vai direttamente alla riga indicata (prompt: numero da 1 a 3).
-C — vai direttamente alla colonna indicata (prompt: numero da 1 a 9).
-
-### Gruppo 6 — Navigazione cartella
-
-Pagina Su — mostra il riepilogo della cartella precedente e sposta il focus su di essa.
-Pagina Giu — mostra il riepilogo della cartella successiva e sposta il focus su di essa.
-Tasti 1 a 6 — seleziona direttamente la cartella corrispondente.
-
-### Gruppo 7 — Visualizzazione cartella
-
-D — visualizza la cartella corrente in modalita semplice (numeri e stato segnatura).
-F — visualizza la cartella corrente in modalita avanzata (dettaglio riga per riga).
-G — visualizza tutte le cartelle in modalita semplice.
-H — visualizza tutte le cartelle in modalita avanzata.
-
-### Gruppo 8 — Consultazione tabellone
-
-U — comunica l'ultimo numero estratto.
-I — mostra gli ultimi 5 numeri estratti in ordine cronologico.
-O — riepilogo tabellone (estratti, mancanti, percentuale avanzamento).
-L — lista completa di tutti i numeri estratti finora.
-E — verifica se un numero specifico e stato estratto (prompt: numero da 1 a 90).
-N — cerca un numero nelle tue cartelle (prompt: numero da 1 a 90).
-
-### Gruppo 9 — Orientamento
-
-? — mostra lo stato del focus corrente (cartella, riga, colonna in focus).
-
-### Gruppo 10 — Azioni di gioco
-
-S — segna un numero sulla cartella in focus (prompt: numero da 1 a 90).
-V — annuncia una vittoria (richiede configurazione avanzata).
-P — passa al turno successivo ed estrai il prossimo numero.
-X — esci dalla partita (chiede conferma: S per confermare, N per annullare).
+- il motore di gioco resta disponibile e testato;
+- il controller continua a esporre API sicure per creare, avviare e far avanzare una partita;
+- i componenti di supporto per localizzazione, rendering ed eventi restano disponibili;
+- questa documentazione non descrive ancora un flusso utente finale basato su una nuova interfaccia.
 
 ---
 
 ## ▶️ Utilizzo
-
-### Avvio del gioco
-
-**Modalità normale** (solo eventi INFO):
-```bash
-python main.py
-```
-
-**Modalità debug** (include log dettagliato di ogni turno):
-```bash
-python main.py --debug
-```
-
-Il sistema di logging crea automaticamente la cartella `logs/` e scrive un file cumulativo `logs/tombola_stark.log` con tutti gli eventi di gioco. Ogni sessione è separata da marcatori con timestamp. Il file è leggibile in tempo reale durante l'esecuzione.
-
-**Esempio di output del log**:
-```
-2026-02-19 12:30:45 | INFO  | tombola_stark.game   | [GAME] Partita creata — giocatore='Mario'
-2026-02-19 12:30:46 | INFO  | tombola_stark.game   | [GAME] Partita avviata — giocatori: 2
-2026-02-19 12:30:47 | DEBUG | tombola_stark.game   | [GAME] Turno #1 — estratto: 42
-2026-02-19 12:30:55 | INFO  | tombola_stark.prizes | [PRIZE] AMBO — giocatore='Mario', cartella=1
-```
 
 ### Utilizzo del motore di gioco via codice
 
@@ -257,7 +158,7 @@ tombola-stark/
 │   │   ├── game_controller_exceptions.py
 │   │   └── ...
 │   ├── validations/             # Logica di validazione
-│   └── ui/                      # Interfaccia utente (in sviluppo)
+│   └── ui/                      # Componenti di supporto del layer presentazione
 ├── my_lib/                      # Libreria di supporto
 ├── tests/                       # Suite di test (unittest)
 ├── docs/
