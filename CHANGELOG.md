@@ -35,25 +35,6 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   operativo v0.9.1 per baseline, due fix incrementali e validazione finale.
 - `docs/5 - todolist/TODO_fix_unicode_print_v0.9.1.md`: aggiunge checklist
   esecutiva READY allineata al piano `PLAN_fix_unicode_print_v0.9.1.md`.
-- Tasti rapidi TUI: navigazione e azioni di gioco via msvcrt senza Invio (v0.10.0).
-- `bingo_game/ui/tui/tui_commander.py`: modulo di input rapido con `TipoComando`,
-  `ComandoTasto` (frozen dataclass), `leggi_tasto()`, `comando_da_tasto()`. Supporta
-  tasti estesi a 2 byte (frecce, PagSu/PagGiu) e mappa 26 tasti in O(1).
-- `bingo_game/ui/tui/codici_tasti_tui.py`: costanti per 26 codici tasto (Gruppi 1-10)
-  con coppie byte msvcrt documentate. Include `TASTI_CARTELLE` (frozenset) e
-  `PREFISSO_TASTO_ESTESO`.
-- `bingo_game/ui/locales/it.py`: 8 nuove chiavi `LOOP_*` per feedback tasti rapidi
-  (`LOOP_TASTO_NON_VALIDO`, `LOOP_QUIT_CONFERMA_TASTO`, `LOOP_PROMPT_R_VAI_RIGA`,
-  `LOOP_PROMPT_C_VAI_COLONNA`, `LOOP_PROMPT_E_VERIFICA`, `LOOP_PROMPT_N_CERCA`,
-  `LOOP_PROMPT_V_VITTORIA`, `LOOP_HELP_TASTI_RAPIDI`).
-- `tests/unit/test_tui_commander.py`: 13 test unitari per `tui_commander`
-  (leggi_tasto, comando_da_tasto, TipoComando, ComandoTasto frozen).
-- `tests/unit/test_tui_partita.py`: 12 nuovi test v0.10.0 (Tests 16-27) per le
-  funzioni di dispatch `_esegui_seleziona_cartella`, `_esegui_azione_giocatore`,
-  `_esegui_con_prompt_numero`, `_esegui_conferma_esci`.
-- `tests/integration/test_game_loop_tasti.py`: 6 scenari di integrazione del game
-  loop (tasto non valido, selezione cartella, prompt valido, prompt non valido,
-  uscita con conferma, partita completa).
 
 ### Fixed
 - `bingo_game/comandi_partita.py`, `tests/test_game_controller.py`: rimuove i
@@ -61,6 +42,9 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   ripristina la suite `unittest` verde (351 test OK).
 
 ### Changed
+- `CHANGELOG.md`, `docs/API.md`, `docs/ARCHITECTURE.md`, `README.md`: riallinea la
+  documentazione pubblica allo stato post-rimozione TUI senza riscrivere la
+  cronologia delle release gia' versionate.
 - `tests/test_silent_controller.py`: completa la migrazione pytest -> unittest con
   TestCase, setUp, helper `_build_*`, cattura stdout via `io.StringIO` e
   `self.assertRaises`; il TODO `migrazione_test_silent_controller_unittest`
@@ -138,6 +122,9 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `documentations/`: rimossa la cartella legacy; tutta la documentazione
   migrata nella nuova struttura `docs/` (templates, projects, coding plans,
   reports, todo list, API.md, ARCHITECTURE.md).
+- Riferimenti correnti alla TUI nella sezione `[Unreleased]`: rimossi i richiami
+  a game loop, tasti rapidi via `msvcrt` e test TUI non piu' presenti nel
+  repository dopo la rimozione dell'interfaccia terminale.
 - Parsing comandi testuali (seguito da Invio) rimosso dal game loop principale.
   Il loop v0.10.0 usa esclusivamente `leggi_tasto()` via msvcrt.
 
