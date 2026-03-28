@@ -1,7 +1,7 @@
 ---
 type: todo
 feature: migrazione_test_silent_controller_unittest
-status: DRAFT
+status: DONE
 version: 0.9.1
 date: 2026-03-28
 plan: docs/3 - coding plans/PLAN_migrazione_test_silent_controller_unittest_v0.9.1.md
@@ -38,9 +38,11 @@ Nota: il test piu complesso della fase e test_crea_partita_standard_silenzioso p
 
 ## Fase 4 — Convertire pytest.raises e chiudere i residui pytest
 
-- [ ] Sostituire pytest.raises(ValueError) con self.assertRaises(ValueError).
-- [ ] Rimuovere ogni riferimento a pytest dal file.
-- [ ] Valutare subTest nel loop finale di TestMESSAGGICONTROLLER.
+- [x] Sostituire pytest.raises(ValueError) con self.assertRaises(ValueError).
+- [x] Rimuovere ogni riferimento a pytest dal file.
+- [x] Valutare subTest nel loop finale di TestMESSAGGICONTROLLER.
+
+Completamento: 2026-03-28
 
 ## Fase 5 — Validazione
 

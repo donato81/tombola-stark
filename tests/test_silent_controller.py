@@ -236,5 +236,6 @@ class TestMESSAGGICONTROLLER(unittest.TestCase):
     def test_valori_sono_stringhe_non_vuote(self):
         from bingo_game.ui.locales import MESSAGGI_CONTROLLER
         for chiave, valore in MESSAGGI_CONTROLLER.items():
-            self.assertIsInstance(valore, str, f"Valore non stringa per chiave: {chiave}")
-            self.assertGreater(len(valore), 0, f"Valore vuoto per chiave: {chiave}")
+            with self.subTest(chiave=chiave):
+                self.assertIsInstance(valore, str, f"Valore non stringa per chiave: {chiave}")
+                self.assertGreater(len(valore), 0, f"Valore vuoto per chiave: {chiave}")
