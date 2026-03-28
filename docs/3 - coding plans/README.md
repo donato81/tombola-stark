@@ -17,4 +17,4 @@
 
 Ogni PLAN è legato a un target release specifico.
 Versione + feature combinati assicurano tracciabilità per ogni tag.
-Ogni PLAN ha un TODO corrispondente in `docs/5 - todo list/`.
+Ogni PLAN ha un TODO corrispondente in `docs/5 - todolist/`.

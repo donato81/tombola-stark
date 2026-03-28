@@ -51,6 +51,12 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   `conversione_test_pytest_unittest`.
 - `tests`: converte i batch 3, 4 e 5 della migrazione pytest → unittest e chiude
   la validazione finale con `python -m unittest discover` verde (303 test OK, 1 skip).
+- `docs/3 - coding plans/PLAN_conversione_test_pytest_unittest_v0.9.0.md`:
+  avanzato lo stato del piano fino a `COMPLETED` dopo l'esecuzione sequenziale
+  delle fasi 3, 4, 5 e 6.
+- `docs/5 - todolist/TODO_conversione_test_pytest_unittest_v0.9.0.md`:
+  chiusa la checklist operativa con baseline finale `unittest discover`
+  (303 OK, 1 skipped, 0 failure, 0 error).
 - `tests/test_partita.py`: allinea il confronto tra stato sintetico e completo al
   subset comune di chiavi pubbliche, evitando una regressione su snapshot con ruoli diversi.
 - `tests/flow/test_flusso_game_loop.py`, `tests/test_silent_controller.py`: rimuove

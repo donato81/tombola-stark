@@ -878,12 +878,15 @@ def imposta_focus_cartella_fallback() -> None:
 #### visualizza_ultimi_numeri_estratti()
 
 ```python
-def visualizza_ultimi_numeri_estratti() -> EsitoAzione:
+def visualizza_ultimi_numeri_estratti(self, tabellone: object) -> EsitoAzione:
 ```
 
 **Versione**: v0.10.0 (rinominato da `visualizzaultiminumeriestratti` per conformità snake_case)
 
 **Scopo**: Ritorna un `EsitoAzione` contenente gli ultimi numeri estratti dal tabellone, pronto per la vocalizzazione TTS.
+
+**Parametri**:
+- `tabellone`: oggetto tabellone da cui leggere gli ultimi numeri estratti.
 
 **Ritorna**:
 - `EsitoAzione` con `ok=True` e `evento` contenente la lista degli ultimi numeri

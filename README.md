@@ -259,12 +259,15 @@ tombola-stark/
 │   ├── validations/             # Logica di validazione
 │   └── ui/                      # Interfaccia utente (in sviluppo)
 ├── my_lib/                      # Libreria di supporto
-├── tests/                       # Suite di test (pytest)
-├── documentations/
+├── tests/                       # Suite di test (unittest)
+├── docs/
 │   ├── API.md                   # 📚 Riferimento API pubblico
 │   ├── ARCHITECTURE.md          # 🏗️ Documentazione architetturale
-│   ├── CHANGELOG.md             # 📝 Cronologia versioni e modifiche
-│   └── templates/               # Template per nuovi documenti
+│   ├── 1 - templates/           # Template di documentazione progetto
+│   ├── 2 - projects/            # DESIGN_<feature>.md
+│   ├── 3 - coding plans/        # PLAN_<feature>_vX.Y.Z.md
+│   ├── 4 - reports/             # REPORT_<tipo>_<data>.md
+│   └── 5 - todolist/            # TODO_<feature>_vX.Y.Z.md
 ├── main.py                      # ▶️ Entry point dell'applicazione
 ├── requirements.txt             # Dipendenze Python
 └── README.md                    # Questo file
@@ -274,32 +277,26 @@ tombola-stark/
 
 ## 📚 Documentazione Tecnica
 
-La documentazione tecnica completa è disponibile nella cartella [`documentations/`](documentations/):
+La documentazione tecnica completa è disponibile nella cartella [`docs/`](docs/):
 
 | Documento | Descrizione |
 |---|---|
-| [`API.md`](documentations/API.md) | Riferimento completo di tutte le classi pubbliche, metodi, parametri e valori di ritorno |
-| [`ARCHITECTURE.md`](documentations/ARCHITECTURE.md) | Architettura del software, suddivisione a livelli, pattern chiave e flusso dei dati |
-| [`CHANGELOG.md`](documentations/CHANGELOG.md) | Cronologia delle versioni e modifiche apportate in ogni release |
+| [`API.md`](docs/API.md) | Riferimento completo di tutte le classi pubbliche, metodi, parametri e valori di ritorno |
+| [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Architettura del software, suddivisione a livelli, pattern chiave e flusso dei dati |
+| [`CHANGELOG.md`](CHANGELOG.md) | Cronologia delle versioni e modifiche apportate in ogni release |
 
 ---
 
 ## 🧪 Test
 
-Il progetto utilizza **pytest** per i test unitari e di integrazione.
+Il progetto utilizza **unittest** (standard library) per i test unitari e di integrazione.
 
 ```bash
-# Installa pytest se non già presente
-pip install pytest
-
 # Esegui tutti i test
-pytest tests/
+python -m unittest discover -s tests -p "test_*.py"
 
 # Esegui con verbosità
-pytest tests/ -v
-
-# Esegui con report di copertura
-pytest tests/ --cov=bingo_game
+python -m unittest discover -s tests -p "test_*.py" -v
 ```
 
 I test del livello dominio (`Tabellone`, `Cartella`, `Partita`, `GiocatoreBase`) sono progettati per essere eseguiti **in completo isolamento** da UI e framework esterni.
@@ -316,7 +313,7 @@ I contributi sono benvenuti! Per contribuire al progetto:
    git checkout -b feature/nome-feature
    ```
 3. **Effettua le modifiche** rispettando le convenzioni del progetto:
-   - Regole di dipendenza tra livelli (vedi [`ARCHITECTURE.md`](documentations/ARCHITECTURE.md))
+    - Regole di dipendenza tra livelli (vedi [`ARCHITECTURE.md`](docs/ARCHITECTURE.md))
    - Naming conventions Python (`snake_case` per metodi, `PascalCase` per classi)
    - Aggiungi test per le nuove funzionalità
 4. **Fai il commit** con messaggi convenzionali:

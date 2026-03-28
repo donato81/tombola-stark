@@ -52,7 +52,7 @@ Il progetto pone l'**accessibilità come requisito di primo livello**: ogni even
 - **Standard Library** (`random`, `typing`, `dataclasses`) – Nessuna dipendenza esterna per il motore di gioco
 
 **Testing**:
-- **Pytest** – Test unitari e di integrazione (cartella `tests/`)
+- **unittest** (standard library) – Test unitari e di integrazione (cartella `tests/`)
 
 **Dipendenze** (`requirements.txt`):
 - Librerie di supporto per l'interfaccia e l'accessibilità
@@ -499,12 +499,12 @@ tombola-stark/
 ├── docs/
 │   ├── API.md                   # Riferimento API pubblico
 │   ├── ARCHITECTURE.md          # Documentazione architetturale
-│   ├── todo.md                  # Task correnti
+│   ├── todo.md                  # Coordinatore task correnti
 │   ├── 1 - templates/           # Template DESIGN/PLAN/TODO
 │   ├── 2 - projects/            # Documenti DESIGN_*.md
 │   ├── 3 - coding plans/        # Documenti PLAN_*.md
 │   ├── 4 - reports/             # Report analisi e stato
-│   └── 5 - todo list/           # TODO completati / archiviati
+│   └── 5 - todolist/            # TODO operativi per feature
 ├── main.py                      # Entry point
 ├── requirements.txt
 └── README.md
@@ -699,11 +699,11 @@ def test_estrai_numero_riduce_disponibili():
     t.estrai_numero()
     assert t.get_conteggio_disponibili() == 89
 
-def test_numeri_terminati_solleva_eccezione():
+def test_numeri_terminati_solleva_eccezione(self):
     t = Tabellone()
     for _ in range(90):
         t.estrai_numero()
-    with pytest.raises(ValueError):
+    with self.assertRaises(ValueError):
         t.estrai_numero()
 ```
 
