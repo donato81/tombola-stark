@@ -15,9 +15,9 @@ Istruzioni per Agent-Code: eseguire una fase alla volta. Non toccare codice appl
 
 ## Fase 1 — Portare le classi a TestCase
 
-- [ ] Aggiungere import unittest e io nel file tests/test_silent_controller.py.
-- [ ] Far ereditare tutte e tre le classi da unittest.TestCase.
-- [ ] Convertire gli assert nativi in assert unittest coerenti con il contratto di ogni test.
+- [x] Aggiungere import unittest e io nel file tests/test_silent_controller.py.
+- [x] Far ereditare tutte e tre le classi da unittest.TestCase.
+- [x] Convertire gli assert nativi in assert unittest coerenti con il contratto di ogni test.
 
 ## Fase 2 — Sostituire le fixture pytest
 

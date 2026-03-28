@@ -6,6 +6,9 @@ Verifica che nessuna funzione pubblica del controller emetta su stdout.
 
 Criterio di done: capsys.readouterr().out == "" in tutti i percorsi.
 """
+import io
+import unittest
+
 from unittest.mock import MagicMock, patch
 
 from bingo_game import game_controller as ctrl
@@ -55,7 +58,7 @@ def partita_terminata_mock():
 # Test stdout — tutti i percorsi
 # ---------------------------------------------------------------------------
 
-class TestControllerSilenzioso:
+class TestControllerSilenzioso(unittest.TestCase):
     """Verifica che il controller non emetta nulla su stdout in nessuna condizione."""
 
     def test_crea_partita_standard_silenzioso(self, capsys):
@@ -74,59 +77,59 @@ class TestControllerSilenzioso:
                 num_bot=1,
                 num_cartelle_umano=1,
             )
-        assert capsys.readouterr().out == ""
+        self.assertEqual(capsys.readouterr().out, "")
 
     def test_avvia_partita_sicura_true_silenzioso(self, capsys, partita_mock):
         """avvia_partita_sicura percorso True non deve emettere su stdout."""
         ctrl.avvia_partita_sicura(partita_mock)
-        assert capsys.readouterr().out == ""
+        self.assertEqual(capsys.readouterr().out, "")
 
     def test_avvia_partita_sicura_false_silenzioso(self, capsys, partita_mock):
         """avvia_partita_sicura percorso False non deve emettere su stdout."""
         partita_mock.avvia_partita.side_effect = PartitaException("errore simulato")
         ctrl.avvia_partita_sicura(partita_mock)
-        assert capsys.readouterr().out == ""
+        self.assertEqual(capsys.readouterr().out, "")
 
     def test_esegui_turno_sicuro_dict_silenzioso(self, capsys, partita_mock):
         """esegui_turno_sicuro percorso dict non deve emettere su stdout."""
         ctrl.esegui_turno_sicuro(partita_mock)
-        assert capsys.readouterr().out == ""
+        self.assertEqual(capsys.readouterr().out, "")
 
     def test_esegui_turno_sicuro_none_silenzioso(self, capsys, partita_mock):
         """esegui_turno_sicuro percorso None non deve emettere su stdout."""
         partita_mock.get_stato_partita.return_value = "non_iniziata"
         ctrl.esegui_turno_sicuro(partita_mock)
-        assert capsys.readouterr().out == ""
+        self.assertEqual(capsys.readouterr().out, "")
 
     def test_partita_terminata_false_silenzioso(self, capsys, partita_mock):
         """partita_terminata percorso False non deve emettere su stdout."""
         ctrl.partita_terminata(partita_mock)
-        assert capsys.readouterr().out == ""
+        self.assertEqual(capsys.readouterr().out, "")
 
     def test_partita_terminata_true_silenzioso(self, capsys, partita_terminata_mock):
         """partita_terminata percorso True non deve emettere su stdout."""
         ctrl.partita_terminata(partita_terminata_mock)
-        assert capsys.readouterr().out == ""
+        self.assertEqual(capsys.readouterr().out, "")
 
     def test_ottieni_stato_sintetico_dict_silenzioso(self, capsys, partita_mock):
         """ottieni_stato_sintetico percorso dict non deve emettere su stdout."""
         ctrl.ottieni_stato_sintetico(partita_mock)
-        assert capsys.readouterr().out == ""
+        self.assertEqual(capsys.readouterr().out, "")
 
 
 # ---------------------------------------------------------------------------
 # Test contratti di ritorno
 # ---------------------------------------------------------------------------
 
-class TestContrattiRitorno:
+class TestContrattiRitorno(unittest.TestCase):
     """Verifica che i contratti di ritorno del controller siano rispettati."""
 
     def test_avvia_partita_sicura_ritorna_true(self, partita_mock):
-        assert ctrl.avvia_partita_sicura(partita_mock) is True
+        self.assertTrue(ctrl.avvia_partita_sicura(partita_mock))
 
     def test_avvia_partita_sicura_ritorna_false_su_eccezione(self, partita_mock):
         partita_mock.avvia_partita.side_effect = PartitaException("errore")
-        assert ctrl.avvia_partita_sicura(partita_mock) is False
+        self.assertFalse(ctrl.avvia_partita_sicura(partita_mock))
 
     def test_ottieni_stato_sintetico_lancia_valueerror_su_non_partita(self):
         with pytest.raises(ValueError):
@@ -134,19 +137,19 @@ class TestContrattiRitorno:
 
     def test_esegui_turno_sicuro_ritorna_none_su_partita_non_in_corso(self, partita_mock):
         partita_mock.get_stato_partita.return_value = "non_iniziata"
-        assert ctrl.esegui_turno_sicuro(partita_mock) is None
+        self.assertIsNone(ctrl.esegui_turno_sicuro(partita_mock))
 
 
 # ---------------------------------------------------------------------------
 # Test dizionario localizzazione
 # ---------------------------------------------------------------------------
 
-class TestMESSAGGICONTROLLER:
+class TestMESSAGGICONTROLLER(unittest.TestCase):
     """Verifica la struttura di MESSAGGI_CONTROLLER in it.py."""
 
     def test_quattro_chiavi(self):
         from bingo_game.ui.locales import MESSAGGI_CONTROLLER
-        assert len(MESSAGGI_CONTROLLER) == 4
+        self.assertEqual(len(MESSAGGI_CONTROLLER), 4)
 
     def test_chiavi_sono_costanti_corrette(self):
         from bingo_game.ui.locales import MESSAGGI_CONTROLLER
@@ -156,13 +159,13 @@ class TestMESSAGGICONTROLLER:
             CTRL_NUMERI_ESAURITI,
             CTRL_TURNO_FALLITO_GENERICO,
         )
-        assert CTRL_AVVIO_FALLITO_GENERICO in MESSAGGI_CONTROLLER
-        assert CTRL_TURNO_NON_IN_CORSO in MESSAGGI_CONTROLLER
-        assert CTRL_NUMERI_ESAURITI in MESSAGGI_CONTROLLER
-        assert CTRL_TURNO_FALLITO_GENERICO in MESSAGGI_CONTROLLER
+        self.assertIn(CTRL_AVVIO_FALLITO_GENERICO, MESSAGGI_CONTROLLER)
+        self.assertIn(CTRL_TURNO_NON_IN_CORSO, MESSAGGI_CONTROLLER)
+        self.assertIn(CTRL_NUMERI_ESAURITI, MESSAGGI_CONTROLLER)
+        self.assertIn(CTRL_TURNO_FALLITO_GENERICO, MESSAGGI_CONTROLLER)
 
     def test_valori_sono_stringhe_non_vuote(self):
         from bingo_game.ui.locales import MESSAGGI_CONTROLLER
         for chiave, valore in MESSAGGI_CONTROLLER.items():
-            assert isinstance(valore, str), f"Valore non stringa per chiave: {chiave}"
-            assert len(valore) > 0, f"Valore vuoto per chiave: {chiave}"
+            self.assertIsInstance(valore, str, f"Valore non stringa per chiave: {chiave}")
+            self.assertGreater(len(valore), 0, f"Valore vuoto per chiave: {chiave}")

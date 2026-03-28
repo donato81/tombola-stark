@@ -61,6 +61,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   ripristina la suite `unittest` verde (351 test OK).
 
 ### Changed
+- `tests/test_silent_controller.py`: porta le classi a `unittest.TestCase` e converte gli `assert` a `assert` di `unittest`.
 - `docs/TODO.md`: aggiornato il coordinatore documentale con i riferimenti al nuovo
   report di analisi, al DESIGN, al PLAN e al TODO della feature
   `conversione_test_pytest_unittest`.
