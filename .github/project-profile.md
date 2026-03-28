@@ -5,7 +5,7 @@ version: "0.9.0"
 primary_language: "Python"
 secondary_languages: []
 ui_framework: "wxPython"
-test_runner: "pytest"
+test_runner: "unitest"
 build_system: "cx_Freeze"
 architecture: "clean-architecture-4-layer"
 accessibility: true

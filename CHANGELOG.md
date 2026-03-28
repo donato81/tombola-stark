@@ -12,6 +12,19 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ### Added
 - `docs/4 - reports/REPORT_ANALISI_STATO_2026-03-27.md`: aggiunge report di analisi
   stato progetto con roadmap prioritizzata (v0.11.0 → v2.0.0+).
+- `docs/4 - reports/REPORT_ANALISI_CONVERSIONE_TEST_PYTEST_UNITTEST_2026-03-28.md`:
+  aggiunge il findings report per la conversione dei test pytest non verdi verso
+  unittest standard, con batch di priorita, dipendenze e rischi.
+- `docs/2 - projects/DESIGN_conversione_test_pytest_unittest.md`: aggiunge il
+  documento di design della migrazione pytest → unittest, con strategia di
+  uniformita, batching e criteri di accettazione.
+- `docs/3 - coding plans/PLAN_conversione_test_pytest_unittest_v0.9.0.md`:
+  aggiunge il piano operativo READY per la conversione incrementale dei test in
+  sette fasi, dalla baseline alla validazione finale.
+- `docs/5 - todolist/TODO_conversione_test_pytest_unittest_v0.9.0.md`:
+  aggiunge la checklist operativa associata al piano di conversione dei test.
+- `docs/5 - todolist/README.md`: aggiunge il README della cartella canonica per i
+  TODO operativi, allineato al validatore documentale.
 - Tasti rapidi TUI: navigazione e azioni di gioco via msvcrt senza Invio (v0.10.0).
 - `bingo_game/ui/tui/tui_commander.py`: modulo di input rapido con `TipoComando`,
   `ComandoTasto` (frozen dataclass), `leggi_tasto()`, `comando_da_tasto()`. Supporta
@@ -33,6 +46,9 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   uscita con conferma, partita completa).
 
 ### Changed
+- `docs/TODO.md`: aggiornato il coordinatore documentale con i riferimenti al nuovo
+  report di analisi, al DESIGN, al PLAN e al TODO della feature
+  `conversione_test_pytest_unittest`.
 - `docs/API.md`: aggiornato a [Unreleased] (2026-03-27); aggiunta sezione
   `GiocatoreUmano` con `imposta_focus_cartella_fallback()` (v0.9.1) e
   `visualizza_ultimi_numeri_estratti()` (v0.10.0).
