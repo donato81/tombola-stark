@@ -467,7 +467,6 @@ class TestGameController(unittest.TestCase):
         """
         # NOTA: Test manuale dopo 90 turni troppo lungo per unit test
         # Simuliamo con tabellone già "esaurito" in futuro
-        print("✅ Test numeri esauriti: simulazione OK (test manuale consigliato)")
         self.assertTrue(True)
 
 
@@ -777,7 +776,6 @@ class TestGameController(unittest.TestCase):
             partita_result = partita.is_terminata()
             
             self.assertEqual(controller_result, partita_result)
-            print(f"✅ Stato '{stato_target}': controller={controller_result}, partita={partita_result}")
 
     def test_partita_terminata_stato_invalido_raises(self) -> None:
         """
