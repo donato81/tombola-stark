@@ -78,7 +78,7 @@ Il sistema adotta una separazione a tre livelli principali con regole di dipende
 │          LIVELLO CONTROLLER                    │
 │  (game_controller.py, comandi_partita.py)      │
 │  Orchestrazione sicura, gestione eccezioni     │
-│  → (bool/dict/None) → ui_terminale.py → stdout│
+│  → (bool/dict/None) → layer di presentazione   │
 │  → (log) → tombola_stark.log                  │
 └───────────────────────────────────────────────┘
                       ↓ dipende da
@@ -167,57 +167,46 @@ def avvia_partita_sicura(partita: Partita) -> bool:
         return True
     except PartitaGiocatoriInsufficientiException as exc:
         _log_safe("[GAME] Avvio fallito: ...", "warning", logger=_logger_errors)
-        return False  # La TUI legge False e mostra MESSAGGI_CONTROLLER
+        return False  # Il layer di presentazione gestisce il messaggio coerente
 ```
 
 ---
 
 #### Livello Interfaccia
 
-**Scopo**: Presentazione degli stati di gioco tramite terminale, vocalizzazione TTS, screen reader.
+**Scopo**: Presentazione degli stati di gioco tramite un layer UI esterno al core del progetto. La UI completa non e' attualmente definita nella documentazione pubblica; restano disponibili componenti di supporto per localizzazione, rendering testuale ed eventi.
 
 **Dipende da**:
 - Controller (per ottenere risultati sicuri tramite `crea_partita_standard` + `avvia_partita_sicura`)
-- Sistema `bingo_game/events/` (per messaggi strutturati pronti per TTS)
+- Sistema `bingo_game/events/` (per messaggi strutturati pronti per vocalizzazione o rendering)
 - `bingo_game/ui/locales/it.py` (testi localizzati in italiano)
 
-**Componenti attivi (v0.9.0)**:
+**Componenti documentabili nello stato attuale**:
 
 | File | Ruolo |
 |---|---|
-| `bingo_game/ui/ui_terminale.py` | `TerminalUI`: flusso configurazione pre-partita (Fase 1) |
-| `bingo_game/ui/tui/tui_partita.py` | `_loop_partita()`: macchina a stati Game Loop interattivo; v0.9.0 (comandi testuali) + v0.10.0 (tasti rapidi via tui_commander) |
-| `bingo_game/ui/tui/tui_commander.py` | `leggi_tasto()`, `comando_da_tasto()`: input rapido a tasto singolo via msvcrt; classifica ogni pressione in un `ComandoTasto` (`TipoComando` enum + frozen dataclass). Gestisce tasti estesi a 2 byte (v0.10.0) |
-| `bingo_game/ui/tui/codici_tasti_tui.py` | Costanti per 26 codici tasto (Gruppi 1-10): frecce, PagSu/PagGiu, lettere, numeri cartella 1-6. Include `TASTI_CARTELLE` e `PREFISSO_TASTO_ESTESO` (v0.10.0) |
-| `bingo_game/ui/locales/it.py` | Testi localizzati (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, `MESSAGGI_CONTROLLER`, chiavi `LOOP_*`) |
-| `bingo_game/events/codici_controller.py` | Costanti chiave (`CTRL_*`) per `MESSAGGI_CONTROLLER` (v0.8.0) |
-| `bingo_game/events/codici_loop.py` | Costanti codici evento Game Loop (`LOOP_*`) (v0.9.0) |
-| `bingo_game/ui/renderers/renderer_terminal.py` | `TerminalRenderer`: vocalizzazione gerarchica eventi di gioco |
+| `bingo_game/ui/locales/it.py` | Testi localizzati e codici messaggio riusabili dal layer di presentazione |
+| `bingo_game/ui/renderers/renderer_terminal.py` | Rendering testuale degli eventi di gioco |
+| `bingo_game/events/codici_controller.py` | Costanti chiave (`CTRL_*`) per gli esiti controller |
+| `bingo_game/events/codici_loop.py` | Costanti evento residue legate al precedente ciclo interattivo |
 
-**Flusso TUI (v0.9.0)**:
+**Flusso corrente documentabile**:
 
 ```
-main.py → TerminalUI.avvia() → GameController → (bool/dict/None) → TUI → stdout
-                                              → (log) → tombola_stark.log
-
-TerminalUI._avvia_partita() → TuiGameLoop.avvia()
-                            → _loop_partita(partita)   [v0.9.0 — canonico]
+main.py o altro chiamante → GameController → (bool/dict/None) → layer di presentazione
+                                                → (log) → tombola_stark.log
 ```
 
-1. `main.py` istanzia `TerminalUI` e chiama `avvia()`
-2. `TerminalUI` esegue la macchina a stati A→E (benvenuto → nome → bot → cartelle → avvio)
-3. `TerminalUI` delega al `GameController`: `crea_partita_standard()` + `avvia_partita_sicura()`
-4. `TerminalUI` legge il valore di ritorno e mostra `MESSAGGI_CONTROLLER` se necessario
-5. `TerminalUI` **non importa mai** dal Domain layer (`partita.py`, `giocatore_base.py`, ecc.)
-6. `_loop_partita()` gestisce il ciclo interattivo: comandi `p/s/c/v/q/?`, report finale
+1. Il chiamante crea o recupera una `Partita` tramite il controller
+2. Il controller orchestra il dominio e ritorna esiti sicuri (`bool`, `dict`, `None`)
+3. Il layer di presentazione interpreta gli esiti e li rende disponibili in forma accessibile
+4. Logging ed eventi strutturati restano indipendenti dal dominio
 
-> **Vincolo architetturale v0.9.0**: `tui_partita.py` non importa classi Domain (`GiocatoreUmano`, `Partita`, `Tabellone`, `Cartella`). Ogni accesso al dominio passa esclusivamente tramite `game_controller` (es. `ottieni_giocatore_umano()`, `esegui_turno_sicuro()`, `ottieni_stato_sintetico()`).
+> **Vincolo architetturale corrente**: ogni accesso al dominio da parte del layer di presentazione passa tramite `game_controller` e i suoi wrapper pubblici.
 
-> **Nota refactor confini 2026-03-24**: il riepilogo sintetico della partita nasce ora esplicitamente in `Partita.get_stato_sintetico()`. `GameController.ottieni_stato_sintetico()` resta un bordo applicativo: verifica il parametro, valida il contratto minimo del dizionario e inoltra il risultato alla TUI senza reinterpretare lo stato di dominio.
+> **Nota refactor confini 2026-03-24**: il riepilogo sintetico della partita nasce ora esplicitamente in `Partita.get_stato_sintetico()`. `GameController.ottieni_stato_sintetico()` resta un bordo applicativo: verifica il parametro, valida il contratto minimo del dizionario e inoltra il risultato al layer di presentazione senza reinterpretare lo stato di dominio.
 
-> **Nota v0.9.1 — `imposta_focus_cartella_fallback()`**: In `_loop_partita()`, se `imposta_focus_cartella(1)` solleva eccezione e il giocatore ha esattamente 1 cartella, il focus viene impostato tramite `giocatore.imposta_focus_cartella_fallback()`. Questo era l'**unico punto** in cui la TUI invocava un metodo sul domain object `giocatore` al di fuori di `game_controller`: consentito perché il metodo è pubblico, non espone stato interno e rappresenta un fallback di emergenza documentato. Il metodo è definito in `bingo_game/players/helper_focus.py` (mixin `GestioneFocusMixin`).
-
-> **Nota v0.11.0 — Eliminazione accesso diretto TUI → Domain**: A partire da v0.11.0, il fallback è mediato dal wrapper `game_controller.imposta_focus_cartella_fallback(partita)`. Non esiste più alcun punto in cui la TUI accede direttamente a domain object. Tutti gli accessi al dominio passano esclusivamente tramite le funzioni del controller (Sezione 4: 6 wrapper + 2 frozenset). **Il vincolo architetturale è ora completo e privo di eccezioni documentate.**
+> **Nota v0.11.0**: `imposta_focus_cartella_fallback(partita)` media tramite controller un fallback prima documentato nel vecchio layer terminale. Il vincolo architetturale resta: nessun accesso diretto del layer di presentazione ai domain object.
 
 ---
 
@@ -481,21 +470,15 @@ tombola-stark/
 │   ├── validations/             # Logica di validazione
 │   ├── logging/                 # Infrastruttura logging
 │   │   └── game_logger.py
-│   └── ui/                      # Livello interfaccia
-│       ├── ui_terminale.py          # TerminalUI: menu + config (v0.7.0)
-│       ├── tui/
-│       │   ├── __init__.py
-│       │   ├── tui_partita.py       # _loop_partita(): Game Loop canonico (v0.9.0)
-│       │   ├── tui_commander.py     # leggi_tasto(), comando_da_tasto(): input msvcrt (v0.10.0)
-│       │   └── codici_tasti_tui.py  # Costanti 26 tasti (Gruppi 1-10), TASTI_CARTELLE (v0.10.0)
+│   └── ui/                      # Componenti di supporto del layer presentazione
 │       ├── locales/
 │       │   ├── __init__.py
-│       │   └── it.py                # Testi IT (MESSAGGI_*, chiavi LOOP_*)
+│       │   └── it.py                # Testi IT e codici messaggio
 │       └── renderers/
-│           └── renderer_terminal.py # TerminalRenderer — vocalizzazione gerarchica
+│           └── renderer_terminal.py # Rendering testuale degli eventi
 ├── my_lib/                      # Libreria di supporto
 ├── tests/                       # Suite di test
-│   └── test_silent_controller.py    # 15 test capsys + contratti (v0.8.0)
+│   └── test_silent_controller.py    # 15 test di non-regressione stdout e contratti
 ├── docs/
 │   ├── API.md                   # Riferimento API pubblico
 │   ├── ARCHITECTURE.md          # Documentazione architetturale
@@ -532,12 +515,9 @@ tombola-stark/
 - Gerarchia chiara: eccezione base → specializzazioni
 
 #### `bingo_game/ui/`
-- `ui_terminale.py`: `TerminalUI` con macchina a stati A→E (v0.7.0)
-- `tui/tui_partita.py`: `_loop_partita()` — Game Loop interattivo canonico (v0.9.0). **Non importa classi Domain**: accesso al dominio esclusivamente tramite `game_controller`.
-- `tui/tui_commander.py`: `leggi_tasto()`, `comando_da_tasto()`, `TipoComando`, `ComandoTasto` — input a tasto singolo via `msvcrt`, senza necessità di Invio (v0.10.0).
-- `tui/codici_tasti_tui.py`: costanti per 26 tasti riconosciuti (Gruppi 1-10), `TASTI_CARTELLE`, `PREFISSO_TASTO_ESTESO` (v0.10.0).
-- `locales/it.py`: tutti i testi italiani (`MESSAGGI_CONFIGURAZIONE`, `MESSAGGI_ERRORI`, `MESSAGGI_CONTROLLER`, chiavi `LOOP_*`)
-- `renderers/`: `TerminalRenderer` — vocalizzazione gerarchica eventi di gioco
+- `locales/it.py`: testi italiani e codici messaggio riusabili dal layer di presentazione
+- `renderers/`: `TerminalRenderer` per il rendering testuale degli eventi
+- La UI completa del progetto e' in ridefinizione: il repository non espone una interfaccia utente pubblica completa documentabile in questa sezione
 
 #### `tests/`
 - Test unitari per dominio (isolati)
@@ -724,14 +704,21 @@ def test_flusso_partita_completa():
 
 ```python
 # tests/test_silent_controller.py
-class TestControllerSilenzioso:
-    def test_avvia_partita_sicura_true_silenzioso(self, capsys, partita_mock):
-        avvia_partita_sicura(partita_mock)
-        assert capsys.readouterr().out == ""
+class TestControllerSilenzioso(unittest.TestCase):
+    def setUp(self):
+        self.partita_mock = MagicMock(spec=Partita)
 
-    def test_esegui_turno_sicuro_dict_silenzioso(self, capsys, partita_mock):
-        esegui_turno_sicuro(partita_mock)
-        assert capsys.readouterr().out == ""
+    def test_avvia_partita_sicura_true_silenzioso(self):
+        buffer = io.StringIO()
+        with patch("sys.stdout", buffer):
+            avvia_partita_sicura(self.partita_mock)
+        self.assertEqual(buffer.getvalue(), "")
+
+    def test_esegui_turno_sicuro_dict_silenzioso(self):
+        buffer = io.StringIO()
+        with patch("sys.stdout", buffer):
+            esegui_turno_sicuro(self.partita_mock)
+        self.assertEqual(buffer.getvalue(), "")
 ```
 
 ---
@@ -740,12 +727,9 @@ class TestControllerSilenzioso:
 
 ### Storia delle Versioni
 
-- **v0.11.0** (2026-03-27): Eliminazione accesso diretto TUI → Domain. Aggiunte 6 funzioni wrapper in `game_controller.py` Sezione 4 (`imposta_focus_cartella`, `imposta_focus_cartella_fallback`, `esegui_azione_giocatore`, `esegui_azione_giocatore_con_numero`, `stato_focus_corrente`, `riepilogo_cartella_corrente`) e 2 frozenset (`_METODI_CON_TABELLONE`, `_METODI_PROMPT_CON_TABELLONE`). `tui_partita.py` ora accede al dominio esclusivamente tramite il controller. Vincolo architetturale completo e privo di eccezioni.
-- **v0.10.0** (2026-03-27): Tasti rapidi TUI via `msvcrt`. `tui_commander.py` + `codici_tasti_tui.py`: 26 tasti mappati, dispatch tramite `ComandoTasto` (frozen dataclass) e `TipoComando` (enum). `_loop_partita()` sostituisce il parser testuale con input a tasto singolo. 4 funzioni dispatch: `_esegui_seleziona_cartella`, `_esegui_azione_giocatore`, `_esegui_con_prompt_numero`, `_esegui_conferma_esci`. 6 scenari integrazione + 12 unit test.
-- **v0.9.1** (2026-02-21): Fix+Refactor post-review. Corretti 3 bug (v0.9.1): `_esito_inizializza_focus_riga_se_manca` in `sposta_focus_riga_giu_avanzata`, fallback focus via `imposta_focus_cartella_fallback()`, typo `AVVANZATA`→`AVANZATA`. Nuovo metodo pubblico `imposta_focus_cartella_fallback()` in `GestioneFocusMixin`.
-- **v0.9.0** (2026-02-21): Game Loop Interattivo. `_loop_partita()` in `tui_partita.py` con dispatch comandi `p/s/c/v/q/?`. `ottieni_giocatore_umano()` in `game_controller.py`. 8 costanti `LOOP_*` in `codici_loop.py`. 13 chiavi `LOOP_*` in `it.py`. Zero import Domain nella TUI. 44 nuovi test (unit + flow).
-- **v0.8.0** (2026-02-20): Silent Controller. Rimozione ~22 `print()` da `game_controller.py` (Gruppi A/B/C/D). Aggiunta `codici_controller.py` (4 costanti `CTRL_*`), `MESSAGGI_CONTROLLER` in `it.py`, guardie TUI, 15 test `capsys`. Il controller è ora rigorosamente silenzioso verso stdout.
-- **v0.7.0** (2026-02-20): TUI Start Menu Fase 1. `TerminalUI` con macchina a stati A→E, 9 costanti `Codici_Configurazione`, `MESSAGGI_CONFIGURAZIONE` in `it.py`, `main.py` aggiornato, 8 unit test. Entry point funzionante per configurazione pre-partita.
+- **v0.11.0** (2026-03-27): consolidata l'interfaccia controller per il layer di presentazione con 6 wrapper pubblici (`imposta_focus_cartella`, `imposta_focus_cartella_fallback`, `esegui_azione_giocatore`, `esegui_azione_giocatore_con_numero`, `stato_focus_corrente`, `riepilogo_cartella_corrente`) e 2 frozenset di supporto. La separazione tra dominio e presentazione e' completa.
+- **v0.8.0** (2026-02-20): Silent Controller. Rimozione ~22 `print()` da `game_controller.py`, aggiunta `codici_controller.py` (4 costanti `CTRL_*`) e controller rigorosamente silenzioso verso stdout. La non-regressione e' coperta da 15 test `unittest` su `test_silent_controller.py`.
+- **v0.7.0-v0.10.0** (2026-02-20 → 2026-03-27): il progetto ha attraversato una fase con UI terminale e game loop interattivo poi rimossi dal repository. Questi moduli non fanno piu' parte dell'architettura corrente documentata.
 - **v0.6.0** (2026-02): Feature Bot Attivo. I `GiocatoreAutomatico` ora valutano autonomamente i premi conseguiti e li dichiarano tramite `ReclamoVittoria`. Nuova chiave `reclami_bot` in `Partita.esegui_turno()` (backward-compatible). Logging reclami bot in `game_controller`. Metodo `is_automatico()` in `GiocatoreBase`.
 - **v0.5.0** (2026-02): Sistema di logging Fase 2: copertura completa eventi di gioco (18 eventi distinti), sub-logger per categoria, riepilogo finale partita
 - **v0.4.0** (2026-02): Sistema di logging Fase 1: GameLogger singleton, file cumulativo con flush immediato, marcatori di sessione, flag `--debug`
@@ -829,14 +813,14 @@ class TestControllerSilenzioso:
   - Rimuovere tutti i `print()` dal controller (zero output su stdout)
   - Sostituire con `_log_safe()` categorizzato (`[GAME]`/`[ERR]`/`[SYS]`) senza emoji
   - Aggiungere `codici_controller.py` con costanti `CTRL_*` per i casi di errore
-  - Aggiungere `MESSAGGI_CONTROLLER` in `it.py` per localizzazione lato TUI
-  - La TUI legge i valori di ritorno (`bool`/`dict`/`None`) e mostra i messaggi appropriati
+    - Aggiungere `MESSAGGI_CONTROLLER` in `it.py` per localizzazione lato presentazione
+    - Il layer di presentazione legge i valori di ritorno (`bool`/`dict`/`None`) e mostra i messaggi appropriati
 - **Conseguenze**:
   - ✅ Controller rigorosamente silenzioso (verificabile con `grep print(` → zero)
   - ✅ Accessibilità migliorata: nessuna emoji nei log
-  - ✅ Architettura allineata: Controller → (bool/dict/None) → TUI → stdout
-  - ✅ 15 test `capsys` garantiscono la non-regressione
-  - ❌ La TUI deve implementare tutte le guardie sui valori di ritorno anomali
+    - ✅ Architettura allineata: Controller → (bool/dict/None) → layer di presentazione
+    - ✅ 15 test `unittest` garantiscono la non-regressione stdout
+    - ❌ Il layer di presentazione deve implementare tutte le guardie sui valori di ritorno anomali
 
 ---
 
