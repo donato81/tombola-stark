@@ -2,7 +2,7 @@
 type: plan
 feature: fix_unicode_print
 agent: Agent-Plan
-status: READY
+status: COMPLETED
 version: v0.9.1
 date: 2026-03-28
 design: docs/2 - projects/DESIGN_fix_unicode_print.md
@@ -20,7 +20,7 @@ branch: main
 | Priorita | alta — stabilizzazione suite CI e accessibilita NVDA |
 | Branch | main |
 | Versione target | v0.9.1 |
-| Status | DRAFT |
+| Status | COMPLETED |
 | Design sorgente | [DESIGN_fix_unicode_print.md](../2%20-%20projects/DESIGN_fix_unicode_print.md) |
 
 ## Problema e Obiettivo

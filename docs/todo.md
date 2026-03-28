@@ -33,7 +33,7 @@ stato: attivo
 <!-- Link relativi ai file attivi in docs/5 - todolist/ -->
 
 - [TODO_conversione_test_pytest_unittest_v0.9.0.md](5%20-%20todolist/TODO_conversione_test_pytest_unittest_v0.9.0.md)
-- [TODO_fix_unicode_print_v0.9.1.md](5%20-%20todolist/TODO_fix_unicode_print_v0.9.1.md)
+- [TODO_fix_unicode_print_v0.9.1.md](5%20-%20todolist/TODO_fix_unicode_print_v0.9.1.md) — COMPLETED
 
 ## Stato Avanzamento
 

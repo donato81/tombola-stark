@@ -2,7 +2,7 @@
 type: design
 feature: fix_unicode_print
 agent: Agent-Design
-status: REVIEWED
+status: COMPLETED
 version: v0.9.1
 date: 2026-03-28
 ---

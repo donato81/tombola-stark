@@ -55,6 +55,11 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   loop (tasto non valido, selezione cartella, prompt valido, prompt non valido,
   uscita con conferma, partita completa).
 
+### Fixed
+- `bingo_game/comandi_partita.py`, `tests/test_game_controller.py`: rimuove i
+  `print()` con emoji Unicode che causavano `UnicodeEncodeError` su Windows e
+  ripristina la suite `unittest` verde (351 test OK).
+
 ### Changed
 - `docs/TODO.md`: aggiornato il coordinatore documentale con i riferimenti al nuovo
   report di analisi, al DESIGN, al PLAN e al TODO della feature
