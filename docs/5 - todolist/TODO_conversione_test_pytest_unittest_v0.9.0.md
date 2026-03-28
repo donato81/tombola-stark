@@ -104,7 +104,7 @@ File target:
 - [x] Verificare naming italiano descrittivo su tutti i metodi `test_*`.
 - [x] Eseguire `python -m unittest discover -s tests/unit` e verificare i cinque file
       scoperti e verdi.
-- [ ] Commit: `test(batch4): converti test standalone in TestCase — codici_loop, focus, ottieni_giocatore, controller_loop, renderer`
+- [x] Commit: `test(batch4): converti test standalone in TestCase — codici_loop, focus, ottieni_giocatore, controller_loop, renderer`
 
 ---
 
@@ -116,19 +116,19 @@ File target:
 - `tests/integration/test_event_coverage.py`
 - `tests/integration/test_logging_integration.py`
 
-- [ ] `test_game_logger.py`: sostituire `tmp_path` con `tempfile.TemporaryDirectory`;
+- [x] `test_game_logger.py`: sostituire `tmp_path` con `tempfile.TemporaryDirectory`;
       registrare cleanup con `addCleanup`.
-- [ ] `test_game_logger.py`: isolare singleton logger in `setUp`; `logger.handlers.clear()`
+- [x] `test_game_logger.py`: isolare singleton logger in `setUp`; `logger.handlers.clear()`
       in `tearDown`.
-- [ ] `test_event_logging.py`: sostituire `monkeypatch` su filesystem con `patch` +
+- [x] `test_event_logging.py`: sostituire `monkeypatch` su filesystem con `patch` +
       ripristino esplicito.
-- [ ] `test_event_coverage.py`: verificare assenza di handler residui dopo ogni test.
-- [ ] `test_logging_integration.py`: tutti i file di log sotto `tempfile.gettempdir()`,
+- [x] `test_event_coverage.py`: verificare assenza di handler residui dopo ogni test.
+- [x] `test_logging_integration.py`: tutti i file di log sotto `tempfile.gettempdir()`,
       rimossi da `addCleanup`.
-- [ ] Eseguire batch 5: `python -m unittest tests.unit.test_game_logger
+- [x] Eseguire batch 5: `python -m unittest tests.unit.test_game_logger
       tests.unit.test_event_logging tests.integration.test_event_coverage
       tests.integration.test_logging_integration`.
-- [ ] Verde confermato — nessun file temporaneo residuo, nessun handler logger residuo.
+- [x] Verde confermato — nessun file temporaneo residuo, nessun handler logger residuo.
 - [ ] Commit: `test(batch5): converti test_game_logger, test_event_logging, test_event_coverage, test_logging_integration`
 
 ---

@@ -4,7 +4,11 @@ Verifica che una partita completa produca tutte le categorie di eventi
 attese nel file di log, con il contenuto semanticamente corretto.
 """
 import logging
-import pytest
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
 from bingo_game.logging.game_logger import GameLogger
 from bingo_game.game_controller import (
     crea_partita_standard,
@@ -14,76 +18,97 @@ from bingo_game.game_controller import (
 )
 
 
-@pytest.fixture(autouse=True)
-def reset_logger():
-    yield
-    GameLogger.shutdown()
-    GameLogger._initialized = False
-    for name in ["tombola_stark", "tombola_stark.game",
-                 "tombola_stark.prizes", "tombola_stark.system", "tombola_stark.errors"]:
-        logging.getLogger(name).handlers.clear()
+class TestEventCoverage(unittest.TestCase):
+    """Test di integrazione unittest per la copertura eventi."""
+
+    LOGGER_NAMES = [
+        "tombola_stark",
+        "tombola_stark.game",
+        "tombola_stark.prizes",
+        "tombola_stark.system",
+        "tombola_stark.errors",
+    ]
+
+    def setUp(self) -> None:
+        self._tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmpdir.cleanup)
+        self.tmp_log = Path(self._tmpdir.name) / "logs" / "tombola_stark.log"
+
+        self._reset_logger_state()
+        patch_log_dir = patch("bingo_game.logging.game_logger._LOG_DIR", self.tmp_log.parent)
+        patch_log_file = patch("bingo_game.logging.game_logger._LOG_FILE", self.tmp_log)
+        patch_log_dir.start()
+        patch_log_file.start()
+        self.addCleanup(patch_log_dir.stop)
+        self.addCleanup(patch_log_file.stop)
+        self.addCleanup(self._cleanup_logger)
+
+    def _reset_logger_state(self) -> None:
+        GameLogger._initialized = False
+        GameLogger._instance = None
+        for name in self.LOGGER_NAMES:
+            logging.getLogger(name).handlers.clear()
+
+    def _cleanup_logger(self) -> None:
+        if GameLogger._initialized:
+            GameLogger.shutdown()
+        self._reset_logger_state()
+
+    def _read(self) -> str:
+        return self.tmp_log.read_text(encoding="utf-8")
+
+    def test_partita_completa_produce_game_created(self) -> None:
+        """Una partita completa produce l'evento GAME_CREATED con dati corretti."""
+        GameLogger.initialize()
+        crea_partita_standard("TestPlayer", num_cartelle_umano=1, num_bot=1)
+        self.assertIn("[GAME] Partita creata", self._read())
+        self.assertIn("TestPlayer", self._read())
 
 
-@pytest.fixture
-def tmp_log(tmp_path, monkeypatch):
-    import bingo_game.logging.game_logger as gl
-    monkeypatch.setattr(gl, "_LOG_DIR", tmp_path / "logs")
-    monkeypatch.setattr(gl, "_LOG_FILE", tmp_path / "logs" / "tombola_stark.log")
-    return tmp_path / "logs" / "tombola_stark.log"
+    def test_partita_avviata_produce_game_started(self) -> None:
+        """avvia_partita_sicura produce GAME_STARTED con stato in_corso."""
+        GameLogger.initialize()
+        partita = crea_partita_standard("Test", num_cartelle_umano=1, num_bot=1)
+        avvia_partita_sicura(partita)
+        self.assertIn("[GAME] Partita avviata", self._read())
+        self.assertIn("in_corso", self._read())
 
 
-def _read(tmp_log):
-    return tmp_log.read_text(encoding="utf-8")
+    def test_turni_in_debug_producono_game_turn(self) -> None:
+        """In modalità debug, ogni turno produce un evento [GAME] Turno #N."""
+        GameLogger.initialize(debug_mode=True)
+        partita = crea_partita_standard("Test", num_cartelle_umano=1, num_bot=1)
+        avvia_partita_sicura(partita)
+        esegui_turno_sicuro(partita)
+        self.assertIn("[GAME] Turno #1", self._read())
 
 
-def test_partita_completa_produce_game_created(tmp_log):
-    """Una partita completa produce l'evento GAME_CREATED con dati corretti."""
-    GameLogger.initialize()
-    crea_partita_standard("TestPlayer", num_cartelle_umano=1, num_bot=1)
-    assert "[GAME] Partita creata" in _read(tmp_log)
-    assert "TestPlayer" in _read(tmp_log)
+    def test_premio_produce_prize_event(self) -> None:
+        """Un premio assegnato durante la partita produce un evento [PRIZE]."""
+        GameLogger.initialize()
+        partita = crea_partita_standard("Test", num_cartelle_umano=1, num_bot=1)
+        avvia_partita_sicura(partita)
+
+        for _ in range(90):
+            risultato = esegui_turno_sicuro(partita)
+            if risultato and risultato.get("premi_nuovi"):
+                break
+            if partita_terminata(partita):
+                break
+
+        content = self._read()
+        self.assertTrue(any(tag in content for tag in ["[PRIZE]", "[GAME] Partita terminata"]))
 
 
-def test_partita_avviata_produce_game_started(tmp_log):
-    """avvia_partita_sicura produce GAME_STARTED con stato in_corso."""
-    GameLogger.initialize()
-    p = crea_partita_standard("Test", num_cartelle_umano=1, num_bot=1)
-    avvia_partita_sicura(p)
-    assert "[GAME] Partita avviata" in _read(tmp_log)
-    assert "in_corso" in _read(tmp_log)
+    def test_fine_partita_produce_riepilogo(self) -> None:
+        """Al termine della partita il riepilogo [GAME] === RIEPILOGO è nel log."""
+        GameLogger.initialize()
+        partita = crea_partita_standard("Test", num_cartelle_umano=1, num_bot=1)
+        avvia_partita_sicura(partita)
+        while not partita_terminata(partita):
+            esegui_turno_sicuro(partita)
+        self.assertIn("RIEPILOGO", self._read())
 
 
-def test_turni_in_debug_producono_game_turn(tmp_log):
-    """In modalità debug, ogni turno produce un evento [GAME] Turno #N."""
-    GameLogger.initialize(debug_mode=True)
-    p = crea_partita_standard("Test", num_cartelle_umano=1, num_bot=1)
-    avvia_partita_sicura(p)
-    esegui_turno_sicuro(p)
-    assert "[GAME] Turno #1" in _read(tmp_log)
-
-
-def test_premio_produce_prize_event(tmp_log):
-    """Un premio assegnato durante la partita produce un evento [PRIZE]."""
-    GameLogger.initialize()
-    p = crea_partita_standard("Test", num_cartelle_umano=1, num_bot=1)
-    avvia_partita_sicura(p)
-    # Eseguiamo turni finché non c'è almeno un premio o la partita finisce
-    for _ in range(90):
-        risultato = esegui_turno_sicuro(p)
-        if risultato and risultato.get("premi_nuovi"):
-            break
-        if partita_terminata(p):
-            break
-    content = _read(tmp_log)
-    # Almeno una delle categorie prize deve essere presente
-    assert any(tag in content for tag in ["[PRIZE]", "[GAME] Partita terminata"])
-
-
-def test_fine_partita_produce_riepilogo(tmp_log):
-    """Al termine della partita il riepilogo [GAME] === RIEPILOGO è nel log."""
-    GameLogger.initialize()
-    p = crea_partita_standard("Test", num_cartelle_umano=1, num_bot=1)
-    avvia_partita_sicura(p)
-    while not partita_terminata(p):
-        esegui_turno_sicuro(p)
-    assert "RIEPILOGO" in _read(tmp_log)
+if __name__ == "__main__":
+    unittest.main()
