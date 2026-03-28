@@ -3,7 +3,7 @@ tipo: todo_task
 titolo: TODO aggiornamento documentazione post-rimozione TUI
 data_creazione: 2026-03-28
 agente: Agent-Plan
-stato: bozza
+stato: completato
 feature: aggiornamento_documentazione_post_TUI
 versione_progetto: v0.9.1
 plan: docs/3 - coding plans/PLAN_aggiornamento_documentazione_post_TUI_2026-03-28.md
@@ -38,17 +38,17 @@ Agent-Docs
 
 ## Checklist operativa
 
-- [ ] Revisione e pulizia CHANGELOG.md
-- [ ] Aggiornamento docs/API.md
-- [ ] Aggiornamento docs/ARCHITECTURE.md
-- [ ] Aggiornamento README.md con placeholder nuova UI
-- [ ] Verifica se la sezione test va aggiornata o puo' restare invariata
-- [ ] Validazione finale coerenza documentale
-- [ ] Aggiornamento docs/todo.md generale
+- [x] Revisione e pulizia CHANGELOG.md
+- [x] Aggiornamento docs/API.md
+- [x] Aggiornamento docs/ARCHITECTURE.md
+- [x] Aggiornamento README.md con placeholder nuova UI
+- [x] Verifica se la sezione test va aggiornata o puo' restare invariata
+- [x] Validazione finale coerenza documentale
+- [x] Aggiornamento docs/todo.md generale
 
 ## Stato Avanzamento
 
 - [x] Pianificato
-- [ ] In corso
-- [ ] Completato
-- [ ] Verificato
+- [x] In corso
+- [x] Completato
+- [x] Verificato
