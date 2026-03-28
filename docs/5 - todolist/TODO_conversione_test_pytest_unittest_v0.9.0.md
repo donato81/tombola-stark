@@ -84,7 +84,7 @@ File target:
 - [x] Eseguire batch 3: `python -m unittest tests.unit.test_giocatore_automatico_bot_attivo
       tests.integration.test_partita_bot_attivo tests.unit.test_ui_terminale`.
 - [x] Verde confermato — nessuna directory temporanea lasciata su disco.
-- [ ] Commit: `test(batch3): converti test_giocatore_automatico_bot_attivo, test_partita_bot_attivo, test_ui_terminale`
+- [x] Commit: `test(batch3): converti test_giocatore_automatico_bot_attivo, test_partita_bot_attivo, test_ui_terminale`
 
 ---
 
@@ -97,12 +97,12 @@ File target:
 - `tests/unit/test_game_controller_loop.py`
 - `tests/unit/test_renderer_report_finale.py`
 
-- [ ] Incapsulare funzioni standalone in classi `TestX(unittest.TestCase)` per ciascuno
+- [x] Incapsulare funzioni standalone in classi `TestX(unittest.TestCase)` per ciascuno
       dei cinque file.
-- [ ] Estrarre setup condiviso in `setUp` dove presente.
-- [ ] Rimuovere decoratori pytest non portabili.
-- [ ] Verificare naming italiano descrittivo su tutti i metodi `test_*`.
-- [ ] Eseguire `python -m unittest discover -s tests/unit` e verificare i cinque file
+- [x] Estrarre setup condiviso in `setUp` dove presente.
+- [x] Rimuovere decoratori pytest non portabili.
+- [x] Verificare naming italiano descrittivo su tutti i metodi `test_*`.
+- [x] Eseguire `python -m unittest discover -s tests/unit` e verificare i cinque file
       scoperti e verdi.
 - [ ] Commit: `test(batch4): converti test standalone in TestCase — codici_loop, focus, ottieni_giocatore, controller_loop, renderer`
 

@@ -49,6 +49,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `docs/TODO.md`: aggiornato il coordinatore documentale con i riferimenti al nuovo
   report di analisi, al DESIGN, al PLAN e al TODO della feature
   `conversione_test_pytest_unittest`.
+ - `tests`: converti test standalone in TestCase — codici_loop, focus, ottieni_giocatore, controller_loop, renderer.
 - `docs/API.md`: aggiornato a [Unreleased] (2026-03-27); aggiunta sezione
   `GiocatoreUmano` con `imposta_focus_cartella_fallback()` (v0.9.1) e
   `visualizza_ultimi_numeri_estratti()` (v0.10.0).
