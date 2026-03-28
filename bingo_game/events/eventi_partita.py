@@ -34,62 +34,62 @@ class ReclamoVittoria:
     indice_cartella: int
     indice_riga: Optional[int] = None
 
-@classmethod
-def tombola(
-    cls,
-    *,
-    indice_cartella: int,
-) -> "ReclamoVittoria":
-    """
-    Factory method per creare un reclamo di vittoria di tipo tombola.
-
-    Scopo:
-    - Rendere impossibile creare uno stato incoerente (tombola con riga valorizzata).
-    - Centralizzare la convenzione: tombola è sempre riferita solo alla cartella.
-
-    Nota:
-    - Gli indici sono 0-based (interni).
-    - La validazione di focus/range è demandata al chiamante (GiocatoreUmano),
-      coerentemente con il resto del progetto: se non ci sono prerequisiti,
-      il reclamo non deve proprio essere creato.
-    """
-    return cls(
-        tipo="tombola",
-        indice_cartella=indice_cartella,
-        indice_riga=None,
-    )
-
-
-@classmethod
-def vittoria_di_riga(
-    cls,
-    *,
-    tipo: "Tipo_Vittoria",
-    indice_cartella: int,
-    indice_riga: int,
-) -> "ReclamoVittoria":
-    """
-        Factory method per creare un reclamo di vittoria riferita a una riga
-        (ambo/terno/quaterna/cinquina).
+    @classmethod
+    def tombola(
+        cls,
+        *,
+        indice_cartella: int,
+    ) -> "ReclamoVittoria":
+        """
+        Factory method per creare un reclamo di vittoria di tipo tombola.
 
         Scopo:
-        - Rendere esplicito che queste vittorie richiedono sempre una riga.
-        - Evitare stati incoerenti (es. ambo con indice_riga=None).
-        - Mantenere un solo punto “ufficiale” di costruzione per reclami di riga,
-        come accade negli altri eventi con factory method dedicati. [file:131]
-
-        Regole:
-        - `tipo` NON deve essere "tombola" (tombola usa il factory `tombola`).
-        - Gli indici sono 0-based (interni).
+        - Rendere impossibile creare uno stato incoerente (tombola con riga valorizzata).
+        - Centralizzare la convenzione: tombola è sempre riferita solo alla cartella.
 
         Nota:
-        - Anche qui la validazione di focus/range è demandata al chiamante.
+        - Gli indici sono 0-based (interni).
+        - La validazione di focus/range è demandata al chiamante (GiocatoreUmano),
+        coerentemente con il resto del progetto: se non ci sono prerequisiti,
+        il reclamo non deve proprio essere creato.
         """
-    return cls(
-        tipo=tipo,
-        indice_cartella=indice_cartella,
-        indice_riga=indice_riga,
-    )
+        return cls(
+            tipo="tombola",
+            indice_cartella=indice_cartella,
+            indice_riga=None,
+        )
+
+
+    @classmethod
+    def vittoria_di_riga(
+        cls,
+        *,
+        tipo: "Tipo_Vittoria",
+        indice_cartella: int,
+        indice_riga: int,
+    ) -> "ReclamoVittoria":
+        """
+            Factory method per creare un reclamo di vittoria riferita a una riga
+            (ambo/terno/quaterna/cinquina).
+
+            Scopo:
+            - Rendere esplicito che queste vittorie richiedono sempre una riga.
+            - Evitare stati incoerenti (es. ambo con indice_riga=None).
+            - Mantenere un solo punto “ufficiale” di costruzione per reclami di riga,
+            come accade negli altri eventi con factory method dedicati. [file:131]
+
+            Regole:
+            - `tipo` NON deve essere "tombola" (tombola usa il factory `tombola`).
+            - Gli indici sono 0-based (interni).
+
+            Nota:
+            - Anche qui la validazione di focus/range è demandata al chiamante.
+            """
+        return cls(
+            tipo=tipo,
+            indice_cartella=indice_cartella,
+            indice_riga=indice_riga,
+        )
 
 
 @dataclass(frozen=True)
@@ -104,50 +104,50 @@ class EventoReclamoVittoria:
     reclamo: ReclamoVittoria
     fase: Fase_Validazione_Reclamo = "ANTE_TURNO"
 
-@classmethod
-def ante_turno(
-    cls,
-    *,
-    id_giocatore: Optional[int],
-    nome_giocatore: str,
-    numero_turno: int,
-    reclamo: ReclamoVittoria,
-) -> "EventoReclamoVittoria":
-    """
-    Factory method per creare un EventoReclamoVittoria in fase ANTE_TURNO.
+    @classmethod
+    def ante_turno(
+        cls,
+        *,
+        id_giocatore: Optional[int],
+        nome_giocatore: str,
+        numero_turno: int,
+        reclamo: ReclamoVittoria,
+    ) -> "EventoReclamoVittoria":
+        """
+        Factory method per creare un EventoReclamoVittoria in fase ANTE_TURNO.
 
-    Scopo:
-    - Standardizzare la costruzione dell'evento "soft" che conferma alla UI
-      che il reclamo è stato registrato (ma NON ancora validato dalla Partita).
-    - Centralizzare la convenzione: `fase` deve essere sempre "ANTE_TURNO" in
-      questo scenario.
-    - Agganciare esplicitamente il reclamo al `numero_turno`, utile per log,
-      debug e gestione coerente di più turni.
+        Scopo:
+        - Standardizzare la costruzione dell'evento "soft" che conferma alla UI
+        che il reclamo è stato registrato (ma NON ancora validato dalla Partita).
+        - Centralizzare la convenzione: `fase` deve essere sempre "ANTE_TURNO" in
+        questo scenario.
+        - Agganciare esplicitamente il reclamo al `numero_turno`, utile per log,
+        debug e gestione coerente di più turni.
 
-    Cosa NON fa volutamente:
-    - Non valida l'esistenza della vittoria (questa è responsabilità della Partita).
-    - Non valida focus/range (responsabilità del chiamante, es. GiocatoreUmano).
-    - Non controlla la coerenza tombola/riga: ci si aspetta che il ReclamoVittoria
-      sia stato creato tramite i suoi factory method (tombola/vittoria_di_riga).
+        Cosa NON fa volutamente:
+        - Non valida l'esistenza della vittoria (questa è responsabilità della Partita).
+        - Non valida focus/range (responsabilità del chiamante, es. GiocatoreUmano).
+        - Non controlla la coerenza tombola/riga: ci si aspetta che il ReclamoVittoria
+        sia stato creato tramite i suoi factory method (tombola/vittoria_di_riga).
 
-    Parametri:
-    - id_giocatore: identificativo opzionale (può essere None in contesti non assegnati).
-    - nome_giocatore: nome descrittivo per UI/log.
-    - numero_turno: numero del turno corrente (intero >= 1, convenzione di progetto).
-    - reclamo: payload del reclamo (immutabile) da associare all'evento.
+        Parametri:
+        - id_giocatore: identificativo opzionale (può essere None in contesti non assegnati).
+        - nome_giocatore: nome descrittivo per UI/log.
+        - numero_turno: numero del turno corrente (intero >= 1, convenzione di progetto).
+        - reclamo: payload del reclamo (immutabile) da associare all'evento.
 
-    Ritorna:
-    - EventoReclamoVittoria con fase impostata a "ANTE_TURNO".
-    """
-    # Nota: la validazione rigorosa (tipo, range, prerequisiti) è demandata al chiamante,
-    # coerentemente con lo stile del progetto (prima EsitoAzione, poi creazione evento).
-    return cls(
-        id_giocatore=id_giocatore,
-        nome_giocatore=nome_giocatore,
-        numero_turno=numero_turno,
-        reclamo=reclamo,
-        fase="ANTE_TURNO",
-    )
+        Ritorna:
+        - EventoReclamoVittoria con fase impostata a "ANTE_TURNO".
+        """
+        # Nota: la validazione rigorosa (tipo, range, prerequisiti) è demandata al chiamante,
+        # coerentemente con lo stile del progetto (prima EsitoAzione, poi creazione evento).
+        return cls(
+            id_giocatore=id_giocatore,
+            nome_giocatore=nome_giocatore,
+            numero_turno=numero_turno,
+            reclamo=reclamo,
+            fase="ANTE_TURNO",
+        )
 
 
 @dataclass(frozen=True)

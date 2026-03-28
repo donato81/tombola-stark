@@ -346,8 +346,6 @@ class Cartella:
         if not nessun_none:
             raise RuntimeError("Errore Regola 7: la cartella non è stata riempita correttamente")
         
-        # Se arriviamo qui, tutto è corretto
-        print("Validazione completata: Cartella VALIDA! Tutte le 7 regole rispettate.")
 
 
     #metodo per generare la cartella di gioco
