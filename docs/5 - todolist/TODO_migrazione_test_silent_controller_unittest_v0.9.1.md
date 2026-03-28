@@ -21,12 +21,13 @@ Istruzioni per Agent-Code: eseguire una fase alla volta. Non toccare codice appl
 
 ## Fase 2 — Sostituire le fixture pytest
 
-- [ ] Convertire partita_mock in helper privato o pattern equivalente unittest.
-- [ ] Convertire partita_terminata_mock in helper privato o pattern equivalente unittest.
-- [ ] Rimuovere i parametri fixture dalle firme dei test method.
-- [ ] Garantire un mock fresco nei test che impostano side_effect o cambiano return_value.
-- [ ] Preferire setUp() come pattern per lo stato condiviso nelle classi TestControllerSilenzioso e TestContrattiRitorno; usare helper privato _build_partita_in_corso() e _build_partita_terminata() solo nei test che modificano il mock inline (es. quelli che impostano side_effect o cambiano return_value).
+- [x] Convertire partita_mock in helper privato o pattern equivalente unittest.
+- [x] Convertire partita_terminata_mock in helper privato o pattern equivalente unittest.
+- [x] Rimuovere i parametri fixture dalle firme dei test method.
+- [x] Garantire un mock fresco nei test che impostano side_effect o cambiano return_value.
+- [x] Preferire setUp() come pattern per lo stato condiviso nelle classi TestControllerSilenzioso e TestContrattiRitorno; usare helper privato _build_partita_in_corso() e _build_partita_terminata() solo nei test che modificano il mock inline (es. quelli che impostano side_effect o cambiano return_value).
 
+- Nota: Fase 2 confermata completata in commit "test(tests): fase 2 - sostituire le fixture pytest".
 ## Fase 3 — Convertire capsys
 
 Nota: il test piu complesso della fase e test_crea_partita_standard_silenzioso perche combina patch annidate multiple con la cattura stdout. Convertire questo test per primo e usarlo come riferimento stilistico per gli altri sette.

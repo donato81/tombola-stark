@@ -62,6 +62,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ### Changed
 - `tests/test_silent_controller.py`: porta le classi a `unittest.TestCase` e converte gli `assert` a `assert` di `unittest`.
+- `tests/test_silent_controller.py`: sostituisce fixture pytest con setUp/_build_* e usa patch di `sys.stdout` per la cattura stdout.
 - `docs/TODO.md`: aggiornato il coordinatore documentale con i riferimenti al nuovo
   report di analisi, al DESIGN, al PLAN e al TODO della feature
   `conversione_test_pytest_unittest`.

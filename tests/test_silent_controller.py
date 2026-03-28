@@ -16,43 +16,6 @@ from bingo_game.partita import Partita
 from bingo_game.exceptions.partita_exceptions import PartitaException
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
-
-def partita_mock():
-    """Mock minimale di un oggetto Partita in stato 'in_corso'."""
-    p = MagicMock(spec=Partita)
-    p.get_stato_partita.return_value = "in_corso"
-    p.get_numero_giocatori.return_value = 2
-    p.avvia_partita.return_value = None
-    p.is_terminata.return_value = False
-    p.tabellone = MagicMock()
-    p.esegui_turno.return_value = {
-        "numero_estratto": 42,
-        "stato_partita_prima": "in_corso",
-        "stato_partita_dopo": "in_corso",
-        "tombola_rilevata": False,
-        "partita_terminata": False,
-        "premi_nuovi": [],
-    }
-    p.get_stato_completo.return_value = {
-        "stato_partita": "in_corso",
-        "ultimo_numero_estratto": None,
-        "numeri_estratti": [],
-        "giocatori": [],
-        "premi_gia_assegnati": [],
-    }
-    return p
-
-
-def partita_terminata_mock():
-    """Mock di Partita in stato 'terminata'."""
-    p = MagicMock(spec=Partita)
-    p.get_stato_partita.return_value = "terminata"
-    p.is_terminata.return_value = True
-    return p
-
 
 # ---------------------------------------------------------------------------
 # Test stdout — tutti i percorsi
@@ -61,60 +24,114 @@ def partita_terminata_mock():
 class TestControllerSilenzioso(unittest.TestCase):
     """Verifica che il controller non emetta nulla su stdout in nessuna condizione."""
 
-    def test_crea_partita_standard_silenzioso(self, capsys):
+    def _build_partita_in_corso(self) -> MagicMock:
+        """Factory: mock Partita in stato in_corso."""
+        p = MagicMock(spec=Partita)
+        p.get_stato_partita.return_value = "in_corso"
+        p.get_numero_giocatori.return_value = 2
+        p.avvia_partita.return_value = None
+        p.is_terminata.return_value = False
+        p.tabellone = MagicMock()
+        p.esegui_turno.return_value = {
+            "numero_estratto": 42,
+            "stato_partita_prima": "in_corso",
+            "stato_partita_dopo": "in_corso",
+            "tombola_rilevata": False,
+            "partita_terminata": False,
+            "premi_nuovi": [],
+        }
+        p.get_stato_completo.return_value = {
+            "stato_partita": "in_corso",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": [],
+            "giocatori": [],
+            "premi_gia_assegnati": [],
+        }
+        return p
+
+    def _build_partita_terminata(self) -> MagicMock:
+        """Factory: mock Partita in stato terminata."""
+        p = MagicMock(spec=Partita)
+        p.get_stato_partita.return_value = "terminata"
+        p.is_terminata.return_value = True
+        return p
+
+    def setUp(self) -> None:
+        self.partita_mock = self._build_partita_in_corso()
+        self.partita_terminata_mock = self._build_partita_terminata()
+
+    def test_crea_partita_standard_silenzioso(self):
         """crea_partita_standard non deve emettere su stdout."""
         mock_partita = MagicMock(spec=Partita)
         mock_partita.tabellone = MagicMock()
         mock_partita.get_giocatori.return_value = [MagicMock(), MagicMock()]
-        with (
-            patch.object(ctrl, "crea_tabellone_standard", return_value=MagicMock()),
-            patch.object(ctrl, "crea_giocatore_umano", return_value=MagicMock()),
-            patch.object(ctrl, "crea_giocatori_automatici", return_value=[MagicMock()]),
-            patch("bingo_game.game_controller.Partita", return_value=mock_partita),
-        ):
-            ctrl.crea_partita_standard(
-                nome_giocatore_umano="Test",
-                num_bot=1,
-                num_cartelle_umano=1,
-            )
-        self.assertEqual(capsys.readouterr().out, "")
+        fake_out = io.StringIO()
+        with patch('sys.stdout', new=fake_out):
+            with (
+                patch.object(ctrl, "crea_tabellone_standard", return_value=MagicMock()),
+                patch.object(ctrl, "crea_giocatore_umano", return_value=MagicMock()),
+                patch.object(ctrl, "crea_giocatori_automatici", return_value=[MagicMock()]),
+                patch("bingo_game.game_controller.Partita", return_value=mock_partita),
+            ):
+                ctrl.crea_partita_standard(
+                    nome_giocatore_umano="Test",
+                    num_bot=1,
+                    num_cartelle_umano=1,
+                )
+        self.assertEqual(fake_out.getvalue(), "")
 
-    def test_avvia_partita_sicura_true_silenzioso(self, capsys, partita_mock):
+    def test_avvia_partita_sicura_true_silenzioso(self):
         """avvia_partita_sicura percorso True non deve emettere su stdout."""
-        ctrl.avvia_partita_sicura(partita_mock)
-        self.assertEqual(capsys.readouterr().out, "")
+        fake_out = io.StringIO()
+        with patch('sys.stdout', new=fake_out):
+            ctrl.avvia_partita_sicura(self.partita_mock)
+        self.assertEqual(fake_out.getvalue(), "")
 
-    def test_avvia_partita_sicura_false_silenzioso(self, capsys, partita_mock):
+    def test_avvia_partita_sicura_false_silenzioso(self):
         """avvia_partita_sicura percorso False non deve emettere su stdout."""
-        partita_mock.avvia_partita.side_effect = PartitaException("errore simulato")
-        ctrl.avvia_partita_sicura(partita_mock)
-        self.assertEqual(capsys.readouterr().out, "")
+        p = self._build_partita_in_corso()
+        p.avvia_partita.side_effect = PartitaException("errore simulato")
+        fake_out = io.StringIO()
+        with patch('sys.stdout', new=fake_out):
+            ctrl.avvia_partita_sicura(p)
+        self.assertEqual(fake_out.getvalue(), "")
 
-    def test_esegui_turno_sicuro_dict_silenzioso(self, capsys, partita_mock):
+    def test_esegui_turno_sicuro_dict_silenzioso(self):
         """esegui_turno_sicuro percorso dict non deve emettere su stdout."""
-        ctrl.esegui_turno_sicuro(partita_mock)
-        self.assertEqual(capsys.readouterr().out, "")
+        fake_out = io.StringIO()
+        with patch('sys.stdout', new=fake_out):
+            ctrl.esegui_turno_sicuro(self.partita_mock)
+        self.assertEqual(fake_out.getvalue(), "")
 
-    def test_esegui_turno_sicuro_none_silenzioso(self, capsys, partita_mock):
+    def test_esegui_turno_sicuro_none_silenzioso(self):
         """esegui_turno_sicuro percorso None non deve emettere su stdout."""
-        partita_mock.get_stato_partita.return_value = "non_iniziata"
-        ctrl.esegui_turno_sicuro(partita_mock)
-        self.assertEqual(capsys.readouterr().out, "")
+        p = self._build_partita_in_corso()
+        p.get_stato_partita.return_value = "non_iniziata"
+        fake_out = io.StringIO()
+        with patch('sys.stdout', new=fake_out):
+            ctrl.esegui_turno_sicuro(p)
+        self.assertEqual(fake_out.getvalue(), "")
 
-    def test_partita_terminata_false_silenzioso(self, capsys, partita_mock):
+    def test_partita_terminata_false_silenzioso(self):
         """partita_terminata percorso False non deve emettere su stdout."""
-        ctrl.partita_terminata(partita_mock)
-        self.assertEqual(capsys.readouterr().out, "")
+        fake_out = io.StringIO()
+        with patch('sys.stdout', new=fake_out):
+            ctrl.partita_terminata(self.partita_mock)
+        self.assertEqual(fake_out.getvalue(), "")
 
-    def test_partita_terminata_true_silenzioso(self, capsys, partita_terminata_mock):
+    def test_partita_terminata_true_silenzioso(self):
         """partita_terminata percorso True non deve emettere su stdout."""
-        ctrl.partita_terminata(partita_terminata_mock)
-        self.assertEqual(capsys.readouterr().out, "")
+        fake_out = io.StringIO()
+        with patch('sys.stdout', new=fake_out):
+            ctrl.partita_terminata(self.partita_terminata_mock)
+        self.assertEqual(fake_out.getvalue(), "")
 
-    def test_ottieni_stato_sintetico_dict_silenzioso(self, capsys, partita_mock):
+    def test_ottieni_stato_sintetico_dict_silenzioso(self):
         """ottieni_stato_sintetico percorso dict non deve emettere su stdout."""
-        ctrl.ottieni_stato_sintetico(partita_mock)
-        self.assertEqual(capsys.readouterr().out, "")
+        fake_out = io.StringIO()
+        with patch('sys.stdout', new=fake_out):
+            ctrl.ottieni_stato_sintetico(self.partita_mock)
+        self.assertEqual(fake_out.getvalue(), "")
 
 
 # ---------------------------------------------------------------------------
@@ -124,20 +141,58 @@ class TestControllerSilenzioso(unittest.TestCase):
 class TestContrattiRitorno(unittest.TestCase):
     """Verifica che i contratti di ritorno del controller siano rispettati."""
 
-    def test_avvia_partita_sicura_ritorna_true(self, partita_mock):
-        self.assertTrue(ctrl.avvia_partita_sicura(partita_mock))
+    def _build_partita_in_corso(self) -> MagicMock:
+        """Factory: mock Partita in stato in_corso."""
+        p = MagicMock(spec=Partita)
+        p.get_stato_partita.return_value = "in_corso"
+        p.get_numero_giocatori.return_value = 2
+        p.avvia_partita.return_value = None
+        p.is_terminata.return_value = False
+        p.tabellone = MagicMock()
+        p.esegui_turno.return_value = {
+            "numero_estratto": 42,
+            "stato_partita_prima": "in_corso",
+            "stato_partita_dopo": "in_corso",
+            "tombola_rilevata": False,
+            "partita_terminata": False,
+            "premi_nuovi": [],
+        }
+        p.get_stato_completo.return_value = {
+            "stato_partita": "in_corso",
+            "ultimo_numero_estratto": None,
+            "numeri_estratti": [],
+            "giocatori": [],
+            "premi_gia_assegnati": [],
+        }
+        return p
 
-    def test_avvia_partita_sicura_ritorna_false_su_eccezione(self, partita_mock):
-        partita_mock.avvia_partita.side_effect = PartitaException("errore")
-        self.assertFalse(ctrl.avvia_partita_sicura(partita_mock))
+    def _build_partita_terminata(self) -> MagicMock:
+        """Factory: mock Partita in stato terminata."""
+        p = MagicMock(spec=Partita)
+        p.get_stato_partita.return_value = "terminata"
+        p.is_terminata.return_value = True
+        return p
 
-    def test_ottieni_stato_sintetico_lancia_valueerror_su_non_partita(self):
-        with pytest.raises(ValueError):
+    def setUp(self) -> None:
+        self.partita_mock = self._build_partita_in_corso()
+        self.partita_terminata_mock = self._build_partita_terminata()
+
+    def test_avvia_partita_sicura_ritorna_true(self) -> None:
+        self.assertTrue(ctrl.avvia_partita_sicura(self.partita_mock))
+
+    def test_avvia_partita_sicura_ritorna_false_su_eccezione(self) -> None:
+        p = self._build_partita_in_corso()
+        p.avvia_partita.side_effect = PartitaException("errore")
+        self.assertFalse(ctrl.avvia_partita_sicura(p))
+
+    def test_ottieni_stato_sintetico_lancia_valueerror_su_non_partita(self) -> None:
+        with self.assertRaises(ValueError):
             ctrl.ottieni_stato_sintetico("non_una_partita")
 
-    def test_esegui_turno_sicuro_ritorna_none_su_partita_non_in_corso(self, partita_mock):
-        partita_mock.get_stato_partita.return_value = "non_iniziata"
-        self.assertIsNone(ctrl.esegui_turno_sicuro(partita_mock))
+    def test_esegui_turno_sicuro_ritorna_none_su_partita_non_in_corso(self) -> None:
+        p = self._build_partita_in_corso()
+        p.get_stato_partita.return_value = "non_iniziata"
+        self.assertIsNone(ctrl.esegui_turno_sicuro(p))
 
 
 # ---------------------------------------------------------------------------
