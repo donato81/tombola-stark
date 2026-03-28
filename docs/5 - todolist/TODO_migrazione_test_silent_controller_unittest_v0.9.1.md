@@ -1,7 +1,7 @@
 ---
 type: todo
 feature: migrazione_test_silent_controller_unittest
-status: DONE
+status: COMPLETED
 version: 0.9.1
 date: 2026-03-28
 plan: docs/3 - coding plans/PLAN_migrazione_test_silent_controller_unittest_v0.9.1.md
@@ -46,6 +46,8 @@ Completamento: 2026-03-28
 
 ## Fase 5 — Validazione
 
-- [ ] Eseguire python -m unittest tests.test_silent_controller.
-- [ ] Verificare che grep pytest sul file target non trovi dipendenze residue.
-- [ ] Confermare allineamento stilistico con i file unittest di riferimento.
+- [x] Eseguire python -m unittest tests.test_silent_controller.
+- [x] Verificare che grep pytest sul file target non trovi dipendenze residue.
+- [x] Confermare allineamento stilistico con i file unittest di riferimento.
+
+Conferma esecuzione: `python -m unittest tests.test_silent_controller` eseguito e verifica completata.

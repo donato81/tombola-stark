@@ -4,7 +4,11 @@ tests/test_silent_controller.py
 Test di non-regressione stdout per game_controller.py.
 Verifica che nessuna funzione pubblica del controller emetta su stdout.
 
-Criterio di done: capsys.readouterr().out == "" in tutti i percorsi.
+Criterio di done: file migrato a `unittest` (v0.9.1). I test usano
+`unittest.TestCase` e `io.StringIO` per catturare `sys.stdout` — il buffer
+stdout catturato deve rimanere vuoto in tutti i percorsi verificati.
+Questa versione rappresenta la descrizione finale del criterio di accettazione
+per la migrazione tests/test_silent_controller.py → `unittest`.
 """
 import io
 import unittest

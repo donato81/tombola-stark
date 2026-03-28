@@ -61,7 +61,12 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   ripristina la suite `unittest` verde (351 test OK).
 
 ### Changed
-- `tests/test_silent_controller.py`: fase 3 - sostituito `capsys` con `patch('sys.stdout', new=io.StringIO)`, convertito `pytest.raises` in `self.assertRaises` e completata la spunta fase 3 in TODO.
+- `tests/test_silent_controller.py`: completa la migrazione pytest -> unittest con
+  TestCase, setUp, helper `_build_*`, cattura stdout via `io.StringIO` e
+  `self.assertRaises`; il TODO `migrazione_test_silent_controller_unittest`
+  passa a `COMPLETED`.
+- `tests/test_silent_controller.py`: migrazione completata e validata; eseguiti
+  i test con `python -m unittest tests.test_silent_controller` (v0.9.1).
 - `tests/test_silent_controller.py`: porta le classi a `unittest.TestCase` e converte gli `assert` a `assert` di `unittest`.
 - `tests/test_silent_controller.py`: sostituisce fixture pytest con setUp/_build_* e usa patch di `sys.stdout` per la cattura stdout.
 - `docs/TODO.md`: aggiornato il coordinatore documentale con i riferimenti al nuovo
