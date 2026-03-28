@@ -7,13 +7,13 @@ Questi test verificano che il bot sia in grado di valutare correttamente
 i premi disponibili sulle proprie cartelle e di costruire il reclamo appropriato.
 """
 
-import pytest
+import unittest
 from bingo_game.players import GiocatoreAutomatico
 from bingo_game.cartella import Cartella
 from bingo_game.events.eventi_partita import ReclamoVittoria
 
 
-class TestGiocatoreAutomaticoBotAttivo:
+class TestGiocatoreAutomaticoBotAttivo(unittest.TestCase):
     """
     Test suite per la funzionalità Bot Attivo.
     
@@ -294,4 +294,4 @@ class TestGiocatoreAutomaticoBotAttivo:
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    unittest.main()

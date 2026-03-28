@@ -74,16 +74,16 @@ File target:
 - `tests/integration/test_partita_bot_attivo.py`
 - `tests/unit/test_ui_terminale.py`
 
-- [ ] `test_giocatore_automatico_bot_attivo.py`: completare conversione a `TestCase`.
-- [ ] `test_giocatore_automatico_bot_attivo.py`: convertire `parametrize` in `subTest`
+- [x] `test_giocatore_automatico_bot_attivo.py`: completare conversione a `TestCase`.
+- [x] `test_giocatore_automatico_bot_attivo.py`: convertire `parametrize` in `subTest`
       o casi espansi con naming italiano.
-- [ ] `test_partita_bot_attivo.py`: oggetti fresh per ogni test method, rimuovere fixture
+- [x] `test_partita_bot_attivo.py`: oggetti fresh per ogni test method, rimuovere fixture
       di sessione.
-- [ ] `test_ui_terminale.py`: sostituire `monkeypatch` con `patch`; `tmp_path` con
+- [x] `test_ui_terminale.py`: sostituire `monkeypatch` con `patch`; `tmp_path` con
       `tempfile.TemporaryDirectory` + cleanup.
-- [ ] Eseguire batch 3: `python -m unittest tests.unit.test_giocatore_automatico_bot_attivo
+- [x] Eseguire batch 3: `python -m unittest tests.unit.test_giocatore_automatico_bot_attivo
       tests.integration.test_partita_bot_attivo tests.unit.test_ui_terminale`.
-- [ ] Verde confermato — nessuna directory temporanea lasciata su disco.
+- [x] Verde confermato — nessuna directory temporanea lasciata su disco.
 - [ ] Commit: `test(batch3): converti test_giocatore_automatico_bot_attivo, test_partita_bot_attivo, test_ui_terminale`
 
 ---

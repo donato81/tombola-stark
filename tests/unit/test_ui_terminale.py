@@ -5,35 +5,39 @@ Riferimento piano: documentations/PLAN_TERMINAL_START_MENU.md
 """
 from __future__ import annotations
 
+import io
+import unittest
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from bingo_game.ui.ui_terminale import TerminalUI
 
 
-class TestValidazioneNome:
+class TestValidazioneNome(unittest.TestCase):
     """Test Stato B: validazione nome giocatore."""
 
-    def test_tc01_nome_vuoto_dopo_strip(self, capsys: pytest.CaptureFixture) -> None:
+    def test_tc01_nome_vuoto_dopo_strip(self) -> None:
         """TC01: input di soli spazi → errore CONFIG_ERRORE_NOME_VUOTO, poi nome valido."""
-        with patch("builtins.input", side_effect=["   ", "Marco"]):
+        with (
+            patch("builtins.input", side_effect=["   ", "Marco"]),
+            patch("sys.stdout", new_callable=io.StringIO) as stdout,
+        ):
             tui = TerminalUI()
             nome = tui._chiedi_nome()
 
-        assert nome == "Marco"
-        captured = capsys.readouterr()
-        assert "Errore: Nome non valido." in captured.out
+        self.assertEqual(nome, "Marco")
+        self.assertIn("Errore: Nome non valido.", stdout.getvalue())
 
-    def test_tc02_nome_troppo_lungo(self, capsys: pytest.CaptureFixture) -> None:
+    def test_tc02_nome_troppo_lungo(self) -> None:
         """TC02: nome > 15 char → errore CONFIG_ERRORE_NOME_TROPPO_LUNGO, poi nome valido."""
-        with patch("builtins.input", side_effect=["NomeMoltoLungoOltreQuindici", "Marco"]):
+        with (
+            patch("builtins.input", side_effect=["NomeMoltoLungoOltreQuindici", "Marco"]),
+            patch("sys.stdout", new_callable=io.StringIO) as stdout,
+        ):
             tui = TerminalUI()
             nome = tui._chiedi_nome()
 
-        assert nome == "Marco"
-        captured = capsys.readouterr()
-        assert "Errore: Nome troppo lungo." in captured.out
+        self.assertEqual(nome, "Marco")
+        self.assertIn("Errore: Nome troppo lungo.", stdout.getvalue())
 
     def test_strip_applicato_prima_del_check(self) -> None:
         """Strip corretto: '  Marco  ' → 'Marco' senza errori."""
@@ -41,65 +45,74 @@ class TestValidazioneNome:
             tui = TerminalUI()
             nome = tui._chiedi_nome()
 
-        assert nome == "Marco"
+        self.assertEqual(nome, "Marco")
 
 
-class TestValidazioneBot:
+class TestValidazioneBot(unittest.TestCase):
     """Test Stato C: validazione numero di bot."""
 
-    def test_tc03_bot_sotto_range(self, capsys: pytest.CaptureFixture) -> None:
+    def test_tc03_bot_sotto_range(self) -> None:
         """TC03a: bot = 0 → errore CONFIG_ERRORE_BOT_RANGE, poi valore valido."""
-        with patch("builtins.input", side_effect=["0", "3"]):
+        with (
+            patch("builtins.input", side_effect=["0", "3"]),
+            patch("sys.stdout", new_callable=io.StringIO) as stdout,
+        ):
             tui = TerminalUI()
             valore = tui._chiedi_bot()
 
-        assert valore == 3
-        captured = capsys.readouterr()
-        assert "Errore: Numero bot non valido." in captured.out
+        self.assertEqual(valore, 3)
+        self.assertIn("Errore: Numero bot non valido.", stdout.getvalue())
 
-    def test_tc03_bot_sopra_range(self, capsys: pytest.CaptureFixture) -> None:
+    def test_tc03_bot_sopra_range(self) -> None:
         """TC03b: bot = 9 → errore CONFIG_ERRORE_BOT_RANGE, poi valore valido."""
-        with patch("builtins.input", side_effect=["9", "3"]):
+        with (
+            patch("builtins.input", side_effect=["9", "3"]),
+            patch("sys.stdout", new_callable=io.StringIO) as stdout,
+        ):
             tui = TerminalUI()
             valore = tui._chiedi_bot()
 
-        assert valore == 3
-        captured = capsys.readouterr()
-        assert "Errore: Numero bot non valido." in captured.out
+        self.assertEqual(valore, 3)
+        self.assertIn("Errore: Numero bot non valido.", stdout.getvalue())
 
-    def test_bot_tipo_non_valido(self, capsys: pytest.CaptureFixture) -> None:
+    def test_bot_tipo_non_valido(self) -> None:
         """Input non intero → riuso MESSAGGI_ERRORI['NUMERO_TIPO_NON_VALIDO']."""
-        with patch("builtins.input", side_effect=["tre", "3"]):
+        with (
+            patch("builtins.input", side_effect=["tre", "3"]),
+            patch("sys.stdout", new_callable=io.StringIO) as stdout,
+        ):
             tui = TerminalUI()
             valore = tui._chiedi_bot()
 
-        assert valore == 3
-        captured = capsys.readouterr()
-        assert "Errore: Tipo non valido." in captured.out
+        self.assertEqual(valore, 3)
+        self.assertIn("Errore: Tipo non valido.", stdout.getvalue())
 
 
-class TestValidazioneCartelle:
+class TestValidazioneCartelle(unittest.TestCase):
     """Test Stato D: validazione numero di cartelle."""
 
-    def test_tc04_cartelle_fuori_range(self, capsys: pytest.CaptureFixture) -> None:
+    def test_tc04_cartelle_fuori_range(self) -> None:
         """TC04: cartelle = 7 → errore CONFIG_ERRORE_CARTELLE_RANGE, poi valore valido."""
-        with patch("builtins.input", side_effect=["7", "2"]):
+        with (
+            patch("builtins.input", side_effect=["7", "2"]),
+            patch("sys.stdout", new_callable=io.StringIO) as stdout,
+        ):
             tui = TerminalUI()
             valore = tui._chiedi_cartelle()
 
-        assert valore == 2
-        captured = capsys.readouterr()
-        assert "Errore: Numero cartelle non valido." in captured.out
+        self.assertEqual(valore, 2)
+        self.assertIn("Errore: Numero cartelle non valido.", stdout.getvalue())
 
 
-class TestFlussoFelice:
+class TestFlussoFelice(unittest.TestCase):
     """Test del flusso completo con input validi."""
 
-    def test_flusso_felice_completo(self, capsys: pytest.CaptureFixture) -> None:
+    def test_flusso_felice_completo(self) -> None:
         """TC05: input validi → crea_partita_standard e avvia_partita_sicura chiamati correttamente."""
         mock_partita = MagicMock()
 
         with (
+            patch("sys.stdout", new_callable=io.StringIO) as stdout,
             patch("builtins.input", side_effect=["Marco", "3", "2"]),
             patch(
                 "bingo_game.ui.ui_terminale.crea_partita_standard",
@@ -121,6 +134,9 @@ class TestFlussoFelice:
         )
         mock_avvia.assert_called_once_with(mock_partita)
         mock_loop.assert_called_once_with(mock_partita)
-        captured = capsys.readouterr()
-        assert "Benvenuto in Tombola Stark!" in captured.out
-        assert "Configurazione completata. Avvio partita..." in captured.out
+        self.assertIn("Benvenuto in Tombola Stark!", stdout.getvalue())
+        self.assertIn("Configurazione completata. Avvio partita...", stdout.getvalue())
+
+
+if __name__ == "__main__":
+    unittest.main()

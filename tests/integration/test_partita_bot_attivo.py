@@ -8,14 +8,14 @@ all'interno del ciclo completo di una partita, con interazione tra bot, tabellon
 cartelle e sistema di verifica premi.
 """
 
-import pytest
+import unittest
 from bingo_game.tabellone import Tabellone
 from bingo_game.partita import Partita
 from bingo_game.players import GiocatoreAutomatico, GiocatoreUmano
 from bingo_game.cartella import Cartella
 
 
-class TestPartitaBotAttivo:
+class TestPartitaBotAttivo(unittest.TestCase):
     """
     Test suite per l'integrazione del Bot Attivo con Partita.
     
@@ -377,4 +377,4 @@ class TestPartitaBotAttivo:
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    unittest.main()
