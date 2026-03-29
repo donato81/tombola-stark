@@ -50,19 +50,19 @@ Non definita
 
 ## Checklist operativa
 
-- [ ] Confermare la struttura reale di `EsitoAzione` restituita dal metodo
+- [x] Confermare la struttura reale di `EsitoAzione` restituita dal metodo
   in `tests/test_giocatore_umano.py`
-- [ ] Importare o riusare `EventoNavigazioneColonnaAvanzata` nel test, se necessario,
+- [x] Importare o riusare `EventoNavigazioneColonnaAvanzata` nel test, se necessario,
   in `tests/test_giocatore_umano.py`
-- [ ] Sostituire le assertion testuali obsolete con assertion strutturate
+- [x] Sostituire le assertion testuali obsolete con assertion strutturate
   in `tests/test_giocatore_umano.py`
-- [ ] Verificare in modo esplicito il caso colonna vuota tramite campo evento
+- [x] Verificare in modo esplicito il caso colonna vuota tramite campo evento
   in `tests/test_giocatore_umano.py`
-- [ ] Eseguire `py -3.10 -m unittest discover -s tests -q` e confermare zero failure
+- [x] Eseguire `py -3.10 -m unittest discover -s tests -q` e confermare zero failure
 
 ## Stato Avanzamento
 
 - [x] Pianificato
-- [ ] In corso
-- [ ] Completato
-- [ ] Verificato
+- [x] In corso
+- [x] Completato
+- [x] Verificato

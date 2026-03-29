@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import Mock, patch
 from bingo_game.cartella import Cartella
 from bingo_game.players.giocatore_umano import GiocatoreUmano
+from bingo_game.events.eventi_output_ui_umani import EventoNavigazioneColonnaAvanzata
 
 class TestGiocatoreUmano(unittest.TestCase):
     """
@@ -1167,22 +1168,26 @@ class TestGiocatoreUmano(unittest.TestCase):
         self.giocatore._indice_colonna_focus = 5
 
         risultato = self.giocatore.sposta_focus_colonna_sinistra_avanzata()
-        
-        # Verifica 1: Struttura base
-        self.assertIn("Colonna 4:", risultato)
-        
-        # Verifica 2: Presenza numeri reali (se colonna non vuota)
+
+        # Verifica 1: Esito strutturato ok
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonnaAvanzata)
+
+        # Verifica 2: Campi evento
+        # _indice_colonna_focus parte da 5 (0-based), scende a 4 → 1-based = 5
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 5)
+
+        # Verifica 3: Presenza numeri reali nella colonna (se colonna non vuota)
         numeri_colonna4 = self.cartella1.get_numeri_colonna(4)
         if numeri_colonna4:
             for numero in numeri_colonna4:
-                self.assertIn(str(numero), risultato)
+                self.assertIn(numero, risultato.evento.colonna_semplice)
+            self.assertIsNotNone(risultato.evento.stato_colonna)
         else:
-            self.assertIn("vuota", risultato)
+            self.assertEqual(risultato.evento.colonna_semplice, ("-", "-", "-"))
 
-        # Verifica 3: Presenza stats avanzate (solo se non vuota)
-        if numeri_colonna4:
-             self.assertIn("Segnati:", risultato)
-        
         # Verifica 4: Stato interno
         self.assertEqual(self.giocatore._indice_colonna_focus, 4)
 
