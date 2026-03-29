@@ -52,7 +52,7 @@ stato: attivo
 - [TODO_aggiornamento_documentazione_post_TUI_2026-03-28.md](5%20-%20todolist/TODO_aggiornamento_documentazione_post_TUI_2026-03-28.md) — COMPLETED
 - [TODO_main_placeholder_v0.9.2.md](5%20-%20todolist/TODO_main_placeholder_v0.9.2.md) — COMPLETED
 - [TODO_FIX_FAIL1_COLONNA_AVANZATA.md](5%20-%20todolist/TODO_FIX_FAIL1_COLONNA_AVANZATA.md) — COMPLETED
-- [TODO_fix_test_riga_eventi_v1.md](5%20-%20todolist/TODO_fix_test_riga_eventi_v1.md)
+- [TODO_fix_test_riga_eventi_v1.md](5%20-%20todolist/TODO_fix_test_riga_eventi_v1.md) — COMPLETED
 
 ### Task completati
 
@@ -67,6 +67,12 @@ stato: attivo
 	- Design: [DESIGN_main_placeholder.md](2%20-%20projects/DESIGN_main_placeholder.md)
 	- Plan: [PLAN_main_placeholder.md](3%20-%20coding%20plans/PLAN_main_placeholder.md)
 	- TODO: [TODO_main_placeholder_v0.9.2.md](5%20-%20todolist/TODO_main_placeholder_v0.9.2.md)
+
+- Modernizzazione test riga su eventi strutturati
+	- Report: [REPORT_FIX_TEST_RIGA_EVENTI_2026-03-29.md](4%20-%20reports/REPORT_FIX_TEST_RIGA_EVENTI_2026-03-29.md)
+	- Design: [DESIGN_fix_test_riga_eventi.md](2%20-%20projects/DESIGN_fix_test_riga_eventi.md)
+	- Plan: [PLAN_fix_test_riga_eventi_v1.md](3%20-%20coding%20plans/PLAN_fix_test_riga_eventi_v1.md)
+	- TODO: [TODO_fix_test_riga_eventi_v1.md](5%20-%20todolist/TODO_fix_test_riga_eventi_v1.md)
 
 ## Stato Avanzamento
 

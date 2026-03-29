@@ -13,6 +13,11 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `main.py`: sostituisce l'import rotto di `TerminalUI` con un placeholder
   temporaneo; il programma torna avviabile con messaggio informativo sullo
   stato di transizione verso la nuova interfaccia.
+- `tests/test_giocatore_umano.py`: modernizza i 20 test di navigazione riga su
+  `EsitoAzione`, `EventoNavigazioneRiga` ed `EventoNavigazioneRigaAvanzata`,
+  eliminando i confronti fragili su testo renderizzato e preservando la suite
+  `unittest` verde; in validazione viene corretto anche un test legacy su
+  `sposta_focus_colonna_sinistra_avanzata` ancora ancorato alla parola `vuota`.
 
 ---
 

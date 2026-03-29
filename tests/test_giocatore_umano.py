@@ -2,7 +2,11 @@ import unittest
 from unittest.mock import Mock, patch
 from bingo_game.cartella import Cartella
 from bingo_game.players.giocatore_umano import GiocatoreUmano
-from bingo_game.events.eventi_output_ui_umani import EventoNavigazioneColonnaAvanzata
+from bingo_game.events.eventi_output_ui_umani import (
+    EventoNavigazioneColonnaAvanzata,
+    EventoNavigazioneRiga,
+    EventoNavigazioneRigaAvanzata,
+)
 
 class TestGiocatoreUmano(unittest.TestCase):
     """
@@ -501,202 +505,213 @@ class TestGiocatoreUmano(unittest.TestCase):
     def test_sposta_focus_riga_su_semplice_cartella_mancante(self):
         """
         Verifica che sposta_focus_riga_su() gestisca correttamente l'assenza di cartella focus
-        nella versione semplice (stampa_riga_semplice).
-        
-        Scenario:
-        - Giocatore senza cartelle o senza focus impostato.
-        
-        Risultato atteso:
-        - Ritorna messaggio "Non hai selezionato nessuna cartella".
-        """
-        # Scenario 1: Giocatore senza cartelle
-        risultato1 = self.giocatore.sposta_focus_riga_su()
-        self.assertEqual(
-            risultato1,
-            "Non hai selezionato nessuna cartella",
-            "Senza cartelle deve ritornare messaggio appropriato."
-        )
+        nella versione semplice.
 
-        # Scenario 2: Focus rimosso manualmente
+        Scenario 1: Giocatore senza cartelle → ok=False, errore CARTELLE_NESSUNA_ASSEGNATA.
+        Scenario 2: Cartelle presenti ma focus_cartella=None → ok=False, errore FOCUS_CARTELLA_NON_IMPOSTATO.
+        """
+        # Scenario 1: nessuna cartella assegnata
+        risultato1 = self.giocatore.sposta_focus_riga_su()
+        self.assertFalse(risultato1.ok)
+        self.assertEqual(risultato1.errore, "CARTELLE_NESSUNA_ASSEGNATA")
+        self.assertIsNone(risultato1.evento)
+
+        # Scenario 2: focus cartella rimosso manualmente
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore._indice_cartella_focus = None
         risultato2 = self.giocatore.sposta_focus_riga_su()
-        self.assertEqual(
-            risultato2,
-            "Non hai selezionato nessuna cartella",
-            "Senza focus attivo deve ritornare messaggio appropriato."
-        )
+        self.assertFalse(risultato2.ok)
+        self.assertEqual(risultato2.errore, "FOCUS_CARTELLA_NON_IMPOSTATO")
+        self.assertIsNone(risultato2.evento)
 
     def test_sposta_focus_riga_su_semplice_prima_riga(self):
         """
-        Verifica che il metodo blocchi lo spostamento dalla prima riga (indice 0)
-        nella versione semplice.
-        
-        Scenario:
-        - Focus su riga 0, tentativo di spostamento verso l'alto.
-        
-        Risultato atteso:
-        - Ritorna "Sei alla prima riga, non puoi andare oltre".
-        - Indice riga non cambia (rimane 0).
+        Verifica che il metodo emetta un evento limite minimo quando il focus è già
+        sulla prima riga (indice 0) e si chiede di salire.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneRiga con esito='limite'
+        e limite='minimo'. Indice riga invariato.
         """
-        # Setup: cartella + focus riga 0
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = 0
 
         risultato = self.giocatore.sposta_focus_riga_su()
-        
-        self.assertEqual(
-            risultato,
-            "Sei alla prima riga, non puoi andare oltre",
-            "Blocco dalla prima riga deve restituire messaggio corretto."
-        )
-        
-        self.assertEqual(
-            self.giocatore._indice_riga_focus,
-            0,
-            "Indice riga invariato su blocco."
-        )
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRiga)
+        self.assertEqual(risultato.evento.esito, "limite")
+        self.assertEqual(risultato.evento.limite, "minimo")
+        self.assertEqual(self.giocatore._indice_riga_focus, 0)
 
     def test_sposta_focus_riga_su_semplice_movimento_normale(self):
         """
-        Verifica spostamento normale da riga 1→0 con stampa semplice.
-        
-        Scenario:
-        - Focus riga 1 → Freccia SU → Focus riga 0 + "Riga 0: 5 12 24..."
-        
-        Risultato atteso:
-        - Contiene "Riga 0:" e numeri puri (NO asterischi, NO stats).
-        - Indice riga = 0.
+        Verifica spostamento riga 1 → 0 nella versione semplice.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneRiga con esito='mostra',
+        numero_riga_corrente=1 (1-based), riga_semplice coerente con la cartella.
+        Indice interno aggiornato a 0.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = 1
 
         risultato = self.giocatore.sposta_focus_riga_su()
-        
-        # Verifica 1: Struttura semplice
-        self.assertIn("Riga 0:", risultato)
-        
-        # Verifica 2: Numeri presenti (senza asterischi)
-        numeri_riga0 = self.cartella1.get_numeri_riga(0)
-        for numero in numeri_riga0[:3]:
-            self.assertIn(str(numero), risultato)
-        
-        # Verifica 3: NO asterischi, NO stats (versione semplice)
-        self.assertNotIn("*", risultato)
-        self.assertNotIn("Segnati", risultato)
-        
-        # Verifica 4: Stato interno
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRiga)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_riga_corrente, 1)  # indice 0 → 1-based
+        self.assertEqual(risultato.evento.riga_semplice, self.cartella1.get_riga_semplice(0))
+        self.assertIsNone(risultato.evento.limite)
         self.assertEqual(self.giocatore._indice_riga_focus, 0)
 
     def test_sposta_focus_riga_su_semplice_auto_inizializzazione(self):
         """
-        Verifica auto-inizializzazione da None → riga 1→0.
-        
-        Scenario:
-        - _indice_riga_focus=None → Freccia SU → "Riga 0: 5 12..."
+        Verifica auto-inizializzazione: da _indice_riga_focus=None, su → mostra riga 0.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneRiga, esito='mostra',
+        numero_riga_corrente=1, indice interno = 0.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = None
 
         risultato = self.giocatore.sposta_focus_riga_su()
-        
-        self.assertIn("Riga 0:", risultato)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRiga)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_riga_corrente, 1)  # indice 0 → 1-based
+        self.assertEqual(risultato.evento.riga_semplice, self.cartella1.get_riga_semplice(0))
         self.assertEqual(self.giocatore._indice_riga_focus, 0)
-        self.assertNotIn("*", risultato)
-        self.assertNotIn("Segnati", risultato)
 
     def test_sposta_focus_riga_su_semplice_stato_interno(self):
         """
-        Verifica che lo stato interno si aggiorni correttamente anche con numeri segnati.
+        Verifica spostamento riga 2 → 1 con numeri segnati: la versione semplice
+        non include stato avanzato. Controlla solo il payload strutturato semplice.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = 2
 
-        # Segna numeri (non deve influire sulla versione semplice)
         self.cartella1.segna_numero(10)
 
         risultato = self.giocatore.sposta_focus_riga_su()
-        
-        self.assertIn("Riga 1:", risultato)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRiga)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_riga_corrente, 2)  # indice 1 → 1-based
+        self.assertEqual(risultato.evento.riga_semplice, self.cartella1.get_riga_semplice(1))
         self.assertEqual(self.giocatore._indice_riga_focus, 1)
-        self.assertNotIn("*", risultato)
 
     def test_sposta_focus_riga_giu_semplice_cartella_mancante(self):
         """
         Verifica gestione assenza cartella per versione GIÙ semplice.
+
+        Scenario 1: nessuna cartella → ok=False, errore CARTELLE_NESSUNA_ASSEGNATA.
+        Scenario 2: focus_cartella=None → ok=False, errore FOCUS_CARTELLA_NON_IMPOSTATO.
         """
         risultato1 = self.giocatore.sposta_focus_riga_giu()
-        self.assertEqual(risultato1, "Non hai selezionato nessuna cartella")
-        
+        self.assertFalse(risultato1.ok)
+        self.assertEqual(risultato1.errore, "CARTELLE_NESSUNA_ASSEGNATA")
+        self.assertIsNone(risultato1.evento)
+
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore._indice_cartella_focus = None
         risultato2 = self.giocatore.sposta_focus_riga_giu()
-        self.assertEqual(risultato2, "Non hai selezionato nessuna cartella")
+        self.assertFalse(risultato2.ok)
+        self.assertEqual(risultato2.errore, "FOCUS_CARTELLA_NON_IMPOSTATO")
+        self.assertIsNone(risultato2.evento)
 
     def test_sposta_focus_riga_giu_semplice_ultima_riga(self):
         """
         Verifica blocco dall'ultima riga (indice 2) per versione GIÙ semplice.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneRiga con esito='limite'
+        e limite='massimo'. Indice riga invariato.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = 2
 
         risultato = self.giocatore.sposta_focus_riga_giu()
-        
-        self.assertEqual(risultato, "Sei all'ultima riga, non puoi andare oltre")
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRiga)
+        self.assertEqual(risultato.evento.esito, "limite")
+        self.assertEqual(risultato.evento.limite, "massimo")
         self.assertEqual(self.giocatore._indice_riga_focus, 2)
 
     def test_sposta_focus_riga_giu_semplice_movimento_normale(self):
         """
-        Verifica spostamento normale da riga 0→1 con stampa semplice.
+        Verifica spostamento riga 0 → 1 nella versione semplice.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneRiga con esito='mostra',
+        numero_riga_corrente=2 (1-based), riga_semplice coerente. Indice interno = 1.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = 0
 
         risultato = self.giocatore.sposta_focus_riga_giu()
-        
-        self.assertIn("Riga 1:", risultato)
-        numeri_riga1 = self.cartella1.get_numeri_riga(1)
-        for numero in numeri_riga1[:3]:
-            self.assertIn(str(numero), risultato)
-        self.assertNotIn("*", risultato)
-        self.assertNotIn("Segnati", risultato)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRiga)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_riga_corrente, 2)  # indice 1 → 1-based
+        self.assertEqual(risultato.evento.riga_semplice, self.cartella1.get_riga_semplice(1))
+        self.assertIsNone(risultato.evento.limite)
         self.assertEqual(self.giocatore._indice_riga_focus, 1)
 
     def test_sposta_focus_riga_giu_semplice_auto_inizializzazione(self):
         """
-        Verifica auto-inizializzazione da None → riga 0→1.
+        Verifica auto-inizializzazione GIÙ: da _indice_riga_focus=None, giu → mostra riga 1.
+
+        Asimmetria rispetto a SU: da None, giu inizializza a 0 e poi avanza a 1.
+        Risultato atteso: ok=True, numero_riga_corrente=2, indice interno = 1.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = None
 
         risultato = self.giocatore.sposta_focus_riga_giu()
-        
-        self.assertIn("Riga 1:", risultato)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRiga)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_riga_corrente, 2)  # indice 1 → 1-based
+        self.assertEqual(risultato.evento.riga_semplice, self.cartella1.get_riga_semplice(1))
         self.assertEqual(self.giocatore._indice_riga_focus, 1)
-        self.assertNotIn("*", risultato)
 
     def test_sposta_focus_riga_giu_semplice_stato_interno(self):
         """
-        Verifica aggiornamento stato interno con cartella segnata.
+        Verifica spostamento riga 0 → 1 con un numero segnato altrove.
+        La versione semplice non espone stato avanzato.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = 0
 
-        self.cartella1.segna_numero(50)  # Numero segnato
+        self.cartella1.segna_numero(50)
 
         risultato = self.giocatore.sposta_focus_riga_giu()
-        
-        self.assertIn("Riga 1:", risultato)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRiga)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_riga_corrente, 2)  # indice 1 → 1-based
+        self.assertEqual(risultato.evento.riga_semplice, self.cartella1.get_riga_semplice(1))
         self.assertEqual(self.giocatore._indice_riga_focus, 1)
-        self.assertNotIn("*", risultato)
 
 
     # ---------------------------------------------------------------------
@@ -706,74 +721,102 @@ class TestGiocatoreUmano(unittest.TestCase):
     def test_sposta_focus_riga_su_avanzata_cartella_mancante(self):
         """
         Verifica che sposta_focus_riga_su_avanzata gestisca l'assenza di cartella focus.
-        """
-        # Scenario 1: Giocatore senza cartelle
-        risultato1 = self.giocatore.sposta_focus_riga_su_avanzata()
-        self.assertEqual(
-            risultato1,
-            "Non hai selezionato nessuna cartella",
-            "Senza cartelle deve ritornare messaggio appropriato."
-        )
 
-        # Scenario 2: Focus rimosso manualmente
+        Scenario 1: nessuna cartella → ok=False, errore CARTELLE_NESSUNA_ASSEGNATA.
+        Scenario 2: focus_cartella=None → ok=False, errore FOCUS_CARTELLA_NON_IMPOSTATO.
+        """
+        risultato1 = self.giocatore.sposta_focus_riga_su_avanzata()
+        self.assertFalse(risultato1.ok)
+        self.assertEqual(risultato1.errore, "CARTELLE_NESSUNA_ASSEGNATA")
+        self.assertIsNone(risultato1.evento)
+
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore._indice_cartella_focus = None
         risultato2 = self.giocatore.sposta_focus_riga_su_avanzata()
-        self.assertEqual(
-            risultato2,
-            "Non hai selezionato nessuna cartella",
-            "Senza focus attivo deve ritornare messaggio appropriato."
-        )
+        self.assertFalse(risultato2.ok)
+        self.assertEqual(risultato2.errore, "FOCUS_CARTELLA_NON_IMPOSTATO")
+        self.assertIsNone(risultato2.evento)
 
     def test_sposta_focus_riga_su_avanzata_prima_riga(self):
         """
         Verifica blocco dalla prima riga per versione avanzata.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneRigaAvanzata con esito='limite',
+        limite='minimo', campi riga/stato/segnati a None. Indice invariato.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = 0
 
         risultato = self.giocatore.sposta_focus_riga_su_avanzata()
-        
-        self.assertEqual(
-            risultato,
-            "Sei alla prima riga, non puoi andare oltre",
-            "Blocco dalla prima riga deve restituire messaggio corretto."
-        )
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRigaAvanzata)
+        self.assertEqual(risultato.evento.esito, "limite")
+        self.assertEqual(risultato.evento.limite, "minimo")
+        self.assertIsNone(risultato.evento.riga_semplice)
+        self.assertIsNone(risultato.evento.stato_riga)
+        self.assertIsNone(risultato.evento.numeri_segnati_riga_ordinati)
         self.assertEqual(self.giocatore._indice_riga_focus, 0)
 
     def test_sposta_focus_riga_su_avanzata_movimento_normale(self):
         """
-        Verifica spostamento 1→0 con stampa avanzata.
+        Verifica spostamento riga 1 → 0 nella versione avanzata.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneRigaAvanzata con esito='mostra',
+        numero_riga_corrente=1 (1-based), triplo dati coerente con get_dati_visualizzazione_riga_avanzata(0).
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = 1
 
         risultato = self.giocatore.sposta_focus_riga_su_avanzata()
-        
-        self.assertIn("Riga 0:", risultato)
-        numeri_riga0 = self.cartella1.get_numeri_riga(0)
-        for numero in numeri_riga0[:2]:
-            self.assertIn(str(numero), risultato)
+
+        dati_attesi = self.cartella1.get_dati_visualizzazione_riga_avanzata(0)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRigaAvanzata)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_riga_corrente, 1)  # indice 0 → 1-based
+        self.assertEqual(risultato.evento.riga_semplice, dati_attesi[0])
+        self.assertEqual(risultato.evento.stato_riga, dati_attesi[1])
+        self.assertEqual(risultato.evento.numeri_segnati_riga_ordinati, dati_attesi[2])
+        self.assertIsNone(risultato.evento.limite)
         self.assertEqual(self.giocatore._indice_riga_focus, 0)
 
     def test_sposta_focus_riga_su_avanzata_auto_inizializzazione(self):
         """
-        Verifica auto-inizializzazione None→0 per versione avanzata.
+        Verifica auto-inizializzazione SU avanzata: da None → mostra riga 0.
+
+        Risultato atteso: ok=True, esito='mostra', numero_riga_corrente=1,
+        triplo dati coerente con riga 0. Indice interno = 0.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = None
 
         risultato = self.giocatore.sposta_focus_riga_su_avanzata()
-        
-        self.assertIn("Riga 0:", risultato)
+
+        dati_attesi = self.cartella1.get_dati_visualizzazione_riga_avanzata(0)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRigaAvanzata)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_riga_corrente, 1)  # indice 0 → 1-based
+        self.assertEqual(risultato.evento.riga_semplice, dati_attesi[0])
+        self.assertEqual(risultato.evento.stato_riga, dati_attesi[1])
+        self.assertEqual(risultato.evento.numeri_segnati_riga_ordinati, dati_attesi[2])
         self.assertEqual(self.giocatore._indice_riga_focus, 0)
 
     def test_sposta_focus_riga_su_avanzata_stato_cartella_con_segni(self):
         """
-        Verifica asterischi con cartella parzialmente segnata per versione avanzata.
+        Verifica che il numero segnato sulla riga 0 sia incluso in numeri_segnati_riga_ordinati
+        per la versione avanzata (spostamento riga 1 → 0).
+
+        Nessuna ricerca testuale di asterischi: si confronta il campo strutturato.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
@@ -783,9 +826,16 @@ class TestGiocatoreUmano(unittest.TestCase):
         self.cartella1.segna_numero(numeri_riga0[0])
 
         risultato = self.giocatore.sposta_focus_riga_su_avanzata()
-        
-        num_segnato_str = f"*{numeri_riga0[0]}"
-        self.assertIn(num_segnato_str, risultato)
+
+        dati_attesi = self.cartella1.get_dati_visualizzazione_riga_avanzata(0)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRigaAvanzata)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertIn(numeri_riga0[0], risultato.evento.numeri_segnati_riga_ordinati)
+        self.assertEqual(risultato.evento.numeri_segnati_riga_ordinati, dati_attesi[2])
+        self.assertEqual(risultato.evento.stato_riga, dati_attesi[1])
 
     # ---------------------------------------------------------------------
     # TEST METODO: sposta_focus_riga_giu_avanzata
@@ -794,60 +844,102 @@ class TestGiocatoreUmano(unittest.TestCase):
     def test_sposta_focus_riga_giu_avanzata_cartella_mancante(self):
         """
         Verifica gestione cartella mancante per GIÙ avanzata.
+
+        Scenario 1: nessuna cartella → ok=False, errore CARTELLE_NESSUNA_ASSEGNATA.
+        Scenario 2: focus_cartella=None → ok=False, errore FOCUS_CARTELLA_NON_IMPOSTATO.
         """
         risultato1 = self.giocatore.sposta_focus_riga_giu_avanzata()
-        self.assertEqual(risultato1, "Non hai selezionato nessuna cartella")
-        
+        self.assertFalse(risultato1.ok)
+        self.assertEqual(risultato1.errore, "CARTELLE_NESSUNA_ASSEGNATA")
+        self.assertIsNone(risultato1.evento)
+
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore._indice_cartella_focus = None
         risultato2 = self.giocatore.sposta_focus_riga_giu_avanzata()
-        self.assertEqual(risultato2, "Non hai selezionato nessuna cartella")
+        self.assertFalse(risultato2.ok)
+        self.assertEqual(risultato2.errore, "FOCUS_CARTELLA_NON_IMPOSTATO")
+        self.assertIsNone(risultato2.evento)
 
     def test_sposta_focus_riga_giu_avanzata_ultima_riga(self):
         """
         Verifica blocco ultima riga per GIÙ avanzata.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneRigaAvanzata con esito='limite',
+        limite='massimo', campi riga/stato/segnati a None. Indice invariato.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = 2
 
         risultato = self.giocatore.sposta_focus_riga_giu_avanzata()
-        
-        self.assertEqual(risultato, "Sei all'ultima riga, non puoi andare oltre")
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRigaAvanzata)
+        self.assertEqual(risultato.evento.esito, "limite")
+        self.assertEqual(risultato.evento.limite, "massimo")
+        self.assertIsNone(risultato.evento.riga_semplice)
+        self.assertIsNone(risultato.evento.stato_riga)
+        self.assertIsNone(risultato.evento.numeri_segnati_riga_ordinati)
         self.assertEqual(self.giocatore._indice_riga_focus, 2)
 
     def test_sposta_focus_riga_giu_avanzata_movimento_normale(self):
         """
-        Verifica movimento 0→1 per GIÙ avanzata.
+        Verifica spostamento riga 0 → 1 nella versione avanzata.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneRigaAvanzata con esito='mostra',
+        numero_riga_corrente=2 (1-based), triplo dati coerente con get_dati_visualizzazione_riga_avanzata(1).
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = 0
 
         risultato = self.giocatore.sposta_focus_riga_giu_avanzata()
-        
-        self.assertIn("Riga 1:", risultato)
-        numeri_riga1 = self.cartella1.get_numeri_riga(1)
-        for numero in numeri_riga1[:2]:
-            self.assertIn(str(numero), risultato)
+
+        dati_attesi = self.cartella1.get_dati_visualizzazione_riga_avanzata(1)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRigaAvanzata)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_riga_corrente, 2)  # indice 1 → 1-based
+        self.assertEqual(risultato.evento.riga_semplice, dati_attesi[0])
+        self.assertEqual(risultato.evento.stato_riga, dati_attesi[1])
+        self.assertEqual(risultato.evento.numeri_segnati_riga_ordinati, dati_attesi[2])
+        self.assertIsNone(risultato.evento.limite)
         self.assertEqual(self.giocatore._indice_riga_focus, 1)
 
     def test_sposta_focus_riga_giu_avanzata_auto_inizializzazione(self):
         """
-        Verifica auto-inizializzazione None→1 per GIÙ avanzata.
+        Verifica auto-inizializzazione GIÙ avanzata: da None → mostra riga 1.
+
+        Asimmetria: da None, giu inizializza a 0 e poi avanza a 1 (come versione semplice).
+        Risultato atteso: ok=True, numero_riga_corrente=2, indice interno = 1.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_riga_focus = None
 
         risultato = self.giocatore.sposta_focus_riga_giu_avanzata()
-        
-        self.assertIn("Riga 1:", risultato)
+
+        dati_attesi = self.cartella1.get_dati_visualizzazione_riga_avanzata(1)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRigaAvanzata)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_riga_corrente, 2)  # indice 1 → 1-based
+        self.assertEqual(risultato.evento.riga_semplice, dati_attesi[0])
+        self.assertEqual(risultato.evento.stato_riga, dati_attesi[1])
+        self.assertEqual(risultato.evento.numeri_segnati_riga_ordinati, dati_attesi[2])
         self.assertEqual(self.giocatore._indice_riga_focus, 1)
 
     def test_sposta_focus_riga_giu_avanzata_stato_cartella_con_segni(self):
         """
-        Verifica asterischi per GIÙ avanzata.
+        Verifica che il numero segnato sulla riga 2 sia incluso in numeri_segnati_riga_ordinati
+        per la versione GIÙ avanzata (spostamento riga 1 → 2).
+
+        Nessuna ricerca testuale di asterischi: si confronta il campo strutturato.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
@@ -857,9 +949,16 @@ class TestGiocatoreUmano(unittest.TestCase):
         self.cartella1.segna_numero(numeri_riga2[0])
 
         risultato = self.giocatore.sposta_focus_riga_giu_avanzata()
-        
-        num_segnato_str = f"*{numeri_riga2[0]}"
-        self.assertIn(num_segnato_str, risultato)
+
+        dati_attesi = self.cartella1.get_dati_visualizzazione_riga_avanzata(2)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneRigaAvanzata)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertIn(numeri_riga2[0], risultato.evento.numeri_segnati_riga_ordinati)
+        self.assertEqual(risultato.evento.numeri_segnati_riga_ordinati, dati_attesi[2])
+        self.assertEqual(risultato.evento.stato_riga, dati_attesi[1])
 
 
     # ---------------------------------------------------------------------
@@ -1209,15 +1308,16 @@ class TestGiocatoreUmano(unittest.TestCase):
 
     def test_sposta_focus_colonna_sinistra_avanzata_stato_cartella_con_segni(self):
         """
-        Verifica presenza indicatori di stato (asterischi) e riepiloghi.
-        
+        Verifica il payload strutturato della colonna avanzata con segni.
+
         Scenario:
-        - Colonna 3 con un numero segnato.
         - Spostamento da colonna 4 a 3.
-        
+        - Se la colonna contiene numeri, uno di essi viene marcato prima del movimento.
+
         Risultato atteso:
-        - Stringa contiene "*NUMERO".
-        - Stringa contiene "Segnati: 1 su X".
+        - evento EventoNavigazioneColonnaAvanzata con esito='mostra'
+        - dati colonna coerenti con get_dati_visualizzazione_colonna_avanzata(3)
+        - se presente un numero segnato, compare in numeri_segnati_colonna_ordinati
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
@@ -1228,23 +1328,23 @@ class TestGiocatoreUmano(unittest.TestCase):
         if numeri_colonna3:
             numero_da_segnare = numeri_colonna3[0]
             self.cartella1.segna_numero(numero_da_segnare)
-            
-            risultato = self.giocatore.sposta_focus_colonna_sinistra_avanzata()
-            
-            # Verifica presenza asterisco sul numero segnato
-            num_segnato_str = f"*{numero_da_segnare}"
-            self.assertIn(
-                num_segnato_str, 
-                risultato,
-                f"Deve essere presente l'asterisco per il numero segnato {numero_da_segnare}"
-            )
-            
-            # Verifica presenza riepilogo
-            self.assertIn("Segnati:", risultato)
         else:
-            # Caso speciale colonna vuota (se generata vuota nel test)
-            risultato = self.giocatore.sposta_focus_colonna_sinistra_avanzata()
-            self.assertIn("vuota", risultato)
+            numero_da_segnare = None
+
+        risultato = self.giocatore.sposta_focus_colonna_sinistra_avanzata()
+        dati_attesi = self.cartella1.get_dati_visualizzazione_colonna_avanzata(3)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonnaAvanzata)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 4)
+        self.assertEqual(risultato.evento.colonna_semplice, dati_attesi[0])
+        self.assertEqual(risultato.evento.stato_colonna, dati_attesi[1])
+        self.assertEqual(risultato.evento.numeri_segnati_colonna_ordinati, dati_attesi[2])
+
+        if numero_da_segnare is not None:
+            self.assertIn(numero_da_segnare, risultato.evento.numeri_segnati_colonna_ordinati)
 
 
     # ---------------------------------------------------------------------
