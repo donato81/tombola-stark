@@ -2,7 +2,7 @@
 
 > **Riferimento API pubblico per tombola-stark**  
 > Versione: v0.9.3  
-> Ultimo aggiornamento: 2026-03-29
+> Ultimo aggiornamento: 2026-03-30
 
 ---
 
@@ -1619,33 +1619,118 @@ def _log_safe(message: str, level: str = "info", *args,
 
 ## 🖥️ Stato del Layer di Presentazione
 
-Il repository non include piu' una UI completa documentata come parte dell'API
-pubblica corrente. Il motore di gioco resta consumabile tramite il controller e
-tramite i dati/eventi strutturati emessi dal dominio.
+Il repository include ora il contratto pubblico del layer renderer e una prima
+implementazione concreta per wxPython. L'entry point applicativo resta ancora
+temporaneamente separato dalla UI finale, ma il confine di presentazione non e'
+piu' solo prospettico: e' codificato nei renderer pubblicati dal package
+`bingo_game.ui.renderers`.
+
+Il motore di gioco resta consumabile tramite il controller e tramite i
+dati/eventi strutturati emessi dal dominio. Il renderer riceve solo esiti,
+stati di configurazione e testi gia' risolti, senza accedere direttamente agli
+oggetti di dominio.
+
+### Contratti Pubblici del Renderer
+
+#### `StatoConfigurazione`
+
+**Modulo**: `bingo_game/ui/renderers/base_renderer.py`
+
+**Scopo**: stato immutabile passato dal controller al renderer durante la
+configurazione iniziale della partita.
+
+```python
+@dataclass(frozen=True)
+class StatoConfigurazione:
+        fase_corrente: Literal["nome", "bot", "cartelle", "conferma"]
+        codice_messaggio: Codici_Configurazione
+        codice_errore: Optional[Codici_Configurazione] = None
+        nome_giocatore: Optional[str] = None
+        numero_bot: Optional[int] = None
+        numero_cartelle: Optional[int] = None
+```
+
+**Contratto**:
+- Il controller governa la sequenza dei passi e costruisce lo stato.
+- Il renderer visualizza e vocalizza il passo corrente senza mutare lo stato.
+- `fase_corrente` definisce il pannello atteso: nome, bot, cartelle, conferma.
+
+#### `BaseRenderer`
+
+**Modulo**: `bingo_game/ui/renderers/base_renderer.py`
+
+**Scopo**: contratto astratto unico del layer di presentazione.
+
+```python
+class BaseRenderer(ABC):
+        def render_esito(self, esito: EsitoAzione) -> None: ...
+        def mostra_schermata_configurazione(self, stato: StatoConfigurazione) -> None: ...
+        def mostra_report_finale(self, dati_partita: dict[str, Any]) -> None: ...
+        def mostra_messaggio_sistema(self, testo: str) -> None: ...
+```
+
+**Contratto**:
+- `render_esito()` e' il punto di ingresso principale per gli `EsitoAzione`
+    emessi dal controller.
+- `mostra_schermata_configurazione()` riceve uno `StatoConfigurazione`
+    costruito a monte; il renderer non decide il passo successivo.
+- `mostra_report_finale()` riceve un dizionario con il riepilogo partita;
+    il refactor verso una struttura tipizzata resta futuro.
+- `mostra_messaggio_sistema()` presenta testi gia' risolti dal catalogo o dal controller.
+
+**Vincoli di implementazione documentati**:
+- nessuna logica di gioco nel renderer;
+- nessuna stringa hardcoded fuori dai cataloghi locali;
+- sincronizzazione tra output visivo e vocalizzazione.
+
+#### `WxRenderer`
+
+**Modulo**: `bingo_game/ui/renderers/renderer_wx.py`
+
+**Scopo**: prima implementazione concreta del contratto renderer per una UI
+accessibile basata su wxPython.
+
+```python
+class WxRenderer(BaseRenderer):
+        def __init__(self, finestra_principale: wx.Frame, vocalizzatore: Vocalizzatore) -> None: ...
+```
+
+**Dipendenze esplicite**:
+- `wx.Frame` fornito tramite dependency injection;
+- `my_lib.vocalizzatore.Vocalizzatore` fornito tramite dependency injection.
+
+**Responsabilita' pubbliche**:
+- smistare gli eventi strutturati prodotti dal controller;
+- aggiornare i widget della finestra wx;
+- vocalizzare lo stesso testo mostrato a video;
+- mantenere separati i canali `_wx_*` e `_ao2_*` per evitare accoppiamenti impliciti.
 
 ### Entry Point Applicazione (`main.py`)
 
 `main.py` e' attualmente un placeholder temporaneo dell'avvio applicativo.
-Non importa moduli UI e non avvia alcuna interfaccia definitiva.
+Non istanzia ancora `WxRenderer` e non avvia la UI definitiva.
 
 Comportamento corrente:
 
 - supporta il flag `--debug` tramite `argparse`;
 - inizializza `GameLogger.initialize(debug_mode=args.debug)` all'avvio;
-- stampa un messaggio informativo sullo stato di transizione della UI;
+- stampa un messaggio informativo sullo stato di transizione dell'integrazione wx;
 - chiude correttamente il logging con `GameLogger.shutdown()` nel blocco `finally`.
 
-Questa sezione dovra' essere aggiornata quando la nuova interfaccia utente sara'
-disponibile e reintegrata nell'entry point.
+Questa sezione dovra' essere aggiornata quando l'entry point reintegrera'
+esplicitamente `WxRenderer` e la finestra applicativa.
 
 Nel perimetro di presentazione rimangono componenti di supporto riutilizzabili:
 
 - `bingo_game/ui/locales/it.py` per testi localizzati e codici messaggio
-- `bingo_game/ui/renderers/renderer_terminal.py` per rendering testuale degli eventi
-- i wrapper di `game_controller.py` per esporre uno strato sicuro verso una futura UI accessibile
+- `bingo_game/ui/renderers/base_renderer.py` per il contratto astratto renderer
+- `bingo_game/ui/renderers/renderer_wx.py` per la prima implementazione concreta wx
+- `my_lib/vocalizzatore.py` per l'adattatore verso `accessible_output2`
+- i wrapper di `game_controller.py` per esporre uno strato sicuro verso il renderer accessibile
 
 ## 🔄 Note di Versione
 
+- **Unreleased** — Introdotto il layer renderer corrente: `BaseRenderer`, `StatoConfigurazione` e `WxRenderer`. Rimosso `renderer_terminal.py` dal perimetro architetturale attivo; `main.py` resta ancora un placeholder finche' l'integrazione wx non viene agganciata all'avvio.
 - **v0.11.0** — Wrapper controller per il layer di presentazione: `imposta_focus_cartella`, `imposta_focus_cartella_fallback`, `esegui_azione_giocatore`, `esegui_azione_giocatore_con_numero`, `stato_focus_corrente`, `riepilogo_cartella_corrente`.
 - **v0.8.0** — Silent Controller: rimozione ~22 `print()` da `game_controller.py`, sostituzione con `_log_safe()` sui sub-logger con prefissi `[GAME]`/`[ERR]`/`[SYS]`. Aggiunta `codici_controller.py` (4 costanti `CTRL_*`) e messaggi localizzati lato presentazione. I 15 test di non-regressione su `tests/test_silent_controller.py` sono ora mantenuti in `unittest` con cattura stdout non basata su pytest.
 - **v0.7.0-v0.10.0** — Il progetto ha incluso una UI terminale e un game loop interattivo oggi rimossi dal repository; i relativi moduli non fanno piu' parte dell'API pubblica corrente.
@@ -1658,4 +1743,4 @@ Nel perimetro di presentazione rimangono componenti di supporto riutilizzabili:
 
 ---
 
-*Ultimo aggiornamento: 2026-02-21 (v0.9.0)*
+*Ultimo aggiornamento: 2026-03-30 (v0.9.3)*

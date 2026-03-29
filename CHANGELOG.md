@@ -9,8 +9,17 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Added
+- `bingo_game/ui/renderers/base_renderer.py`: introduce il contratto astratto del layer di presentazione con `BaseRenderer` e lo stato immutabile `StatoConfigurazione` per il flusso di configurazione.
+- `bingo_game/ui/renderers/renderer_wx.py`: aggiunge `WxRenderer`, prima implementazione concreta del renderer accessibile con dependency injection di `wx.Frame` e `Vocalizzatore`.
+
 ### Changed
 - `requirements.txt`: aggiorna versioni dipendenze per Python 3.11 e aggiunge `accessible-output2`.
+- `bingo_game/ui/renderers/__init__.py`: esporta il nuovo perimetro pubblico del package renderer (`BaseRenderer`, `StatoConfigurazione`, `WxRenderer`).
+- `docs/API.md` e `docs/ARCHITECTURE.md`: sincronizzano la documentazione con il nuovo layer di presentazione wx e con il contratto renderer effettivamente implementato.
+
+### Removed
+- `bingo_game/ui/renderers/renderer_terminal.py`: rimuove il renderer terminale legacy dal perimetro architetturale corrente.
 
 ---
 

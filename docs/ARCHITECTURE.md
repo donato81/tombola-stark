@@ -1,7 +1,7 @@
 # 🏛️ ARCHITECTURE.md - Tombola Stark
 
 > **Documentazione architetturale di tombola-stark**  
-> Ultimo aggiornamento: 2026-03-29 (v0.9.3)
+> Ultimo aggiornamento: 2026-03-30 (v0.9.3)
 
 ---
 
@@ -69,8 +69,8 @@ Il sistema adotta una separazione a tre livelli principali con regole di dipende
 
 ```
 ┌───────────────────────────────────────────────┐
-│          LIVELLO INTERFACCIA (futuro)          │
-│  (UI terminale, screen reader, TTS, pannelli) │
+│          LIVELLO INTERFACCIA                   │
+│  (BaseRenderer, WxRenderer, vocalizzazione)   │
 │  Dipende da: Controller + Sistema Eventi       │
 └───────────────────────────────────────────────┘
                       ↓ dipende da
@@ -78,7 +78,7 @@ Il sistema adotta una separazione a tre livelli principali con regole di dipende
 │          LIVELLO CONTROLLER                    │
 │  (game_controller.py, comandi_partita.py)      │
 │  Orchestrazione sicura, gestione eccezioni     │
-│  → (bool/dict/None) → layer di presentazione   │
+│  → (EsitoAzione/bool/dict/None) → presentazione│
 │  → (log) → tombola_stark.log                  │
 └───────────────────────────────────────────────┘
                       ↓ dipende da
@@ -174,39 +174,45 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 
 #### Livello Interfaccia
 
-**Scopo**: Presentazione degli stati di gioco tramite un layer UI esterno al core del progetto. La UI completa non e' attualmente definita nella documentazione pubblica; restano disponibili componenti di supporto per localizzazione, rendering testuale ed eventi.
+**Scopo**: Presentazione degli stati di gioco tramite un layer renderer esterno al core del progetto. Il contratto del renderer e' ora implementato e documentato; l'entry point applicativo definitivo resta invece ancora separato dal repository operativo.
 
 **Dipende da**:
 - Controller (per ottenere risultati sicuri tramite `crea_partita_standard` + `avvia_partita_sicura`)
 - Sistema `bingo_game/events/` (per messaggi strutturati pronti per vocalizzazione o rendering)
 - `bingo_game/ui/locales/it.py` (testi localizzati in italiano)
+- `my_lib/vocalizzatore.py` (adattatore verso `accessible_output2`)
 
 **Componenti documentabili nello stato attuale**:
 
 | File | Ruolo |
 |---|---|
 | `bingo_game/ui/locales/it.py` | Testi localizzati e codici messaggio riusabili dal layer di presentazione |
-| `bingo_game/ui/renderers/renderer_terminal.py` | Rendering testuale degli eventi di gioco |
+| `bingo_game/ui/renderers/base_renderer.py` | Contratto astratto del layer renderer e stato configurazione |
+| `bingo_game/ui/renderers/renderer_wx.py` | Prima implementazione concreta wx del renderer accessibile |
+| `my_lib/vocalizzatore.py` | Bridge verso il backend di vocalizzazione accessibile |
 | `bingo_game/events/codici_controller.py` | Costanti chiave (`CTRL_*`) per gli esiti controller |
 | `bingo_game/events/codici_loop.py` | Costanti evento residue legate al precedente ciclo interattivo |
 
 **Flusso corrente documentabile**:
 
 ```
-main.py placeholder o altro chiamante → GameController → (bool/dict/None) → layer di presentazione
-                                                → (log) → tombola_stark.log
+main.py placeholder o altro chiamante → GameController → (EsitoAzione/bool/dict/None) → BaseRenderer/WxRenderer
+                                                        → (log) → tombola_stark.log
 ```
 
 1. Il chiamante crea o recupera una `Partita` tramite il controller
-2. Il controller orchestra il dominio e ritorna esiti sicuri (`bool`, `dict`, `None`)
-3. Il layer di presentazione interpreta gli esiti e li rende disponibili in forma accessibile
-4. Logging ed eventi strutturati restano indipendenti dal dominio
+2. Il controller orchestra il dominio e ritorna esiti sicuri (`EsitoAzione`, `bool`, `dict`, `None`)
+3. `BaseRenderer` definisce il contratto comune tra configurazione, messaggi di sistema, report finale ed esiti evento-driven
+4. `WxRenderer` aggiorna widget wx e vocalizzazione AO2 mantenendo allineati testo mostrato e testo vocalizzato
+5. Logging ed eventi strutturati restano indipendenti dal dominio
 
 > **Vincolo architetturale corrente**: ogni accesso al dominio da parte del layer di presentazione passa tramite `game_controller` e i suoi wrapper pubblici.
 
 > **Nota refactor confini 2026-03-24**: il riepilogo sintetico della partita nasce ora esplicitamente in `Partita.get_stato_sintetico()`. `GameController.ottieni_stato_sintetico()` resta un bordo applicativo: verifica il parametro, valida il contratto minimo del dizionario e inoltra il risultato al layer di presentazione senza reinterpretare lo stato di dominio.
 
 > **Nota v0.11.0**: `imposta_focus_cartella_fallback(partita)` media tramite controller un fallback prima documentato nel vecchio layer terminale. Il vincolo architetturale resta: nessun accesso diretto del layer di presentazione ai domain object.
+
+> **Nota renderer 2026-03-30**: `renderer_terminal.py` e' stato rimosso dal perimetro corrente. Il nuovo confine di presentazione e' il package `bingo_game.ui.renderers`, che esporta `BaseRenderer`, `StatoConfigurazione` e `WxRenderer`.
 
 ---
 
@@ -423,7 +429,7 @@ def esegui_turno_sicuro(partita) -> Optional[dict]:
 
 **File**:
 - `eventi_partita.py` – `ReclamoVittoria`, `EventoFineTurno`
-- `eventi_output_ui_umani.py` – Messaggi strutturati per output terminale/TTS
+- `eventi_output_ui_umani.py` – Messaggi strutturati per output renderer/TTS/wx
 - `codici_errori.py`, `codici_eventi.py`, `codici_messaggi_sistema.py`, `codici_output_ui_umani.py` – Costanti di categorizzazione
 - `codici_controller.py` – Costanti `CTRL_*` per i codici di risposta del controller (v0.8.0)
 
@@ -475,8 +481,11 @@ tombola-stark/
 │       │   ├── __init__.py
 │       │   └── it.py                # Testi IT e codici messaggio
 │       └── renderers/
-│           └── renderer_terminal.py # Rendering testuale degli eventi
+│           ├── __init__.py          # Export pubblici del package renderer
+│           ├── base_renderer.py     # Contratto BaseRenderer + StatoConfigurazione
+│           └── renderer_wx.py       # Implementazione wx accessibile
 ├── my_lib/                      # Libreria di supporto
+│   └── vocalizzatore.py         # Adattatore Accessible Output 2
 ├── tests/                       # Suite di test
 │   └── test_silent_controller.py    # 15 test di non-regressione stdout e contratti
 ├── docs/
@@ -516,8 +525,10 @@ tombola-stark/
 
 #### `bingo_game/ui/`
 - `locales/it.py`: testi italiani e codici messaggio riusabili dal layer di presentazione
-- `renderers/`: `TerminalRenderer` per il rendering testuale degli eventi
-- La UI completa del progetto e' in ridefinizione: il repository non espone una interfaccia utente pubblica completa documentabile in questa sezione
+- `renderers/`: package del layer renderer con contratto astratto e implementazione wx accessibile
+- `BaseRenderer` separa il protocollo di presentazione dalla tecnologia concreta
+- `WxRenderer` riceve `wx.Frame` e `Vocalizzatore` via dependency injection e separa canale widget da canale vocale
+- L'entry point UI completo resta in ridefinizione: il repository documenta oggi il confine renderer, non ancora l'avvio definitivo della finestra applicativa
 
 #### `tests/`
 - Test unitari per dominio (isolati)
@@ -727,6 +738,7 @@ class TestControllerSilenzioso(unittest.TestCase):
 
 ### Storia delle Versioni
 
+- **Unreleased** (2026-03-30): introdotto il nuovo layer renderer con `BaseRenderer`, `StatoConfigurazione` e `WxRenderer`; rimosso `renderer_terminal.py` dal perimetro attivo e consolidata la dipendenza esplicita da `Vocalizzatore` per l'output accessibile.
 - **v0.11.0** (2026-03-27): consolidata l'interfaccia controller per il layer di presentazione con 6 wrapper pubblici (`imposta_focus_cartella`, `imposta_focus_cartella_fallback`, `esegui_azione_giocatore`, `esegui_azione_giocatore_con_numero`, `stato_focus_corrente`, `riepilogo_cartella_corrente`) e 2 frozenset di supporto. La separazione tra dominio e presentazione e' completa.
 - **v0.8.0** (2026-02-20): Silent Controller. Rimozione ~22 `print()` da `game_controller.py`, aggiunta `codici_controller.py` (4 costanti `CTRL_*`) e controller rigorosamente silenzioso verso stdout. La non-regressione e' coperta da 15 test `unittest` su `test_silent_controller.py`.
 - **v0.7.0-v0.10.0** (2026-02-20 → 2026-03-27): il progetto ha attraversato una fase con UI terminale e game loop interattivo poi rimossi dal repository. Questi moduli non fanno piu' parte dell'architettura corrente documentata.
