@@ -22,6 +22,7 @@ stato: attivo
 - [DESIGN_fix_test_colonna_sinistra_eventi.md](2%20-%20projects/DESIGN_fix_test_colonna_sinistra_eventi.md)
 - [DESIGN_fix_test_colonna_destra_eventi.md](2%20-%20projects/DESIGN_fix_test_colonna_destra_eventi.md)
 - [DESIGN_fix_test_destra_avanzata_rifinitura.md](2%20-%20projects/DESIGN_fix_test_destra_avanzata_rifinitura.md)
+- [DESIGN_base_renderer_wx_v1.0.0.md](2%20-%20projects/DESIGN_base_renderer_wx_v1.0.0.md)
 
 ### Piani
 
@@ -37,6 +38,7 @@ stato: attivo
 - [PLAN_fix_test_colonna_sinistra_eventi_v1.md](3%20-%20coding%20plans/PLAN_fix_test_colonna_sinistra_eventi_v1.md)
 - [PLAN_fix_test_colonna_destra_eventi_v1.md](3%20-%20coding%20plans/PLAN_fix_test_colonna_destra_eventi_v1.md)
 - [PLAN_fix_test_destra_avanzata_rifinitura_v1.md](3%20-%20coding%20plans/PLAN_fix_test_destra_avanzata_rifinitura_v1.md)
+- [PLAN_base_renderer_wx_v1.0.0.md](3%20-%20coding%20plans/PLAN_base_renderer_wx_v1.0.0.md)
 
 ### Reports
 
@@ -51,6 +53,7 @@ stato: attivo
 - [REPORT_FIX_TEST_COLONNA_DESTRA_EVENTI_2026-03-29.md](4%20-%20reports/REPORT_FIX_TEST_COLONNA_DESTRA_EVENTI_2026-03-29.md)
 - [REPORT_FIX_TEST_DESTRA_AVANZATA_RIFINITURA_2026-03-29.md](4%20-%20reports/REPORT_FIX_TEST_DESTRA_AVANZATA_RIFINITURA_2026-03-29.md)
 - [REPORT_COPERTURA_TEST.md](4%20-%20reports/report_copertura_test.md)
+- [REPORT_ANALISI_BASE_RENDERER_WX_2026-03-30.md](4%20-%20reports/REPORT_ANALISI_BASE_RENDERER_WX_2026-03-30.md)
 
 ### Tasks
 
@@ -66,6 +69,7 @@ stato: attivo
 - [TODO_fix_test_colonna_sinistra_eventi_v1.md](5%20-%20todolist/TODO_fix_test_colonna_sinistra_eventi_v1.md) — COMPLETED
 - [TODO_fix_test_colonna_destra_eventi_v1.md](5%20-%20todolist/TODO_fix_test_colonna_destra_eventi_v1.md) — COMPLETED
 - [TODO_fix_test_destra_avanzata_rifinitura_v1.md](5%20-%20todolist/TODO_fix_test_destra_avanzata_rifinitura_v1.md) — COMPLETED
+- [TODO_base_renderer_wx_v1.0.0.md](5%20-%20todolist/TODO_base_renderer_wx_v1.0.0.md)
 
 ### Task completati
 
