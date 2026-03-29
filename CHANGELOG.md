@@ -9,6 +9,13 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Changed
+- `requirements.txt`: aggiorna versioni dipendenze per Python 3.11 e aggiunge `accessible-output2`.
+
+---
+
+## [0.9.3] — 2026-03-29
+
 ### Fixed
 - `main.py`: sostituisce l'import rotto di `TerminalUI` con un placeholder
   temporaneo; il programma torna avviabile con messaggio informativo sullo
