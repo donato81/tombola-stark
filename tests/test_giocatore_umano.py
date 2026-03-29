@@ -1342,30 +1342,29 @@ class TestGiocatoreUmano(unittest.TestCase):
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
-        self.giocatore._indice_colonna_focus = 4
 
-        # Prepara colonna 3: segna un numero se presente
-        numeri_colonna3 = self.cartella1.get_numeri_colonna(3)
-        if numeri_colonna3:
-            numero_da_segnare = numeri_colonna3[0]
-            self.cartella1.segna_numero(numero_da_segnare)
-        else:
-            numero_da_segnare = None
+        target_colonna = next(
+            indice for indice in range(0, 8)
+            if self.cartella1.get_numeri_colonna(indice)
+        )
+        self.giocatore._indice_colonna_focus = target_colonna + 1
+
+        numero_da_segnare = self.cartella1.get_numeri_colonna(target_colonna)[0]
+        self.cartella1.segna_numero(numero_da_segnare)
 
         risultato = self.giocatore.sposta_focus_colonna_sinistra_avanzata()
-        dati_attesi = self.cartella1.get_dati_visualizzazione_colonna_avanzata(3)
+        dati_attesi = self.cartella1.get_dati_visualizzazione_colonna_avanzata(target_colonna)
 
         self.assertTrue(risultato.ok)
         self.assertIsNone(risultato.errore)
         self.assertIsInstance(risultato.evento, EventoNavigazioneColonnaAvanzata)
         self.assertEqual(risultato.evento.esito, "mostra")
-        self.assertEqual(risultato.evento.numero_colonna_corrente, 4)
+        self.assertEqual(risultato.evento.numero_colonna_corrente, target_colonna + 1)
         self.assertEqual(risultato.evento.colonna_semplice, dati_attesi[0])
         self.assertEqual(risultato.evento.stato_colonna, dati_attesi[1])
         self.assertEqual(risultato.evento.numeri_segnati_colonna_ordinati, dati_attesi[2])
-
-        if numero_da_segnare is not None:
-            self.assertIn(numero_da_segnare, risultato.evento.numeri_segnati_colonna_ordinati)
+        self.assertIsNone(risultato.evento.limite)
+        self.assertIn(numero_da_segnare, risultato.evento.numeri_segnati_colonna_ordinati)
 
 
     # ---------------------------------------------------------------------
@@ -1441,6 +1440,7 @@ class TestGiocatoreUmano(unittest.TestCase):
         self.assertEqual(risultato.evento.colonna_semplice, dati_attesi[0])
         self.assertEqual(risultato.evento.stato_colonna, dati_attesi[1])
         self.assertEqual(risultato.evento.numeri_segnati_colonna_ordinati, dati_attesi[2])
+        self.assertIsNone(risultato.evento.limite)
         self.assertEqual(self.giocatore._indice_colonna_focus, 4)
 
     def test_sposta_focus_colonna_destra_avanzata_auto_inizializzazione(self):
@@ -1482,30 +1482,29 @@ class TestGiocatoreUmano(unittest.TestCase):
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
-        self.giocatore._indice_colonna_focus = 3
 
-        # Prepara colonna 4: segna un numero se presente
-        numeri_colonna4 = self.cartella1.get_numeri_colonna(4)
-        if numeri_colonna4:
-            numero_da_segnare = numeri_colonna4[0]
-            self.cartella1.segna_numero(numero_da_segnare)
-        else:
-            numero_da_segnare = None
+        target_colonna = next(
+            indice for indice in range(1, 9)
+            if self.cartella1.get_numeri_colonna(indice)
+        )
+        self.giocatore._indice_colonna_focus = target_colonna - 1
+
+        numero_da_segnare = self.cartella1.get_numeri_colonna(target_colonna)[0]
+        self.cartella1.segna_numero(numero_da_segnare)
 
         risultato = self.giocatore.sposta_focus_colonna_destra_avanzata()
-        dati_attesi = self.cartella1.get_dati_visualizzazione_colonna_avanzata(4)
+        dati_attesi = self.cartella1.get_dati_visualizzazione_colonna_avanzata(target_colonna)
 
         self.assertTrue(risultato.ok)
         self.assertIsNone(risultato.errore)
         self.assertIsInstance(risultato.evento, EventoNavigazioneColonnaAvanzata)
         self.assertEqual(risultato.evento.esito, "mostra")
-        self.assertEqual(risultato.evento.numero_colonna_corrente, 5)  # indice 4 → 1-based
+        self.assertEqual(risultato.evento.numero_colonna_corrente, target_colonna + 1)
         self.assertEqual(risultato.evento.colonna_semplice, dati_attesi[0])
         self.assertEqual(risultato.evento.stato_colonna, dati_attesi[1])
         self.assertEqual(risultato.evento.numeri_segnati_colonna_ordinati, dati_attesi[2])
-
-        if numero_da_segnare is not None:
-            self.assertIn(numero_da_segnare, risultato.evento.numeri_segnati_colonna_ordinati)
+        self.assertIsNone(risultato.evento.limite)
+        self.assertIn(numero_da_segnare, risultato.evento.numeri_segnati_colonna_ordinati)
 
 
     # ---------------------------------------------------------------------

@@ -32,6 +32,15 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
    `docs/3 - coding plans/PLAN_fix_test_colonna_destra_eventi_v1.md`,
    `docs/2 - projects/DESIGN_fix_test_colonna_destra_eventi.md`.
 
+- `tests/test_giocatore_umano.py`: rifinitura finale — completa la correzione di
+  tre test avanzati di navigazione colonna (2 destra, 1 sinistra), consolidando
+  le asserzioni su `EsitoAzione` e rendendo deterministico il setup dei casi con
+  numeri segnati; verifica finale: 67/67 OK sul file target, 366/366 OK sulla
+  suite completa. Artefatti associati:
+  `docs/4 - reports/REPORT_FIX_TEST_DESTRA_AVANZATA_RIFINITURA_2026-03-29.md`,
+  `docs/3 - coding plans/PLAN_fix_test_destra_avanzata_rifinitura_v1.md`,
+  `docs/2 - projects/DESIGN_fix_test_destra_avanzata_rifinitura.md`.
+
 ---
 
 ## [0.9.2] — 2026-03-28

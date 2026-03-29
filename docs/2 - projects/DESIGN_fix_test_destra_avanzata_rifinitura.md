@@ -2,7 +2,7 @@
 type: design
 feature: fix_test_destra_avanzata_rifinitura
 agent: Agent-Design
-status: DRAFT
+status: REVIEWED
 version: v1.0
 date: 2026-03-29
 report_ref: docs/4 - reports/REPORT_FIX_TEST_DESTRA_AVANZATA_RIFINITURA_2026-03-29.md
@@ -13,7 +13,7 @@ report_ref: docs/4 - reports/REPORT_FIX_TEST_DESTRA_AVANZATA_RIFINITURA_2026-03-
 - type: design
 - feature: fix_test_destra_avanzata_rifinitura
 - agent: Agent-Design
-- status: DRAFT
+- status: REVIEWED
 - version: v1.0
 - date: 2026-03-29
 - report_ref: docs/4 - reports/REPORT_FIX_TEST_DESTRA_AVANZATA_RIFINITURA_2026-03-29.md

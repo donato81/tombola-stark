@@ -2,7 +2,7 @@
 type: plan
 feature: fix_test_destra_avanzata_rifinitura
 agent: Agent-Plan
-status: DRAFT
+status: READY
 version: v1.0
 design_ref: docs/2 - projects/DESIGN_fix_test_destra_avanzata_rifinitura.md
 date: 2026-03-29
@@ -15,7 +15,7 @@ tipo: coding_plan
 titolo: Piano rifinitura test colonna destra avanzata
 data_creazione: 2026-03-29
 agente: Agent-Plan
-stato: DRAFT
+stato: pronto
 feature: fix_test_destra_avanzata_rifinitura
 versione_progetto: v1.0
 design: docs/2 - projects/DESIGN_fix_test_destra_avanzata_rifinitura.md
