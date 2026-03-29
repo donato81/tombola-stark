@@ -18,6 +18,7 @@ stato: attivo
 - [DESIGN_aggiornamento_documentazione_post_TUI_2026-03-28.md](2%20-%20projects/DESIGN_aggiornamento_documentazione_post_TUI_2026-03-28.md)
 - [DESIGN_main_placeholder.md](2%20-%20projects/DESIGN_main_placeholder.md)
 - [DESIGN_FIX_FAIL1_COLONNA_AVANZATA.md](2%20-%20projects/DESIGN_FIX_FAIL1_COLONNA_AVANZATA.md)
+- [DESIGN_fix_test_riga_eventi.md](2%20-%20projects/DESIGN_fix_test_riga_eventi.md)
 
 ### Piani
 
@@ -29,6 +30,7 @@ stato: attivo
 - [PLAN_aggiornamento_documentazione_post_TUI_2026-03-28.md](3%20-%20coding%20plans/PLAN_aggiornamento_documentazione_post_TUI_2026-03-28.md)
 - [PLAN_main_placeholder.md](3%20-%20coding%20plans/PLAN_main_placeholder.md)
 - [PLAN_FIX_FAIL1_COLONNA_AVANZATA.md](3%20-%20coding%20plans/PLAN_FIX_FAIL1_COLONNA_AVANZATA.md)
+- [PLAN_fix_test_riga_eventi_v1.md](3%20-%20coding%20plans/PLAN_fix_test_riga_eventi_v1.md)
 
 ### Reports
 
@@ -38,6 +40,7 @@ stato: attivo
 - [ANALISI_aggiornamento_documentazione_post_TUI_2026-03-28.md](4%20-%20reports/ANALISI_aggiornamento_documentazione_post_TUI_2026-03-28.md)
 - [REPORT_ANALISI_main_placeholder_2026-03-28.md](4%20-%20reports/REPORT_ANALISI_main_placeholder_2026-03-28.md)
 - [REPORT_FIX_FAIL1_COLONNA_AVANZATA_2026-03-29.md](4%20-%20reports/REPORT_FIX_FAIL1_COLONNA_AVANZATA_2026-03-29.md)
+- [REPORT_FIX_TEST_RIGA_EVENTI_2026-03-29.md](4%20-%20reports/REPORT_FIX_TEST_RIGA_EVENTI_2026-03-29.md)
 
 ### Tasks
 
@@ -49,6 +52,7 @@ stato: attivo
 - [TODO_aggiornamento_documentazione_post_TUI_2026-03-28.md](5%20-%20todolist/TODO_aggiornamento_documentazione_post_TUI_2026-03-28.md) — COMPLETED
 - [TODO_main_placeholder_v0.9.2.md](5%20-%20todolist/TODO_main_placeholder_v0.9.2.md) — COMPLETED
 - [TODO_FIX_FAIL1_COLONNA_AVANZATA.md](5%20-%20todolist/TODO_FIX_FAIL1_COLONNA_AVANZATA.md) — COMPLETED
+- [TODO_fix_test_riga_eventi_v1.md](5%20-%20todolist/TODO_fix_test_riga_eventi_v1.md)
 
 ### Task completati
 
