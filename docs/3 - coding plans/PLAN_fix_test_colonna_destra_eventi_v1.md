@@ -2,7 +2,7 @@
 type: plan
 feature: fix_test_colonna_destra_eventi
 agent: Agent-Plan
-status: DRAFT
+status: READY
 version: v1.0
 design_ref: docs/2 - projects/DESIGN_fix_test_colonna_destra_eventi.md
 date: 2026-03-29
@@ -15,7 +15,7 @@ tipo: coding_plan
 titolo: Piano tranche 3 modernizzazione test colonna destra
 data_creazione: 2026-03-29
 agente: Agent-Plan
-stato: bozza
+stato: pronto
 feature: fix_test_colonna_destra_eventi
 versione_progetto: v1.0
 design: docs/2 - projects/DESIGN_fix_test_colonna_destra_eventi.md
@@ -164,6 +164,6 @@ Verifica finale:
 ## Stato Avanzamento
 
 - [x] Definito
-- [ ] In implementazione
-- [ ] Test superati
-- [ ] Chiuso
+- [x] In implementazione
+- [x] Test superati
+- [x] Chiuso

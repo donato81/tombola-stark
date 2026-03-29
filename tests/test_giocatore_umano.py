@@ -1080,76 +1080,122 @@ class TestGiocatoreUmano(unittest.TestCase):
 
     def test_sposta_focus_colonna_destra_semplice_cartella_mancante(self):
         """
-        Verifica gestione assenza cartella per versione DESTRA semplice.
+        Verifica che sposta_focus_colonna_destra() gestisca correttamente l'assenza di cartella focus.
+
+        Scenario 1: Giocatore senza cartelle → ok=False, errore CARTELLE_NESSUNA_ASSEGNATA.
+        Scenario 2: Cartelle presenti ma focus_cartella=None → ok=False, errore FOCUS_CARTELLA_NON_IMPOSTATO.
         """
+        # Scenario 1: nessuna cartella assegnata
         risultato1 = self.giocatore.sposta_focus_colonna_destra()
-        self.assertEqual(risultato1, "Non hai selezionato nessuna cartella")
-        
+        self.assertFalse(risultato1.ok)
+        self.assertEqual(risultato1.errore, "CARTELLE_NESSUNA_ASSEGNATA")
+        self.assertIsNone(risultato1.evento)
+
+        # Scenario 2: focus cartella rimosso manualmente
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore._indice_cartella_focus = None
         risultato2 = self.giocatore.sposta_focus_colonna_destra()
-        self.assertEqual(risultato2, "Non hai selezionato nessuna cartella")
+        self.assertFalse(risultato2.ok)
+        self.assertEqual(risultato2.errore, "FOCUS_CARTELLA_NON_IMPOSTATO")
+        self.assertIsNone(risultato2.evento)
 
     def test_sposta_focus_colonna_destra_semplice_ultima_colonna(self):
         """
-        Verifica blocco dall'ultima colonna (indice 8) per versione DESTRA semplice.
+        Verifica che il metodo emetta un evento limite massimo quando il focus è già
+        sull'ultima colonna (indice 8) e si chiede di andare a destra.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneColonna con esito='limite'
+        e limite='massimo'. Indice colonna invariato.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_colonna_focus = 8
 
         risultato = self.giocatore.sposta_focus_colonna_destra()
-        
-        self.assertEqual(risultato, "Sei all'ultima colonna (9), non puoi andare oltre")
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonna)
+        self.assertEqual(risultato.evento.esito, "limite")
+        self.assertEqual(risultato.evento.limite, "massimo")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 9)
         self.assertEqual(self.giocatore._indice_colonna_focus, 8)
 
     def test_sposta_focus_colonna_destra_semplice_movimento_normale(self):
         """
-        Verifica spostamento normale da colonna 3→4 con stampa semplice.
+        Verifica spostamento normale da colonna 4→5 (indice 3→4) con versione semplice.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneColonna con esito='mostra',
+        numero_colonna_corrente=5 (indice 4, 1-based), colonna_semplice coerente.
+        Indice interno aggiornato a 4.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_colonna_focus = 3
 
         risultato = self.giocatore.sposta_focus_colonna_destra()
-        
-        self.assertIn("Colonna 4:", risultato)
-        numeri_colonna4 = self.cartella1.get_numeri_colonna(4)
-        for numero in numeri_colonna4[:3]:
-            self.assertIn(str(numero), risultato)
-        self.assertNotIn("*", risultato)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonna)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 5)  # indice 4 → 1-based
+        self.assertEqual(risultato.evento.colonna_semplice, self.cartella1.get_colonna_semplice(4))
+        self.assertIsNone(risultato.evento.limite)
         self.assertEqual(self.giocatore._indice_colonna_focus, 4)
 
     def test_sposta_focus_colonna_destra_semplice_auto_inizializzazione(self):
         """
-        Verifica auto-inizializzazione da None → colonna 4→5.
+        Verifica auto-inizializzazione da _indice_colonna_focus=None → indice 5.
+
+        Logica: da None si imposta al centro (indice 4) e si incrementa a indice 5.
+        Risultato atteso: ok=True, evento EventoNavigazioneColonna, esito='mostra',
+        numero_colonna_corrente=6 (indice 5, 1-based), indice interno = 5.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_colonna_focus = None
 
         risultato = self.giocatore.sposta_focus_colonna_destra()
-        
-        self.assertIn("Colonna 5:", risultato)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonna)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 6)  # indice 5 → 1-based
+        self.assertEqual(risultato.evento.colonna_semplice, self.cartella1.get_colonna_semplice(5))
         self.assertEqual(self.giocatore._indice_colonna_focus, 5)
-        self.assertNotIn("*", risultato)
 
     def test_sposta_focus_colonna_destra_semplice_colonna_vuota(self):
         """
-        Verifica gestione colonna vuota nella navigazione destra.
+        Verifica spostamento normale da indice 4 a indice 5 (colonna potenzialmente vuota).
+
+        'Vuota' è un caso normale di esito='mostra': la colonna semplice può contenere
+        solo trattini. Non si cerca la parola 'vuota' nel risultato.
+        Risultato atteso: ok=True, esito='mostra', numero_colonna_corrente=6, indice=5.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_colonna_focus = 4
 
         risultato = self.giocatore.sposta_focus_colonna_destra()
-        
-        self.assertIn("Colonna 5:", risultato)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonna)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 6)  # indice 5 → 1-based
+        self.assertEqual(risultato.evento.colonna_semplice, self.cartella1.get_colonna_semplice(5))
         self.assertEqual(self.giocatore._indice_colonna_focus, 5)
 
     def test_sposta_focus_colonna_destra_semplice_stato_interno(self):
         """
-        Verifica aggiornamento stato interno con cartella segnata.
+        Verifica che la versione semplice esponga solo colonna_semplice,
+        anche con cartella che contiene numeri segnati.
+
+        Risultato atteso: ok=True, esito='mostra', numero_colonna_corrente=5,
+        colonna_semplice coerente. L'evento EventoNavigazioneColonna (versione semplice)
+        non include stato_colonna né numeri_segnati_colonna_ordinati.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
@@ -1158,10 +1204,14 @@ class TestGiocatoreUmano(unittest.TestCase):
         self.cartella1.segna_numero(50)  # Numero segnato
 
         risultato = self.giocatore.sposta_focus_colonna_destra()
-        
-        self.assertIn("Colonna 4:", risultato)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonna)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 5)  # indice 4 → 1-based
+        self.assertEqual(risultato.evento.colonna_semplice, self.cartella1.get_colonna_semplice(4))
         self.assertEqual(self.giocatore._indice_colonna_focus, 4)
-        self.assertNotIn("*", risultato)  # Versione semplice NO asterischi
 
 
     # ---------------------------------------------------------------------
@@ -1324,113 +1374,138 @@ class TestGiocatoreUmano(unittest.TestCase):
 
     def test_sposta_focus_colonna_destra_avanzata_cartella_mancante(self):
         """
-        Verifica gestione cartella mancante per DESTRA avanzata.
+        Verifica che sposta_focus_colonna_destra_avanzata() gestisca l'assenza di cartella focus.
+
+        Scenario 1: Giocatore senza cartelle → ok=False, errore CARTELLE_NESSUNA_ASSEGNATA.
+        Scenario 2: Cartelle presenti ma focus_cartella=None → ok=False, errore FOCUS_CARTELLA_NON_IMPOSTATO.
         """
+        # Scenario 1: nessuna cartella assegnata
         risultato1 = self.giocatore.sposta_focus_colonna_destra_avanzata()
-        self.assertEqual(risultato1, "Non hai selezionato nessuna cartella")
-        
+        self.assertFalse(risultato1.ok)
+        self.assertEqual(risultato1.errore, "CARTELLE_NESSUNA_ASSEGNATA")
+        self.assertIsNone(risultato1.evento)
+
+        # Scenario 2: focus cartella rimosso manualmente
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore._indice_cartella_focus = None
         risultato2 = self.giocatore.sposta_focus_colonna_destra_avanzata()
-        self.assertEqual(risultato2, "Non hai selezionato nessuna cartella")
+        self.assertFalse(risultato2.ok)
+        self.assertEqual(risultato2.errore, "FOCUS_CARTELLA_NON_IMPOSTATO")
+        self.assertIsNone(risultato2.evento)
 
     def test_sposta_focus_colonna_destra_avanzata_ultima_colonna(self):
         """
-        Verifica blocco ultima colonna (indice 8) per DESTRA avanzata.
-        
-        Scenario:
-        - Focus su colonna 8, tentativo di spostamento a destra.
-        
-        Risultato atteso:
-        - Messaggio "Sei all'ultima colonna (9), non puoi andare oltre".
-        - Indice rimane 8.
+        Verifica che il metodo emetta un evento limite massimo quando il focus è già
+        sull'ultima colonna (indice 8) e si chiede di andare a destra (avanzata).
+
+        Risultato atteso: ok=True, evento EventoNavigazioneColonnaAvanzata con esito='limite',
+        limite='massimo', campi colonna/stato/segnati a None. Indice colonna invariato.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_colonna_focus = 8
 
         risultato = self.giocatore.sposta_focus_colonna_destra_avanzata()
-        
-        self.assertEqual(
-            risultato, 
-            "Sei all'ultima colonna (9), non puoi andare oltre"
-        )
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonnaAvanzata)
+        self.assertEqual(risultato.evento.esito, "limite")
+        self.assertEqual(risultato.evento.limite, "massimo")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 9)
+        self.assertIsNone(risultato.evento.colonna_semplice)
+        self.assertIsNone(risultato.evento.stato_colonna)
+        self.assertIsNone(risultato.evento.numeri_segnati_colonna_ordinati)
         self.assertEqual(self.giocatore._indice_colonna_focus, 8)
 
     def test_sposta_focus_colonna_destra_avanzata_movimento_normale(self):
         """
-        Verifica movimento normale da 3→4 con stampa avanzata.
-        
-        Scenario:
-        - Focus colonna 3 → Freccia DESTRA → Colonna 4.
+        Verifica spostamento normale da colonna 4→5 (indice 3→4) con versione avanzata.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneColonnaAvanzata, esito='mostra',
+        dati colonna coerenti con get_dati_visualizzazione_colonna_avanzata(4).
+        Indice interno aggiornato a 4.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_colonna_focus = 3
 
         risultato = self.giocatore.sposta_focus_colonna_destra_avanzata()
-        
-        self.assertIn("Colonna 4:", risultato)
-        
-        # Verifica numeri reali
-        numeri_colonna4 = self.cartella1.get_numeri_colonna(4)
-        if numeri_colonna4:
-            for numero in numeri_colonna4:
-                self.assertIn(str(numero), risultato)
-            self.assertIn("Segnati:", risultato)
-        else:
-             self.assertIn("vuota", risultato)
-            
+        dati_attesi = self.cartella1.get_dati_visualizzazione_colonna_avanzata(4)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonnaAvanzata)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 5)  # indice 4 → 1-based
+        self.assertEqual(risultato.evento.colonna_semplice, dati_attesi[0])
+        self.assertEqual(risultato.evento.stato_colonna, dati_attesi[1])
+        self.assertEqual(risultato.evento.numeri_segnati_colonna_ordinati, dati_attesi[2])
         self.assertEqual(self.giocatore._indice_colonna_focus, 4)
 
     def test_sposta_focus_colonna_destra_avanzata_auto_inizializzazione(self):
         """
-        Verifica auto-inizializzazione da None → colonna 4→5.
-        
-        Scenario:
-        - _indice_colonna_focus=None → Freccia DESTRA → "Colonna 5:..."
+        Verifica auto-inizializzazione da _indice_colonna_focus=None → indice 5 (avanzata).
+
+        Logica: da None si imposta al centro (indice 4) e si incrementa a indice 5.
+        Risultato atteso: ok=True, evento EventoNavigazioneColonnaAvanzata, esito='mostra',
+        numero_colonna_corrente=6 (indice 5, 1-based), dati coerenti con colonna_avanzata(5).
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_colonna_focus = None
 
         risultato = self.giocatore.sposta_focus_colonna_destra_avanzata()
-        
-        self.assertIn("Colonna 5:", risultato)
+        dati_attesi = self.cartella1.get_dati_visualizzazione_colonna_avanzata(5)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonnaAvanzata)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 6)  # indice 5 → 1-based
+        self.assertEqual(risultato.evento.colonna_semplice, dati_attesi[0])
         self.assertEqual(self.giocatore._indice_colonna_focus, 5)
 
 
     def test_sposta_focus_colonna_destra_avanzata_stato_cartella_con_segni(self):
         """
-        Verifica asterischi per DESTRA avanzata su colonna segnata.
-        
+        Verifica il payload strutturato della colonna avanzata con segni.
+
         Scenario:
-        - Colonna 4 con numero segnato.
-        - Spostamento da colonna 3 a 4.
+        - Spostamento da colonna 3 a 4 (indici).
+        - Se la colonna contiene numeri, uno di essi viene marcato prima del movimento.
+
+        Risultato atteso:
+        - evento EventoNavigazioneColonnaAvanzata con esito='mostra'
+        - dati colonna coerenti con get_dati_visualizzazione_colonna_avanzata(4)
+        - se presente un numero segnato, compare in numeri_segnati_colonna_ordinati
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_colonna_focus = 3
 
-        # Segna numero su colonna 4 (se esiste)
+        # Prepara colonna 4: segna un numero se presente
         numeri_colonna4 = self.cartella1.get_numeri_colonna(4)
-        
         if numeri_colonna4:
-            # CASO A: Colonna con numeri
-            self.cartella1.segna_numero(numeri_colonna4[0])
-            
-            risultato = self.giocatore.sposta_focus_colonna_destra_avanzata()
-            
-            num_segnato_str = f"*{numeri_colonna4[0]}"
-            self.assertIn(num_segnato_str, risultato)
-            self.assertIn("Segnati:", risultato)
+            numero_da_segnare = numeri_colonna4[0]
+            self.cartella1.segna_numero(numero_da_segnare)
         else:
-            # CASO B: Colonna vuota (Fallback generato random)
-            risultato = self.giocatore.sposta_focus_colonna_destra_avanzata()
-            
-            # In modalità avanzata, Cartella stampa "Segnati: 0 su 0" invece di "vuota"
-            # Quindi verifichiamo che ci siano le statistiche vuote
-            self.assertIn("Segnati: 0 su 0", risultato)
+            numero_da_segnare = None
+
+        risultato = self.giocatore.sposta_focus_colonna_destra_avanzata()
+        dati_attesi = self.cartella1.get_dati_visualizzazione_colonna_avanzata(4)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonnaAvanzata)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 5)  # indice 4 → 1-based
+        self.assertEqual(risultato.evento.colonna_semplice, dati_attesi[0])
+        self.assertEqual(risultato.evento.stato_colonna, dati_attesi[1])
+        self.assertEqual(risultato.evento.numeri_segnati_colonna_ordinati, dati_attesi[2])
+
+        if numero_da_segnare is not None:
+            self.assertIn(numero_da_segnare, risultato.evento.numeri_segnati_colonna_ordinati)
 
 
     # ---------------------------------------------------------------------

@@ -22,6 +22,15 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
    gruppo "colonna sinistra" e stabilizza il blocco avanzato già strutturato
    (`test_sposta_focus_colonna_sinistra_avanzata_stato_cartella_con_segni`),
    validazione: 67 test OK sul file, 366 test OK sulla suite completa.
+ - `tests/test_giocatore_umano.py`: tranche 3 — modernizza i test del gruppo
+   "colonna destra" (base + avanzata, 11 test aggiornati), sostituendo assertion
+   su testo renderizzato con assertion strutturate su `EsitoAzione`,
+   `EventoNavigazioneColonna` ed `EventoNavigazioneColonnaAvanzata`. Verifica
+   finale: 67 test OK su `tests/test_giocatore_umano.py` (file target), 366 test
+   OK sulla suite completa, 1 test skipped. Report e artefatti associati:
+   `docs/4 - reports/REPORT_FIX_TEST_COLONNA_DESTRA_EVENTI_2026-03-29.md`,
+   `docs/3 - coding plans/PLAN_fix_test_colonna_destra_eventi_v1.md`,
+   `docs/2 - projects/DESIGN_fix_test_colonna_destra_eventi.md`.
 
 ---
 

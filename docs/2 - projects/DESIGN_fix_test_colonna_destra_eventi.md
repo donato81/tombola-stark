@@ -2,7 +2,7 @@
 type: design
 feature: fix_test_colonna_destra_eventi
 agent: Agent-Design
-status: DRAFT
+status: REVIEWED
 version: v1.0
 date: 2026-03-29
 report_ref: docs/4 - reports/REPORT_FIX_TEST_COLONNA_DESTRA_EVENTI_2026-03-29.md
@@ -14,7 +14,7 @@ tipo: design
 titolo: Design modernizzazione test colonna destra su eventi strutturati
 data_creazione: 2026-03-29
 agente: Agent-Design
-stato: bozza
+stato: revisionato
 feature: fix_test_colonna_destra_eventi
 versione_progetto: v1.0
 report: docs/4 - reports/REPORT_FIX_TEST_COLONNA_DESTRA_EVENTI_2026-03-29.md
@@ -288,6 +288,6 @@ self.assertEqual(self.giocatore._indice_colonna_focus, indice_atteso)
 ## Stato Avanzamento
 
 - [x] Bozza completata
-- [ ] Revisionato
-- [ ] Approvato
+- [x] Revisionato
+- [x] Approvato
 - [ ] Archiviato

@@ -60,7 +60,7 @@ stato: attivo
 - [TODO_FIX_FAIL1_COLONNA_AVANZATA.md](5%20-%20todolist/TODO_FIX_FAIL1_COLONNA_AVANZATA.md) — COMPLETED
 - [TODO_fix_test_riga_eventi_v1.md](5%20-%20todolist/TODO_fix_test_riga_eventi_v1.md) — COMPLETED
 - [TODO_fix_test_colonna_sinistra_eventi_v1.md](5%20-%20todolist/TODO_fix_test_colonna_sinistra_eventi_v1.md) — COMPLETED
-- [TODO_fix_test_colonna_destra_eventi_v1.md](5%20-%20todolist/TODO_fix_test_colonna_destra_eventi_v1.md)
+- [TODO_fix_test_colonna_destra_eventi_v1.md](5%20-%20todolist/TODO_fix_test_colonna_destra_eventi_v1.md) — COMPLETED
 
 ### Task completati
 
@@ -87,6 +87,12 @@ stato: attivo
 	- Design: [DESIGN_fix_test_colonna_sinistra_eventi.md](2%20-%20projects/DESIGN_fix_test_colonna_sinistra_eventi.md)
 	- Plan: [PLAN_fix_test_colonna_sinistra_eventi_v1.md](3%20-%20coding%20plans/PLAN_fix_test_colonna_sinistra_eventi_v1.md)
 	- TODO: [TODO_fix_test_colonna_sinistra_eventi_v1.md](5%20-%20todolist/TODO_fix_test_colonna_sinistra_eventi_v1.md)
+
+- Modernizzazione test colonna destra (tranche 3)
+	- Report: [REPORT_FIX_TEST_COLONNA_DESTRA_EVENTI_2026-03-29.md](4%20-%20reports/REPORT_FIX_TEST_COLONNA_DESTRA_EVENTI_2026-03-29.md)
+	- Design: [DESIGN_fix_test_colonna_destra_eventi.md](2%20-%20projects/DESIGN_fix_test_colonna_destra_eventi.md)
+	- Plan: [PLAN_fix_test_colonna_destra_eventi_v1.md](3%20-%20coding%20plans/PLAN_fix_test_colonna_destra_eventi_v1.md)
+	- TODO: [TODO_fix_test_colonna_destra_eventi_v1.md](5%20-%20todolist/TODO_fix_test_colonna_destra_eventi_v1.md)
 
 ## Stato Avanzamento
 
