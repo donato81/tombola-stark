@@ -18,6 +18,10 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   eliminando i confronti fragili su testo renderizzato e preservando la suite
   `unittest` verde; in validazione viene corretto anche un test legacy su
   `sposta_focus_colonna_sinistra_avanzata` ancora ancorato alla parola `vuota`.
+ - `tests/test_giocatore_umano.py`: tranche 2 — modernizza 8 test legacy del
+   gruppo "colonna sinistra" e stabilizza il blocco avanzato già strutturato
+   (`test_sposta_focus_colonna_sinistra_avanzata_stato_cartella_con_segni`),
+   validazione: 67 test OK sul file, 366 test OK sulla suite completa.
 
 ---
 

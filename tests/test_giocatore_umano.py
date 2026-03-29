@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 from bingo_game.cartella import Cartella
 from bingo_game.players.giocatore_umano import GiocatoreUmano
 from bingo_game.events.eventi_output_ui_umani import (
+    EventoNavigazioneColonna,
     EventoNavigazioneColonnaAvanzata,
     EventoNavigazioneRiga,
     EventoNavigazioneRigaAvanzata,
@@ -967,44 +968,32 @@ class TestGiocatoreUmano(unittest.TestCase):
 
     def test_sposta_focus_colonna_sinistra_semplice_cartella_mancante(self):
         """
-        Verifica che sposta_focus_colonna_sinistra() gestisca correttamente l'assenza di cartella focus
-        nella versione semplice (stampa_colonna_semplice).
-        
-        Scenario:
-        - Giocatore senza cartelle o senza focus impostato.
-        
-        Risultato atteso:
-        - Ritorna messaggio "Non hai selezionato nessuna cartella".
-        """
-        # Scenario 1: Giocatore senza cartelle
-        risultato1 = self.giocatore.sposta_focus_colonna_sinistra()
-        self.assertEqual(
-            risultato1,
-            "Non hai selezionato nessuna cartella",
-            "Senza cartelle deve ritornare messaggio appropriato."
-        )
+        Verifica che sposta_focus_colonna_sinistra() gestisca correttamente l'assenza di cartella focus.
 
-        # Scenario 2: Focus rimosso manualmente
+        Scenario 1: Giocatore senza cartelle → ok=False, errore CARTELLE_NESSUNA_ASSEGNATA.
+        Scenario 2: Cartelle presenti ma focus_cartella=None → ok=False, errore FOCUS_CARTELLA_NON_IMPOSTATO.
+        """
+        # Scenario 1: nessuna cartella assegnata
+        risultato1 = self.giocatore.sposta_focus_colonna_sinistra()
+        self.assertFalse(risultato1.ok)
+        self.assertEqual(risultato1.errore, "CARTELLE_NESSUNA_ASSEGNATA")
+        self.assertIsNone(risultato1.evento)
+
+        # Scenario 2: focus cartella rimosso manualmente
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore._indice_cartella_focus = None
         risultato2 = self.giocatore.sposta_focus_colonna_sinistra()
-        self.assertEqual(
-            risultato2,
-            "Non hai selezionato nessuna cartella",
-            "Senza focus attivo deve ritornare messaggio appropriato."
-        )
+        self.assertFalse(risultato2.ok)
+        self.assertEqual(risultato2.errore, "FOCUS_CARTELLA_NON_IMPOSTATO")
+        self.assertIsNone(risultato2.evento)
 
     def test_sposta_focus_colonna_sinistra_semplice_prima_colonna(self):
         """
-        Verifica che il metodo blocchi lo spostamento dalla prima colonna (indice 0)
-        nella versione semplice.
-        
-        Scenario:
-        - Focus su colonna 0, tentativo di spostamento verso sinistra.
-        
-        Risultato atteso:
-        - Ritorna "Sei alla prima colonna, non puoi andare oltre".
-        - Indice colonna non cambia (rimane 0).
+        Verifica che il metodo emetta un evento limite minimo quando il focus è già
+        sulla prima colonna (indice 0) e si chiede di andare a sinistra.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneColonna con esito='limite'
+        e limite='minimo'. Indice colonna invariato.
         """
         # Setup: cartella + focus colonna 0
         self.giocatore.aggiungi_cartella(self.cartella1)
@@ -1012,95 +1001,82 @@ class TestGiocatoreUmano(unittest.TestCase):
         self.giocatore._indice_colonna_focus = 0
 
         risultato = self.giocatore.sposta_focus_colonna_sinistra()
-        
-        self.assertEqual(
-            risultato,
-            "Sei alla prima colonna, non puoi andare oltre",
-            "Blocco dalla prima colonna deve restituire messaggio corretto."
-        )
-        
-        self.assertEqual(
-            self.giocatore._indice_colonna_focus,
-            0,
-            "Indice colonna invariato su blocco."
-        )
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonna)
+        self.assertEqual(risultato.evento.esito, "limite")
+        self.assertEqual(risultato.evento.limite, "minimo")
+        self.assertEqual(self.giocatore._indice_colonna_focus, 0)
 
 
     def test_sposta_focus_colonna_sinistra_semplice_movimento_normale(self):
         """
-        Verifica spostamento normale da colonna 5→4 con stampa semplice.
-        
-        Scenario:
-        - Focus colonna 5 → Freccia SINISTRA → Focus colonna 4 + "Colonna 4: ..."
-        
-        Risultato atteso:
-        - Contiene "Colonna 4:".
-        - Se ha numeri, li mostra. Se è vuota, dice "vuota".
-        - Indice colonna = 4.
+        Verifica spostamento normale da colonna 5→4 (indice 4→3) con versione semplice.
+
+        Risultato atteso: ok=True, evento EventoNavigazioneColonna con esito='mostra',
+        numero_colonna_corrente=5 (indice 4, 1-based), colonna_semplice coerente.
+        Indice interno aggiornato a 4.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_colonna_focus = 5
 
         risultato = self.giocatore.sposta_focus_colonna_sinistra()
-        
-        # Verifica 1: Struttura semplice (intestazione corretta)
-        self.assertIn("Colonna 4:", risultato)
-        
-        # Verifica 2: Contenuto coerente con la realtà della cartella
-        numeri_colonna4 = self.cartella1.get_numeri_colonna(4)
-        
-        if numeri_colonna4:
-            # Se la colonna ha numeri, devono essere nella stringa
-            for numero in numeri_colonna4[:3]: 
-                self.assertIn(str(numero), risultato)
-            # E NON deve esserci scritto "vuota" se ci sono numeri
-            self.assertNotIn("vuota", risultato)
-        else:
-            # Se la colonna è vuota, DEVE esserci scritto "vuota"
-            self.assertIn("vuota", risultato)
-        
-        # Verifica 3: NO asterischi, NO stats (versione semplice)
-        self.assertNotIn("*", risultato)
-        self.assertNotIn("Segnati:", risultato)
-        
-        # Verifica 4: Stato interno corretto
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonna)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 5)  # indice 4 → 1-based
+        self.assertEqual(risultato.evento.colonna_semplice, self.cartella1.get_colonna_semplice(4))
+        self.assertIsNone(risultato.evento.limite)
         self.assertEqual(self.giocatore._indice_colonna_focus, 4)
 
 
     def test_sposta_focus_colonna_sinistra_semplice_auto_inizializzazione(self):
         """
-        Verifica auto-inizializzazione da None → colonna 4→3.
-        
-        Scenario:
-        - _indice_colonna_focus=None → Freccia SINISTRA → "Colonna 3: 12 25..."
+        Verifica auto-inizializzazione da _indice_colonna_focus=None → indice 3.
+
+        Logica: da None si imposta al centro (indice 4) e si decrementa a indice 3.
+        Risultato atteso: ok=True, evento EventoNavigazioneColonna, esito='mostra',
+        numero_colonna_corrente=4 (indice 3, 1-based), indice interno = 3.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_colonna_focus = None
 
         risultato = self.giocatore.sposta_focus_colonna_sinistra()
-        
-        self.assertIn("Colonna 3:", risultato)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonna)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 4)  # indice 3 → 1-based
+        self.assertEqual(risultato.evento.colonna_semplice, self.cartella1.get_colonna_semplice(3))
         self.assertEqual(self.giocatore._indice_colonna_focus, 3)
-        self.assertNotIn("*", risultato)
 
     def test_sposta_focus_colonna_sinistra_semplice_colonna_vuota(self):
         """
-        Verifica gestione colonna vuota nella navigazione sinistra.
-        
-        Scenario:
-        - Movimento che porta su colonna 4 che risulta vuota.
+        Verifica spostamento normale da indice 4 a indice 3 (colonna potenzialmente vuota).
+
+        'Vuota' è un caso normale di esito='mostra': la colonna semplice può contenere
+        solo trattini. Non si cerca la parola 'vuota' nel risultato.
+        Risultato atteso: ok=True, esito='mostra', numero_colonna_corrente=4, indice=3.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_colonna_focus = 4
 
         risultato = self.giocatore.sposta_focus_colonna_sinistra()
-        
-        self.assertIn("Colonna 3:", risultato)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonna)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 4)  # indice 3 → 1-based
+        self.assertEqual(risultato.evento.colonna_semplice, self.cartella1.get_colonna_semplice(3))
         self.assertEqual(self.giocatore._indice_colonna_focus, 3)
-        # Nota: testiamo che gestisce il ritorno anche se colonna vuota
 
     def test_sposta_focus_colonna_destra_semplice_cartella_mancante(self):
         """
@@ -1195,41 +1171,31 @@ class TestGiocatoreUmano(unittest.TestCase):
     def test_sposta_focus_colonna_sinistra_avanzata_cartella_mancante(self):
         """
         Verifica che sposta_focus_colonna_sinistra_avanzata gestisca l'assenza di cartella focus.
-        
-        Scenario:
-        - Giocatore senza cartelle o senza focus impostato.
-        
-        Risultato atteso:
-        - Ritorna messaggio "Non hai selezionato nessuna cartella".
-        """
-        # Scenario 1: Giocatore senza cartelle
-        risultato1 = self.giocatore.sposta_focus_colonna_sinistra_avanzata()
-        self.assertEqual(
-            risultato1,
-            "Non hai selezionato nessuna cartella",
-            "Senza cartelle deve ritornare messaggio appropriato."
-        )
 
-        # Scenario 2: Focus rimosso manualmente
+        Scenario 1: Giocatore senza cartelle → ok=False, errore CARTELLE_NESSUNA_ASSEGNATA.
+        Scenario 2: Cartelle presenti ma focus_cartella=None → ok=False, errore FOCUS_CARTELLA_NON_IMPOSTATO.
+        """
+        # Scenario 1: nessuna cartella assegnata
+        risultato1 = self.giocatore.sposta_focus_colonna_sinistra_avanzata()
+        self.assertFalse(risultato1.ok)
+        self.assertEqual(risultato1.errore, "CARTELLE_NESSUNA_ASSEGNATA")
+        self.assertIsNone(risultato1.evento)
+
+        # Scenario 2: focus cartella rimosso manualmente
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore._indice_cartella_focus = None
         risultato2 = self.giocatore.sposta_focus_colonna_sinistra_avanzata()
-        self.assertEqual(
-            risultato2,
-            "Non hai selezionato nessuna cartella",
-            "Senza focus attivo deve ritornare messaggio appropriato."
-        )
+        self.assertFalse(risultato2.ok)
+        self.assertEqual(risultato2.errore, "FOCUS_CARTELLA_NON_IMPOSTATO")
+        self.assertIsNone(risultato2.evento)
 
     def test_sposta_focus_colonna_sinistra_avanzata_prima_colonna(self):
         """
-        Verifica blocco dalla prima colonna (indice 0) per versione avanzata.
-        
-        Scenario:
-        - Focus su colonna 0, tentativo di spostamento a sinistra.
-        
-        Risultato atteso:
-        - Ritorna "Sei alla prima colonna, non puoi andare oltre".
-        - Indice colonna non cambia (rimane 0).
+        Verifica che il metodo emetta un evento limite minimo quando il focus è già
+        sulla prima colonna (indice 0) e si chiede di andare a sinistra (avanzata).
+
+        Risultato atteso: ok=True, evento EventoNavigazioneColonnaAvanzata con esito='limite',
+        limite='minimo', campi colonna/stato/segnati a None. Indice colonna invariato.
         """
         # Setup: cartella + focus colonna 0
         self.giocatore.aggiungi_cartella(self.cartella1)
@@ -1237,18 +1203,16 @@ class TestGiocatoreUmano(unittest.TestCase):
         self.giocatore._indice_colonna_focus = 0
 
         risultato = self.giocatore.sposta_focus_colonna_sinistra_avanzata()
-        
-        self.assertEqual(
-            risultato,
-            "Sei alla prima colonna, non puoi andare oltre",
-            "Blocco dalla prima colonna deve restituire messaggio corretto."
-        )
-        
-        self.assertEqual(
-            self.giocatore._indice_colonna_focus,
-            0,
-            "Indice colonna invariato su blocco."
-        )
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonnaAvanzata)
+        self.assertEqual(risultato.evento.esito, "limite")
+        self.assertEqual(risultato.evento.limite, "minimo")
+        self.assertIsNone(risultato.evento.colonna_semplice)
+        self.assertIsNone(risultato.evento.stato_colonna)
+        self.assertIsNone(risultato.evento.numeri_segnati_colonna_ordinati)
+        self.assertEqual(self.giocatore._indice_colonna_focus, 0)
 
     def test_sposta_focus_colonna_sinistra_avanzata_movimento_normale(self):
         """
@@ -1292,18 +1256,25 @@ class TestGiocatoreUmano(unittest.TestCase):
 
     def test_sposta_focus_colonna_sinistra_avanzata_auto_inizializzazione(self):
         """
-        Verifica auto-inizializzazione da None → colonna 4→3.
-        
-        Scenario:
-        - _indice_colonna_focus=None → Freccia SINISTRA → "Colonna 3:..."
+        Verifica auto-inizializzazione da _indice_colonna_focus=None → indice 3 (avanzata).
+
+        Logica: da None si imposta al centro (indice 4) e si decrementa a indice 3.
+        Risultato atteso: ok=True, evento EventoNavigazioneColonnaAvanzata, esito='mostra',
+        numero_colonna_corrente=4 (indice 3, 1-based), indice interno = 3.
         """
         self.giocatore.aggiungi_cartella(self.cartella1)
         self.giocatore.imposta_focus_cartella(1)
         self.giocatore._indice_colonna_focus = None
 
         risultato = self.giocatore.sposta_focus_colonna_sinistra_avanzata()
-        
-        self.assertIn("Colonna 3:", risultato)
+        dati_attesi = self.cartella1.get_dati_visualizzazione_colonna_avanzata(3)
+
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoNavigazioneColonnaAvanzata)
+        self.assertEqual(risultato.evento.esito, "mostra")
+        self.assertEqual(risultato.evento.numero_colonna_corrente, 4)  # indice 3 → 1-based
+        self.assertEqual(risultato.evento.colonna_semplice, dati_attesi[0])
         self.assertEqual(self.giocatore._indice_colonna_focus, 3)
 
     def test_sposta_focus_colonna_sinistra_avanzata_stato_cartella_con_segni(self):

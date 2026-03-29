@@ -2,7 +2,7 @@
 type: todo
 feature: fix_test_colonna_sinistra_eventi
 agent: Agent-Plan
-status: DRAFT
+status: COMPLETED
 version: v1.0
 plan_ref: docs/3 - coding plans/PLAN_fix_test_colonna_sinistra_eventi_v1.md
 design_ref: docs/2 - projects/DESIGN_fix_test_colonna_sinistra_eventi.md
@@ -16,7 +16,7 @@ tipo: todo_task
 titolo: TODO tranche 2 modernizzazione test colonna sinistra
 data_creazione: 2026-03-29
 agente: Agent-Plan
-stato: bozza
+stato: completato
 feature: fix_test_colonna_sinistra_eventi
 versione_progetto: v1.0
 plan: docs/3 - coding plans/PLAN_fix_test_colonna_sinistra_eventi_v1.md
@@ -49,30 +49,30 @@ Agent-Code
 
 ### Micro-fase 1 — versione base
 
-- [ ] Aggiornare `test_sposta_focus_colonna_sinistra_semplice_cartella_mancante`
-- [ ] Aggiornare `test_sposta_focus_colonna_sinistra_semplice_prima_colonna`
-- [ ] Aggiornare `test_sposta_focus_colonna_sinistra_semplice_movimento_normale`
-- [ ] Aggiornare `test_sposta_focus_colonna_sinistra_semplice_auto_inizializzazione`
-- [ ] Aggiornare `test_sposta_focus_colonna_sinistra_semplice_colonna_vuota`
-- [ ] Verificare il gruppo base
+- [x] Aggiornare `test_sposta_focus_colonna_sinistra_semplice_cartella_mancante`
+- [x] Aggiornare `test_sposta_focus_colonna_sinistra_semplice_prima_colonna`
+- [x] Aggiornare `test_sposta_focus_colonna_sinistra_semplice_movimento_normale`
+- [x] Aggiornare `test_sposta_focus_colonna_sinistra_semplice_auto_inizializzazione`
+- [x] Aggiornare `test_sposta_focus_colonna_sinistra_semplice_colonna_vuota`
+- [x] Verificare il gruppo base
 
 ### Micro-fase 2 — versione avanzata
 
-- [ ] Aggiornare `test_sposta_focus_colonna_sinistra_avanzata_cartella_mancante`
-- [ ] Aggiornare `test_sposta_focus_colonna_sinistra_avanzata_prima_colonna`
-- [ ] Aggiornare `test_sposta_focus_colonna_sinistra_avanzata_auto_inizializzazione`
-- [ ] Verificare se `test_sposta_focus_colonna_sinistra_avanzata_stato_cartella_con_segni` richiede ancora intervento oppure e' gia' verde strutturato
-- [ ] Verificare il gruppo avanzata senza toccare `test_sposta_focus_colonna_sinistra_avanzata_movimento_normale`
+- [x] Aggiornare `test_sposta_focus_colonna_sinistra_avanzata_cartella_mancante`
+- [x] Aggiornare `test_sposta_focus_colonna_sinistra_avanzata_prima_colonna`
+- [x] Aggiornare `test_sposta_focus_colonna_sinistra_avanzata_auto_inizializzazione`
+- [x] Verificare se `test_sposta_focus_colonna_sinistra_avanzata_stato_cartella_con_segni` richiede ancora intervento oppure e' gia' verde strutturato
+- [x] Verificare il gruppo avanzata senza toccare `test_sposta_focus_colonna_sinistra_avanzata_movimento_normale`
 
 ### Chiusura tranche
 
-- [ ] Eseguire verifica finale del file [tests/test_giocatore_umano.py](tests/test_giocatore_umano.py)
-- [ ] Confermare che i test legacy del gruppo colonna sinistra sono allineati al contratto eventi
-- [ ] Aggiornare questo TODO marcando le fasi completate
+- [x] Eseguire verifica finale del file [tests/test_giocatore_umano.py](tests/test_giocatore_umano.py)
+- [x] Confermare che i test legacy del gruppo colonna sinistra sono allineati al contratto eventi
+- [x] Aggiornare questo TODO marcando le fasi completate
 
 ## Stato Avanzamento
 
 - [x] Pianificato
-- [ ] In corso
-- [ ] Completato
-- [ ] Verificato
+- [x] In corso
+- [x] Completato
+- [x] Verificato

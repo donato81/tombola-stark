@@ -2,7 +2,7 @@
 type: plan
 feature: fix_test_colonna_sinistra_eventi
 agent: Agent-Plan
-status: DRAFT
+status: READY
 version: v1.0
 design_ref: docs/2 - projects/DESIGN_fix_test_colonna_sinistra_eventi.md
 date: 2026-03-29

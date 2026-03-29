@@ -2,7 +2,7 @@
 type: design
 feature: fix_test_colonna_sinistra_eventi
 agent: Agent-Design
-status: DRAFT
+status: REVIEWED
 version: v1.0
 date: 2026-03-29
 report_ref: docs/4 - reports/REPORT_FIX_TEST_COLONNA_SINISTRA_EVENTI_2026-03-29.md
@@ -259,6 +259,6 @@ self.assertEqual(risultato.evento.stato_colonna["numeri_segnati"], conteggio_att
 ## Stato Avanzamento
 
 - [x] Bozza completata
-- [ ] Revisionato
-- [ ] Approvato
+- [x] Revisionato
+- [x] Approvato
 - [ ] Archiviato
