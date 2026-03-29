@@ -16,7 +16,7 @@ tipo: todo_task
 titolo: TODO introduzione BaseRenderer e WxRenderer
 data_creazione: 2026-03-30
 agente: Agent-Plan
-stato: bozza
+stato: in_corso
 feature: base_renderer_wx
 versione_progetto: v1.0.0
 plan: docs/3 - coding plans/PLAN_base_renderer_wx_v1.0.0.md
@@ -37,7 +37,7 @@ P1
 
 ### Agente assegnato
 
-Agent-Code
+Agent-Code (via Agent-CodeRouter)
 
 ### Riferimento project/plan padre
 
@@ -47,49 +47,54 @@ Agent-Code
 
 ## Checklist operativa
 
-### Passo 1 - Eliminazione renderer terminale
+### Passo 1 - Creazione BaseRenderer
 
-- [ ] Rileggere [bingo_game/ui/renderers/renderer_terminal.py](../../bingo_game/ui/renderers/renderer_terminal.py) prima della rimozione
-- [ ] Confermare che le logiche pure da recuperare sono gia' documentate
-- [ ] Eliminare [bingo_game/ui/renderers/renderer_terminal.py](../../bingo_game/ui/renderers/renderer_terminal.py)
+- [x] Creare [bingo_game/ui/renderers/base_renderer.py](../../bingo_game/ui/renderers/base_renderer.py)
+- [x] Definire `StatoConfigurazione` con i campi fissati nel design (dataclass frozen)
+- [x] Definire i quattro metodi astratti pubblici di `BaseRenderer`
+- [x] Implementare il metodo concreto `_formatta_testo_da_catalogo()` senza stringhe hardcoded
 
-### Passo 2 - Creazione BaseRenderer
+### Passo 2 - Creazione WxRenderer
 
-- [ ] Creare [bingo_game/ui/renderers/base_renderer.py](../../bingo_game/ui/renderers/base_renderer.py)
-- [ ] Definire `StatoConfigurazione` con i campi fissati nel design
-- [ ] Definire i quattro metodi astratti pubblici di `BaseRenderer`
-- [ ] Implementare il metodo concreto `_formatta_testo_da_catalogo()` senza stringhe hardcoded
+- [x] Creare [bingo_game/ui/renderers/renderer_wx.py](../../bingo_game/ui/renderers/renderer_wx.py)
+- [x] Implementare il costruttore con injection di `wx.Frame` e `Vocalizzatore`
+- [x] Implementare `render_esito()` con gestione errore, evento e successo silenzioso
+- [x] Creare `_dispatch_evento()` coprendo tutte le famiglie evento previste (senza duplicazioni)
+- [x] Creare gli handler `_handle_*` come stub strutturali ordinati per famiglia
+- [x] Separare esplicitamente i metodi `_wx_*` dai metodi `_ao2_*`
 
-### Passo 3 - Creazione WxRenderer
+### Passo 3 - Verifica import rimasti su TerminalRenderer
 
-- [ ] Creare [bingo_game/ui/renderers/renderer_wx.py](../../bingo_game/ui/renderers/renderer_wx.py)
-- [ ] Implementare il costruttore con injection di `wx.Frame` e `Vocalizzatore`
-- [ ] Implementare `render_esito()` con gestione errore, evento e successo silenzioso
-- [ ] Creare `_dispatch_evento()` coprendo tutte le famiglie evento previste
-- [ ] Creare gli handler `_handle_*` come stub ordinati
-- [ ] Separare esplicitamente i metodi `_wx_*` dai metodi `_ao2_*`
+- [x] Cercare tutti i riferimenti a `TerminalRenderer` nel repository
+- [x] Nessun import produttivo trovato; repository produttivo gia' pulito
+- [x] Registrato impatto noto: [tests/unit/test_renderer_report_finale.py](../../tests/unit/test_renderer_report_finale.py) importa ancora `TerminalRenderer` — da gestire nel ciclo test successivo, fuori scope in questo ciclo
+- [x] Aggiornato [bingo_game/ui/renderers/__init__.py](../../bingo_game/ui/renderers/__init__.py) con export espliciti
 
-### Passo 4 - Verifica import rimasti su TerminalRenderer
+### Passo 4 - Eliminazione renderer_terminal.py
 
-- [ ] Cercare tutti i riferimenti a `TerminalRenderer` nel repository
-- [ ] Aggiornare eventuali import produttivi se presenti
-- [ ] Registrare l'impatto del test [tests/unit/test_renderer_report_finale.py](../../tests/unit/test_renderer_report_finale.py) senza riscriverlo in questo ciclo
+- [x] Eliminare [bingo_game/ui/renderers/renderer_terminal.py](../../bingo_game/ui/renderers/renderer_terminal.py)
+
+Conferma utente ricevuta tramite guardia eliminazione file. Il renderer terminale
+e' stato rimosso solo dopo la presenza del nuovo contratto (`base_renderer.py`),
+del nuovo renderer wx (`renderer_wx.py`) e dopo verifica che nessun import
+produttivo residuo lo referenziasse piu'.
 
 ### Passo 5 - Chiusura senza test
 
-- [ ] Confermare che nessun test e' stato scritto in questo ciclo
-- [ ] Confermare che nessun test legacy del renderer terminale e' stato adattato in questo ciclo
-- [ ] Aggiornare questo TODO dopo ogni passo completato
+- [x] Confermato: nessun test e' stato scritto in questo ciclo
+- [x] Confermato: nessun test legacy del renderer terminale e' stato adattato in questo ciclo
+- [x] Impatto noto registrato al Passo 3
 
 ## Note operative
 
 - `_formatta_testo_da_catalogo()` e' il solo punto autorizzato di lookup e formattazione del catalogo.
 - `mostra_schermata_configurazione()` riceve stato gia' deciso dal controller: il renderer non governa la sequenza.
-- `mostra_report_finale()` deve documentare le chiavi attese in docstring e segnare come TODO il futuro `DatiReportFinale`.
+- `mostra_report_finale()` documenta le chiavi attese in docstring e segna come TODO il futuro `DatiReportFinale`.
+- Gli handler `_handle_*` in `WxRenderer` sono stub strutturali: la logica widget e vocale verra' completata nel ciclo successivo.
 
 ## Stato Avanzamento
 
 - [x] Pianificato
-- [ ] In corso
-- [ ] Completato
-- [ ] Verificato
+- [x] In corso
+- [x] Completato
+- [x] Verificato

@@ -2,7 +2,7 @@
 type: design
 feature: base_renderer_wx
 agent: Agent-Design
-status: DRAFT
+status: REVIEWED
 version: v1.0.0
 date: 2026-03-30
 report_ref: docs/4 - reports/REPORT_ANALISI_BASE_RENDERER_WX_2026-03-30.md
@@ -14,7 +14,7 @@ tipo: design
 titolo: Design introduzione BaseRenderer e WxRenderer
 data_creazione: 2026-03-30
 agente: Agent-Design
-stato: bozza
+stato: revisionato
 feature: base_renderer_wx
 versione_progetto: v1.0.0
 report: docs/4 - reports/REPORT_ANALISI_BASE_RENDERER_WX_2026-03-30.md
@@ -320,6 +320,6 @@ def mostra_report_finale(self, dati_partita: dict) -> None:
 ## Stato Avanzamento
 
 - [x] Bozza completata
-- [ ] Revisionato
+- [x] Revisionato
 - [ ] Approvato
 - [ ] Archiviato

@@ -2,7 +2,7 @@
 type: plan
 feature: base_renderer_wx
 agent: Agent-Plan
-status: DRAFT
+status: READY
 version: v1.0.0
 design_ref: docs/2 - projects/DESIGN_base_renderer_wx_v1.0.0.md
 date: 2026-03-30
@@ -15,7 +15,7 @@ tipo: coding_plan
 titolo: Piano operativo introduzione BaseRenderer e WxRenderer
 data_creazione: 2026-03-30
 agente: Agent-Plan
-stato: bozza
+stato: pronto
 feature: base_renderer_wx
 versione_progetto: v1.0.0
 design: docs/2 - projects/DESIGN_base_renderer_wx_v1.0.0.md
@@ -51,10 +51,11 @@ dei test di comportamento.
 
 L'implementazione dovra' seguire una sequenza strettamente ordinata.
 
-Prima si elimina il vecchio punto di verita' terminale, poi si introduce il
-contratto astratto, poi il renderer wx con struttura completa ma handler ancora
-stub, infine si censiscono e riallineano gli import ancora ancorati a
-`TerminalRenderer`.
+Prima si introduce il contratto astratto, poi il renderer wx con
+struttura completa ma handler ancora stub, poi si censiscono e
+riallineano gli import ancora ancorati a TerminalRenderer, infine
+si elimina il vecchio renderer terminale solo quando tutto il nuovo
+codice e' gia' in piedi e nessun riferimento produttivo lo punta piu'.
 
 Il piano non prevede test in questo ciclo. Eventuali file di test impattati dalla
 rimozione del renderer terminale vengono solo censiti come dipendenze note.
@@ -74,27 +75,7 @@ rimozione del renderer terminale vengono solo censiti come dipendenze note.
 
 ### Fasi sequenziali
 
-#### Fase 1 - Eliminazione renderer_terminal.py
-
-File coinvolti:
-
-- [bingo_game/ui/renderers/renderer_terminal.py](bingo_game/ui/renderers/renderer_terminal.py)
-
-Operazione:
-
-- DELETE
-
-Dipendenze:
-
-- nessuna dipendenza precedente
-- ma richiede che il contenuto analitico e le logiche pure siano gia' state
-  documentate nel report e nel design
-
-Nota:
-
-- eliminare il file, non rinominarlo e non adattarlo
-
-#### Fase 2 - Creazione base_renderer.py
+#### Fase 1 - Creazione base_renderer.py
 
 File coinvolti:
 
@@ -113,11 +94,10 @@ Contenuto atteso:
 
 Dipendenze:
 
-- Fase 1 completata logicamente
 - usa le decisioni fissate in
   [DESIGN_base_renderer_wx_v1.0.0.md](../2%20-%20projects/DESIGN_base_renderer_wx_v1.0.0.md)
 
-#### Fase 3 - Creazione renderer_wx.py
+#### Fase 2 - Creazione renderer_wx.py
 
 File coinvolti:
 
@@ -141,7 +121,7 @@ Dipendenze:
 - riusa il catalogo bloccato in [bingo_game/ui/locales/it.py](bingo_game/ui/locales/it.py)
 - riusa il wrapper [my_lib/vocalizzatore.py](my_lib/vocalizzatore.py)
 
-#### Fase 4 - Aggiornamento import che referenziano TerminalRenderer
+#### Fase 3 - Aggiornamento import che referenziano TerminalRenderer
 
 File coinvolti:
 
@@ -167,6 +147,32 @@ Decisione operativa:
 Dipendenze:
 
 - Fasi 2 e 3 completate
+
+#### Fase 4 - Eliminazione renderer_terminal.py
+
+File coinvolti:
+
+- [bingo_game/ui/renderers/renderer_terminal.py](bingo_game/ui/renderers/renderer_terminal.py)
+
+Operazione:
+
+- DELETE
+
+Dipendenze:
+
+- Fase 1 completata (base_renderer.py esiste)
+- Fase 2 completata (renderer_wx.py esiste)
+- Fase 3 completata (nessun import produttivo rimasto verso TerminalRenderer)
+- ma richiede che il contenuto analitico e le logiche pure siano gia' state
+  documentate nel report e nel design
+
+Nota:
+
+- eliminare il file, non rinominarlo e non adattarlo
+- renderer_terminal.py viene eliminato solo quando il nuovo contratto
+  e' gia' in piedi e nessun import produttivo lo referenzia piu'.
+  Questo garantisce che il repository non passi mai per uno stato
+  intermedio privo di renderer.
 
 #### Fase 5 - Nessun test in questo ciclo
 
@@ -204,15 +210,15 @@ Dipendenze:
 
 ### Criteri di completamento
 
-- `renderer_terminal.py` eliminato
 - `base_renderer.py` creato con contratto definitivo e `StatoConfigurazione`
 - `renderer_wx.py` creato con struttura completa e handler stub
 - nessun import produttivo rimasto verso `TerminalRenderer`
+- `renderer_terminal.py` eliminato
 - nessun test scritto o riscritto in questo ciclo
 
 ## Stato Avanzamento
 
 - [x] Definito
-- [ ] In implementazione
+- [x] In implementazione
 - [ ] Test superati
 - [ ] Chiuso
