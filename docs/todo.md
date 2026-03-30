@@ -12,6 +12,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/2 - projects/ -->
 
+- [DESIGN_refactor_vocalizzatore_v1.0.0.md](2%20-%20projects/DESIGN_refactor_vocalizzatore_v1.0.0.md)
 - [DESIGN_TEST_VALIDAZIONI.md](2%20-%20projects/DESIGN_TEST_VALIDAZIONI.md)
 - [DESIGN_TEST_HELPER_FOCUS.md](2%20-%20projects/DESIGN_TEST_HELPER_FOCUS.md)
 - [DESIGN_conversione_test_pytest_unittest.md](2%20-%20projects/DESIGN_conversione_test_pytest_unittest.md)
@@ -39,6 +40,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/3 - coding plans/ -->
 
+- [PLAN_refactor_vocalizzatore_v1.0.0.md](3%20-%20coding%20plans/PLAN_refactor_vocalizzatore_v1.0.0.md)
 - [PLAN_TEST_VALIDAZIONI.md](3%20-%20coding%20plans/PLAN_TEST_VALIDAZIONI.md)
 - [PLAN_TEST_HELPER_FOCUS.md](3%20-%20coding%20plans/PLAN_TEST_HELPER_FOCUS.md)
 - [PLAN_conversione_test_pytest_unittest_v0.9.0.md](3%20-%20coding%20plans/PLAN_conversione_test_pytest_unittest_v0.9.0.md)
@@ -85,6 +87,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/5 - todolist/ -->
 
+- [TODO_refactor_vocalizzatore_v1.0.0.md](5%20-%20todolist/TODO_refactor_vocalizzatore_v1.0.0.md)
 - [TODO_TEST_VALIDAZIONI.md](5%20-%20todolist/TODO_TEST_VALIDAZIONI.md)
 - [TODO_TEST_HELPER_FOCUS.md](5%20-%20todolist/TODO_TEST_HELPER_FOCUS.md)
 - [TODO_conversione_test_pytest_unittest_v0.9.0.md](5%20-%20todolist/TODO_conversione_test_pytest_unittest_v0.9.0.md)
@@ -110,6 +113,11 @@ stato: attivo
 
 ### Da fare
 
+- Refactor strutturale R2 del vocalizzatore AO2
+	- Stato: da fare
+	- Design: [DESIGN_refactor_vocalizzatore_v1.0.0.md](2%20-%20projects/DESIGN_refactor_vocalizzatore_v1.0.0.md)
+	- Plan: [PLAN_refactor_vocalizzatore_v1.0.0.md](3%20-%20coding%20plans/PLAN_refactor_vocalizzatore_v1.0.0.md)
+	- TODO: [TODO_refactor_vocalizzatore_v1.0.0.md](5%20-%20todolist/TODO_refactor_vocalizzatore_v1.0.0.md)
 
 ### Task completati
 
