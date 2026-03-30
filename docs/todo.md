@@ -12,6 +12,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/2 - projects/ -->
 
+- [DESIGN_eccezione_dominio_tabellone_v1.0.0.md](2%20-%20projects/DESIGN_eccezione_dominio_tabellone_v1.0.0.md)
 - [DESIGN_allineamento_standard_tabellone_v1.0.0.md](2%20-%20projects/DESIGN_allineamento_standard_tabellone_v1.0.0.md)
 - [DESIGN_refactor_vocalizzatore_v1.0.0.md](2%20-%20projects/DESIGN_refactor_vocalizzatore_v1.0.0.md)
 - [DESIGN_TEST_VALIDAZIONI.md](2%20-%20projects/DESIGN_TEST_VALIDAZIONI.md)
@@ -41,6 +42,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/3 - coding plans/ -->
 
+- [PLAN_eccezione_dominio_tabellone_v1.0.0.md](3%20-%20coding%20plans/PLAN_eccezione_dominio_tabellone_v1.0.0.md)
 - [PLAN_allineamento_standard_tabellone_v1.0.0.md](3%20-%20coding%20plans/PLAN_allineamento_standard_tabellone_v1.0.0.md)
 - [PLAN_refactor_vocalizzatore_v1.0.0.md](3%20-%20coding%20plans/PLAN_refactor_vocalizzatore_v1.0.0.md)
 - [PLAN_TEST_VALIDAZIONI.md](3%20-%20coding%20plans/PLAN_TEST_VALIDAZIONI.md)
@@ -89,6 +91,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/5 - todolist/ -->
 
+- [TODO_eccezione_dominio_tabellone_v1.0.0.md](5%20-%20todolist/TODO_eccezione_dominio_tabellone_v1.0.0.md)
 - [TODO_allineamento_standard_tabellone_v1.0.0.md](5%20-%20todolist/TODO_allineamento_standard_tabellone_v1.0.0.md)
 - [TODO_refactor_vocalizzatore_v1.0.0.md](5%20-%20todolist/TODO_refactor_vocalizzatore_v1.0.0.md)
 - [TODO_TEST_VALIDAZIONI.md](5%20-%20todolist/TODO_TEST_VALIDAZIONI.md)
@@ -115,6 +118,11 @@ stato: attivo
 - [TODO_test_eventi_output_bulk_focus_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_bulk_focus_v1.0.0.md)
 
 ### Da fare
+
+- Eccezione di dominio per numeri esauriti del tabellone
+	- Plan: [PLAN_eccezione_dominio_tabellone_v1.0.0.md](3%20-%20coding%20plans/PLAN_eccezione_dominio_tabellone_v1.0.0.md)
+	- TODO: [TODO_eccezione_dominio_tabellone_v1.0.0.md](5%20-%20todolist/TODO_eccezione_dominio_tabellone_v1.0.0.md)
+	- Stato: da fare
 
 ### Task completati
 
