@@ -2,7 +2,7 @@
 type: plan
 feature: eccezione_dominio_tabellone
 agent: Agent-Plan
-status: DRAFT
+status: COMPLETED
 version: v1.0.0
 design_ref: docs/2 - projects/DESIGN_eccezione_dominio_tabellone_v1.0.0.md
 date: 2026-03-31
@@ -15,7 +15,7 @@ tipo: coding_plan
 titolo: Piano operativo per l'eccezione di dominio del tabellone
 data_creazione: 2026-03-31
 agente: Agent-Plan
-stato: draft
+stato: completed
 feature: eccezione_dominio_tabellone
 versione_progetto: v1.0.0
 design: docs/2 - projects/DESIGN_eccezione_dominio_tabellone_v1.0.0.md
@@ -152,7 +152,7 @@ Risultato atteso:
 ### Stato avanzamento
 
 - [x] Piano redatto
-- [ ] Validazione umana
-- [ ] Approvato per implementazione
-- [ ] Implementazione avviata
-- [ ] Suite `tests/unit` verde
+- [x] Validazione umana
+- [x] Approvato per implementazione
+- [x] Implementazione avviata
+- [x] Suite `tests/unit` verde (331 passed, 0 failed)

@@ -13,9 +13,13 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `my_lib/vocalizzatore.py`: refactor strutturale R2 — introdotti `IVocalizzatore` (Protocol), `NullVocalizzatore` (no-op headless-safe), backend iniettabile nel costruttore di `Vocalizzatore`, protezione best-effort `try/except` in `vocalizza_testo`, inoltro di `interrompi` come `interrupt=` verso AO2; rimossi 9 metodi dead code.
 - `bingo_game/ui/renderers/renderer_wx.py`: type hint del parametro `vocalizzatore` e dell'attributo `_vocalizzatore` aggiornati da `Vocalizzatore` a `IVocalizzatore` per dependency inversion.
 - `bingo_game/tabellone.py`: allineamento formale del modulo (type hints, docstring) senza modifiche logiche; unit tests eseguiti con successo (329 passed, 0 failed).
+- `bingo_game/tabellone.py`: sostituito `ValueError` con `TabelloneNumeriEsauritiException` nel caso di numeri esauriti, mantenendo invariato il messaggio testuale e la logica di gioco.
+- `bingo_game/partita.py`: aggiornato il blocco di intercettazione dell'estrazione per tradurre `TabelloneNumeriEsauritiException` in `PartitaNumeriEsauritiException` senza cambiare il comportamento runtime.
 
 ### Added
 - `tests/unit/test_vocalizzatore.py`: suite unittest per `my_lib/vocalizzatore.py`; 8 test su `NullVocalizzatore` e `Vocalizzatore` con backend fake iniettabile; nessun patch su AO2.
+- `bingo_game/exceptions/tabellone_exceptions.py`: introdotta `TabelloneNumeriEsauritiException` come eccezione di dominio specifica del tabellone.
+- `tests/unit/test_tabellone_eccezioni.py`: nuovo test unittest dedicato alla verifica del tipo di eccezione e del messaggio per il caso di numeri esauriti del tabellone.
 
 ---
 

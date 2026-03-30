@@ -144,6 +144,7 @@ if TYPE_CHECKING:
 
 #import dei file di gioco
 from bingo_game.tabellone import Tabellone
+from bingo_game.exceptions.tabellone_exceptions import TabelloneNumeriEsauritiException
 from bingo_game.players.giocatore_base import GiocatoreBase
 # Import pulito grazie all'init aggiornato
 from bingo_game.exceptions import (
@@ -422,10 +423,10 @@ class Partita:
                 "È possibile estrarre solo quando la partita è in_corso."
             )
 
-        # Estrae dal tabellone (può sollevare ValueError se i numeri sono terminati).
+        # Estrae dal tabellone (può sollevare TabelloneNumeriEsauritiException se i numeri sono terminati).
         try:
             numero_estratto = self.tabellone.estrai_numero()
-        except ValueError as exc:
+        except TabelloneNumeriEsauritiException as exc:
             # Cattura l'errore del tabellone e lancia l'eccezione specifica di fine gioco
             raise PartitaNumeriEsauritiException(
                 "Impossibile estrarre un altro numero: il tabellone non ha più numeri disponibili."

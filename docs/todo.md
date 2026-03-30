@@ -119,12 +119,14 @@ stato: attivo
 
 ### Da fare
 
+### Task completati
+
 - Eccezione di dominio per numeri esauriti del tabellone
+	- Design: [DESIGN_eccezione_dominio_tabellone_v1.0.0.md](2%20-%20projects/DESIGN_eccezione_dominio_tabellone_v1.0.0.md)
 	- Plan: [PLAN_eccezione_dominio_tabellone_v1.0.0.md](3%20-%20coding%20plans/PLAN_eccezione_dominio_tabellone_v1.0.0.md)
 	- TODO: [TODO_eccezione_dominio_tabellone_v1.0.0.md](5%20-%20todolist/TODO_eccezione_dominio_tabellone_v1.0.0.md)
-	- Stato: da fare
-
-### Task completati
+	- Changelog: [CHANGELOG.md](../CHANGELOG.md)
+	- Stato: COMPLETED — eccezione di dominio introdotta, intercettazione applicativa aggiornata, nuovo test unitario aggiunto, tests/unit verdi (331 passed, 0 failed)
 
 - Refactor strutturale R2 del vocalizzatore AO2
 	- Design: [DESIGN_refactor_vocalizzatore_v1.0.0.md](2%20-%20projects/DESIGN_refactor_vocalizzatore_v1.0.0.md)

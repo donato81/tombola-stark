@@ -2,7 +2,7 @@
 type: todo
 feature: eccezione_dominio_tabellone
 agent: Agent-Plan
-status: DRAFT
+status: COMPLETED
 version: v1.0.0
 plan_ref: docs/3 - coding plans/PLAN_eccezione_dominio_tabellone_v1.0.0.md
 design_ref: docs/2 - projects/DESIGN_eccezione_dominio_tabellone_v1.0.0.md
@@ -16,7 +16,7 @@ tipo: todo_task
 titolo: TODO eccezione di dominio del tabellone
 data_creazione: 2026-03-31
 agente: Agent-Plan
-stato: draft
+stato: completed
 feature: eccezione_dominio_tabellone
 versione_progetto: v1.0.0
 plan: docs/3 - coding plans/PLAN_eccezione_dominio_tabellone_v1.0.0.md
@@ -47,20 +47,20 @@ Agent-Code
 
 ## Checklist operativa
 
-- [ ] Definire `TabelloneNumeriEsauritiException` in `bingo_game/exceptions/tabellone_exceptions.py`
-- [ ] Far ereditare `TabelloneNumeriEsauritiException` da `Exception`
-- [ ] Aggiungere una docstring descrittiva a `TabelloneNumeriEsauritiException`
-- [ ] Importare `TabelloneNumeriEsauritiException` in `bingo_game/tabellone.py`
-- [ ] Sostituire `raise ValueError(...)` con `raise TabelloneNumeriEsauritiException(...)`
-- [ ] Mantenere invariato il messaggio testuale in `gestione_errore_numeri_terminati()`
-- [ ] Verificare la clausola di intercettazione in `bingo_game/partita.py`
-- [ ] Aggiornare `bingo_game/partita.py` da `except ValueError` a `except TabelloneNumeriEsauritiException` se necessario
-- [ ] Creare `tests/unit/test_tabellone_eccezioni.py`
-- [ ] Scrivere test `unittest` per il sollevamento di `TabelloneNumeriEsauritiException`
-- [ ] Verificare il messaggio testuale dell'eccezione nel nuovo test
-- [ ] Verificare che nessun test usi `pytest`
-- [ ] Eseguire `python -m unittest discover tests/unit`
-- [ ] Confermare zero failure e zero error sulla suite `tests/unit`
+- [x] Definire `TabelloneNumeriEsauritiException` in `bingo_game/exceptions/tabellone_exceptions.py`
+- [x] Far ereditare `TabelloneNumeriEsauritiException` da `Exception`
+- [x] Aggiungere una docstring descrittiva a `TabelloneNumeriEsauritiException`
+- [x] Importare `TabelloneNumeriEsauritiException` in `bingo_game/tabellone.py`
+- [x] Sostituire `raise ValueError(...)` con `raise TabelloneNumeriEsauritiException(...)`
+- [x] Mantenere invariato il messaggio testuale in `gestione_errore_numeri_terminati()`
+- [x] Verificare la clausola di intercettazione in `bingo_game/partita.py`
+- [x] Aggiornare `bingo_game/partita.py` da `except ValueError` a `except TabelloneNumeriEsauritiException` se necessario
+- [x] Creare `tests/unit/test_tabellone_eccezioni.py`
+- [x] Scrivere test `unittest` per il sollevamento di `TabelloneNumeriEsauritiException`
+- [x] Verificare il messaggio testuale dell'eccezione nel nuovo test
+- [x] Verificare che nessun test usi `pytest`
+- [x] Eseguire `python -m unittest discover tests/unit`
+- [x] Confermare zero failure e zero error sulla suite `tests/unit`
 
 ## Istruzioni operative
 
@@ -73,7 +73,12 @@ Agent-Code
 ## Stato avanzamento
 
 - [x] TODO redatto
-- [ ] Validazione umana
-- [ ] Approvato per implementazione
-- [ ] Implementazione avviata
-- [ ] Suite `tests/unit` verde
+- [x] Validazione umana
+- [x] Approvato per implementazione
+- [x] Implementazione avviata
+- [x] Suite `tests/unit` verde (331 passed, 0 failed)
+
+## Note di chiusura
+
+- Modifiche applicate solo al perimetro I-06: nuova eccezione di dominio, sostituzione del raise nel tabellone, aggiornamento dell'intercettazione in partita e nuovo test unitario dedicato.
+- Impatto runtime invariato: `Partita` continua a convertire l'errore del tabellone in `PartitaNumeriEsauritiException`.

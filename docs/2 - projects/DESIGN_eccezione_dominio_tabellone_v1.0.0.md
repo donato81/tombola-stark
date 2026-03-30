@@ -2,7 +2,7 @@
 type: design
 feature: eccezione_dominio_tabellone
 agent: Agent-Design
-status: DRAFT
+status: COMPLETED
 version: v1.0.0
 date: 2026-03-31
 report_ref: docs/4 - reports/REPORT_ANALISI_INCOERENZE_TABELLONE_2026-03-31.md
@@ -14,7 +14,7 @@ tipo: design
 titolo: Introduzione di una eccezione di dominio per il tabellone
 data_creazione: 2026-03-31
 agente: Agent-Design
-stato: draft
+stato: completed
 feature: eccezione_dominio_tabellone
 versione_progetto: v1.0.0
 report: docs/4 - reports/REPORT_ANALISI_INCOERENZE_TABELLONE_2026-03-31.md

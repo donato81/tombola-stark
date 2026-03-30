@@ -79,6 +79,8 @@ from __future__ import annotations
 from typing import Any
 import random
 
+from bingo_game.exceptions.tabellone_exceptions import TabelloneNumeriEsauritiException
+
 
 
 #definizione della classe Tabellone
@@ -137,7 +139,7 @@ class Tabellone:
         - int: il numero estratto.
 
         Eccezioni:
-        - ValueError: se tutti i numeri sono già stati estratti.
+        - TabelloneNumeriEsauritiException: se tutti i numeri sono già stati estratti.
         """
         # Verifica se ci sono numeri disponibili da estrarre
         if self.numeri_terminati():
@@ -218,11 +220,11 @@ class Tabellone:
         sono esauriti.
 
         Solleva:
-        - ValueError: sempre, con un messaggio che indica l'impossibilità
+        - TabelloneNumeriEsauritiException: sempre, con un messaggio che indica l'impossibilità
           di procedere all'estrazione.
         """
         # Solleva un'eccezione se non ci sono più numeri disponibili
-        raise ValueError("Tutti i numeri sono stati estratti. Impossibile estrarre un altro numero.")
+        raise TabelloneNumeriEsauritiException("Tutti i numeri sono stati estratti. Impossibile estrarre un altro numero.")
 
 
 
