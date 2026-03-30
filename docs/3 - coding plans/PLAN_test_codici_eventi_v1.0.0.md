@@ -2,7 +2,7 @@
 type: plan
 feature: test_codici_eventi
 agent: Agent-Plan
-status: DRAFT
+status: READY
 version: v1.0.0
 design_ref: docs/2 - projects/DESIGN_test_codici_eventi_v1.0.0.md
 date: 2026-03-30
@@ -15,7 +15,7 @@ tipo: coding_plan
 titolo: Piano operativo per test di contratto sui moduli codici_*.py
 data_creazione: 2026-03-30
 agente: Agent-Plan
-stato: bozza
+stato: pronto
 feature: test_codici_eventi
 versione_progetto: v1.0.0
 design: docs/2 - projects/DESIGN_test_codici_eventi_v1.0.0.md
@@ -57,7 +57,7 @@ L'implementazione dovra' rispettare una sequenza lineare e verificabile.
 
 Prima si rileggono i sette moduli target per fissare l'insieme esatto delle costanti e dei Literal.
 Poi si crea il nuovo file di test con sette classi ordinate per modulo, una per ciascun file del Gruppo A.
-Infine si esegue la suite unitaria con `pytest -m unit` per validare che il nuovo file passi senza
+Infine si esegue la suite unitaria con `python -m unittest tests.unit.test_codici_eventi -q` per validare che il nuovo file passi senza
 introdurre regressioni, lasciando invariato tutto il resto del repository.
 
 Il piano e' additivo: nessun file esistente in [bingo_game/](../../bingo_game/) o in altre aree di
@@ -128,7 +128,7 @@ Dipendenze:
 - richiede completato il Passo 1
 - deve aderire al design in [DESIGN_test_codici_eventi_v1.0.0.md](../2%20-%20projects/DESIGN_test_codici_eventi_v1.0.0.md)
 
-#### Passo 3 - Verifica suite con pytest -m unit
+#### Passo 3 - Verifica suite con `unittest`
 
 File coinvolti:
 
@@ -140,7 +140,7 @@ Operazione:
 
 Comando atteso:
 
-- `pytest -m unit`
+- `python -m unittest tests.unit.test_codici_eventi -q`
 
 Esito atteso:
 
@@ -185,7 +185,7 @@ Dipendenze:
 - usare un ordine di classi diverso da quello stabilito dal report, riducendo tracciabilita'
 - confrontare i Literal in modo incompleto e lasciare fuori chiavi o duplicati
 - modificare accidentalmente file esistenti in [tests/](../../tests/) per riuso o refactor non richiesti
-- eseguire `pytest -m unit` senza aver prima congelato i set attesi, rendendo i failure meno leggibili
+- eseguire `python -m unittest tests.unit.test_codici_eventi -q` senza aver prima congelato i set attesi, rendendo i failure meno leggibili
 
 ### Project padre
 
@@ -196,12 +196,12 @@ Dipendenze:
 - i sette moduli target sono stati riletti e mappati prima della scrittura del test
 - [tests/unit/test_codici_eventi.py](../../tests/unit/test_codici_eventi.py) esiste come unico nuovo file di test del task
 - le classi nel file sono nell'ordine definito dal report Gruppo A
-- `pytest -m unit` e' stato eseguito come verifica finale del passo implementativo
+- `python -m unittest tests.unit.test_codici_eventi -q` e' stato eseguito come verifica finale del passo implementativo
 - nessun file esistente fuori da [tests/unit/test_codici_eventi.py](../../tests/unit/test_codici_eventi.py) e' stato modificato
 
 ## Stato Avanzamento
 
 - [x] Definito
-- [ ] In implementazione
-- [ ] Test superati
-- [ ] Chiuso
+- [x] In implementazione
+- [x] Test superati
+- [x] Chiuso

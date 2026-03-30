@@ -2,7 +2,7 @@
 type: design
 feature: test_codici_eventi
 agent: Agent-Design
-status: DRAFT
+status: REVIEWED
 version: v1.0.0
 date: 2026-03-30
 report_ref: docs/4 - reports/report_lavori_test_eventi.md
@@ -14,7 +14,7 @@ tipo: design
 titolo: Design test di contratto per i moduli codici_*.py
 data_creazione: 2026-03-30
 agente: Agent-Design
-stato: bozza
+stato: revisionato
 feature: test_codici_eventi
 versione_progetto: v1.0.0
 report: docs/4 - reports/report_lavori_test_eventi.md
@@ -74,7 +74,7 @@ Il task resta volutamente confinato al Gruppo A. Non include scenari relativi a:
 
 - file di test [tests/unit/test_codici_eventi.py](../../tests/unit/test_codici_eventi.py)
 - i sette moduli codici_*.py del perimetro Gruppo A
-- pytest come runner unitario
+ - unittest come runner unitario
 - `typing.get_args` come meccanismo di estrazione dei valori dichiarati nei Literal
 
 #### Concetti
@@ -201,19 +201,19 @@ Le asserzioni dovranno quindi essere espresse come confronti tra insiemi e inter
 Il Gruppo A non richiede mock, fixture condivise, file temporanei o avvio del motore.
 Il file di test deve dipendere solo da:
 
-- `pytest`
+- `unittest`
 - `typing.get_args`
 - import diretti dai sette moduli target
 
-Questo mantiene la suite veloce, deterministica e marcabile come unit.
+Questo mantiene la suite veloce, deterministica e coerente con il runner `unittest`.
 
 ### Struttura interna attesa del file di test
 
 Il file [tests/unit/test_codici_eventi.py](../../tests/unit/test_codici_eventi.py) dovra' essere organizzato in questo ordine:
 
-1. import pytest e helper di typing necessari
+1. import `unittest` e helper di typing necessari
 2. import dei sette moduli o dei simboli necessari per ogni classe
-3. marcatore `@pytest.mark.unit` a livello di classe o test, in modo uniforme
+3. definizione di classi che estendono `unittest.TestCase`; i metodi di test devono seguire il prefisso `test_`
 4. sette classi di test nell'ordine fissato dal Gruppo A
 5. metodi `test_<scenario>` focalizzati su un solo contratto osservabile per volta
 
@@ -307,7 +307,7 @@ Forma attesa delle asserzioni:
 
 Import di supporto previsti:
 
-- `import pytest`
+- `import unittest`
 - `from typing import get_args`
 
 Import modulo target previsti:
@@ -345,7 +345,7 @@ Il design si considera soddisfatto quando il futuro file
 [tests/unit/test_codici_eventi.py](../../tests/unit/test_codici_eventi.py):
 
 - contiene esattamente sette classi di test, una per modulo del Gruppo A
-- applica il marcatore unit in modo uniforme
+- applica la struttura `unittest.TestCase` in modo uniforme
 - verifica importabilita' di tutti e sette i moduli
 - verifica il valore stringa delle costanti dove il modulo espone costanti nominali
 - verifica la coerenza con Literal dove il Literal e' parte del contratto del modulo
@@ -355,6 +355,6 @@ Il design si considera soddisfatto quando il futuro file
 ## Stato Avanzamento
 
 - [x] Bozza completata
-- [ ] Revisionato
-- [ ] Approvato
+- [x] Revisionato
+- [x] Approvato
 - [ ] Archiviato

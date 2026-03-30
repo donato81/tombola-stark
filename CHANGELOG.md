@@ -12,6 +12,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ### Added
 - `bingo_game/ui/renderers/base_renderer.py`: introduce il contratto astratto del layer di presentazione con `BaseRenderer` e lo stato immutabile `StatoConfigurazione` per il flusso di configurazione.
 - `bingo_game/ui/renderers/renderer_wx.py`: aggiunge `WxRenderer`, prima implementazione concreta del renderer accessibile con dependency injection di `wx.Frame` e `Vocalizzatore`.
+ - `tests/unit/test_codici_eventi.py`: aggiunto nuovo test di Gruppo A (unittest TestCase; validazione: 66/66 passati, coverage 100% sui moduli Gruppo A).
 
 ### Changed
 - `requirements.txt`: aggiorna versioni dipendenze per Python 3.11 e aggiunge `accessible-output2`.
