@@ -24,6 +24,7 @@ stato: attivo
 - [DESIGN_fix_test_destra_avanzata_rifinitura.md](2%20-%20projects/DESIGN_fix_test_destra_avanzata_rifinitura.md)
 - [DESIGN_base_renderer_wx_v1.0.0.md](2%20-%20projects/DESIGN_base_renderer_wx_v1.0.0.md)
 - [DESIGN_test_codici_eventi_v1.0.0.md](2%20-%20projects/DESIGN_test_codici_eventi_v1.0.0.md)
+- [DESIGN_test_eventi_ui_v1.0.0.md](2%20-%20projects/DESIGN_test_eventi_ui_v1.0.0.md)
 
 ### Piani
 
@@ -41,6 +42,7 @@ stato: attivo
 - [PLAN_fix_test_destra_avanzata_rifinitura_v1.md](3%20-%20coding%20plans/PLAN_fix_test_destra_avanzata_rifinitura_v1.md)
 - [PLAN_base_renderer_wx_v1.0.0.md](3%20-%20coding%20plans/PLAN_base_renderer_wx_v1.0.0.md)
 - [PLAN_test_codici_eventi_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_codici_eventi_v1.0.0.md)
+- [PLAN_test_eventi_ui_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_eventi_ui_v1.0.0.md)
 
 ### Reports
 
@@ -73,6 +75,7 @@ stato: attivo
 - [TODO_fix_test_destra_avanzata_rifinitura_v1.md](5%20-%20todolist/TODO_fix_test_destra_avanzata_rifinitura_v1.md) — COMPLETED
 - [TODO_base_renderer_wx_v1.0.0.md](5%20-%20todolist/TODO_base_renderer_wx_v1.0.0.md)
 - [TODO_test_codici_eventi_v1.0.0.md](5%20-%20todolist/TODO_test_codici_eventi_v1.0.0.md)
+- [TODO_test_eventi_ui_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_ui_v1.0.0.md)
 
 ### Task completati
 
