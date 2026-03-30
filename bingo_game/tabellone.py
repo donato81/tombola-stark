@@ -1,14 +1,99 @@
-#import delle librerie necessarie
-#importazione della libreria random per l'estrazione casuale dei numeri 
+"""
+CLASSE PER LA GESTIONE DEL TABELLONE
+Modulo: bingo_game.tabellone
+
+Tombola / Bingo – Gestione del tabellone di estrazione numeri
+=============================================================
+
+OVERVIEW DEL MODULO
+-------------------
+
+Questo modulo definisce la classe Tabellone, responsabile della gestione
+dell'estrazione casuale dei numeri nel gioco della tombola/bingo.
+
+Il tabellone gestisce:
+- il set dei numeri disponibili (da 1 a 90, inizialmente tutti presenti);
+- il set dei numeri già estratti;
+- l'ultimo numero estratto;
+- lo storico cronologico delle estrazioni.
+
+STRUTTURA LOGICA DELLA CLASSE
+-----------------------------
+
+La classe Tabellone è organizzata in due gruppi principali di metodi:
+
+1) Creazione e controllo del tabellone
+
+- __init__():
+  inizializza il tabellone chiamando _inizializza_tabellone().
+
+- _inizializza_tabellone():
+  imposta lo stato iniziale del tabellone (tutti i numeri disponibili,
+  nessun numero estratto).
+
+- estrai_numero():
+  estrae in modo casuale un numero dai disponibili e aggiorna lo stato.
+
+- reset_tabellone():
+  riporta il tabellone allo stato iniziale.
+
+2) Metodi di stato/controllo
+
+- numeri_terminati():
+  verifica se tutti i numeri sono stati estratti.
+
+- gestione_errore_numeri_terminati():
+  solleva un'eccezione se si tenta di estrarre quando i numeri
+  sono esauriti.
+
+- get_conteggio_estratti():
+  ritorna il numero totale di numeri estratti.
+
+- get_conteggio_disponibili():
+  ritorna il numero totale di numeri ancora disponibili.
+
+- get_numeri_estratti():
+  ritorna la lista ordinata dei numeri estratti.
+
+- get_numeri_disponibili():
+  ritorna la lista ordinata dei numeri disponibili.
+
+- get_percentuale_avanzamento():
+  calcola la percentuale di avanzamento (0.0–100.0).
+
+- get_ultimo_numero_estratto():
+  ritorna l'ultimo numero estratto, o None se nessuna estrazione.
+
+- get_ultimi_numeri_estratti(n):
+  ritorna una tupla con gli ultimi N numeri estratti.
+
+- is_numero_estratto(numero):
+  verifica se un dato numero è già stato estratto.
+
+- get_stato_tabellone():
+  ritorna un dizionario con la fotografia completa dello stato.
+"""
+
+from __future__ import annotations
+
+from typing import Any
 import random
 
 
 
 #definizione della classe Tabellone
 class Tabellone:
+    """
+    Gestisce il tabellone di estrazione della partita di tombola/bingo.
+
+    Mantiene lo stato delle estrazioni attraverso due set (numeri disponibili
+    e numeri estratti), l'ultimo numero estratto e lo storico cronologico.
+    Fornisce metodi per estrarre numeri, resettare il tabellone e interrogare
+    il suo stato in ogni momento.
+    """
 
     #costruttore della classe Tabellone
-    def __init__(self):
+    def __init__(self) -> None:
         # Inizializza il tabellone
         self._inizializza_tabellone()
 
@@ -21,19 +106,39 @@ class Tabellone:
     """sezione: metodi di creazione del tabellone"""
 
     #metodo per inizializzare il tabellone
-    def _inizializza_tabellone(self):
+    def _inizializza_tabellone(self) -> None:
+        """
+        Inizializza o reinizializza lo stato interno del tabellone.
+
+        Imposta tutti i 90 numeri come disponibili, svuota i numeri estratti,
+        azzera l'ultimo numero estratto e resetta lo storico delle estrazioni.
+        Chiamato da __init__() e da reset_tabellone().
+        """
         # Inizializza il set dei numeri disponibili da 1 a 90
-        self.numeri_disponibili = set(range(1, 91))
+        self.numeri_disponibili: set[int] = set(range(1, 91))
         # Inizializza il set dei numeri estratti
-        self.numeri_estratti = set()
+        self.numeri_estratti: set[int] = set()
         # Contenitore: ultimo numero estratto (None se nessuna estrazione)
-        self.ultimo_numero_estratto = None
+        self.ultimo_numero_estratto: int | None = None
         # Storico delle estrazioni in ordine temporale (serve per "ultimi N estratti")
-        self.storico_estrazioni = []
+        self.storico_estrazioni: list[int] = []
 
 
     #metodo per estrarre un numero casuale
-    def estrai_numero(self):
+    def estrai_numero(self) -> int:
+        """
+        Estrae un numero casuale tra quelli ancora disponibili.
+
+        Se non ci sono più numeri disponibili, chiama gestione_errore_numeri_terminati().
+        Aggiorna numeri_disponibili, numeri_estratti, ultimo_numero_estratto
+        e storico_estrazioni.
+
+        Ritorna:
+        - int: il numero estratto.
+
+        Eccezioni:
+        - ValueError: se tutti i numeri sono già stati estratti.
+        """
         # Verifica se ci sono numeri disponibili da estrarre
         if self.numeri_terminati():
             self.gestione_errore_numeri_terminati()
@@ -79,7 +184,13 @@ class Tabellone:
 
 
     #metodo per resettare il tabellone
-    def reset_tabellone(self):
+    def reset_tabellone(self) -> None:
+        """
+        Riporta il tabellone allo stato iniziale.
+
+        Equivale a creare un nuovo tabellone: tutti i 90 numeri tornano
+        disponibili, nessuno estratto, storico azzerato.
+        """
         # Reinizializza il tabellone
         self._inizializza_tabellone()
 
@@ -87,21 +198,36 @@ class Tabellone:
 
     """sezione: metodi di stato/controllo"""
     #metodo per verificare se i numeri del tabellone sono terminati
-    def numeri_terminati(self):
+    def numeri_terminati(self) -> bool:
+        """
+        Verifica se sono rimasti numeri disponibili da estrarre.
+
+        Ritorna:
+        - bool: True se tutti e 90 i numeri sono stati estratti,
+          False se c'è ancora almeno un numero disponibile.
+        """
         # Ritorna True se non ci sono più numeri disponibili da estrarre, altrimenti False
         return len(self.numeri_disponibili) == 0
 
 
 
     #metodo per la gestione del errore sui numeri terminati
-    def gestione_errore_numeri_terminati(self):
+    def gestione_errore_numeri_terminati(self) -> None:
+        """
+        Gestisce il caso in cui si tenti di estrarre quando tutti i numeri
+        sono esauriti.
+
+        Solleva:
+        - ValueError: sempre, con un messaggio che indica l'impossibilità
+          di procedere all'estrazione.
+        """
         # Solleva un'eccezione se non ci sono più numeri disponibili
         raise ValueError("Tutti i numeri sono stati estratti. Impossibile estrarre un altro numero.")
 
 
 
     #metodo per ottenere il numero totale di numeri estratti
-    def get_conteggio_estratti(self):
+    def get_conteggio_estratti(self) -> int:
         """
         Ritorna il numero totale di numeri estratti dal tabellone fino a questo momento.
 
@@ -129,7 +255,7 @@ class Tabellone:
 
 
     #metodo per ottenere il numero totale di numeri ancora disponibili
-    def get_conteggio_disponibili(self):
+    def get_conteggio_disponibili(self) -> int:
         """
         Ritorna il numero totale di numeri ancora disponibili da estrarre.
 
@@ -158,7 +284,14 @@ class Tabellone:
 
 
     #metodo per ritornare i numeri estratti
-    def get_numeri_estratti(self):
+    def get_numeri_estratti(self) -> list[int]:
+        """
+        Ritorna la lista ordinata dei numeri già estratti.
+
+        Ritorna:
+        - list[int]: lista ordinata in senso crescente dei numeri estratti.
+          Lista vuota se nessun numero è stato ancora estratto.
+        """
         #ritorna una lista ordinata dei numeri estratti
         return sorted(self.numeri_estratti)
 
@@ -166,14 +299,21 @@ class Tabellone:
 
 
     #metodo per ritornare i numeri disponibili
-    def get_numeri_disponibili(self):
+    def get_numeri_disponibili(self) -> list[int]:
+        """
+        Ritorna la lista ordinata dei numeri ancora disponibili per l'estrazione.
+
+        Ritorna:
+        - list[int]: lista ordinata in senso crescente dei numeri disponibili.
+          Lista vuota se tutti i numeri sono stati estratti.
+        """
         #ritorna una lista ordinata dei numeri disponibili
         return sorted(self.numeri_disponibili)
 
 
 
     #metodo per ottenere la percentuale di avanzamento del tabellone
-    def get_percentuale_avanzamento(self):
+    def get_percentuale_avanzamento(self) -> float:
         """
         Calcola e ritorna la percentuale di avanzamento del tabellone.
 
@@ -209,7 +349,7 @@ class Tabellone:
         return round(percentuale, 1)
 
 
-    def get_ultimo_numero_estratto(self):
+    def get_ultimo_numero_estratto(self) -> int | None:
         """
         Ritorna l'ultimo numero estratto dal tabellone.
 
@@ -264,7 +404,7 @@ class Tabellone:
 
 
     #metodo per ottenere lo stato completo del tabellone
-    def get_stato_tabellone(self):
+    def get_stato_tabellone(self) -> dict[str, Any]:
         """
         Ritorna un dizionario con le informazioni globali sullo stato del tabellone.
 

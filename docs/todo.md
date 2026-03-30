@@ -116,12 +116,6 @@ stato: attivo
 
 ### Da fare
 
-
-- Allineamento standard formale di `bingo_game/tabellone.py`
-	- Plan: [PLAN_allineamento_standard_tabellone_v1.0.0.md](3%20-%20coding%20plans/PLAN_allineamento_standard_tabellone_v1.0.0.md)
-	- TODO: [TODO_allineamento_standard_tabellone_v1.0.0.md](5%20-%20todolist/TODO_allineamento_standard_tabellone_v1.0.0.md)
-	- Stato: da fare
-
 ### Task completati
 
 - Refactor strutturale R2 del vocalizzatore AO2

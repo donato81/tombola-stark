@@ -2,7 +2,7 @@
 type: plan
 feature: allineamento_standard_tabellone
 agent: Agent-Plan
-status: DRAFT
+status: COMPLETED
 version: v1.0.0
 design_ref: docs/2 - projects/DESIGN_allineamento_standard_tabellone_v1.0.0.md
 date: 2026-03-31
@@ -15,7 +15,7 @@ tipo: coding_plan
 titolo: Piano operativo per l'allineamento standard di bingo_game/tabellone.py
 data_creazione: 2026-03-31
 agente: Agent-Plan
-stato: draft
+stato: completed
 feature: allineamento_standard_tabellone
 versione_progetto: v1.0.0
 design: docs/2 - projects/DESIGN_allineamento_standard_tabellone_v1.0.0.md
@@ -153,7 +153,7 @@ Risultato atteso:
 ### Stato avanzamento
 
 - [x] Piano redatto
-- [ ] Validazione umana
-- [ ] Approvato per implementazione
-- [ ] Implementazione avviata
-- [ ] Suite `tests/unit` verde
+- [x] Validazione umana
+- [x] Approvato per implementazione
+- [x] Implementazione avviata
+- [x] Suite `tests/unit` verde (329 passed, 0 failed)
