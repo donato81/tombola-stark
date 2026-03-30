@@ -726,9 +726,6 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
 
         # 4) Caso "primo utilizzo": auto-inizializzazione specifica per compatibilità.
         if riga_era_none:
-            if self._indice_riga_focus is None:
-                self._indice_riga_focus = 0
-
             ultima_riga = totale_righe - 1
             if self._indice_riga_focus >= ultima_riga:
                 evento = EventoNavigazioneRiga.limite_massimo(
@@ -959,9 +956,6 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
 
         # 4) Primo utilizzo: auto-inizializzazione specifica per compatibilità.
         if riga_era_none:
-            if self._indice_riga_focus is None:
-                self._indice_riga_focus = 0
-
             ultima_riga = totale_righe - 1
             if self._indice_riga_focus >= ultima_riga:
                 evento = EventoNavigazioneRigaAvanzata.limite_massimo(
@@ -1087,9 +1081,6 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
 
         # 4) Primo utilizzo: partiamo da colonna centrale (4) e ci spostiamo verso sinistra.
         if colonna_era_none:
-            if self._indice_colonna_focus is None:
-                self._indice_colonna_focus = 4
-
             if self._indice_colonna_focus == 0:
                 evento = EventoNavigazioneColonna.limite_minimo(
                     id_giocatore=self.id_giocatore,
@@ -1209,12 +1200,6 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
 
         # 4) Primo utilizzo: auto-inizializzazione specifica per compatibilità.
         if colonna_era_none:
-            # Dopo init colonna a 4, il primo comando DESTRA deve portare alla colonna 5.
-            # In caso di mock o configurazione diversa, applichiamo comunque lo stesso spostamento.
-            if self._indice_colonna_focus is None:
-                self._indice_colonna_focus = 0
-
-            # Autolimite massimo da prima colonna auto-impostata
             ultima_colonna = totale_colonne - 1
             if self._indice_colonna_focus >= ultima_colonna:
                 evento = EventoNavigazioneColonna.limite_massimo(
@@ -1337,9 +1322,6 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
 
         # 4) Primo utilizzo: auto-inizializzazione specifica per compatibilità.
         if colonna_era_none:
-            if self._indice_colonna_focus is None:
-                self._indice_colonna_focus = 4
-
             if self._indice_colonna_focus == 0:
                 evento = EventoNavigazioneColonnaAvanzata.limite_minimo(
                     id_giocatore=self.id_giocatore,
@@ -1462,9 +1444,6 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
 
         # 4) Primo utilizzo: auto-inizializzazione specifica per compatibilità.
         if colonna_era_none:
-            if self._indice_colonna_focus is None:
-                self._indice_colonna_focus = 4
-
             ultima_colonna = totale_colonne - 1
             if self._indice_colonna_focus >= ultima_colonna:
                 evento = EventoNavigazioneColonnaAvanzata.limite_massimo(
