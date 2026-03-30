@@ -27,6 +27,11 @@ stato: attivo
 - [DESIGN_test_eventi_ui_v1.0.0.md](2%20-%20projects/DESIGN_test_eventi_ui_v1.0.0.md)
 - [DESIGN_test_eventi_partita_v1.0.0.md](2%20-%20projects/DESIGN_test_eventi_partita_v1.0.0.md)
 - [DESIGN_test_esito_azione_v1.0.0.md](2%20-%20projects/DESIGN_test_esito_azione_v1.0.0.md)
+- [DESIGN_test_eventi_output_cartella_v1.0.0.md](2%20-%20projects/DESIGN_test_eventi_output_cartella_v1.0.0.md)
+- [DESIGN_test_eventi_output_navigazione_v1.0.0.md](2%20-%20projects/DESIGN_test_eventi_output_navigazione_v1.0.0.md)
+- [DESIGN_test_eventi_output_tabellone_v1.0.0.md](2%20-%20projects/DESIGN_test_eventi_output_tabellone_v1.0.0.md)
+- [DESIGN_test_eventi_output_segnazione_v1.0.0.md](2%20-%20projects/DESIGN_test_eventi_output_segnazione_v1.0.0.md)
+- [DESIGN_test_eventi_output_bulk_focus_v1.0.0.md](2%20-%20projects/DESIGN_test_eventi_output_bulk_focus_v1.0.0.md)
 
 ### Piani
 
@@ -47,6 +52,11 @@ stato: attivo
 - [PLAN_test_eventi_ui_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_eventi_ui_v1.0.0.md)
 - [PLAN_test_eventi_partita_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_eventi_partita_v1.0.0.md)
 - [PLAN_test_esito_azione_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_esito_azione_v1.0.0.md)
+- [PLAN_test_eventi_output_cartella_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_eventi_output_cartella_v1.0.0.md)
+- [PLAN_test_eventi_output_navigazione_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_eventi_output_navigazione_v1.0.0.md)
+- [PLAN_test_eventi_output_tabellone_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_eventi_output_tabellone_v1.0.0.md)
+- [PLAN_test_eventi_output_segnazione_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_eventi_output_segnazione_v1.0.0.md)
+- [PLAN_test_eventi_output_bulk_focus_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_eventi_output_bulk_focus_v1.0.0.md)
 
 ### Reports
 
@@ -84,6 +94,11 @@ stato: attivo
 - [TODO_test_eventi_ui_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_ui_v1.0.0.md)
 - [TODO_test_eventi_partita_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_partita_v1.0.0.md)
 - [TODO_test_esito_azione_v1.0.0.md](5%20-%20todolist/TODO_test_esito_azione_v1.0.0.md)
+- [TODO_test_eventi_output_cartella_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_cartella_v1.0.0.md)
+- [TODO_test_eventi_output_navigazione_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_navigazione_v1.0.0.md)
+- [TODO_test_eventi_output_tabellone_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_tabellone_v1.0.0.md)
+- [TODO_test_eventi_output_segnazione_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_segnazione_v1.0.0.md)
+- [TODO_test_eventi_output_bulk_focus_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_bulk_focus_v1.0.0.md)
 
 ### Task completati
 
