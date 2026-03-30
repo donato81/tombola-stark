@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     import wx
 
-from my_lib.vocalizzatore import Vocalizzatore
+from my_lib.vocalizzatore import IVocalizzatore
 from bingo_game.events.codici_messaggi_sistema import SISTEMA_ERRORE_CODICE_MANCANTE
 from bingo_game.events.eventi import EsitoAzione
 from bingo_game.events.eventi_output_ui_umani import (
@@ -78,10 +78,10 @@ class WxRenderer(BaseRenderer):
     def __init__(
         self,
         finestra_principale: wx.Frame,
-        vocalizzatore: Vocalizzatore,
+        vocalizzatore: IVocalizzatore,
     ) -> None:
         self._finestra: wx.Frame = finestra_principale
-        self._vocalizzatore: Vocalizzatore = vocalizzatore
+        self._vocalizzatore: IVocalizzatore = vocalizzatore
 
     # ---------------------------------------------------------------
     # Metodi pubblici — contratto BaseRenderer

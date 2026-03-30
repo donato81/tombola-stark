@@ -113,13 +113,14 @@ stato: attivo
 
 ### Da fare
 
+
+### Task completati
+
 - Refactor strutturale R2 del vocalizzatore AO2
-	- Stato: da fare
 	- Design: [DESIGN_refactor_vocalizzatore_v1.0.0.md](2%20-%20projects/DESIGN_refactor_vocalizzatore_v1.0.0.md)
 	- Plan: [PLAN_refactor_vocalizzatore_v1.0.0.md](3%20-%20coding%20plans/PLAN_refactor_vocalizzatore_v1.0.0.md)
 	- TODO: [TODO_refactor_vocalizzatore_v1.0.0.md](5%20-%20todolist/TODO_refactor_vocalizzatore_v1.0.0.md)
-
-### Task completati
+	- Changelog: [CHANGELOG.md](../CHANGELOG.md)
 
 - Implementazione suite unittest per i moduli di validazione
 	- Report: [REPORT_ANALISI_VALIDAZIONI_2026-03-30.md](4%20-%20reports/REPORT_ANALISI_VALIDAZIONI_2026-03-30.md)

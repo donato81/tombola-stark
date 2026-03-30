@@ -9,6 +9,13 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Changed
+- `my_lib/vocalizzatore.py`: refactor strutturale R2 — introdotti `IVocalizzatore` (Protocol), `NullVocalizzatore` (no-op headless-safe), backend iniettabile nel costruttore di `Vocalizzatore`, protezione best-effort `try/except` in `vocalizza_testo`, inoltro di `interrompi` come `interrupt=` verso AO2; rimossi 9 metodi dead code.
+- `bingo_game/ui/renderers/renderer_wx.py`: type hint del parametro `vocalizzatore` e dell'attributo `_vocalizzatore` aggiornati da `Vocalizzatore` a `IVocalizzatore` per dependency inversion.
+
+### Added
+- `tests/unit/test_vocalizzatore.py`: suite unittest per `my_lib/vocalizzatore.py`; 8 test su `NullVocalizzatore` e `Vocalizzatore` con backend fake iniettabile; nessun patch su AO2.
+
 ---
 
 ## [0.9.5] — 2026-03-30

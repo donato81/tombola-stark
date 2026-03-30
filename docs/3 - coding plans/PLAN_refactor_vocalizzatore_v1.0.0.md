@@ -2,7 +2,7 @@
 type: plan
 feature: refactor_vocalizzatore
 agent: Agent-Plan
-status: DRAFT
+status: COMPLETED
 version: v1.0.0
 design_ref: docs/2 - projects/DESIGN_refactor_vocalizzatore_v1.0.0.md
 date: 2026-03-31
@@ -15,7 +15,7 @@ tipo: coding_plan
 titolo: Piano operativo refactor strutturale R2 per my_lib/vocalizzatore.py
 data_creazione: 2026-03-31
 agente: Agent-Plan
-stato: draft
+stato: completato
 feature: refactor_vocalizzatore
 versione_progetto: v1.0.0
 design: docs/2 - projects/DESIGN_refactor_vocalizzatore_v1.0.0.md
@@ -169,6 +169,7 @@ python -m unittest discover tests/unit
 ## Stato Avanzamento
 
 - [x] Piano redatto
-- [ ] Validazione umana
-- [ ] Approvato per implementazione
-- [ ] Esecuzione coding non avviata
+- [x] Validazione umana
+- [x] Approvato per implementazione
+- [x] Implementazione completata — 2026-03-31
+- [x] Suite tests/unit verde: 329 test, 0 failure, 0 error
