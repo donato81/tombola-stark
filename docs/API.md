@@ -399,6 +399,30 @@ partita = Partita(tabellone, giocatori)
 
 #### get_giocatori()
 
+---
+
+### Eventi UI
+
+**File**: `bingo_game/events/eventi_ui.py`
+
+Questo modulo contiene tipi e dataclass usati dal layer di interfaccia
+per comunicare cambi di focus senza includere stringhe localizzate.
+
+- `Tipo_Focus`: alias `Literal["cartella", "riga", "colonna"]` — valori ammessi
+    per il tipo di focus notificabile.
+
+- `EventoFocusAutoImpostato(tipo_focus: Tipo_Focus, indice: int)`
+    - Evento immutabile (dataclass frozen) emesso quando un helper imposta
+        automaticamente un focus mancante. `indice` è 0-based.
+
+- `EventoFocusCartellaImpostato(id_giocatore: Optional[int], nome_giocatore: str, numero_cartella: int, indice_cartella: int, reset_riga_colonna: bool = False)`
+    - Evento immutabile (dataclass frozen) emesso quando il giocatore imposta
+        esplicitamente il focus su una cartella. Fornisce sia la numerazione
+        "umana" (`numero_cartella`, 1..N) sia l'`indice_cartella` 0-based e un
+        flag `reset_riga_colonna` che indica se i focus di riga/colonna sono stati
+        azzerati dal cambio di cartella.
+
+
 ```python
 def get_giocatori() -> List[GiocatoreBase]:
 ```

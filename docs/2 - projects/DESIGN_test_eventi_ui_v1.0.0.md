@@ -2,7 +2,7 @@
 type: design
 feature: test_eventi_ui
 agent: Agent-Design
-status: DRAFT
+status: REVIEWED
 version: v1.0.0
 date: 2026-03-30
 report_ref: docs/4 - reports/report_lavori_test_eventi.md
@@ -14,7 +14,7 @@ tipo: design
 titolo: Design test unitari per le dataclass di eventi_ui.py
 data_creazione: 2026-03-30
 agente: Agent-Design
-stato: bozza
+stato: revisionato
 feature: test_eventi_ui
 versione_progetto: v1.0.0
 report: docs/4 - reports/report_lavori_test_eventi.md
@@ -281,6 +281,6 @@ Il design si considera soddisfatto quando il futuro file
 ## Stato Avanzamento
 
 - [x] Bozza completata
-- [ ] Revisionato
-- [ ] Approvato
+- [x] Revisionato
+- [x] Approvato
 - [ ] Archiviato

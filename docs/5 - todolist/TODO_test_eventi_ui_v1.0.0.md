@@ -2,7 +2,7 @@
 type: todo
 feature: test_eventi_ui
 agent: Agent-Plan
-status: DRAFT
+status: COMPLETED
 version: v1.0.0
 plan_ref: docs/3 - coding plans/PLAN_test_eventi_ui_v1.0.0.md
 design_ref: docs/2 - projects/DESIGN_test_eventi_ui_v1.0.0.md
@@ -16,7 +16,7 @@ tipo: todo_task
 titolo: TODO operativo per i test unitari di eventi_ui.py
 data_creazione: 2026-03-30
 agente: Agent-Plan
-stato: bozza
+stato: completato
 feature: test_eventi_ui
 versione_progetto: v1.0.0
 plan: docs/3 - coding plans/PLAN_test_eventi_ui_v1.0.0.md
@@ -53,36 +53,36 @@ Non definita
 
 ### Passo 1 - Leggere eventi_ui.py
 
-- [ ] Leggere [bingo_game/events/eventi_ui.py](../../bingo_game/events/eventi_ui.py) e annotare i campi di `EventoFocusAutoImpostato`
-- [ ] Leggere [bingo_game/events/eventi_ui.py](../../bingo_game/events/eventi_ui.py) e annotare i campi di `EventoFocusCartellaImpostato`
-- [ ] Verificare in [bingo_game/events/eventi_ui.py](../../bingo_game/events/eventi_ui.py) il default `reset_riga_colonna=False`
-- [ ] Verificare in [bingo_game/events/eventi_ui.py](../../bingo_game/events/eventi_ui.py) l'uso di `frozen=True`
+- [x] Leggere [bingo_game/events/eventi_ui.py](../../bingo_game/events/eventi_ui.py) e annotare i campi di `EventoFocusAutoImpostato`
+- [x] Leggere [bingo_game/events/eventi_ui.py](../../bingo_game/events/eventi_ui.py) e annotare i campi di `EventoFocusCartellaImpostato`
+- [x] Verificare in [bingo_game/events/eventi_ui.py](../../bingo_game/events/eventi_ui.py) il default `reset_riga_colonna=False`
+- [x] Verificare in [bingo_game/events/eventi_ui.py](../../bingo_game/events/eventi_ui.py) l'uso di `frozen=True`
 
 ### Passo 2 - Creare tests/unit/test_eventi_ui.py
 
-- [ ] Creare [tests/unit/test_eventi_ui.py](../../tests/unit/test_eventi_ui.py)
-- [ ] Usare esclusivamente `unittest` come libreria di test
-- [ ] Inserire `TestEventoFocusAutoImpostato` come prima classe del file
-- [ ] Inserire `TestEventoFocusCartellaImpostato` come seconda classe del file
-- [ ] Coprire gli scenari di costruzione, default e immutabilita' del Gruppo B
+- [x] Creare [tests/unit/test_eventi_ui.py](../../tests/unit/test_eventi_ui.py)
+- [x] Usare esclusivamente `unittest` come libreria di test
+- [x] Inserire `TestEventoFocusAutoImpostato` come prima classe del file
+- [x] Inserire `TestEventoFocusCartellaImpostato` come seconda classe del file
+- [x] Coprire gli scenari di costruzione, default e immutabilita' del Gruppo B
 
 ### Passo 3 - Verificare che tutti i test del file passino
 
-- [ ] Eseguire `python -m unittest tests.unit.test_eventi_ui -q`
-- [ ] Verificare che [tests/unit/test_eventi_ui.py](../../tests/unit/test_eventi_ui.py) venga raccolto dal runner
-- [ ] Verificare che tutti i test del Gruppo B passino
+- [x] Eseguire `python -m unittest tests.unit.test_eventi_ui -q`
+- [x] Verificare che [tests/unit/test_eventi_ui.py](../../tests/unit/test_eventi_ui.py) venga raccolto dal runner
+- [x] Verificare che tutti i test del Gruppo B passino
 
 ### Passo 4 - Verificare assenza di pytest
 
-- [ ] Verificare che il file non contenga import di pytest
-- [ ] Verificare che il file non contenga fixture pytest
-- [ ] Verificare che il file usi solo unittest come libreria di test
+- [x] Verificare che il file non contenga import di pytest
+- [x] Verificare che il file non contenga fixture pytest
+- [x] Verificare che il file usi solo unittest come libreria di test
 
 ### Passo 5 - Confermare il rispetto del perimetro
 
-- [ ] Verificare che nessun file esistente fuori da [tests/unit/test_eventi_ui.py](../../tests/unit/test_eventi_ui.py) sia stato modificato
-- [ ] Verificare che nessun file in [bingo_game/](../../bingo_game/) sia stato toccato
-- [ ] Verificare che il file nuovo non includa scenari dei Gruppi A, C, D o E
+- [x] Verificare che nessun file esistente fuori da [tests/unit/test_eventi_ui.py](../../tests/unit/test_eventi_ui.py) sia stato modificato
+- [x] Verificare che nessun file in [bingo_game/](../../bingo_game/) sia stato toccato
+- [x] Verificare che il file nuovo non includa scenari dei Gruppi A, C, D o E
 
 ## Note operative
 
@@ -95,6 +95,6 @@ Non definita
 ## Stato Avanzamento
 
 - [x] Pianificato
-- [ ] In corso
-- [ ] Completato
-- [ ] Verificato
+- [x] In corso
+- [x] Completato
+- [x] Verificato
