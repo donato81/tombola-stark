@@ -2,7 +2,7 @@
 type: plan
 feature: test_eventi_partita
 agent: Agent-Plan
-status: DRAFT
+status: READY
 version: v1.0.0
 design_ref: docs/2 - projects/DESIGN_test_eventi_partita_v1.0.0.md
 date: 2026-03-30
@@ -15,7 +15,7 @@ tipo: coding_plan
 titolo: Piano operativo per i test unitari di eventi_partita.py
 data_creazione: 2026-03-30
 agente: Agent-Plan
-stato: bozza
+stato: pronto
 feature: test_eventi_partita
 versione_progetto: v1.0.0
 design: docs/2 - projects/DESIGN_test_eventi_partita_v1.0.0.md
@@ -232,6 +232,6 @@ Dipendenze:
 ## Stato Avanzamento
 
 - [x] Definito
-- [ ] In implementazione
-- [ ] Test superati
-- [ ] Chiuso
+- [x] In implementazione
+- [x] Test superati
+- [x] Chiuso

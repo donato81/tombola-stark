@@ -2,7 +2,7 @@
 type: todo
 feature: test_eventi_partita
 agent: Agent-Plan
-status: DRAFT
+status: COMPLETED
 version: v1.0.0
 plan_ref: docs/3 - coding plans/PLAN_test_eventi_partita_v1.0.0.md
 design_ref: docs/2 - projects/DESIGN_test_eventi_partita_v1.0.0.md
@@ -16,7 +16,7 @@ tipo: todo_task
 titolo: TODO operativo per i test unitari di eventi_partita.py
 data_creazione: 2026-03-30
 agente: Agent-Plan
-stato: bozza
+stato: completato
 feature: test_eventi_partita
 versione_progetto: v1.0.0
 plan: docs/3 - coding plans/PLAN_test_eventi_partita_v1.0.0.md
@@ -53,46 +53,46 @@ Non definita
 
 ### Passo 1 - Leggere eventi_partita.py
 
-- [ ] Leggere [bingo_game/events/eventi_partita.py](../../bingo_game/events/eventi_partita.py) e annotare i campi di ReclamoVittoria
-- [ ] Leggere [bingo_game/events/eventi_partita.py](../../bingo_game/events/eventi_partita.py) e annotare i campi di EventoReclamoVittoria
-- [ ] Leggere [bingo_game/events/eventi_partita.py](../../bingo_game/events/eventi_partita.py) e annotare i campi di EventoEsitoReclamoVittoria
-- [ ] Leggere [bingo_game/events/eventi_partita.py](../../bingo_game/events/eventi_partita.py) e annotare i campi di EventoFineTurno
-- [ ] Verificare in [bingo_game/events/eventi_partita.py](../../bingo_game/events/eventi_partita.py) i factory methods disponibili e i valori default
+- [x] Leggere [bingo_game/events/eventi_partita.py](../../bingo_game/events/eventi_partita.py) e annotare i campi di ReclamoVittoria
+- [x] Leggere [bingo_game/events/eventi_partita.py](../../bingo_game/events/eventi_partita.py) e annotare i campi di EventoReclamoVittoria
+- [x] Leggere [bingo_game/events/eventi_partita.py](../../bingo_game/events/eventi_partita.py) e annotare i campi di EventoEsitoReclamoVittoria
+- [x] Leggere [bingo_game/events/eventi_partita.py](../../bingo_game/events/eventi_partita.py) e annotare i campi di EventoFineTurno
+- [x] Verificare in [bingo_game/events/eventi_partita.py](../../bingo_game/events/eventi_partita.py) i factory methods disponibili e i valori default
 
 ### Passo 2 - Leggere codici_errori.py
 
-- [ ] Leggere [bingo_game/events/codici_errori.py](../../bingo_game/events/codici_errori.py) per identificare i codici errore validi
-- [ ] Verificare che VERIFICA_FALLITA sia disponibile come valore utilizzabile nei test di fallimento
-- [ ] Annotare il codice errore effettivamente scelto prima della scrittura del test
+- [x] Leggere [bingo_game/events/codici_errori.py](../../bingo_game/events/codici_errori.py) per identificare i codici errore validi
+- [x] Verificare che VERIFICA_FALLITA sia disponibile come valore utilizzabile nei test di fallimento
+- [x] Annotare il codice errore effettivamente scelto prima della scrittura del test
 
 ### Passo 3 - Creare tests/unit/test_eventi_partita.py
 
-- [ ] Creare tests/unit/test_eventi_partita.py
-- [ ] Usare esclusivamente unittest come libreria di test
-- [ ] Inserire TestReclamoVittoria come prima classe del file
-- [ ] Inserire TestEventoReclamoVittoria come seconda classe del file
-- [ ] Inserire TestEventoEsitoReclamoVittoria come terza classe del file
-- [ ] Inserire TestEventoFineTurno come quarta classe del file
-- [ ] Applicare la strategia FrozenInstanceError oppure AttributeError per i controlli di immutabilita'
-- [ ] Coprire solo gli scenari del Gruppo C
+- [x] Creare tests/unit/test_eventi_partita.py
+- [x] Usare esclusivamente unittest come libreria di test
+- [x] Inserire TestReclamoVittoria come prima classe del file
+- [x] Inserire TestEventoReclamoVittoria come seconda classe del file
+- [x] Inserire TestEventoEsitoReclamoVittoria come terza classe del file
+- [x] Inserire TestEventoFineTurno come quarta classe del file
+- [x] Applicare la strategia FrozenInstanceError oppure AttributeError per i controlli di immutabilita'
+- [x] Coprire solo gli scenari del Gruppo C
 
 ### Passo 4 - Verificare che tutti i test del file passino
 
-- [ ] Eseguire python -m unittest tests.unit.test_eventi_partita -q
-- [ ] Verificare che tests/unit/test_eventi_partita.py venga raccolto dal runner
-- [ ] Verificare che tutti i test del Gruppo C passino
+- [x] Eseguire python -m unittest tests.unit.test_eventi_partita -q
+- [x] Verificare che tests/unit/test_eventi_partita.py venga raccolto dal runner
+- [x] Verificare che tutti i test del Gruppo C passino
 
 ### Passo 5 - Verificare assenza di pytest
 
-- [ ] Verificare che il file non contenga import di pytest
-- [ ] Verificare che il file non contenga fixture pytest
-- [ ] Verificare che il file usi solo unittest come libreria di test
+- [x] Verificare che il file non contenga import di pytest
+- [x] Verificare che il file non contenga fixture pytest
+- [x] Verificare che il file usi solo unittest come libreria di test
 
 ### Passo 6 - Confermare il rispetto del perimetro
 
-- [ ] Verificare che nessun file esistente fuori da tests/unit/test_eventi_partita.py sia stato modificato
-- [ ] Verificare che nessun file in [bingo_game/](../../bingo_game/) sia stato toccato
-- [ ] Verificare che il file nuovo non includa scenari dei Gruppi A, B, D o E
+- [x] Verificare che nessun file esistente fuori da tests/unit/test_eventi_partita.py sia stato modificato
+- [x] Verificare che nessun file in [bingo_game/](../../bingo_game/) sia stato toccato
+- [x] Verificare che il file nuovo non includa scenari dei Gruppi A, B, D o E
 
 ## Note operative
 
@@ -105,6 +105,6 @@ Non definita
 ## Stato Avanzamento
 
 - [x] Pianificato
-- [ ] In corso
-- [ ] Completato
-- [ ] Verificato
+- [x] In corso
+- [x] Completato
+- [x] Verificato
