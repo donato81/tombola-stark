@@ -271,6 +271,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - Strato interfaccia utente (`bingo_game/ui/`) — in sviluppo attivo.
 - Navigazione da tastiera e integrazione TTS completa per il giocatore umano.
 - Utility di supporto generali (`bingo_game/utils.py`).
+ - `tests/unit/test_helper_focus.py`: aggiunti test diretti per `GestioneFocusMixin` (implementazione e verifica completate).
+ - Documentazione del task aggiornata: `docs/2 - projects/DESIGN_TEST_HELPER_FOCUS.md`, `docs/3 - coding plans/PLAN_TEST_HELPER_FOCUS.md`, `docs/5 - todolist/TODO_TEST_HELPER_FOCUS.md` (stato: COMPLETED). Vedi report: `docs/4 - reports/report_verifica_lavori_test_helper_focus.md`.
 
 ---
 

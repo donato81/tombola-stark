@@ -12,6 +12,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/2 - projects/ -->
 
+- [DESIGN_TEST_HELPER_FOCUS.md](2%20-%20projects/DESIGN_TEST_HELPER_FOCUS.md)
 - [DESIGN_conversione_test_pytest_unittest.md](2%20-%20projects/DESIGN_conversione_test_pytest_unittest.md)
 - [DESIGN_fix_unicode_print.md](2%20-%20projects/DESIGN_fix_unicode_print.md)
 - [DESIGN_migrazione_test_silent_controller_unittest.md](2%20-%20projects/DESIGN_migrazione_test_silent_controller_unittest.md)
@@ -37,6 +38,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/3 - coding plans/ -->
 
+- [PLAN_TEST_HELPER_FOCUS.md](3%20-%20coding%20plans/PLAN_TEST_HELPER_FOCUS.md)
 - [PLAN_conversione_test_pytest_unittest_v0.9.0.md](3%20-%20coding%20plans/PLAN_conversione_test_pytest_unittest_v0.9.0.md)
 - [PLAN_fix_unicode_print_v0.9.1.md](3%20-%20coding%20plans/PLAN_fix_unicode_print_v0.9.1.md)
 - [PLAN_migrazione_test_silent_controller_unittest_v0.9.1.md](3%20-%20coding%20plans/PLAN_migrazione_test_silent_controller_unittest_v0.9.1.md)
@@ -80,6 +82,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/5 - todolist/ -->
 
+- [TODO_TEST_HELPER_FOCUS.md](5%20-%20todolist/TODO_TEST_HELPER_FOCUS.md)
 - [TODO_conversione_test_pytest_unittest_v0.9.0.md](5%20-%20todolist/TODO_conversione_test_pytest_unittest_v0.9.0.md)
 - [TODO_fix_unicode_print_v0.9.1.md](5%20-%20todolist/TODO_fix_unicode_print_v0.9.1.md) — COMPLETED
 - [TODO_migrazione_test_silent_controller_unittest_v0.9.1.md](5%20-%20todolist/TODO_migrazione_test_silent_controller_unittest_v0.9.1.md)
@@ -101,13 +104,22 @@ stato: attivo
 - [TODO_test_eventi_output_segnazione_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_segnazione_v1.0.0.md)
 - [TODO_test_eventi_output_bulk_focus_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_bulk_focus_v1.0.0.md)
 
+### Da fare
+
+
 ### Task completati
 
+- Implementazione test diretti per GestioneFocusMixin
+	- Report: [report_verifica_lavori_test_helper_focus.md](4%20-%20reports/report_verifica_lavori_test_helper_focus.md)
+	- Design: [DESIGN_TEST_HELPER_FOCUS.md](2%20-%20projects/DESIGN_TEST_HELPER_FOCUS.md)
+	- Plan: [PLAN_TEST_HELPER_FOCUS.md](3%20-%20coding%20plans/PLAN_TEST_HELPER_FOCUS.md)
+	- TODO: [TODO_TEST_HELPER_FOCUS.md](5%20-%20todolist/TODO_TEST_HELPER_FOCUS.md)
+
 - Fix FAIL-1 su test sposta_focus_colonna_sinistra_avanzata
-	- Report: [REPORT_FIX_FAIL1_COLONNA_AVANZATA_2026-03-29.md](4%20-%20reports/REPORT_FIX_FAIL1_COLONNA_AVANZATA_2026-03-29.md)
-	- Design: [DESIGN_FIX_FAIL1_COLONNA_AVANZATA.md](2%20-%20projects/DESIGN_FIX_FAIL1_COLONNA_AVANZATA.md)
-	- Plan: [PLAN_FIX_FAIL1_COLONNA_AVANZATA.md](3%20-%20coding%20plans/PLAN_FIX_FAIL1_COLONNA_AVANZATA.md)
-	- TODO: [TODO_FIX_FAIL1_COLONNA_AVANZATA.md](5%20-%20todolist/TODO_FIX_FAIL1_COLONNA_AVANZATA.md)
+		- Report: [REPORT_FIX_FAIL1_COLONNA_AVANZATA_2026-03-29.md](4%20-%20reports/REPORT_FIX_FAIL1_COLONNA_AVANZATA_2026-03-29.md)
+		- Design: [DESIGN_FIX_FAIL1_COLONNA_AVANZATA.md](2%20-%20projects/DESIGN_FIX_FAIL1_COLONNA_AVANZATA.md)
+		- Plan: [PLAN_FIX_FAIL1_COLONNA_AVANZATA.md](3%20-%20coding%20plans/PLAN_FIX_FAIL1_COLONNA_AVANZATA.md)
+		- TODO: [TODO_FIX_FAIL1_COLONNA_AVANZATA.md](5%20-%20todolist/TODO_FIX_FAIL1_COLONNA_AVANZATA.md)
 
 - Placeholder main.py
 	- Report: [REPORT_ANALISI_main_placeholder_2026-03-28.md](4%20-%20reports/REPORT_ANALISI_main_placeholder_2026-03-28.md)

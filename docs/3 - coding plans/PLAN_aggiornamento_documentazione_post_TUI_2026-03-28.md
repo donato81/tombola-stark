@@ -1,13 +1,12 @@
 ---
-tipo: coding_plan
-titolo: Piano aggiornamento documentazione post-rimozione TUI
-data_creazione: 2026-03-28
-agente: Agent-Plan
-stato: bozza
+type: plan
 feature: aggiornamento_documentazione_post_TUI
-versione_progetto: v0.9.1
-design: docs/2 - projects/DESIGN_aggiornamento_documentazione_post_TUI_2026-03-28.md
-report: docs/4 - reports/ANALISI_aggiornamento_documentazione_post_TUI_2026-03-28.md
+agent: Agent-Plan
+status: COMPLETED
+version: v0.9.1
+date: 2026-03-28
+design_ref: docs/2 - projects/DESIGN_aggiornamento_documentazione_post_TUI_2026-03-28.md
+report_ref: docs/4 - reports/ANALISI_aggiornamento_documentazione_post_TUI_2026-03-28.md
 ---
 
 # PLAN aggiornamento_documentazione_post_TUI_2026-03-28

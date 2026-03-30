@@ -1,14 +1,13 @@
 ---
-tipo: todo_task
-titolo: TODO aggiornamento documentazione post-rimozione TUI
-data_creazione: 2026-03-28
-agente: Agent-Plan
-stato: completato
+type: todo
 feature: aggiornamento_documentazione_post_TUI
-versione_progetto: v0.9.1
-plan: docs/3 - coding plans/PLAN_aggiornamento_documentazione_post_TUI_2026-03-28.md
-design: docs/2 - projects/DESIGN_aggiornamento_documentazione_post_TUI_2026-03-28.md
-report: docs/4 - reports/ANALISI_aggiornamento_documentazione_post_TUI_2026-03-28.md
+agent: Agent-Plan
+status: COMPLETED
+version: v0.9.1
+date: 2026-03-28
+plan_ref: docs/3 - coding plans/PLAN_aggiornamento_documentazione_post_TUI_2026-03-28.md
+design_ref: docs/2 - projects/DESIGN_aggiornamento_documentazione_post_TUI_2026-03-28.md
+report_ref: docs/4 - reports/ANALISI_aggiornamento_documentazione_post_TUI_2026-03-28.md
 ---
 
 # TODO aggiornamento_documentazione_post_TUI_2026-03-28
