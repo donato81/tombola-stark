@@ -2,7 +2,7 @@
 type: design
 feature: test_eventi_output_cartella
 agent: Agent-Design
-status: DRAFT
+status: REVIEWED
 version: v1.0.0
 date: 2026-03-30
 report_ref: docs/4 - reports/report_lavori_test_eventi.md
@@ -14,7 +14,7 @@ tipo: design
 titolo: Design test unitari per eventi output cartella
 data_creazione: 2026-03-30
 agente: Agent-Design
-stato: bozza
+stato: revisionato
 feature: test_eventi_output_cartella
 versione_progetto: v1.0.0
 report: docs/4 - reports/report_lavori_test_eventi.md

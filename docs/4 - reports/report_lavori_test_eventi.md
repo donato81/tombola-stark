@@ -267,3 +267,10 @@ Fixture condivise (da definire in `tests/unit/conftest.py` se non esiste già):
 - `EsitoAzione.__str__` è il componente a più alto rischio: molti branch `isinstance` e doppio override `__eq__` + `__contains__` aumentano la probabilità di regressioni invisibili. È il test più urgente in termini di rischio.
 - Gli eventi `eventi_output_ui_umani.py` sono tutti `frozen=True`: la suite può essere completamente deterministica senza setup/teardown complessi.
 - I factory methods con duck typing su `Cartella` (`EventoVisualizzaTutteCartelleSemplice`, `EventoVisualizzaTutteCartelleAvanzata`) sono gli unici che richiedono mock; il resto è puro Python senza effetti collaterali.
+
+---
+
+## Aggiornamento — 2026-03-30
+
+- Stato: Gruppo E (E1–E5) implementato e validato. Vedi il report dedicato: [REPORT_VALIDAZIONE_GRUPPO_E_EVENTI_OUTPUT_UI_2026-03-30.md](REPORT_VALIDAZIONE_GRUPPO_E_EVENTI_OUTPUT_UI_2026-03-30.md)
+

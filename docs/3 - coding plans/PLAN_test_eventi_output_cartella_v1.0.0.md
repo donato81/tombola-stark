@@ -2,7 +2,7 @@
 type: plan
 feature: test_eventi_output_cartella
 agent: Agent-Plan
-status: DRAFT
+status: READY
 version: v1.0.0
 design_ref: docs/2 - projects/DESIGN_test_eventi_output_cartella_v1.0.0.md
 date: 2026-03-30
@@ -15,7 +15,7 @@ tipo: coding_plan
 titolo: Piano operativo per i test unitari degli eventi output cartella
 data_creazione: 2026-03-30
 agente: Agent-Plan
-stato: bozza
+stato: pronto
 feature: test_eventi_output_cartella
 versione_progetto: v1.0.0
 design: docs/2 - projects/DESIGN_test_eventi_output_cartella_v1.0.0.md

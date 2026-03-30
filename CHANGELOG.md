@@ -16,6 +16,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `tests/unit/test_eventi_ui.py`: aggiunti test di Gruppo B per `bingo_game/events/eventi_ui.py` (unittest; verifica delle dataclass `EventoFocusAutoImpostato` e `EventoFocusCartellaImpostato`).
  - `tests/unit/test_eventi_partita.py`: aggiunti test di Gruppo C per `bingo_game/events/eventi_partita.py` (unittest; copertura delle dataclass `ReclamoVittoria`, `EventoReclamoVittoria`, `EventoEsitoReclamoVittoria`, `EventoFineTurno`).
  - `tests/unit/test_esito_azione.py`: aggiunto nuovo test di Gruppo D per `bingo_game/events/eventi.py` che verifica il comportamento di `EsitoAzione` e le sue comparazioni test-friendly con stringhe.
+ - `tests/unit/test_eventi_output_cartella.py`, `tests/unit/test_eventi_output_navigazione.py`, `tests/unit/test_eventi_output_tabellone.py`, `tests/unit/test_eventi_output_segnazione.py`, `tests/unit/test_eventi_output_bulk_focus.py`: aggiunti i test del Gruppo E per `bingo_game/events/eventi_output_ui_umani.py` (suddivisi E1–E5); validazione: 100/100 passed. Nota: due rischi residui non bloccanti su edge-case duck-typing `Cartella` nei factory methods.
 
 ### Changed
 - `requirements.txt`: aggiorna versioni dipendenze per Python 3.11 e aggiunge `accessible-output2`.
