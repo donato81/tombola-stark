@@ -2,7 +2,7 @@
 type: design
 feature: test_esito_azione
 agent: Agent-Design
-status: DRAFT
+status: REVIEWED
 version: v1.0.0
 date: 2026-03-30
 report_ref: docs/4 - reports/report_lavori_test_eventi.md
@@ -14,7 +14,7 @@ tipo: design
 titolo: Design test unitari per EsitoAzione in eventi.py
 data_creazione: 2026-03-30
 agente: Agent-Design
-stato: bozza
+stato: revisionato
 feature: test_esito_azione
 versione_progetto: v1.0.0
 report: docs/4 - reports/report_lavori_test_eventi.md
@@ -178,11 +178,13 @@ perche' EsitoAzione non delega ancora la formattazione a quel dizionario.
 
 #### Flusso 4 - __eq__ e __contains__
 
-1. Il test confronta due successi identici e verifica True.
-2. Confronta un successo e un fallimento e verifica False.
-3. Confronta due fallimenti con lo stesso codice e verifica True, perche' la dataclass frozen usa l'uguaglianza strutturale.
-4. Verifica __contains__ con una stringa presente nel rendering finale e con una stringa assente.
-5. Verifica il comportamento speciale di __eq__ quando other e' stringa.
+1. Il test verifica che una stessa istanza di successo sia uguale a se stessa.
+2. Confronta due successi distinti con gli stessi campi e verifica False.
+3. Confronta un successo e un fallimento e verifica False.
+4. Verifica che una stessa istanza di fallimento sia uguale a se stessa.
+5. Confronta due fallimenti distinti con lo stesso codice e verifica False.
+6. Verifica __contains__ con una stringa presente nel rendering finale e con una stringa assente.
+7. Verifica il comportamento speciale di __eq__ quando other e' stringa.
 
 Comportamento esatto osservato in [bingo_game/events/eventi.py](../../bingo_game/events/eventi.py):
 
@@ -193,6 +195,7 @@ Comportamento esatto osservato in [bingo_game/events/eventi.py](../../bingo_game
   "Non hai selezionato nessuna cartella"
   "Errore: Seleziona prima una cartella su cui segnare il numero."
 - in tutti gli altri casi di other stringa, __eq__ confronta str(self) == other
+- in tutti i confronti con oggetti non-stringa, __eq__ delega a super().__eq__(other), quindi il comportamento osservato e' di identita' dell'istanza, non di uguaglianza strutturale tra dataclass
 
 ### Decisioni Architetturali
 
@@ -317,9 +320,11 @@ Forma attesa delle asserzioni:
 
 #### TestEsitoAzioneEqContains
 
-- __eq__: due istanze successo() identiche -> True
+- __eq__: stessa istanza successo() -> True
+- __eq__: due istanze successo() distinte ma con stessi campi -> False
 - __eq__: successo() vs fallimento() -> False
-- __eq__: due fallimenti con stesso codice -> True
+- __eq__: stessa istanza fallimento() -> True
+- __eq__: due fallimenti distinti con stesso codice -> False
 - __contains__: stringa presente nel rendering -> True
 - __contains__: stringa assente nel rendering -> False
 - __eq__ con stringa su CARTELLE_NESSUNA_ASSEGNATA -> True per entrambe le varianti lette nel codice
@@ -387,6 +392,6 @@ non come libreria di test nel contenuto del file.
 ## Stato Avanzamento
 
 - [x] Bozza completata
-- [ ] Revisionato
-- [ ] Approvato
+- [x] Revisionato
+- [x] Approvato
 - [ ] Archiviato

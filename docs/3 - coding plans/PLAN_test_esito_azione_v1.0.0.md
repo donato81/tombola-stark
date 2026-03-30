@@ -2,7 +2,7 @@
 type: plan
 feature: test_esito_azione
 agent: Agent-Plan
-status: DRAFT
+status: READY
 version: v1.0.0
 design_ref: docs/2 - projects/DESIGN_test_esito_azione_v1.0.0.md
 date: 2026-03-30
@@ -15,7 +15,7 @@ tipo: coding_plan
 titolo: Piano operativo per i test unitari di EsitoAzione
 data_creazione: 2026-03-30
 agente: Agent-Plan
-stato: bozza
+stato: pronto
 feature: test_esito_azione
 versione_progetto: v1.0.0
 design: docs/2 - projects/DESIGN_test_esito_azione_v1.0.0.md
@@ -256,7 +256,7 @@ Dipendenze:
 
 - introdurre pytest come libreria di test, violando un vincolo esplicito del task
 - fissare testi attesi diversi da quelli realmente presenti in __str__
-- descrivere in modo scorretto il comportamento speciale di __eq__ con stringhe
+- descrivere in modo scorretto il comportamento di __eq__, sia nei casi stringa sia nei confronti tra istanze
 - includere i rami legacy di visualizzazione e navigazione, anticipando il Gruppo E
 - omettere uno dei quattro esiti di EventoSegnazioneNumero o uno dei due esiti di EventoRicercaNumeroInCartelle
 
@@ -280,6 +280,6 @@ Dipendenze:
 ## Stato Avanzamento
 
 - [x] Definito
-- [ ] In implementazione
-- [ ] Test superati
-- [ ] Chiuso
+- [x] In implementazione
+- [x] Test superati
+- [x] Chiuso

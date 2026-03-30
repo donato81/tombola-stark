@@ -1696,6 +1696,16 @@ class BaseRenderer(ABC):
 **Contratto**:
 - `render_esito()` e' il punto di ingresso principale per gli `EsitoAzione`
     emessi dal controller.
+
+**Nota su `EsitoAzione`**: gli oggetti `EsitoAzione` sono il contratto pubblico
+usato dal controller per comunicare risultati operativi al renderer. Per
+compatibilità con la suite di test esistente, `EsitoAzione` implementa un
+confronto `__eq__` che accetta confronto con `str`: alcuni codici di errore
+vengono mappati a messaggi legacy (es. `CARTELLE_NESSUNA_ASSEGNATA` →
+"Errore: Non hai ancora assegnato nessuna cartella.") e, in generale, il
+confronto su `str` ricade sul valore restituito da `str(esito)`. Questo
+comportamento è pubblico e documentato qui perché è usato esplicitamente nei
+test di regressione e nei renderer per compatibilità con messaggi legacy.
 - `mostra_schermata_configurazione()` riceve uno `StatoConfigurazione`
     costruito a monte; il renderer non decide il passo successivo.
 - `mostra_report_finale()` riceve un dizionario con il riepilogo partita;
