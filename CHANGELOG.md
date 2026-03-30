@@ -9,6 +9,10 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+---
+
+## [0.9.5] — 2026-03-30
+
 ### Added
 - `tests/unit/test_validazioni_input.py`: suite unittest diretta per `bingo_game/validations/validazioni_input.py`; 29 test su 6 funzioni (esito_numero_intero, esito_numero_in_range_1_90, esito_numero_riga_in_range_1_3, esito_numero_colonna_in_range_1_9, esito_reclamo_turno_libero, esito_tipo_vittoria_supportato).
 - `tests/unit/test_validazione_oggetti.py`: suite unittest diretta per `bingo_game/validations/validazione_oggetti.py`; 9 test su 2 funzioni (esito_tabellone_disponibile, esito_coordinate_numero_coerenti); usa MagicMock per stub duck-typed.

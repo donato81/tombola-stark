@@ -738,7 +738,7 @@ class TestControllerSilenzioso(unittest.TestCase):
 
 ### Storia delle Versioni
 
-- **Unreleased** (2026-03-30): introdotto il nuovo layer renderer con `BaseRenderer`, `StatoConfigurazione` e `WxRenderer`; rimosso `renderer_terminal.py` dal perimetro attivo e consolidata la dipendenza esplicita da `Vocalizzatore` per l'output accessibile.
+- **v0.9.4** (2026-03-30): introdotto il nuovo layer renderer con `BaseRenderer`, `StatoConfigurazione` e `WxRenderer`; rimosso `renderer_terminal.py` dal perimetro attivo e consolidata la dipendenza esplicita da `Vocalizzatore` per l'output accessibile.
 - **v0.11.0** (2026-03-27): consolidata l'interfaccia controller per il layer di presentazione con 6 wrapper pubblici (`imposta_focus_cartella`, `imposta_focus_cartella_fallback`, `esegui_azione_giocatore`, `esegui_azione_giocatore_con_numero`, `stato_focus_corrente`, `riepilogo_cartella_corrente`) e 2 frozenset di supporto. La separazione tra dominio e presentazione e' completa.
 - **v0.8.0** (2026-02-20): Silent Controller. Rimozione ~22 `print()` da `game_controller.py`, aggiunta `codici_controller.py` (4 costanti `CTRL_*`) e controller rigorosamente silenzioso verso stdout. La non-regressione e' coperta da 15 test `unittest` su `test_silent_controller.py`.
 - **v0.7.0-v0.10.0** (2026-02-20 → 2026-03-27): il progetto ha attraversato una fase con UI terminale e game loop interattivo poi rimossi dal repository. Questi moduli non fanno piu' parte dell'architettura corrente documentata.
