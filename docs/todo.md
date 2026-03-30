@@ -12,6 +12,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/2 - projects/ -->
 
+- [DESIGN_TEST_VALIDAZIONI.md](2%20-%20projects/DESIGN_TEST_VALIDAZIONI.md)
 - [DESIGN_TEST_HELPER_FOCUS.md](2%20-%20projects/DESIGN_TEST_HELPER_FOCUS.md)
 - [DESIGN_conversione_test_pytest_unittest.md](2%20-%20projects/DESIGN_conversione_test_pytest_unittest.md)
 - [DESIGN_fix_unicode_print.md](2%20-%20projects/DESIGN_fix_unicode_print.md)
@@ -38,6 +39,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/3 - coding plans/ -->
 
+- [PLAN_TEST_VALIDAZIONI.md](3%20-%20coding%20plans/PLAN_TEST_VALIDAZIONI.md)
 - [PLAN_TEST_HELPER_FOCUS.md](3%20-%20coding%20plans/PLAN_TEST_HELPER_FOCUS.md)
 - [PLAN_conversione_test_pytest_unittest_v0.9.0.md](3%20-%20coding%20plans/PLAN_conversione_test_pytest_unittest_v0.9.0.md)
 - [PLAN_fix_unicode_print_v0.9.1.md](3%20-%20coding%20plans/PLAN_fix_unicode_print_v0.9.1.md)
@@ -62,6 +64,7 @@ stato: attivo
 
 ### Reports
 
+- [REPORT_ANALISI_VALIDAZIONI_2026-03-30.md](4%20-%20reports/REPORT_ANALISI_VALIDAZIONI_2026-03-30.md)
 - [REPORT_DIAGNOSTICA_TEST_2026-03-28.md](4%20-%20reports/REPORT_DIAGNOSTICA_TEST_2026-03-28.md)
 - [REPORT_ANALISI_CONVERSIONE_TEST_PYTEST_UNITTEST_2026-03-28.md](4%20-%20reports/REPORT_ANALISI_CONVERSIONE_TEST_PYTEST_UNITTEST_2026-03-28.md)
 - [REPORT_FIX_UNICODE_PRINT_2026-03-28.md](4%20-%20reports/REPORT_FIX_UNICODE_PRINT_2026-03-28.md)
@@ -82,6 +85,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/5 - todolist/ -->
 
+- [TODO_TEST_VALIDAZIONI.md](5%20-%20todolist/TODO_TEST_VALIDAZIONI.md)
 - [TODO_TEST_HELPER_FOCUS.md](5%20-%20todolist/TODO_TEST_HELPER_FOCUS.md)
 - [TODO_conversione_test_pytest_unittest_v0.9.0.md](5%20-%20todolist/TODO_conversione_test_pytest_unittest_v0.9.0.md)
 - [TODO_fix_unicode_print_v0.9.1.md](5%20-%20todolist/TODO_fix_unicode_print_v0.9.1.md) — COMPLETED
@@ -106,6 +110,11 @@ stato: attivo
 
 ### Da fare
 
+
+- Implementazione suite unittest per i moduli di validazione
+	- Design: [DESIGN_TEST_VALIDAZIONI.md](2%20-%20projects/DESIGN_TEST_VALIDAZIONI.md)
+	- Plan: [PLAN_TEST_VALIDAZIONI.md](3%20-%20coding%20plans/PLAN_TEST_VALIDAZIONI.md)
+	- TODO: [TODO_TEST_VALIDAZIONI.md](5%20-%20todolist/TODO_TEST_VALIDAZIONI.md)
 
 ### Task completati
 
