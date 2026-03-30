@@ -2,7 +2,7 @@
 type: plan
 feature: test_validazioni
 agent: Agent-Plan
-status: DRAFT
+status: COMPLETED
 version: v1.0
 design_ref: docs/2 - projects/DESIGN_TEST_VALIDAZIONI.md
 date: 2026-03-30
@@ -15,7 +15,7 @@ tipo: coding_plan
 titolo: Piano di implementazione suite unittest per i moduli di validazione
 data_creazione: 2026-03-30
 agente: Agent-Plan
-stato: draft
+stato: completed
 feature: test_validazioni
 versione_progetto: v1.0
 design: docs/2 - projects/DESIGN_TEST_VALIDAZIONI.md
@@ -166,5 +166,5 @@ python -m unittest discover tests/unit
 
 - [x] Piano definito
 - [x] Validato
-- [ ] In implementazione
-- [ ] Verificato
+- [x] In implementazione
+- [x] Verificato

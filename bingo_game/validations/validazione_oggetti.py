@@ -72,7 +72,7 @@ def esito_coordinate_numero_coerenti(cartella, numero: int) -> EsitoAzione:
     if type(numero) is not int:
         return EsitoAzione(
             ok=False,
-            errore="INPUTNONVALIDO",  # codice già presente nei tuoi errori UI
+            errore="INPUT_NON_VALIDO",  # codice già presente nei tuoi errori UI
             evento=None
         )
 

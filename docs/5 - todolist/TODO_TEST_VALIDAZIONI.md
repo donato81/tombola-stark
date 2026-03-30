@@ -2,7 +2,7 @@
 type: todo
 feature: test_validazioni
 agent: Agent-Plan
-status: DRAFT
+status: COMPLETED
 version: v1.0
 plan_ref: docs/3 - coding plans/PLAN_TEST_VALIDAZIONI.md
 design_ref: docs/2 - projects/DESIGN_TEST_VALIDAZIONI.md
@@ -16,7 +16,7 @@ tipo: todo_task
 titolo: TODO suite unittest per i moduli di validazione
 data_creazione: 2026-03-30
 agente: Agent-Plan
-stato: draft
+stato: completed
 feature: test_validazioni
 versione_progetto: v1.0
 plan: docs/3 - coding plans/PLAN_TEST_VALIDAZIONI.md
@@ -49,82 +49,82 @@ Agent-Code
 
 ### File: tests/unit/test_validazioni_input.py
 
-- [ ] Creare il file tests/unit/test_validazioni_input.py
+- [x] Creare il file tests/unit/test_validazioni_input.py
 
 #### Classe: TestEsitoNumeroIntero
 
-- [ ] test_esito_numero_intero_int_valido_restituisce_ok
-- [ ] test_esito_numero_intero_bool_restituisce_tipo_non_valido
-- [ ] test_esito_numero_intero_float_restituisce_tipo_non_valido
-- [ ] test_esito_numero_intero_none_restituisce_tipo_non_valido
+- [x] test_esito_numero_intero_int_valido_restituisce_ok
+- [x] test_esito_numero_intero_bool_restituisce_tipo_non_valido
+- [x] test_esito_numero_intero_float_restituisce_tipo_non_valido
+- [x] test_esito_numero_intero_none_restituisce_tipo_non_valido
 
 #### Classe: TestEsitoNumeroInRange190
 
-- [ ] test_esito_numero_in_range_1_90_con_1_restituisce_ok
-- [ ] test_esito_numero_in_range_1_90_con_90_restituisce_ok
-- [ ] test_esito_numero_in_range_1_90_con_0_restituisce_numero_non_valido
-- [ ] test_esito_numero_in_range_1_90_con_91_restituisce_numero_non_valido
-- [ ] test_esito_numero_in_range_1_90_con_tipo_errato_restituisce_tipo_non_valido
+- [x] test_esito_numero_in_range_1_90_con_1_restituisce_ok
+- [x] test_esito_numero_in_range_1_90_con_90_restituisce_ok
+- [x] test_esito_numero_in_range_1_90_con_0_restituisce_numero_non_valido
+- [x] test_esito_numero_in_range_1_90_con_91_restituisce_numero_non_valido
+- [x] test_esito_numero_in_range_1_90_con_tipo_errato_restituisce_tipo_non_valido
 
 #### Classe: TestEsitoNumeroRigaInRange13
 
-- [ ] test_esito_numero_riga_in_range_1_3_con_1_restituisce_ok
-- [ ] test_esito_numero_riga_in_range_1_3_con_3_restituisce_ok
-- [ ] test_esito_numero_riga_in_range_1_3_con_0_restituisce_numero_riga_fuori_range
-- [ ] test_esito_numero_riga_in_range_1_3_con_4_restituisce_numero_riga_fuori_range
-- [ ] test_esito_numero_riga_in_range_1_3_con_tipo_errato_restituisce_tipo_non_valido
+- [x] test_esito_numero_riga_in_range_1_3_con_1_restituisce_ok
+- [x] test_esito_numero_riga_in_range_1_3_con_3_restituisce_ok
+- [x] test_esito_numero_riga_in_range_1_3_con_0_restituisce_numero_riga_fuori_range
+- [x] test_esito_numero_riga_in_range_1_3_con_4_restituisce_numero_riga_fuori_range
+- [x] test_esito_numero_riga_in_range_1_3_con_tipo_errato_restituisce_tipo_non_valido
 
 #### Classe: TestEsitoNumeroColonnaInRange19
 
-- [ ] test_esito_numero_colonna_in_range_1_9_con_1_restituisce_ok
-- [ ] test_esito_numero_colonna_in_range_1_9_con_9_restituisce_ok
-- [ ] test_esito_numero_colonna_in_range_1_9_con_0_restituisce_numero_colonna_fuori_range
-- [ ] test_esito_numero_colonna_in_range_1_9_con_10_restituisce_numero_colonna_fuori_range
-- [ ] test_esito_numero_colonna_in_range_1_9_con_tipo_errato_restituisce_tipo_non_valido
+- [x] test_esito_numero_colonna_in_range_1_9_con_1_restituisce_ok
+- [x] test_esito_numero_colonna_in_range_1_9_con_9_restituisce_ok
+- [x] test_esito_numero_colonna_in_range_1_9_con_0_restituisce_numero_colonna_fuori_range
+- [x] test_esito_numero_colonna_in_range_1_9_con_10_restituisce_numero_colonna_fuori_range
+- [x] test_esito_numero_colonna_in_range_1_9_con_tipo_errato_restituisce_tipo_non_valido
 
 #### Classe: TestEsitoReclamoTurnoLibero
 
-- [ ] test_esito_reclamo_turno_libero_con_none_restituisce_ok
-- [ ] test_esito_reclamo_turno_libero_con_oggetto_restituisce_reclamo_gia_presente
+- [x] test_esito_reclamo_turno_libero_con_none_restituisce_ok
+- [x] test_esito_reclamo_turno_libero_con_oggetto_restituisce_reclamo_gia_presente
 
 #### Classe: TestEsitoTipoVittoriaSupportato
 
-- [ ] test_esito_tipo_vittoria_supportato_tombola_restituisce_ok
-- [ ] test_esito_tipo_vittoria_supportato_ambo_restituisce_ok
-- [ ] test_esito_tipo_vittoria_supportato_terno_restituisce_ok
-- [ ] test_esito_tipo_vittoria_supportato_quaterna_restituisce_ok
-- [ ] test_esito_tipo_vittoria_supportato_cinquina_restituisce_ok
-- [ ] test_esito_tipo_vittoria_supportato_valore_sconosciuto_restituisce_tipo_vittoria_non_valido
-- [ ] test_esito_tipo_vittoria_supportato_maiuscolo_restituisce_tipo_vittoria_non_valido
-- [ ] test_esito_tipo_vittoria_supportato_none_restituisce_tipo_vittoria_non_valido
+- [x] test_esito_tipo_vittoria_supportato_tombola_restituisce_ok
+- [x] test_esito_tipo_vittoria_supportato_ambo_restituisce_ok
+- [x] test_esito_tipo_vittoria_supportato_terno_restituisce_ok
+- [x] test_esito_tipo_vittoria_supportato_quaterna_restituisce_ok
+- [x] test_esito_tipo_vittoria_supportato_cinquina_restituisce_ok
+- [x] test_esito_tipo_vittoria_supportato_valore_sconosciuto_restituisce_tipo_vittoria_non_valido
+- [x] test_esito_tipo_vittoria_supportato_maiuscolo_restituisce_tipo_vittoria_non_valido
+- [x] test_esito_tipo_vittoria_supportato_none_restituisce_tipo_vittoria_non_valido
 
 ### File: tests/unit/test_validazione_oggetti.py
 
-- [ ] Creare il file tests/unit/test_validazione_oggetti.py
+- [x] Creare il file tests/unit/test_validazione_oggetti.py
 
 #### Classe: TestEsitoTabelloneDisponibile
 
-- [ ] test_esito_tabellone_disponibile_none_restituisce_tabellone_non_disponibile
-- [ ] test_esito_tabellone_disponibile_tabellone_reale_restituisce_ok
-- [ ] test_esito_tabellone_disponibile_stub_con_get_numeri_estratti_restituisce_ok
-- [ ] test_esito_tabellone_disponibile_stub_con_is_numero_estratto_restituisce_ok
-- [ ] test_esito_tabellone_disponibile_oggetto_incompatibile_restituisce_tabellone_non_disponibile
+- [x] test_esito_tabellone_disponibile_none_restituisce_tabellone_non_disponibile
+- [x] test_esito_tabellone_disponibile_tabellone_reale_restituisce_ok
+- [x] test_esito_tabellone_disponibile_stub_con_get_numeri_estratti_restituisce_ok
+- [x] test_esito_tabellone_disponibile_stub_con_is_numero_estratto_restituisce_ok
+- [x] test_esito_tabellone_disponibile_oggetto_incompatibile_restituisce_tabellone_non_disponibile
 
 #### Classe: TestEsitoCoordinateNumeroCoerenti
 
-- [ ] test_esito_coordinate_numero_coerenti_coordinate_presenti_restituisce_ok
-- [ ] test_esito_coordinate_numero_coerenti_coordinate_none_restituisce_cartella_stato_incoerente
-- [ ] test_esito_coordinate_numero_coerenti_numero_non_int_restituisce_inputnonvalido
-- [ ] test_esito_coordinate_numero_coerenti_eccezione_del_metodo_cartella_viene_propagata
+- [x] test_esito_coordinate_numero_coerenti_coordinate_presenti_restituisce_ok
+- [x] test_esito_coordinate_numero_coerenti_coordinate_none_restituisce_cartella_stato_incoerente
+- [x] test_esito_coordinate_numero_coerenti_numero_non_int_restituisce_inputnonvalido
+- [x] test_esito_coordinate_numero_coerenti_eccezione_del_metodo_cartella_viene_propagata
 
 ### Verifica finale
 
-- [ ] Eseguire python -m unittest discover tests/unit
-- [ ] Confermare che tutti i test della nuova suite siano verdi
+- [x] Eseguire python -m unittest discover tests/unit
+- [x] Confermare che tutti i test della nuova suite siano verdi
 
 ## Stato Avanzamento
 
 - [x] Pianificato
-- [ ] In corso
-- [ ] Completato
-- [ ] Verificato
+- [x] In corso
+- [x] Completato
+- [x] Verificato

@@ -111,12 +111,13 @@ stato: attivo
 ### Da fare
 
 
+### Task completati
+
 - Implementazione suite unittest per i moduli di validazione
+	- Report: [REPORT_ANALISI_VALIDAZIONI_2026-03-30.md](4%20-%20reports/REPORT_ANALISI_VALIDAZIONI_2026-03-30.md)
 	- Design: [DESIGN_TEST_VALIDAZIONI.md](2%20-%20projects/DESIGN_TEST_VALIDAZIONI.md)
 	- Plan: [PLAN_TEST_VALIDAZIONI.md](3%20-%20coding%20plans/PLAN_TEST_VALIDAZIONI.md)
 	- TODO: [TODO_TEST_VALIDAZIONI.md](5%20-%20todolist/TODO_TEST_VALIDAZIONI.md)
-
-### Task completati
 
 - Implementazione test diretti per GestioneFocusMixin
 	- Report: [report_verifica_lavori_test_helper_focus.md](4%20-%20reports/report_verifica_lavori_test_helper_focus.md)
