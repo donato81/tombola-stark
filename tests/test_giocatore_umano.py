@@ -7,6 +7,10 @@ from bingo_game.events.eventi_output_ui_umani import (
     EventoNavigazioneColonnaAvanzata,
     EventoNavigazioneRiga,
     EventoNavigazioneRigaAvanzata,
+    EventoVisualizzaCartellaSemplice,
+    EventoVisualizzaCartellaAvanzata,
+    EventoVisualizzaTutteCartelleSemplice,
+    EventoVisualizzaTutteCartelleAvanzata,
 )
 
 class TestGiocatoreUmano(unittest.TestCase):
@@ -176,27 +180,15 @@ class TestGiocatoreUmano(unittest.TestCase):
         # Azione: Richiediamo la visualizzazione
         risultato = self.giocatore.visualizza_cartella_corrente_semplice()
 
-        # Verifica: Il risultato non deve essere None
-        self.assertIsNotNone(
-            risultato,
-            "Il metodo dovrebbe ritornare una stringa se il focus è valido."
-        )
+        # Verifica: successo con evento corretto
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoVisualizzaCartellaSemplice)
 
-        # Verifica: Il risultato deve essere una stringa
-        self.assertIsInstance(
-            risultato, 
-            str,
-            "Il tipo di ritorno deve essere una stringa."
-        )
-
-        # Verifica di coerenza: La stringa deve essere quella della cartella 1
-        # (Confrontiamo con la chiamata diretta alla cartella)
-        atteso = self.cartella1.stampa_cartella()
-        self.assertEqual(
-            risultato, 
-            atteso,
-            "La visualizzazione ritornata non corrisponde alla cartella in focus."
-        )
+        # Verifica di coerenza: la griglia dell'evento corrisponde alla cartella 1
+        self.assertEqual(risultato.evento.griglia_semplice, self.cartella1.get_griglia_semplice())
+        self.assertEqual(risultato.evento.numero_cartella, 1)
+        self.assertEqual(risultato.evento.totale_cartelle, 2)
 
     def test_visualizza_cartella_corrente_nessun_focus(self):
         """
@@ -219,11 +211,10 @@ class TestGiocatoreUmano(unittest.TestCase):
         # Azione
         risultato = self.giocatore.visualizza_cartella_corrente_semplice()
 
-        # Verifica
-        self.assertIsNone(
-            risultato,
-            "Se non c'è focus, il metodo deve ritornare None."
-        )
+        # Verifica: errore senza evento
+        self.assertFalse(risultato.ok)
+        self.assertIsNotNone(risultato.errore)
+        self.assertIsNone(risultato.evento)
 
     def test_visualizza_cartella_corrente_senza_cartelle(self):
         """
@@ -241,11 +232,10 @@ class TestGiocatoreUmano(unittest.TestCase):
         # Azione
         risultato = self.giocatore.visualizza_cartella_corrente_semplice()
 
-        # Verifica
-        self.assertIsNone(
-            risultato,
-            "Se il giocatore non ha cartelle, il metodo deve ritornare None."
-        )
+        # Verifica: errore senza evento
+        self.assertFalse(risultato.ok)
+        self.assertIsNotNone(risultato.errore)
+        self.assertIsNone(risultato.evento)
 
 
     # ---------------------------------------------------------------------
@@ -284,27 +274,17 @@ class TestGiocatoreUmano(unittest.TestCase):
         # Azione: Richiediamo visualizzazione avanzata
         risultato = self.giocatore.visualizza_cartella_corrente_avanzata()
 
-        # Verifica 1: Non deve essere None
-        self.assertIsNotNone(
-            risultato, 
-            "Il metodo deve ritornare una stringa se il focus è valido."
-        )
+        # Verifica 1: successo con evento corretto
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoVisualizzaCartellaAvanzata)
 
-        # Verifica 2: Deve contenere l'asterisco per il numero segnato
-        # Costruiamo la stringa attesa per quel numero (es. "*42")
-        stringa_segnata = f"*{numero_da_segnare}"
-        self.assertIn(
-            stringa_segnata,
-            risultato,
-            f"La visualizzazione avanzata deve contenere l'indicatore di stato '{stringa_segnata}'."
-        )
+        # Verifica 2: il numero segnato è presente nei numeri_segnati dell'evento
+        self.assertIn(numero_da_segnare, risultato.evento.numeri_segnati_ordinati)
 
-        # Verifica 3: Deve contenere il riepilogo statistico
-        self.assertIn(
-            "Totale segnati:",
-            risultato,
-            "La visualizzazione avanzata deve includere il riepilogo ('Totale segnati')."
-        )
+        # Verifica 3: lo stato_cartella è popolato
+        self.assertIsNotNone(risultato.evento.stato_cartella)
+        self.assertGreater(len(risultato.evento.stato_cartella), 0)
 
     def test_visualizza_cartella_corrente_avanzata_nessun_focus(self):
         """
@@ -323,10 +303,9 @@ class TestGiocatoreUmano(unittest.TestCase):
 
         risultato = self.giocatore.visualizza_cartella_corrente_avanzata()
 
-        self.assertIsNone(
-            risultato,
-            "Senza focus, il metodo deve ritornare None."
-        )
+        self.assertFalse(risultato.ok)
+        self.assertIsNotNone(risultato.errore)
+        self.assertIsNone(risultato.evento)
 
     def test_visualizza_cartella_corrente_avanzata_senza_cartelle(self):
         """
@@ -340,10 +319,9 @@ class TestGiocatoreUmano(unittest.TestCase):
         """
         risultato = self.giocatore.visualizza_cartella_corrente_avanzata()
 
-        self.assertIsNone(
-            risultato,
-            "Senza cartelle, il metodo deve ritornare None."
-        )
+        self.assertFalse(risultato.ok)
+        self.assertIsNotNone(risultato.errore)
+        self.assertIsNone(risultato.evento)
 
 
     # ---------------------------------------------------------------------
@@ -370,32 +348,25 @@ class TestGiocatoreUmano(unittest.TestCase):
         # Azione
         risultato = self.giocatore.visualizza_tutte_cartelle_semplice()
 
-        # Verifica 1: Risultato valido
-        self.assertIsNotNone(
-            risultato,
-            "Il metodo deve ritornare una stringa se ci sono cartelle."
-        )
+        # Verifica 1: successo con evento corretto
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoVisualizzaTutteCartelleSemplice)
 
-        # Verifica 2: Presenza intestazioni numerate
-        self.assertIn(
-            "--- Cartella 1 ---",
-            risultato,
-            "Deve essere presente l'intestazione per la prima cartella."
-        )
-        self.assertIn(
-            "--- Cartella 2 ---",
-            risultato,
-            "Deve essere presente l'intestazione per la seconda cartella."
-        )
+        # Verifica 2: totale cartelle corretto
+        self.assertEqual(risultato.evento.totale_cartelle, 2)
+        self.assertEqual(len(risultato.evento.cartelle), 2)
 
-        # Verifica 3: Contenuto effettivo (verifichiamo che ci sia almeno un pezzo della stampa)
-        # Prendiamo un numero dalla prima cartella e vediamo se c'è
+        # Verifica 3: entrambe le cartelle sono presenti (numero 1-based)
+        numeri_cartella = [c[0] for c in risultato.evento.cartelle]
+        self.assertIn(1, numeri_cartella)
+        self.assertIn(2, numeri_cartella)
+
+        # Verifica 4: contenuto griglia della prima cartella
         numero_test = self.cartella1.get_numeri_riga(0)[0]
-        self.assertIn(
-            str(numero_test),
-            risultato,
-            "I numeri delle cartelle devono essere presenti nella stampa concatenata."
-        )
+        griglia_c1 = risultato.evento.cartelle[0][1]
+        tutti_i_numeri = [cell for riga in griglia_c1 for cell in riga]
+        self.assertIn(numero_test, tutti_i_numeri)
 
     def test_visualizza_tutte_cartelle_semplice_lista_vuota(self):
         """
@@ -412,11 +383,10 @@ class TestGiocatoreUmano(unittest.TestCase):
         # Azione
         risultato = self.giocatore.visualizza_tutte_cartelle_semplice()
 
-        # Verifica
-        self.assertIsNone(
-            risultato,
-            "Se non ci sono cartelle, il metodo deve ritornare None."
-        )
+        # Verifica: errore senza evento
+        self.assertFalse(risultato.ok)
+        self.assertIsNotNone(risultato.errore)
+        self.assertIsNone(risultato.evento)
 
 
     # ---------------------------------------------------------------------
@@ -451,33 +421,25 @@ class TestGiocatoreUmano(unittest.TestCase):
         # Azione
         risultato = self.giocatore.visualizza_tutte_cartelle_avanzata()
 
-        # Verifica 1: Risultato valido
-        self.assertIsNotNone(
-            risultato,
-            "Il metodo deve ritornare una stringa se ci sono cartelle."
-        )
+        # Verifica 1: successo con evento corretto
+        self.assertTrue(risultato.ok)
+        self.assertIsNone(risultato.errore)
+        self.assertIsInstance(risultato.evento, EventoVisualizzaTutteCartelleAvanzata)
 
-        # Verifica 2: Intestazioni
-        self.assertIn("--- Cartella 1 ---", risultato)
-        self.assertIn("--- Cartella 2 ---", risultato)
+        # Verifica 2: totale cartelle corretto
+        self.assertEqual(risultato.evento.totale_cartelle, 2)
+        self.assertEqual(len(risultato.evento.cartelle), 2)
 
-        # Verifica 3: Contenuto avanzato (Asterisco)
-        # Cerchiamo la stringa segnata (es. "*42")
-        marker_atteso = f"*{num_segnato}"
-        self.assertIn(
-            marker_atteso,
-            risultato,
-            f"La stampa deve contenere l'indicatore di segnazione '{marker_atteso}'."
-        )
+        # Verifica 3: il numero segnato è nei numeri_segnati della prima cartella
+        # Struttura elemento: (numero_cartella, griglia_semplice, stato_cartella, numeri_segnati)
+        numeri_segnati_c1 = risultato.evento.cartelle[0][3]
+        self.assertIn(num_segnato, numeri_segnati_c1)
 
-        # Verifica 4: Riepiloghi
-        # La stringa "Totale segnati:" deve apparire 2 volte (una per cartella)
-        conteggio_riepiloghi = risultato.count("Totale segnati:")
-        self.assertEqual(
-            conteggio_riepiloghi,
-            2,
-            "Deve esserci un riepilogo statistico per ogni cartella presente."
-        )
+        # Verifica 4: lo stato_cartella è presente per entrambe le cartelle
+        stato_c1 = risultato.evento.cartelle[0][2]
+        stato_c2 = risultato.evento.cartelle[1][2]
+        self.assertIsNotNone(stato_c1)
+        self.assertIsNotNone(stato_c2)
 
     def test_visualizza_tutte_cartelle_avanzata_lista_vuota(self):
         """
@@ -493,10 +455,9 @@ class TestGiocatoreUmano(unittest.TestCase):
 
         risultato = self.giocatore.visualizza_tutte_cartelle_avanzata()
 
-        self.assertIsNone(
-            risultato,
-           "Senza cartelle, il metodo deve ritornare None."
-        )
+        self.assertFalse(risultato.ok)
+        self.assertIsNotNone(risultato.errore)
+        self.assertIsNone(risultato.evento)
 
 
     # ---------------------------------------------------------------------

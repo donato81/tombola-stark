@@ -385,7 +385,7 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
         #    auto_imposta=False: non imposta focus automaticamente (comando di consultazione pura).
         esito_focus = self._esito_focus_cartella_valido(auto_imposta=False)
         if not esito_focus.ok:
-            return None
+            return esito_focus
 
         cartella_corrente = self.cartelle[self._indice_cartella_focus]
         griglia_semplice = cartella_corrente.get_griglia_semplice()
@@ -396,7 +396,7 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
             griglia_semplice=griglia_semplice,
         )
 
-        return str(EsitoAzione(ok=True, errore=None, evento=evento))
+        return EsitoAzione(ok=True, errore=None, evento=evento)
 
 
 
@@ -432,7 +432,7 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
         #    auto_imposta=False: consultazione pura, non modifica stato.
         esito_focus = self._esito_focus_cartella_valido(auto_imposta=False)
         if not esito_focus.ok:
-            return None
+            return esito_focus
 
         cartella_corrente = self.cartelle[self._indice_cartella_focus]
         dati_avanzati = cartella_corrente.get_dati_visualizzazione_avanzata()
@@ -443,7 +443,7 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
             dati_avanzati=dati_avanzati,
         )
 
-        return str(EsitoAzione(ok=True, errore=None, evento=evento))
+        return EsitoAzione(ok=True, errore=None, evento=evento)
 
 
 
@@ -480,13 +480,13 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
         #    ritorna un EsitoAzione di errore già completo (codice/ok coerenti col progetto).
         esito_cartelle = self._esito_ha_cartelle()
         if not esito_cartelle.ok:
-            return None
+            return esito_cartelle
 
         evento = EventoVisualizzaTutteCartelleSemplice.crea_da_cartelle(
             cartelle=self.cartelle,
         )
 
-        return str(EsitoAzione(ok=True, errore=None, evento=evento))
+        return EsitoAzione(ok=True, errore=None, evento=evento)
 
 
     #metodo 8 ...
@@ -527,13 +527,13 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
         #    Qui ci limitiamo a propagare l'esito, senza aggiungere logica.
         esito_cartelle = self._esito_ha_cartelle()
         if not esito_cartelle.ok:
-            return None
+            return esito_cartelle
 
         evento = EventoVisualizzaTutteCartelleAvanzata.crea_da_cartelle(
             cartelle=self.cartelle,
         )
 
-        return str(EsitoAzione(ok=True, errore=None, evento=evento))
+        return EsitoAzione(ok=True, errore=None, evento=evento)
 
 
     #Sezione 3: Metodi dedicati allo spostamento del focus di riga
