@@ -4,7 +4,6 @@ from typing import Optional
 
 #import metodi di progetto 
 from bingo_game.players.helper_focus import GestioneFocusMixin
-from bingo_game.players.helper_reclami_focus import ReclamiFocusMixin
 from bingo_game.players.giocatore_base import GiocatoreBase
 
 #inport delle validazioni necessarie al modulo 
@@ -58,7 +57,7 @@ from bingo_game.events.eventi_partita import (
 )
 
 #definizione della classe giocatore umano che eredita dal giocatore base
-class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
+class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
     """
     Classe concreta che rappresenta un giocatore umano.
 
@@ -2247,7 +2246,7 @@ class GiocatoreUmano(GestioneFocusMixin, ReclamiFocusMixin, GiocatoreBase):
             )
         else:
             # Vittorie di riga: oltre alla cartella serve anche la riga selezionata esplicitamente.
-            esito_focus_riga = self._esito_focus_riga_valido(auto_imposta=False)
+            esito_focus_riga = self._esito_focus_riga_valido()
             if not esito_focus_riga.ok:
                 return esito_focus_riga
 

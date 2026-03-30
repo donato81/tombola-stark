@@ -227,7 +227,7 @@ class GestioneFocusMixin:
     #sezione 2: metodi riguardanti il focus di riga e le sue impostazioni
 
     #metodo 5.
-    def _esito_focus_riga_impostato(self) -> EsitoAzione:
+    def _esito_focus_riga_impostata(self) -> EsitoAzione:
         """
         Verifica che la riga in focus sia stata impostata dall'utente (controllo rigoroso).
 
