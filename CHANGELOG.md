@@ -7,22 +7,22 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ---
 
-## [Unreleased]
+## [0.9.4] — 2026-03-30
 
 ### Added
 - `bingo_game/ui/renderers/base_renderer.py`: introduce il contratto astratto del layer di presentazione con `BaseRenderer` e lo stato immutabile `StatoConfigurazione` per il flusso di configurazione.
 - `bingo_game/ui/renderers/renderer_wx.py`: aggiunge `WxRenderer`, prima implementazione concreta del renderer accessibile con dependency injection di `wx.Frame` e `Vocalizzatore`.
- - `tests/unit/test_codici_eventi.py`: aggiunto nuovo test di Gruppo A (unittest TestCase; validazione: 66/66 passati, coverage 100% sui moduli Gruppo A).
+- `tests/unit/test_codici_eventi.py`: aggiunto nuovo test di Gruppo A (unittest TestCase; validazione: 66/66 passati, coverage 100% sui moduli Gruppo A).
 - `tests/unit/test_eventi_ui.py`: aggiunti test di Gruppo B per `bingo_game/events/eventi_ui.py` (unittest; verifica delle dataclass `EventoFocusAutoImpostato` e `EventoFocusCartellaImpostato`).
- - `tests/unit/test_eventi_partita.py`: aggiunti test di Gruppo C per `bingo_game/events/eventi_partita.py` (unittest; copertura delle dataclass `ReclamoVittoria`, `EventoReclamoVittoria`, `EventoEsitoReclamoVittoria`, `EventoFineTurno`).
- - `tests/unit/test_esito_azione.py`: aggiunto nuovo test di Gruppo D per `bingo_game/events/eventi.py` che verifica il comportamento di `EsitoAzione` e le sue comparazioni test-friendly con stringhe.
- - `tests/unit/test_eventi_output_cartella.py`, `tests/unit/test_eventi_output_navigazione.py`, `tests/unit/test_eventi_output_tabellone.py`, `tests/unit/test_eventi_output_segnazione.py`, `tests/unit/test_eventi_output_bulk_focus.py`: aggiunti i test del Gruppo E per `bingo_game/events/eventi_output_ui_umani.py` (suddivisi E1–E5); validazione: 100/100 passed. Nota: due rischi residui non bloccanti su edge-case duck-typing `Cartella` nei factory methods.
+- `tests/unit/test_eventi_partita.py`: aggiunti test di Gruppo C per `bingo_game/events/eventi_partita.py` (unittest; copertura delle dataclass `ReclamoVittoria`, `EventoReclamoVittoria`, `EventoEsitoReclamoVittoria`, `EventoFineTurno`).
+- `tests/unit/test_esito_azione.py`: aggiunto nuovo test di Gruppo D per `bingo_game/events/eventi.py` che verifica il comportamento di `EsitoAzione` e le sue comparazioni test-friendly con stringhe.
+- `tests/unit/test_eventi_output_cartella.py`, `tests/unit/test_eventi_output_navigazione.py`, `tests/unit/test_eventi_output_tabellone.py`, `tests/unit/test_eventi_output_segnazione.py`, `tests/unit/test_eventi_output_bulk_focus.py`: aggiunti i test del Gruppo E per `bingo_game/events/eventi_output_ui_umani.py` (suddivisi E1–E5); validazione: 100/100 passati. Nota: due rischi residui non bloccanti su edge-case duck-typing `Cartella` nei factory methods.
 
 ### Changed
 - `requirements.txt`: aggiorna versioni dipendenze per Python 3.11 e aggiunge `accessible-output2`.
 - `bingo_game/ui/renderers/__init__.py`: esporta il nuovo perimetro pubblico del package renderer (`BaseRenderer`, `StatoConfigurazione`, `WxRenderer`).
 - `docs/API.md` e `docs/ARCHITECTURE.md`: sincronizzano la documentazione con il nuovo layer di presentazione wx e con il contratto renderer effettivamente implementato.
- - `bingo_game/events/eventi.py`: la documentazione e il comportamento pubblico di `EsitoAzione.__eq__` sono stati allineati; `EsitoAzione` supporta confronti con `str` (mapping di alcuni codici errore a messaggi legacy) per compatibilità con test esistenti.
+- `bingo_game/events/eventi.py`: la documentazione e il comportamento pubblico di `EsitoAzione.__eq__` sono stati allineati; `EsitoAzione` supporta confronti con `str` (mapping di alcuni codici errore a messaggi legacy) per compatibilità con test esistenti.
 
 ### Removed
 - `bingo_game/ui/renderers/renderer_terminal.py`: rimuove il renderer terminale legacy dal perimetro architetturale corrente.

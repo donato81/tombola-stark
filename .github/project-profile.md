@@ -25,7 +25,7 @@ screen_reader: "NVDA/JAWS"
 ## Identità
 
 - **Nome**: Tombola Stark
-- **Versione corrente**: 0.9.3
+- **Versione corrente**: 0.9.4
 - **Descrizione**: Tombola digitale accessibile ai nonvedenti con screen reader.
 
 ## Stack Tecnico
