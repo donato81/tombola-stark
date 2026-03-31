@@ -1,6 +1,11 @@
 import unittest
 
-from bingo_game.events.eventi_output_ui_umani import EventoNavigazioneColonna
+from bingo_game.events.eventi import EsitoAzione
+from bingo_game.events.eventi_output_ui_umani import (
+    EventoNavigazioneColonna,
+    EventoVaiAColonnaAvanzata,
+    EventoVaiARigaAvanzata,
+)
 from bingo_game.ui.renderers.renderer_wx import WxRenderer
 
 
@@ -45,3 +50,37 @@ class TestWxRenderer(unittest.TestCase):
 
         self.assertEqual(finestra.testi[-1], "Colonna 3: vuoto, 25, vuoto")
         self.assertEqual(vocalizzatore.testi[-1], "Colonna 3: vuoto, 25, vuoto")
+
+    def test_render_esito_vai_a_colonna_avanzata_non_lancia_eccezioni(self) -> None:
+        finestra = _FinestraFittizia()
+        vocalizzatore = _VocalizzatoreFittizio()
+        renderer = WxRenderer(finestra, vocalizzatore)
+
+        evento = EventoVaiAColonnaAvanzata.crea_da_dati_colonna_avanzati(
+            id_giocatore=1,
+            nome_giocatore="Mario",
+            numero_colonna=5,
+            dati_colonna_avanzati=(("-", 25, 44), {"segnati": 1}, (25,)),
+        )
+
+        renderer.render_esito(EsitoAzione(ok=True, errore=None, evento=evento))
+
+        self.assertEqual(finestra.testi[-1], "Colonna 5: vuoto, [25], 44")
+        self.assertEqual(vocalizzatore.testi[-1], "Colonna 5: vuoto, [25], 44")
+
+    def test_render_esito_vai_a_riga_avanzata_non_lancia_eccezioni(self) -> None:
+        finestra = _FinestraFittizia()
+        vocalizzatore = _VocalizzatoreFittizio()
+        renderer = WxRenderer(finestra, vocalizzatore)
+
+        evento = EventoVaiARigaAvanzata.crea_da_dati_riga_avanzati(
+            id_giocatore=1,
+            nome_giocatore="Mario",
+            numero_riga=2,
+            dati_riga_avanzati=((10, "-", 33), {"segnati": 1}, (33,)),
+        )
+
+        renderer.render_esito(EsitoAzione(ok=True, errore=None, evento=evento))
+
+        self.assertEqual(finestra.testi[-1], "Riga 2: 10  vuoto  [33]")
+        self.assertEqual(vocalizzatore.testi[-1], "Riga 2: 10  vuoto  [33]")

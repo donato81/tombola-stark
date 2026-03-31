@@ -10,11 +10,10 @@ Ospita:
 Binding tastiera applicati (da report analisi):
   Categoria A — EVT_KEY_DOWN sul pannello griglia:
     Frecce su/giu          -> riga semplice
-    Shift+Frecce su/giu    -> riga avanzata
     Frecce sx/dx           -> colonna sinistra/destra semplice
-    Shift+Frecce sx/dx     -> colonna avanzata
-    1/2/3                  -> vai a riga diretta
+        1..9                   -> vai a colonna diretta
     Spazio                 -> segna numero
+        R                      -> riepilogo cartella corrente
     V                      -> visualizza semplice
     Shift+V                -> visualizza avanzata
     Shift+Ctrl+V           -> visualizza tutte avanzata
@@ -27,7 +26,7 @@ Binding tastiera applicati (da report analisi):
     Ctrl+P                 -> passa turno
     Ctrl+F                 -> apre dialog ricerca numero
     Ctrl+1..6              -> salta a cartella N
-    Alt+1..9               -> salta a colonna N
+        Alt+1..3               -> salta a riga N
 
   Categoria C — EVT_CHAR_HOOK (da verificare empiricamente su NVDA):
     Ctrl+T                 -> ultimo numero estratto
@@ -93,6 +92,7 @@ class PannelloGriglia(wx.Panel):
         key = event.GetKeyCode()
         ctrl = event.ControlDown()
         shift = event.ShiftDown()
+        alt = event.AltDown()
         fg = self._finestra
 
         # Escape — esci dalla griglia
@@ -103,37 +103,37 @@ class PannelloGriglia(wx.Panel):
         # Frecce su/giu
         if key == wx.WXK_UP:
             if shift:
-                fg._dispatch(fg._comandi.riga_su_avanzata())
-            else:
-                fg._dispatch(fg._comandi.riga_su())
+                event.Skip()
+                return
+            fg._dispatch(fg._comandi.riga_su())
             return
 
         if key == wx.WXK_DOWN:
             if shift:
-                fg._dispatch(fg._comandi.riga_giu_avanzata())
-            else:
-                fg._dispatch(fg._comandi.riga_giu())
+                event.Skip()
+                return
+            fg._dispatch(fg._comandi.riga_giu())
             return
 
         # Frecce sinistra/destra
         if key == wx.WXK_LEFT:
             if shift:
-                fg._dispatch(fg._comandi.colonna_sinistra_avanzata())
-            else:
-                fg._dispatch(fg._comandi.colonna_sinistra())
+                event.Skip()
+                return
+            fg._dispatch(fg._comandi.colonna_sinistra())
             return
 
         if key == wx.WXK_RIGHT:
             if shift:
-                fg._dispatch(fg._comandi.colonna_destra_avanzata())
-            else:
-                fg._dispatch(fg._comandi.colonna_destra())
+                event.Skip()
+                return
+            fg._dispatch(fg._comandi.colonna_destra())
             return
 
-        # Tasti 1/2/3 — vai a riga diretta
-        if key in (ord("1"), ord("2"), ord("3")) and not ctrl and not shift:
-            numero_riga = key - ord("0")
-            fg._dispatch(fg._comandi.vai_a_riga(numero_riga))
+        # Tasti 1..9 — vai a colonna diretta
+        if ord("1") <= key <= ord("9") and not ctrl and not shift and not alt:
+            numero_colonna = key - ord("0")
+            fg._dispatch(fg._comandi.vai_a_colonna(numero_colonna))
             return
 
         # Spazio — segna numero
@@ -156,6 +156,11 @@ class PannelloGriglia(wx.Panel):
         # S — stato focus
         if key == ord("S") and not ctrl and not shift:
             fg._dispatch(fg._comandi.stato_focus())
+            return
+
+        # R — riepilogo rapido cartella corrente
+        if key == ord("R") and not ctrl and not shift and not alt:
+            fg._dispatch(fg._comandi.riepilogo_cartella_corrente())
             return
 
         # F1..F5 — dichiara vittoria
@@ -287,10 +292,10 @@ class FinestraGioco(wx.Frame):
             self._dispatch(self._comandi.imposta_focus_cartella(numero))
             return
 
-        # Alt+1..9 — salta a colonna N
-        if alt and ord("1") <= key <= ord("9"):
+        # Alt+1..3 — salta a riga N
+        if alt and not ctrl and not shift and ord("1") <= key <= ord("3"):
             numero = key - ord("0")
-            self._dispatch(self._comandi.vai_a_colonna(numero))
+            self._dispatch(self._comandi.vai_a_riga(numero))
             return
 
         # Categoria C — da verificare empiricamente su NVDA

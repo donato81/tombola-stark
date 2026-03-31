@@ -14,7 +14,7 @@ path: bingo_game/ui/renderers/renderer_wx.py
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, Sequence
 
 if TYPE_CHECKING:
     import wx
@@ -86,6 +86,8 @@ class WxRenderer(BaseRenderer):
         self._ultimo_annuncio: str = ""
         self._log_text_ctrl: Optional[Any] = None
         self.numero_in_focus: Optional[int] = None
+        self._indice_riga_focus: Optional[int] = None
+        self._indice_colonna_focus: Optional[int] = None
 
     # ---------------------------------------------------------------
     # Metodi pubblici — contratto BaseRenderer
@@ -252,6 +254,10 @@ class WxRenderer(BaseRenderer):
         self._ao2_vocalizza(testo)
 
     def _handle_focus_cartella_impostato(self, evento: EventoFocusCartellaImpostato) -> None:
+        if evento.reset_riga_colonna:
+            self._indice_riga_focus = None
+            self._indice_colonna_focus = None
+            self.numero_in_focus = None
         testo = f"Cartella {evento.numero_cartella} selezionata."
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
@@ -262,9 +268,10 @@ class WxRenderer(BaseRenderer):
             parti.append(f"Cartella {evento.numero_cartella}")
         if evento.numero_riga is not None:
             parti.append(f"riga {evento.numero_riga}")
+            self._indice_riga_focus = evento.numero_riga - 1
         if evento.numero_colonna is not None:
             parti.append(f"colonna {evento.numero_colonna}")
-            self.numero_in_focus = evento.numero_colonna
+            self._indice_colonna_focus = evento.numero_colonna - 1
         testo = ", ".join(parti) + "." if parti else "Focus non impostato."
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
@@ -357,6 +364,10 @@ class WxRenderer(BaseRenderer):
                       if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_RIGHE_MASSIMO")
             testo = self._formatta_testo_da_catalogo(codice)
         else:
+            self._aggiorna_numero_in_focus_da_riga(
+                evento.riga_semplice,
+                evento.numero_riga_corrente,
+            )
             celle = "  ".join(self._formatta_cella(c) for c in (evento.riga_semplice or []))
             testo = f"Riga {evento.numero_riga_corrente}: {celle}"
         self._wx_aggiorna_output(testo)
@@ -368,6 +379,10 @@ class WxRenderer(BaseRenderer):
                       if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_RIGHE_MASSIMO")
             testo = self._formatta_testo_da_catalogo(codice)
         else:
+            self._aggiorna_numero_in_focus_da_riga(
+                evento.riga_semplice,
+                evento.numero_riga_corrente,
+            )
             segnati_set = set(evento.numeri_segnati_riga_ordinati or [])
             celle = "  ".join(
                 self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
@@ -378,17 +393,16 @@ class WxRenderer(BaseRenderer):
         self._ao2_vocalizza(testo)
 
     def _handle_vai_a_riga_avanzata(self, evento: EventoVaiARigaAvanzata) -> None:
-        if evento.esito == "limite":
-            codice = ("UMANI_LIMITE_NAVIGAZIONE_RIGHE_MINIMO"
-                      if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_RIGHE_MASSIMO")
-            testo = self._formatta_testo_da_catalogo(codice)
-        else:
-            segnati_set = set(evento.numeri_segnati_riga_ordinati or [])
-            celle = "  ".join(
-                self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
-                for c in (evento.riga_semplice or [])
-            )
-            testo = f"Riga {evento.numero_riga_corrente}: {celle}"
+        self._aggiorna_numero_in_focus_da_riga(
+            evento.riga_semplice,
+            evento.numero_riga,
+        )
+        segnati_set = set(evento.numeri_segnati_riga_ordinati or [])
+        celle = "  ".join(
+            self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
+            for c in evento.riga_semplice
+        )
+        testo = f"Riga {evento.numero_riga}: {celle}"
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
 
@@ -402,14 +416,12 @@ class WxRenderer(BaseRenderer):
                       if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_COLONNE_MASSIMO")
             testo = self._formatta_testo_da_catalogo(codice)
         else:
+            self._aggiorna_numero_in_focus_da_colonna(
+                evento.colonna_semplice,
+                evento.numero_colonna_corrente,
+            )
             celle = ", ".join(self._formatta_cella(c) for c in (evento.colonna_semplice or []))
             testo = f"Colonna {evento.numero_colonna_corrente}: {celle}"
-            # Aggiorna il numero in focus per la segnazione (Spazio)
-            # Cerca il primo numero valido nelle celle
-            for c in (evento.colonna_semplice or []):
-                if isinstance(c, int):
-                    self.numero_in_focus = c
-                    break
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
 
@@ -419,35 +431,30 @@ class WxRenderer(BaseRenderer):
                       if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_COLONNE_MASSIMO")
             testo = self._formatta_testo_da_catalogo(codice)
         else:
+            self._aggiorna_numero_in_focus_da_colonna(
+                evento.colonna_semplice,
+                evento.numero_colonna_corrente,
+            )
             segnati_set = set(evento.numeri_segnati_colonna_ordinati or [])
             celle = ", ".join(
                 self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
                 for c in (evento.colonna_semplice or [])
             )
             testo = f"Colonna {evento.numero_colonna_corrente} avanzata: {celle}"
-            for c in (evento.colonna_semplice or []):
-                if isinstance(c, int):
-                    self.numero_in_focus = c
-                    break
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
 
     def _handle_vai_a_colonna_avanzata(self, evento: EventoVaiAColonnaAvanzata) -> None:
-        if evento.esito == "limite":
-            codice = ("UMANI_LIMITE_NAVIGAZIONE_COLONNE_MINIMO"
-                      if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_COLONNE_MASSIMO")
-            testo = self._formatta_testo_da_catalogo(codice)
-        else:
-            segnati_set = set(evento.numeri_segnati_colonna_ordinati or [])
-            celle = ", ".join(
-                self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
-                for c in (evento.colonna_semplice or [])
-            )
-            testo = f"Colonna {evento.numero_colonna_corrente}: {celle}"
-            for c in (evento.colonna_semplice or []):
-                if isinstance(c, int):
-                    self.numero_in_focus = c
-                    break
+        self._aggiorna_numero_in_focus_da_colonna(
+            evento.colonna_semplice,
+            evento.numero_colonna,
+        )
+        segnati_set = set(evento.numeri_segnati_colonna_ordinati or [])
+        celle = ", ".join(
+            self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
+            for c in evento.colonna_semplice
+        )
+        testo = f"Colonna {evento.numero_colonna}: {celle}"
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
 
@@ -695,3 +702,39 @@ class WxRenderer(BaseRenderer):
         e' gia' segnata senza iterare la lista intera.
         """
         return set(numeri_segnati)
+
+    def _aggiorna_numero_in_focus_da_riga(
+        self,
+        riga_semplice: Optional[Sequence[int | str]],
+        numero_riga_corrente: Optional[int],
+    ) -> None:
+        if numero_riga_corrente is not None:
+            self._indice_riga_focus = numero_riga_corrente - 1
+        if not riga_semplice or self._indice_colonna_focus is None:
+            return
+
+        if 0 <= self._indice_colonna_focus < len(riga_semplice):
+            cella = riga_semplice[self._indice_colonna_focus]
+            self.numero_in_focus = cella if isinstance(cella, int) else None
+
+    def _aggiorna_numero_in_focus_da_colonna(
+        self,
+        colonna_semplice: Optional[Sequence[int | str]],
+        numero_colonna_corrente: Optional[int],
+    ) -> None:
+        if numero_colonna_corrente is not None:
+            self._indice_colonna_focus = numero_colonna_corrente - 1
+        if not colonna_semplice:
+            return
+
+        if self._indice_riga_focus is not None and 0 <= self._indice_riga_focus < len(colonna_semplice):
+            cella = colonna_semplice[self._indice_riga_focus]
+            self.numero_in_focus = cella if isinstance(cella, int) else None
+            return
+
+        for cella in colonna_semplice:
+            if isinstance(cella, int):
+                self.numero_in_focus = cella
+                return
+
+        self.numero_in_focus = None

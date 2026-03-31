@@ -237,7 +237,10 @@ def crea_giocatore_umano(nome: str, num_cartelle: int = 1, id_giocatore: Optiona
     return giocatore
 
 
-def crea_giocatori_automatici(num_bot: int = 1) -> List[GiocatoreAutomatico]:
+def crea_giocatori_automatici(
+    num_bot: int = 1,
+    id_iniziale: int = 2,
+) -> List[GiocatoreAutomatico]:
     """
     Crea una lista di giocatori automatici (bot) per la partita di tombola.
 
@@ -256,7 +259,10 @@ def crea_giocatori_automatici(num_bot: int = 1) -> List[GiocatoreAutomatico]:
 
     for indice in range(num_bot_effettivi):
         nome_bot = f"Bot {indice + 1}"
-        bot = GiocatoreAutomatico(nome=nome_bot)
+        bot = GiocatoreAutomatico(
+            nome=nome_bot,
+            id_giocatore=id_iniziale + indice,
+        )
         num_cartelle_bot = random.randint(1, 6)
         assegna_cartelle_a_giocatore(bot, num_cartelle_bot)
         lista_bot.append(bot)
@@ -301,12 +307,13 @@ def crea_partita_standard(
     _log_safe("[GAME] crea_partita_standard: giocatore umano '%s' creato, cartelle=%d.", "debug", nome_giocatore_umano, num_cartelle_umano, logger=_logger_game)
     giocatore_umano = crea_giocatore_umano(
         nome=nome_giocatore_umano,
-        num_cartelle=num_cartelle_umano
+        num_cartelle=num_cartelle_umano,
+        id_giocatore=1,
     )
 
     num_bot_effettivi = max(1, num_bot)
     _log_safe("[GAME] crea_partita_standard: %d bot automatici creati.", "debug", num_bot_effettivi, logger=_logger_game)
-    lista_bot = crea_giocatori_automatici(num_bot_effettivi)
+    lista_bot = crea_giocatori_automatici(num_bot_effettivi, id_iniziale=2)
 
     tutti_i_giocatori = [giocatore_umano] + lista_bot
     _log_safe("[GAME] crea_partita_standard: %d giocatori totali.", "debug", len(tutti_i_giocatori), logger=_logger_game)

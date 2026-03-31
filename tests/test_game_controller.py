@@ -267,6 +267,13 @@ class TestGameController(unittest.TestCase):
             cartelle = bot.get_numero_cartelle()
             self.assertTrue(1 <= cartelle <= 6)
 
+    def test_crea_giocatori_automatici_id_progressivi(self) -> None:
+        """
+        Verifica che i bot ricevano ID progressivi non nulli.
+        """
+        bot_lista = crea_giocatori_automatici(3)
+        self.assertEqual([bot.get_id_giocatore() for bot in bot_lista], [2, 3, 4])
+
     """===============================
     SEZIONE 5: Test crea_partita_standard
     ================================="""
@@ -300,6 +307,14 @@ class TestGameController(unittest.TestCase):
         """
         partita = crea_partita_standard("Luca")
         self.assertEqual(partita.get_giocatori()[0].get_nome(), "Luca")
+
+    def test_crea_partita_standard_id_giocatori_progressivi(self) -> None:
+        """
+        Verifica che il giocatore umano e i bot abbiano ID valorizzati.
+        """
+        partita = crea_partita_standard("Mario", 1, 3)
+        ids = [giocatore.get_id_giocatore() for giocatore in partita.get_giocatori()]
+        self.assertEqual(ids, [1, 2, 3, 4])
 
     def test_crea_partita_standard_nome_vuoto_raises_exception(self) -> None:
         """
