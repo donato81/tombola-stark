@@ -12,6 +12,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/2 - projects/ -->
 
+- [DESIGN_interfaccia_wx_finestre_configurazione_gioco.md](2%20-%20projects/DESIGN_interfaccia_wx_finestre_configurazione_gioco.md)
 - [DESIGN_eccezione_dominio_tabellone_v1.0.0.md](2%20-%20projects/DESIGN_eccezione_dominio_tabellone_v1.0.0.md)
 - [DESIGN_allineamento_standard_tabellone_v1.0.0.md](2%20-%20projects/DESIGN_allineamento_standard_tabellone_v1.0.0.md)
 - [DESIGN_refactor_vocalizzatore_v1.0.0.md](2%20-%20projects/DESIGN_refactor_vocalizzatore_v1.0.0.md)
@@ -37,6 +38,7 @@ stato: attivo
 - [DESIGN_test_eventi_output_tabellone_v1.0.0.md](2%20-%20projects/DESIGN_test_eventi_output_tabellone_v1.0.0.md)
 - [DESIGN_test_eventi_output_segnazione_v1.0.0.md](2%20-%20projects/DESIGN_test_eventi_output_segnazione_v1.0.0.md)
 - [DESIGN_test_eventi_output_bulk_focus_v1.0.0.md](2%20-%20projects/DESIGN_test_eventi_output_bulk_focus_v1.0.0.md)
+- [DESIGN_interfaccia_wx_finestre_configurazione_gioco.md](2%20-%20projects/DESIGN_interfaccia_wx_finestre_configurazione_gioco.md)
 
 ### Piani
 
@@ -67,6 +69,7 @@ stato: attivo
 - [PLAN_test_eventi_output_tabellone_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_eventi_output_tabellone_v1.0.0.md)
 - [PLAN_test_eventi_output_segnazione_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_eventi_output_segnazione_v1.0.0.md)
 - [PLAN_test_eventi_output_bulk_focus_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_eventi_output_bulk_focus_v1.0.0.md)
+- [PLAN_interfaccia_wx_finestre_configurazione_gioco_v0.9.5.md](3%20-%20coding%20plans/PLAN_interfaccia_wx_finestre_configurazione_gioco_v0.9.5.md)
 
 ### Reports
 
@@ -116,6 +119,7 @@ stato: attivo
 - [TODO_test_eventi_output_tabellone_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_tabellone_v1.0.0.md)
 - [TODO_test_eventi_output_segnazione_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_segnazione_v1.0.0.md)
 - [TODO_test_eventi_output_bulk_focus_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_bulk_focus_v1.0.0.md)
+- [TODO_interfaccia_wx_finestre_configurazione_gioco_v0.9.5.md](5%20-%20todolist/TODO_interfaccia_wx_finestre_configurazione_gioco_v0.9.5.md)
 
 ### Da fare
 
