@@ -388,7 +388,11 @@ class WxRenderer(BaseRenderer):
                 self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
                 for c in (evento.riga_semplice or [])
             )
-            testo = f"Riga {evento.numero_riga_corrente} avanzata: {celle}"
+            stato = evento.stato_riga or {}
+            n_seg = int(stato.get("numeri_segnati", 0))
+            n_tot = int(stato.get("numeri_totali", 0))
+            suf = "segnato" if n_seg == 1 else "segnati"
+            testo = f"Avanzata riga {evento.numero_riga_corrente}, {n_seg} {suf} su {n_tot}: {celle}"
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
 
@@ -402,7 +406,11 @@ class WxRenderer(BaseRenderer):
             self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
             for c in evento.riga_semplice
         )
-        testo = f"Riga {evento.numero_riga}: {celle}"
+        stato = evento.stato_riga or {}
+        n_seg = int(stato.get("numeri_segnati", 0))
+        n_tot = int(stato.get("numeri_totali", 0))
+        suf = "segnato" if n_seg == 1 else "segnati"
+        testo = f"Avanzata riga {evento.numero_riga}, {n_seg} {suf} su {n_tot}: {celle}"
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
 
@@ -440,7 +448,11 @@ class WxRenderer(BaseRenderer):
                 self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
                 for c in (evento.colonna_semplice or [])
             )
-            testo = f"Colonna {evento.numero_colonna_corrente} avanzata: {celle}"
+            stato = evento.stato_colonna or {}
+            n_seg = int(stato.get("numeri_segnati", 0))
+            n_tot = int(stato.get("numeri_totali", 0))
+            suf = "segnato" if n_seg == 1 else "segnati"
+            testo = f"Avanzata colonna {evento.numero_colonna_corrente}, {n_seg} {suf} su {n_tot}: {celle}"
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
 
@@ -454,7 +466,11 @@ class WxRenderer(BaseRenderer):
             self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
             for c in evento.colonna_semplice
         )
-        testo = f"Colonna {evento.numero_colonna}: {celle}"
+        stato = evento.stato_colonna or {}
+        n_seg = int(stato.get("numeri_segnati", 0))
+        n_tot = int(stato.get("numeri_totali", 0))
+        suf = "segnato" if n_seg == 1 else "segnati"
+        testo = f"Avanzata colonna {evento.numero_colonna}, {n_seg} {suf} su {n_tot}: {celle}"
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
 
@@ -655,7 +671,7 @@ class WxRenderer(BaseRenderer):
             return self._formatta_testo_da_catalogo("UMANI_CARTELLA_SEMPLICE_CELLA_VUOTA")
         testo = str(cella)
         if evidenziata:
-            return f"[{testo}]"
+            return f"{testo} segnato"
         return testo
 
     @staticmethod

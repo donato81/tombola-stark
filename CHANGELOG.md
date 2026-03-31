@@ -10,6 +10,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ## [Unreleased]
 
 ### Fixed
+- `bingo_game/ui/renderers/renderer_wx.py`: modalità avanzata NVDA — il testo "Avanzata" è ora la prima parola pronunciata (prima era troncato dopo "Riga N"); i numeri segnati usano il token "N segnato" al posto di "[N]" (parentesi quadre silenti con NVDA); aggiunto conteggio segnati da `stato_riga`/`stato_colonna` nel messaggio breve; corretti `_handle_vai_a_riga_avanzata` e `_handle_vai_a_colonna_avanzata` che non esponevano la label "Avanzata".
 - `bingo_game/ui/finestra_gioco.py`: rimossa l'opzione `wx.TE_AUTO_SCROLL` non supportata da wxPython Phoenix; il frame di gioco ora si istanzia correttamente dopo `Avvia partita`.
 - `bingo_game/ui/finestra_gioco.py`: corretto il parent di `PannelloGriglia` per renderlo coerente con il `wx.Panel` gestito dal sizer della finestra di gioco; eliminata l'assertion wx durante il caricamento del frame.
 - `bingo_game/players/helper_focus.py`: la navigazione tastiera auto-seleziona di nuovo la prima cartella disponibile quando il focus cartella non è ancora impostato; eliminato il falso errore ricorrente `Non hai selezionato nessuna cartella` al primo movimento.

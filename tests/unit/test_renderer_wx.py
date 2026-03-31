@@ -60,13 +60,13 @@ class TestWxRenderer(unittest.TestCase):
             id_giocatore=1,
             nome_giocatore="Mario",
             numero_colonna=5,
-            dati_colonna_avanzati=(("-", 25, 44), {"segnati": 1}, (25,)),
+            dati_colonna_avanzati=(("-", 25, 44), {"numeri_segnati": 1, "numeri_totali": 2}, (25,)),
         )
 
         renderer.render_esito(EsitoAzione(ok=True, errore=None, evento=evento))
 
-        self.assertEqual(finestra.testi[-1], "Colonna 5: vuoto, [25], 44")
-        self.assertEqual(vocalizzatore.testi[-1], "Colonna 5: vuoto, [25], 44")
+        self.assertEqual(finestra.testi[-1], "Avanzata colonna 5, 1 segnato su 2: vuoto, 25 segnato, 44")
+        self.assertEqual(vocalizzatore.testi[-1], "Avanzata colonna 5, 1 segnato su 2: vuoto, 25 segnato, 44")
 
     def test_render_esito_vai_a_riga_avanzata_non_lancia_eccezioni(self) -> None:
         finestra = _FinestraFittizia()
@@ -77,10 +77,10 @@ class TestWxRenderer(unittest.TestCase):
             id_giocatore=1,
             nome_giocatore="Mario",
             numero_riga=2,
-            dati_riga_avanzati=((10, "-", 33), {"segnati": 1}, (33,)),
+            dati_riga_avanzati=((10, "-", 33), {"numeri_segnati": 1, "numeri_totali": 2}, (33,)),
         )
 
         renderer.render_esito(EsitoAzione(ok=True, errore=None, evento=evento))
 
-        self.assertEqual(finestra.testi[-1], "Riga 2: 10  vuoto  [33]")
-        self.assertEqual(vocalizzatore.testi[-1], "Riga 2: 10  vuoto  [33]")
+        self.assertEqual(finestra.testi[-1], "Avanzata riga 2, 1 segnato su 2: 10  vuoto  33 segnato")
+        self.assertEqual(vocalizzatore.testi[-1], "Avanzata riga 2, 1 segnato su 2: 10  vuoto  33 segnato")
