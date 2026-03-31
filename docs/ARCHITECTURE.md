@@ -174,7 +174,7 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 
 #### Livello Interfaccia
 
-**Scopo**: Presentazione degli stati di gioco tramite un layer renderer esterno al core del progetto. Il contratto del renderer e' ora implementato e documentato; l'entry point applicativo definitivo resta invece ancora separato dal repository operativo.
+**Scopo**: Presentazione degli stati di gioco tramite un layer renderer esterno al core del progetto. Il contratto del renderer e' implementato e l'entry point applicativo wx ora avvia la finestra di configurazione e il successivo frame di gioco.
 
 **Dipende da**:
 - Controller (per ottenere risultati sicuri tramite `crea_partita_standard` + `avvia_partita_sicura`)
@@ -196,9 +196,11 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 **Flusso corrente documentabile**:
 
 ```
-main.py placeholder o altro chiamante → GameController → (EsitoAzione/bool/dict/None) → BaseRenderer/WxRenderer
+main.py (entry wx) → wx.App → GameController → (EsitoAzione/bool/dict/None) → WxRenderer → FinestraConfigurazione / FinestraGioco
                                                         → (log) → tombola_stark.log
 ```
+
+Il package `bingo_game/ui` ora espone non solo renderer (`BaseRenderer`, `WxRenderer`) ma anche i principali frame e dialog di presentazione: `FinestraConfigurazione`, `FinestraGioco` e `DialogoRicerca`.
 
 1. Il chiamante crea o recupera una `Partita` tramite il controller
 2. Il controller orchestra il dominio e ritorna esiti sicuri (`EsitoAzione`, `bool`, `dict`, `None`)
@@ -230,7 +232,7 @@ main.py placeholder o altro chiamante → GameController → (EsitoAzione/bool/d
 **Caratteristiche**:
 - **Singleton**: Un'unica istanza condivisa per tutta l'applicazione
 - **Flush immediato**: Ogni riga è scritta su disco immediatamente (leggibile in tempo reale)
-- **Modalità DEBUG/INFO**: Controllata dal flag `--debug` in `main.py`, anche nello stato placeholder corrente
+- **Modalità DEBUG/INFO**: Controllata dal flag `--debug` in `main.py` durante l'avvio wx corrente
 - **Marcatori di sessione**: Separano visivamente le esecuzioni nel file cumulativo
 - **Sub-logger per categoria**: 
   - `tombola_stark.game` → eventi ciclo di vita partita (`[GAME]`)
@@ -239,7 +241,7 @@ main.py placeholder o altro chiamante → GameController → (EsitoAzione/bool/d
   - `tombola_stark.errors` → eccezioni e anomalie (`[ERR]`)
 
 **Regole di Dipendenza** (CRITICHE):
-- ✅ Può essere usato da: Controller (`game_controller.py`), Entry point placeholder (`main.py`)
+- ✅ Può essere usato da: Controller (`game_controller.py`), entry point wx (`main.py`)
 - ❌ **NON può essere usato da**: Dominio (`tabellone.py`, `partita.py`, `cartella.py`, `players/`, `events/`, `exceptions/`)
 - ❌ Il logging **non deve mai interrompere il gioco**: tutte le chiamate sono wrappate in `try/except Exception: pass`
 
@@ -497,7 +499,7 @@ tombola-stark/
 │   ├── 3 - coding plans/        # Documenti PLAN_*.md
 │   ├── 4 - reports/             # Report analisi e stato
 │   └── 5 - todolist/            # TODO operativi per feature
-├── main.py                      # Entry point placeholder temporaneo, senza dipendenze UI
+├── main.py                      # Entry point wx che avvia configurazione e renderer
 ├── requirements.txt
 └── README.md
 ```
@@ -528,7 +530,7 @@ tombola-stark/
 - `renderers/`: package del layer renderer con contratto astratto e implementazione wx accessibile
 - `BaseRenderer` separa il protocollo di presentazione dalla tecnologia concreta
 - `WxRenderer` riceve `wx.Frame` e `Vocalizzatore` via dependency injection e separa canale widget da canale vocale
-- L'entry point UI completo resta in ridefinizione: il repository documenta oggi il confine renderer, non ancora l'avvio definitivo della finestra applicativa
+- L'entry point UI attivo avvia `wx.App`, `WxRenderer` e `FinestraConfigurazione`; restano incrementali i dettagli widget avanzati e la validazione NVDA live
 
 #### `tests/`
 - Test unitari per dominio (isolati)

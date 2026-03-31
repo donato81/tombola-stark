@@ -2,7 +2,7 @@
 type: plan
 feature: interfaccia_wx_finestre_configurazione_gioco
 agent: Agent-Plan
-status: DRAFT
+status: READY
 version: v0.9.5
 design_ref: docs/2 - projects/DESIGN_interfaccia_wx_finestre_configurazione_gioco.md
 date: 2026-03-31

@@ -49,6 +49,13 @@ L'obiettivo è documentare le interfacce che altri livelli o componenti chiamano
 **Controller** (`bingo_game/game_controller.py`):
 - [game_controller](#game_controller) – Funzioni di orchestrazione di alto livello
 
+**Interfaccia (wx)** (`bingo_game/ui/`):
+- `main.py` (entry point wx) – Avvia `wx.App`, `Vocalizzatore`, `WxRenderer` e `FinestraConfigurazione`.
+- `bingo_game/ui/finestra_configurazione.py` – `FinestraConfigurazione` (frame di configurazione partita; componente pubblico di presentazione).
+- `bingo_game/ui/finestra_gioco.py` – `FinestraGioco` (frame principale di gioco; pannello griglia focalizzabile e area annunci).
+- `bingo_game/ui/dialogo_ricerca.py` – `DialogoRicerca` (dialog modale per ricerca numero, vocalizza risultato prima della chiusura).
+- `bingo_game/comandi_partita.py` – espone `ComandiGiocatoreUmano` come facade per il layer di presentazione.
+
 **Eccezioni** (`bingo_game/exceptions/`):
 - [Eccezioni Partita](#eccezioni-partita)
 - [Eccezioni Giocatore](#eccezioni-giocatore)
@@ -1741,18 +1748,15 @@ class WxRenderer(BaseRenderer):
 
 ### Entry Point Applicazione (`main.py`)
 
-`main.py` e' attualmente un placeholder temporaneo dell'avvio applicativo.
-Non istanzia ancora `WxRenderer` e non avvia la UI definitiva.
+`main.py` avvia ora l'applicazione wx corrente.
 
 Comportamento corrente:
 
 - supporta il flag `--debug` tramite `argparse`;
 - inizializza `GameLogger.initialize(debug_mode=args.debug)` all'avvio;
-- stampa un messaggio informativo sullo stato di transizione dell'integrazione wx;
+- crea `wx.App`, `Vocalizzatore` e `WxRenderer`;
+- apre `FinestraConfigurazione`, che a sua volta puo' creare la partita e transitare a `FinestraGioco`;
 - chiude correttamente il logging con `GameLogger.shutdown()` nel blocco `finally`.
-
-Questa sezione dovra' essere aggiornata quando l'entry point reintegrera'
-esplicitamente `WxRenderer` e la finestra applicativa.
 
 Nel perimetro di presentazione rimangono componenti di supporto riutilizzabili:
 
@@ -1764,7 +1768,8 @@ Nel perimetro di presentazione rimangono componenti di supporto riutilizzabili:
 
 ## 🔄 Note di Versione
 
-- **v0.9.4** — Introdotto il layer renderer corrente: `BaseRenderer`, `StatoConfigurazione` e `WxRenderer`. Rimosso `renderer_terminal.py` dal perimetro architetturale attivo; `main.py` resta ancora un placeholder finche' l'integrazione wx non viene agganciata all'avvio.
+- **v0.9.5** — `main.py` avvia ora la UI wx corrente tramite `wx.App`, `WxRenderer` e `FinestraConfigurazione`; aggiunti anche `FinestraGioco`, `DialogoRicercaNumero` e la facade `ComandiGiocatoreUmano` per il layer di presentazione.
+- **v0.9.4** — Introdotto il layer renderer corrente: `BaseRenderer`, `StatoConfigurazione` e `WxRenderer`. Rimosso `renderer_terminal.py` dal perimetro architetturale attivo.
 - **v0.11.0** — Wrapper controller per il layer di presentazione: `imposta_focus_cartella`, `imposta_focus_cartella_fallback`, `esegui_azione_giocatore`, `esegui_azione_giocatore_con_numero`, `stato_focus_corrente`, `riepilogo_cartella_corrente`.
 - **v0.8.0** — Silent Controller: rimozione ~22 `print()` da `game_controller.py`, sostituzione con `_log_safe()` sui sub-logger con prefissi `[GAME]`/`[ERR]`/`[SYS]`. Aggiunta `codici_controller.py` (4 costanti `CTRL_*`) e messaggi localizzati lato presentazione. I 15 test di non-regressione su `tests/test_silent_controller.py` sono ora mantenuti in `unittest` con cattura stdout non basata su pytest.
 - **v0.7.0-v0.10.0** — Il progetto ha incluso una UI terminale e un game loop interattivo oggi rimossi dal repository; i relativi moduli non fanno piu' parte dell'API pubblica corrente.

@@ -22,9 +22,12 @@ from bingo_game.game_controller import (
     esegui_turno_sicuro,
     ottieni_stato_sintetico,
     ha_partita_tombola,
-    partita_terminata
+    partita_terminata,
+    ottieni_giocatore_umano,
 )
 from bingo_game.partita import Partita
+from bingo_game.players.giocatore_umano import GiocatoreUmano
+from bingo_game.events.eventi import EsitoAzione
 
 
 class ComandiSistema:
@@ -185,18 +188,181 @@ class ComandiSistema:
 
 class ComandiGiocatoreUmano:
     """
-    Classe per comandi specifici del giocatore umano.
+    Facade per i comandi del giocatore umano durante la partita.
 
-    QUESTA CLASSE SARÀ IMPLEMENTATA NELLE PROSSIME SESSIONI
-    quando avremo i metodi specifici in GiocatoreUmano.
-
-    Per ora placeholder per futura espansione.
+    Incapsula l'accesso a GiocatoreUmano in modo che il layer UI
+    non interagisca direttamente con il dominio. Ogni metodo delega
+    al corrispondente metodo di GiocatoreUmano e restituisce EsitoAzione.
     """
 
-    def __init__(self, partita: Partita):
-        self.partita = partita
-        # Troverà automaticamente il giocatore umano tra i giocatori
-        pass
+    def __init__(self, partita: Partita) -> None:
+        self._partita = partita
+        self._giocatore: Optional[GiocatoreUmano] = ottieni_giocatore_umano(partita)
+
+    def _esito_nessun_giocatore(self) -> EsitoAzione:
+        return EsitoAzione.fallimento(errore="CARTELLE_NESSUNA_ASSEGNATA")
+
+    # ------------------------------------------------------------------
+    # Focus cartella
+    # ------------------------------------------------------------------
+
+    def imposta_focus_cartella(self, numero: int) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.imposta_focus_cartella(numero)
+
+    # ------------------------------------------------------------------
+    # Navigazione cartelle
+    # ------------------------------------------------------------------
+
+    def cartella_precedente(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.riepilogo_cartella_precedente()
+
+    def cartella_successiva(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.riepilogo_cartella_successiva()
+
+    def riepilogo_cartella_corrente(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.riepilogo_cartella_corrente()
+
+    # ------------------------------------------------------------------
+    # Visualizzazione cartella
+    # ------------------------------------------------------------------
+
+    def visualizza_semplice(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.visualizza_cartella_corrente_semplice()
+
+    def visualizza_avanzata(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.visualizza_cartella_corrente_avanzata()
+
+    def visualizza_tutte_semplice(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.visualizza_tutte_cartelle_semplice()
+
+    def visualizza_tutte_avanzate(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.visualizza_tutte_cartelle_avanzata()
+
+    # ------------------------------------------------------------------
+    # Navigazione riga
+    # ------------------------------------------------------------------
+
+    def riga_su(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.sposta_focus_riga_su_semplice()
+
+    def riga_giu(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.sposta_focus_riga_giu_semplice()
+
+    def riga_su_avanzata(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.sposta_focus_riga_su_avanzata()
+
+    def riga_giu_avanzata(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.sposta_focus_riga_giu_avanzata()
+
+    def vai_a_riga(self, numero_riga: int) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.vai_a_riga_avanzata(numero_riga)
+
+    # ------------------------------------------------------------------
+    # Navigazione colonna
+    # ------------------------------------------------------------------
+
+    def colonna_sinistra(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.sposta_focus_colonna_sinistra()
+
+    def colonna_destra(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.sposta_focus_colonna_destra()
+
+    def colonna_sinistra_avanzata(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.sposta_focus_colonna_sinistra_avanzata()
+
+    def colonna_destra_avanzata(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.sposta_focus_colonna_destra_avanzata()
+
+    def vai_a_colonna(self, numero_colonna: int) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.vai_a_colonna_avanzata(numero_colonna)
+
+    # ------------------------------------------------------------------
+    # Segnazione e ricerca
+    # ------------------------------------------------------------------
+
+    def segna_numero(self, numero: int) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.segna_numero_manuale(numero, self._partita.tabellone)
+
+    def cerca_numero(self, numero: int) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.cerca_numero_nelle_cartelle(numero)
+
+    # ------------------------------------------------------------------
+    # Consultazione tabellone
+    # ------------------------------------------------------------------
+
+    def ultimo_numero_estratto(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.comunica_ultimo_numero_estratto(self._partita.tabellone)
+
+    def ultimi_numeri_estratti(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.visualizza_ultimi_numeri_estratti(self._partita.tabellone)
+
+    def riepilogo_tabellone(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.riepilogo_tabellone(self._partita.tabellone)
+
+    def lista_numeri_estratti(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.lista_numeri_estratti(self._partita.tabellone)
+
+    def stato_focus(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.stato_focus_corrente()
+
+    # ------------------------------------------------------------------
+    # Vittoria
+    # ------------------------------------------------------------------
+
+    def annuncia_vittoria(self, tipo: str, numero_turno: int) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        return self._giocatore.annuncia_vittoria(tipo, numero_turno)
 
     def controlla_numero(self, numero: int) -> Dict[str, Any]:
         """Controlla se umano ha numero nelle sue cartelle."""

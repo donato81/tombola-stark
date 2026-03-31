@@ -14,7 +14,7 @@ path: bingo_game/ui/renderers/renderer_wx.py
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
     import wx
@@ -77,15 +77,34 @@ class WxRenderer(BaseRenderer):
 
     def __init__(
         self,
-        finestra_principale: wx.Frame,
+        finestra_principale: "wx.Frame",
         vocalizzatore: IVocalizzatore,
     ) -> None:
-        self._finestra: wx.Frame = finestra_principale
+        self._finestra: Any = finestra_principale
         self._vocalizzatore: IVocalizzatore = vocalizzatore
+        # Stato locale
+        self._ultimo_annuncio: str = ""
+        self._log_text_ctrl: Optional[Any] = None
+        self.numero_in_focus: Optional[int] = None
 
     # ---------------------------------------------------------------
     # Metodi pubblici — contratto BaseRenderer
     # ---------------------------------------------------------------
+
+    def aggiorna_finestra(self, nuova_finestra: Any) -> None:
+        """Aggiorna il riferimento al frame corrente dopo una transizione."""
+        self._finestra = nuova_finestra
+
+    def imposta_widget_log(self, ctrl: Any) -> None:
+        """Imposta il widget TextCtrl del log annunci per la finestra corrente."""
+        self._log_text_ctrl = ctrl
+
+    def ripeti_ultimo_annuncio(self) -> None:
+        """Vocalizza nuovamente l'ultimo testo annunciato (F6)."""
+        if self._ultimo_annuncio:
+            self._vocalizzatore.vocalizza_testo(self._ultimo_annuncio, interrompi=True)
+        else:
+            self._vocalizzatore.vocalizza_testo("Nessun annuncio precedente.", interrompi=True)
 
     def render_esito(self, esito: EsitoAzione) -> None:
         """
@@ -224,132 +243,347 @@ class WxRenderer(BaseRenderer):
     # ---------------------------------------------------------------
 
     def _handle_focus_auto_impostato(self, evento: EventoFocusAutoImpostato) -> None:
-        # TODO: costruire testo da catalogo e aggiornare widget focus
-        pass
+        testo = self._formatta_testo_da_catalogo(
+            "EVENTO_FOCUS_AUTO_IMPOSTATO",
+            tipo=evento.tipo_focus,
+            numero=evento.indice + 1,
+        )
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_focus_cartella_impostato(self, evento: EventoFocusCartellaImpostato) -> None:
-        # TODO: evidenziare cartella attiva nel pannello e vocalizzare
-        pass
+        testo = f"Cartella {evento.numero_cartella} selezionata."
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_stato_focus_corrente(self, evento: EventoStatoFocusCorrente) -> None:
-        # TODO: mostrare riepilogo focus corrente (cartella/riga/colonna)
-        pass
+        parti = []
+        if evento.numero_cartella is not None:
+            parti.append(f"Cartella {evento.numero_cartella}")
+        if evento.numero_riga is not None:
+            parti.append(f"riga {evento.numero_riga}")
+        if evento.numero_colonna is not None:
+            parti.append(f"colonna {evento.numero_colonna}")
+            self.numero_in_focus = evento.numero_colonna
+        testo = ", ".join(parti) + "." if parti else "Focus non impostato."
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     # ---------------------------------------------------------------
     # Handler famiglia: visualizzazione cartelle
     # ---------------------------------------------------------------
 
     def _handle_riepilogo_cartella_corrente(self, evento: EventoRiepilogoCartellaCorrente) -> None:
-        # TODO: aggiornare StatBar o panel riepilogo con dati sintetici cartella
-        pass
+        testo = self._formatta_testo_da_catalogo(
+            "UMANI_RIEPILOGO_CARTELLA_CORRENTE_RIGA_1",
+            numero_cartella=evento.numero_cartella,
+            numeri_segnati=evento.numeri_segnati,
+            totale_numeri=evento.totale_numeri,
+            mancanti=evento.mancanti,
+            percentuale=round(evento.percentuale, 1),
+        )
+        if evento.numeri_non_segnati:
+            lista = ", ".join(str(n) for n in evento.numeri_non_segnati)
+            testo2 = self._formatta_testo_da_catalogo(
+                "UMANI_RIEPILOGO_CARTELLA_CORRENTE_RIGA_2_LISTA", lista=lista
+            )
+        else:
+            testo2 = self._formatta_testo_da_catalogo(
+                "UMANI_RIEPILOGO_CARTELLA_CORRENTE_RIGA_2_NESSUNO"
+            )
+        testo_completo = f"{testo} {testo2}"
+        self._wx_aggiorna_output(testo_completo)
+        self._ao2_vocalizza(testo_completo)
 
     def _handle_limite_navigazione_cartelle(self, evento: EventoLimiteNavigazioneCartelle) -> None:
-        # TODO: vocalizzare "prima/ultima cartella" senza aggiornare widget di griglia
-        pass
+        if evento.limite == "minimo":
+            testo = self._formatta_testo_da_catalogo(
+                "UMANI_LIMITE_NAVIGAZIONE_CARTELLE_MINIMO",
+                totale_cartelle=evento.totale_cartelle,
+            )
+        else:
+            testo = self._formatta_testo_da_catalogo(
+                "UMANI_LIMITE_NAVIGAZIONE_CARTELLE_MASSIMO",
+                totale_cartelle=evento.totale_cartelle,
+            )
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_visualizza_cartella_semplice(self, evento: EventoVisualizzaCartellaSemplice) -> None:
-        # TODO: aggiornare pannello cartella con griglia in modalita' semplice
-        pass
+        righe = []
+        for i, riga in enumerate(evento.griglia_semplice):
+            celle = "  ".join(str(c).rjust(2) if c != "-" else " -" for c in riga if c != "-" or True)
+            righe.append(f"Riga {i+1}: {celle}")
+        testo = f"Cartella {evento.numero_cartella}/{evento.totale_cartelle}.\n" + "\n".join(righe)
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_visualizza_cartella_avanzata(self, evento: EventoVisualizzaCartellaAvanzata) -> None:
-        # TODO: aggiornare pannello cartella con griglia avanzata (celle segnate evidenziate)
-        pass
+        righe = []
+        segnati_set = set(evento.numeri_segnati_ordinati)
+        for i, riga in enumerate(evento.griglia_semplice):
+            celle = "  ".join(
+                (f"[{c}]" if isinstance(c, int) and c in segnati_set else str(c).rjust(2))
+                for c in riga
+            )
+            righe.append(f"Riga {i+1}: {celle}")
+        testo = f"Cartella {evento.numero_cartella}/{evento.totale_cartelle} (avanzata).\n" + "\n".join(righe)
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_visualizza_tutte_cartelle_semplice(
         self, evento: EventoVisualizzaTutteCartelleSemplice
     ) -> None:
-        # TODO: aggiornare tutti i pannelli cartelle in modalita' semplice
-        pass
+        parti = []
+        for numero_c, griglia in evento.cartelle:
+            parti.append(f"Cartella {numero_c}:")
+            for i, riga in enumerate(griglia):
+                celle = "  ".join(str(c) for c in riga)
+                parti.append(f"  Riga {i+1}: {celle}")
+        testo = "\n".join(parti)
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(f"Tutte le {evento.totale_cartelle} cartelle mostrate.")
 
     def _handle_visualizza_tutte_cartelle_avanzata(
         self, evento: EventoVisualizzaTutteCartelleAvanzata
     ) -> None:
-        # TODO: aggiornare tutti i pannelli cartelle in modalita' avanzata
-        pass
+        self._wx_aggiorna_output(f"Tutte le {evento.totale_cartelle} cartelle (avanzata).")
+        self._ao2_vocalizza(f"Tutte le {evento.totale_cartelle} cartelle mostrate in modalità avanzata.")
 
     # ---------------------------------------------------------------
     # Handler famiglia: navigazione riga
     # ---------------------------------------------------------------
 
     def _handle_navigazione_riga(self, evento: EventoNavigazioneRiga) -> None:
-        # TODO: aggiornare evidenziazione riga selezionata e vocalizzare contenuto
-        pass
+        if evento.esito == "limite":
+            codice = ("UMANI_LIMITE_NAVIGAZIONE_RIGHE_MINIMO"
+                      if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_RIGHE_MASSIMO")
+            testo = self._formatta_testo_da_catalogo(codice)
+        else:
+            celle = "  ".join(str(c) for c in (evento.riga_semplice or []))
+            testo = f"Riga {evento.numero_riga_corrente}: {celle}"
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_navigazione_riga_avanzata(self, evento: EventoNavigazioneRigaAvanzata) -> None:
-        # TODO: evidenziare riga avanzata e vocalizzare con indicatori segnati
-        pass
+        if evento.esito == "limite":
+            codice = ("UMANI_LIMITE_NAVIGAZIONE_RIGHE_MINIMO"
+                      if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_RIGHE_MASSIMO")
+            testo = self._formatta_testo_da_catalogo(codice)
+        else:
+            segnati_set = set(evento.numeri_segnati_riga_ordinati or [])
+            celle = "  ".join(
+                f"[{c}]" if isinstance(c, int) and c in segnati_set else str(c)
+                for c in (evento.riga_semplice or [])
+            )
+            testo = f"Riga {evento.numero_riga_corrente} avanzata: {celle}"
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_vai_a_riga_avanzata(self, evento: EventoVaiARigaAvanzata) -> None:
-        # TODO: selezionare riga diretta e vocalizzare
-        pass
+        if evento.esito == "limite":
+            codice = ("UMANI_LIMITE_NAVIGAZIONE_RIGHE_MINIMO"
+                      if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_RIGHE_MASSIMO")
+            testo = self._formatta_testo_da_catalogo(codice)
+        else:
+            celle = "  ".join(str(c) for c in (evento.riga_semplice or []))
+            testo = f"Riga {evento.numero_riga_corrente}: {celle}"
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     # ---------------------------------------------------------------
     # Handler famiglia: navigazione colonna
     # ---------------------------------------------------------------
 
     def _handle_navigazione_colonna(self, evento: EventoNavigazioneColonna) -> None:
-        # TODO: aggiornare evidenziazione colonna selezionata e vocalizzare
-        pass
+        if evento.esito == "limite":
+            codice = ("UMANI_LIMITE_NAVIGAZIONE_COLONNE_MINIMO"
+                      if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_COLONNE_MASSIMO")
+            testo = self._formatta_testo_da_catalogo(codice)
+        else:
+            celle = " / ".join(str(c) for c in (evento.colonna_semplice or []))
+            testo = f"Colonna {evento.numero_colonna_corrente}: {celle}"
+            # Aggiorna il numero in focus per la segnazione (Spazio)
+            # Cerca il primo numero valido nelle celle
+            for c in (evento.colonna_semplice or []):
+                if isinstance(c, int):
+                    self.numero_in_focus = c
+                    break
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_navigazione_colonna_avanzata(self, evento: EventoNavigazioneColonnaAvanzata) -> None:
-        # TODO: evidenziare colonna avanzata e vocalizzare con indicatori
-        pass
+        if evento.esito == "limite":
+            codice = ("UMANI_LIMITE_NAVIGAZIONE_COLONNE_MINIMO"
+                      if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_COLONNE_MASSIMO")
+            testo = self._formatta_testo_da_catalogo(codice)
+        else:
+            segnati_set = set(evento.numeri_segnati_colonna_ordinati or [])
+            celle = " / ".join(
+                f"[{c}]" if isinstance(c, int) and c in segnati_set else str(c)
+                for c in (evento.colonna_semplice or [])
+            )
+            testo = f"Colonna {evento.numero_colonna_corrente} avanzata: {celle}"
+            for c in (evento.colonna_semplice or []):
+                if isinstance(c, int):
+                    self.numero_in_focus = c
+                    break
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_vai_a_colonna_avanzata(self, evento: EventoVaiAColonnaAvanzata) -> None:
-        # TODO: selezionare colonna diretta e vocalizzare
-        pass
+        if evento.esito == "limite":
+            codice = ("UMANI_LIMITE_NAVIGAZIONE_COLONNE_MINIMO"
+                      if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_COLONNE_MASSIMO")
+            testo = self._formatta_testo_da_catalogo(codice)
+        else:
+            celle = " / ".join(str(c) for c in (evento.colonna_semplice or []))
+            testo = f"Colonna {evento.numero_colonna_corrente}: {celle}"
+            for c in (evento.colonna_semplice or []):
+                if isinstance(c, int):
+                    self.numero_in_focus = c
+                    break
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     # ---------------------------------------------------------------
     # Handler famiglia: segnazione e ricerca
     # ---------------------------------------------------------------
 
     def _handle_segnazione_numero(self, evento: EventoSegnazioneNumero) -> None:
-        # TODO: aggiornare cella nella griglia (marcata/non marcata) e vocalizzare esito
-        pass
+        esito = evento.esito
+        if esito == "segnato":
+            testo = self._formatta_testo_da_catalogo(
+                "UMANI_SEGNAZIONE_NUMERO_SEGNATO",
+                numero=evento.numero,
+                numero_riga=(evento.indice_riga + 1 if evento.indice_riga is not None else "?"),
+                numero_colonna=(evento.indice_colonna + 1 if evento.indice_colonna is not None else "?"),
+            )
+        elif esito == "gia_segnato":
+            testo = self._formatta_testo_da_catalogo(
+                "UMANI_SEGNAZIONE_NUMERO_GIA_SEGNATO",
+                numero=evento.numero,
+                numero_cartella=evento.numero_cartella,
+            )
+        elif esito == "non_presente":
+            testo = self._formatta_testo_da_catalogo(
+                "UMANI_SEGNAZIONE_NUMERO_NON_PRESENTE",
+                numero=evento.numero,
+                numero_cartella=evento.numero_cartella,
+            )
+        else:  # non_estratto
+            testo = self._formatta_testo_da_catalogo(
+                "UMANI_SEGNAZIONE_NUMERO_NON_ESTRATTO",
+                numero=evento.numero,
+            )
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_ricerca_numero_in_cartelle(self, evento: EventoRicercaNumeroInCartelle) -> None:
-        # TODO: mostrare pannello risultato ricerca e vocalizzare riassunto
-        pass
+        if evento.esito == "non_trovato":
+            testo = self._formatta_testo_da_catalogo(
+                "UMANI_RICERCA_NUMERO_NON_TROVATO", numero=evento.numero
+            )
+        else:
+            parti = [f"Numero {evento.numero} trovato in:"]
+            for r in evento.risultati:
+                stati = "già segnato" if r.segnato else "non segnato"
+                parti.append(
+                    f"  Cartella {r.numero_cartella}, riga {r.indice_riga + 1}, colonna {r.indice_colonna + 1} ({stati})."
+                )
+            testo = "\n".join(parti)
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     # ---------------------------------------------------------------
     # Handler famiglia: tabellone
     # ---------------------------------------------------------------
 
     def _handle_verifica_numero_estratto(self, evento: EventoVerificaNumeroEstratto) -> None:
-        # TODO: aggiornare tabellone e vocalizzare stato estrazione del numero
-        pass
+        stato = "estratto" if evento.estratto else "NON ancora estratto"
+        testo = f"Numero {evento.numero}: {stato}."
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_ultimo_numero_estratto(self, evento: EventoUltimoNumeroEstratto) -> None:
-        # TODO: evidenziare ultimo numero nel tabellone e vocalizzare
-        pass
+        if evento.ultimo_numero is not None:
+            testo = f"Ultimo numero estratto: {evento.ultimo_numero}."
+        else:
+            testo = "Nessun numero estratto finora."
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_ultimi_numeri_estratti(self, evento: EventoUltimiNumeriEstratti) -> None:
-        # TODO: mostrare lista breve degli ultimi estratti e vocalizzare
-        pass
+        if evento.visualizzati == 0:
+            testo = "Nessun numero estratto finora."
+        else:
+            lista = ", ".join(str(n) for n in evento.numeri)
+            testo = f"Ultimi {evento.visualizzati} estratti: {lista}."
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_riepilogo_tabellone(self, evento: EventoRiepilogoTabellone) -> None:
-        # TODO: aggiornare pannello tabellone con sintesi globale, ultimi estratti, ultimo
-        pass
+        testo = (
+            f"Tabellone: {evento.totale_estratti} su {evento.totale_numeri} estratti "
+            f"({round(evento.percentuale_estrazione, 1)}%)."
+        )
+        if evento.ultimo_estratto is not None:
+            testo += f" Ultimo: {evento.ultimo_estratto}."
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_lista_numeri_estratti(self, evento: EventoListaNumeriEstratti) -> None:
-        # TODO: aggiornare pannello lista completa estratti per decine e vocalizzare
-        pass
+        if evento.totale_estratti == 0:
+            testo = "Nessun numero estratto finora."
+        else:
+            lista = ", ".join(str(n) for n in evento.numeri_estratti)
+            testo = f"{evento.totale_estratti} estratti: {lista}."
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     # ---------------------------------------------------------------
     # Handler famiglia: flusso partita
     # ---------------------------------------------------------------
 
     def _handle_reclamo_vittoria(self, evento: EventoReclamoVittoria) -> None:
-        # TODO: mostrare conferma registrazione reclamo e nota sulla validazione a fine turno
-        pass
+        tipo = evento.reclamo.tipo
+        testo = (
+            f"Reclamo {tipo} registrato per {evento.nome_giocatore}."
+            " Sarà validato a fine turno."
+        )
+        _ui_logger.debug(
+            "reclamo vittoria: %s tipo=%s turno=%d",
+            evento.nome_giocatore, tipo, evento.numero_turno,
+        )
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_esito_reclamo_vittoria(self, evento: EventoEsitoReclamoVittoria) -> None:
-        # TODO: mostrare esito reclamo (accettato/rifiutato) con dettagli cartella/riga
-        pass
+        tipo = evento.reclamo.tipo
+        if evento.ok:
+            testo = (
+                f"Vittoria accettata! {tipo.capitalize()}"
+                f" confermato per {evento.nome_giocatore}."
+            )
+        else:
+            testo = f"Reclamo {tipo} rifiutato per {evento.nome_giocatore}."
+        _ui_logger.debug(
+            "esito reclamo: %s ok=%s", evento.nome_giocatore, evento.ok
+        )
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     def _handle_fine_turno(self, evento: EventoFineTurno) -> None:
-        # TODO: aggiornare stato partita e vocalizzare conferma fine turno
-        pass
+        testo = f"Fine turno {evento.numero_turno}."
+        if evento.reclamo_turno is not None:
+            testo += f" Reclamo {evento.reclamo_turno.tipo} allegato."
+        _ui_logger.debug(
+            "fine turno: %s turno=%d", evento.nome_giocatore, evento.numero_turno
+        )
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
+        if hasattr(self._finestra, "aggiorna_stato_pulsante"):
+            self._finestra.aggiorna_stato_pulsante(primo_turno_eseguito=True)
 
     def _handle_evento_sconosciuto(self, evento: object) -> None:
         testo = self._formatta_testo_da_catalogo(SISTEMA_ERRORE_CODICE_MANCANTE)
@@ -365,30 +599,39 @@ class WxRenderer(BaseRenderer):
     # ---------------------------------------------------------------
 
     def _wx_aggiorna_output(self, testo: str) -> None:
-        # TODO: aggiornare widget output principale (es. TextCtrl di log)
-        pass
+        """Aggiorna il frame corrente via duck typing (mostra_testo + aggiungi_a_log)."""
+        if self._finestra is None:
+            return
+        if hasattr(self._finestra, "mostra_testo"):
+            self._finestra.mostra_testo(testo)  # type: ignore[union-attr]
+        if hasattr(self._finestra, "aggiungi_a_log"):
+            self._finestra.aggiungi_a_log(testo)  # type: ignore[union-attr]
 
     def _wx_aggiorna_cartella(self, numero_cartella: int, righe: list[str]) -> None:
-        # TODO: aggiornare le celle del pannello cartella specificato
+        # stub: aggiornamento pannello cartella rimandato al ciclo successivo
         pass
 
     def _wx_aggiorna_tabellone(self, numeri_estratti: list[int]) -> None:
-        # TODO: aggiornare il pannello tabellone con i numeri estratti correnti
+        # stub: aggiornamento pannello tabellone rimandato al ciclo successivo
         pass
 
     def _wx_mostra_configurazione(self, stato: StatoConfigurazione) -> None:
-        # TODO: mostrare pannello configurazione per la fase corrente
-        pass
+        testo = self._formatta_testo_da_catalogo(stato.codice_messaggio)
+        if self._finestra is not None and hasattr(self._finestra, "mostra_testo"):
+            self._finestra.mostra_testo(testo)  # type: ignore[union-attr]
 
     def _wx_mostra_report_finale(self, dati_partita: dict[str, Any]) -> None:
-        # TODO: popolare pannello riepilogo finale con i dati della partita
-        pass
+        turni = dati_partita.get("turni_giocati", "?")
+        testo = f"Partita terminata. Turni giocati: {turni}."
+        if self._finestra is not None and hasattr(self._finestra, "mostra_testo"):
+            self._finestra.mostra_testo(testo)  # type: ignore[union-attr]
 
     # ---------------------------------------------------------------
     # Layer voce (_ao2_*)
     # ---------------------------------------------------------------
 
     def _ao2_vocalizza(self, testo: str) -> None:
+        self._ultimo_annuncio = testo
         self._vocalizzatore.vocalizza_testo(testo)
 
     # ---------------------------------------------------------------

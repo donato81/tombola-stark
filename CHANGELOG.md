@@ -12,6 +12,9 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ### Changed
 - `my_lib/vocalizzatore.py`: refactor strutturale R2 — introdotti `IVocalizzatore` (Protocol), `NullVocalizzatore` (no-op headless-safe), backend iniettabile nel costruttore di `Vocalizzatore`, protezione best-effort `try/except` in `vocalizza_testo`, inoltro di `interrompi` come `interrupt=` verso AO2; rimossi 9 metodi dead code.
 - `bingo_game/ui/renderers/renderer_wx.py`: type hint del parametro `vocalizzatore` e dell'attributo `_vocalizzatore` aggiornati da `Vocalizzatore` a `IVocalizzatore` per dependency inversion.
+- `bingo_game/ui/renderers/renderer_wx.py`: introdotto stato locale per ultimo annuncio e log, feedback runtime per eventi principali, duck typing verso i frame wx e supporto operativo a F6 e Ctrl+E.
+- `bingo_game/comandi_partita.py`: `ComandiGiocatoreUmano` non e' piu' un placeholder; ora espone una facade dei comandi del giocatore umano per il layer di presentazione.
+- `docs/API.md` e `docs/ARCHITECTURE.md`: sincronizzate con l'entry point wx attivo e con i nuovi componenti frame/dialog della UI.
 - `bingo_game/tabellone.py`: allineamento formale del modulo (type hints, docstring) senza modifiche logiche; unit tests eseguiti con successo (329 passed, 0 failed).
 - `bingo_game/tabellone.py`: sostituito `ValueError` con `TabelloneNumeriEsauritiException` nel caso di numeri esauriti, mantenendo invariato il messaggio testuale e la logica di gioco.
 - `bingo_game/partita.py`: aggiornato il blocco di intercettazione dell'estrazione per tradurre `TabelloneNumeriEsauritiException` in `PartitaNumeriEsauritiException` senza cambiare il comportamento runtime.
@@ -20,6 +23,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `tests/unit/test_vocalizzatore.py`: suite unittest per `my_lib/vocalizzatore.py`; 8 test su `NullVocalizzatore` e `Vocalizzatore` con backend fake iniettabile; nessun patch su AO2.
 - `bingo_game/exceptions/tabellone_exceptions.py`: introdotta `TabelloneNumeriEsauritiException` come eccezione di dominio specifica del tabellone.
 - `tests/unit/test_tabellone_eccezioni.py`: nuovo test unittest dedicato alla verifica del tipo di eccezione e del messaggio per il caso di numeri esauriti del tabellone.
+- `main.py`: avvia `wx.App`, `Vocalizzatore`, `WxRenderer` e `FinestraConfigurazione` come nuovo entry point wx dell'applicazione.
+- `bingo_game/ui/finestra_configurazione.py`, `bingo_game/ui/finestra_gioco.py`, `bingo_game/ui/dialogo_ricerca.py`: aggiunti frame/dialog principali di presentazione per l'interfaccia wx.
 
 ---
 
@@ -47,6 +52,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `bingo_game/ui/renderers/__init__.py`: esporta il nuovo perimetro pubblico del package renderer (`BaseRenderer`, `StatoConfigurazione`, `WxRenderer`).
 - `docs/API.md` e `docs/ARCHITECTURE.md`: sincronizzano la documentazione con il nuovo layer di presentazione wx e con il contratto renderer effettivamente implementato.
 - `bingo_game/events/eventi.py`: la documentazione e il comportamento pubblico di `EsitoAzione.__eq__` sono stati allineati; `EsitoAzione` supporta confronti con `str` (mapping di alcuni codici errore a messaggi legacy) per compatibilità con test esistenti.
+ - `bingo_game/comandi_partita.py`: espone `ComandiGiocatoreUmano` come facade pubblico per il layer di presentazione.
+ - `bingo_game/ui/renderers/renderer_wx.py`: estende il renderer con buffer per l'ultimo annuncio (F6), feedback base eventi e binding di tasti (es. F6, Ctrl+E) mantenendo duck-typing verso il frame.
 
 ### Removed
 - `bingo_game/ui/renderers/renderer_terminal.py`: rimuove il renderer terminale legacy dal perimetro architetturale corrente.
