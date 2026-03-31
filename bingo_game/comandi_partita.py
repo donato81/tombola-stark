@@ -363,19 +363,3 @@ class ComandiGiocatoreUmano:
         if self._giocatore is None:
             return self._esito_nessun_giocatore()
         return self._giocatore.annuncia_vittoria(tipo, numero_turno)
-
-    def controlla_numero(self, numero: int) -> Dict[str, Any]:
-        """Controlla se umano ha numero nelle sue cartelle."""
-        pass
-
-    def segna_numero(self, cartella_idx: int, riga: int, col: int, numero: int) -> bool:
-        """Segna numero manualmente su cartella specifica."""
-        pass
-
-    def mostra_cartelle(self) -> str:
-        """Mostra tutte le cartelle del giocatore umano."""
-        pass
-
-    def mostra_premi(self) -> str:
-        """Mostra premi conseguiti dal giocatore umano."""
-        pass

@@ -65,9 +65,9 @@ class PannelloGriglia(wx.Panel):
     Escape sposta il focus al pulsante principale.
     """
 
-    def __init__(self, parent: "FinestraGioco") -> None:
+    def __init__(self, parent: wx.Window, finestra: "FinestraGioco") -> None:
         super().__init__(parent, style=wx.WANTS_CHARS | wx.TAB_TRAVERSAL)
-        self._finestra = parent
+        self._finestra = finestra
         # Etichetta accessibile per screen reader
         self.SetName("Griglia cartella")
         self._build_ui()
@@ -223,14 +223,14 @@ class FinestraGioco(wx.Frame):
         sizer.Add(self._btn_principale, 0, wx.ALL | wx.EXPAND, 5)
 
         # Pannello griglia
-        self._pannello_griglia = PannelloGriglia(self)
+        self._pannello_griglia = PannelloGriglia(panel, self)
         sizer.Add(self._pannello_griglia, 1, wx.ALL | wx.EXPAND, 5)
 
         # Area log annunci (read-only)
         sizer.Add(wx.StaticText(panel, label="Log annunci (Ctrl+E per consultare):"), 0, wx.LEFT | wx.TOP, 5)
         self._log_ctrl = wx.TextCtrl(
             panel,
-            style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_AUTO_SCROLL,
+                style=wx.TE_MULTILINE | wx.TE_READONLY,
             size=(-1, 120),
         )
         sizer.Add(self._log_ctrl, 0, wx.ALL | wx.EXPAND, 5)
@@ -254,6 +254,22 @@ class FinestraGioco(wx.Frame):
         shift = event.ShiftDown()
 
         # Categoria B — blocca propagazione
+
+        # Shift+Frecce: intercettate a livello frame per evitare che
+        # Windows/NVDA consumino il gesto prima del pannello griglia.
+        if shift and not ctrl and not alt:
+            if key == wx.WXK_UP:
+                self._dispatch(self._comandi.riga_su_avanzata())
+                return
+            if key == wx.WXK_DOWN:
+                self._dispatch(self._comandi.riga_giu_avanzata())
+                return
+            if key == wx.WXK_LEFT:
+                self._dispatch(self._comandi.colonna_sinistra_avanzata())
+                return
+            if key == wx.WXK_RIGHT:
+                self._dispatch(self._comandi.colonna_destra_avanzata())
+                return
 
         # Ctrl+P — passa turno
         if ctrl and key == ord("P"):

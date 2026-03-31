@@ -541,9 +541,9 @@ class GestioneFocusMixin:
                 - ok=False se mancano prerequisiti o la verifica fallisce (errore valorizzato). [file:2]
         """
 
-        # Delego ai controlli già centralizzati sul focus cartella (presenza + range),
-        # senza auto-impostazione per rispettare il comportamento legacy dei test.
-        esito_cartella = self._esito_focus_cartella_valido(auto_imposta=False)
+        # Delego ai controlli già centralizzati sul focus cartella (presenza + range).
+        # Per la navigazione la prima cartella disponibile viene selezionata automaticamente.
+        esito_cartella = self._esito_focus_cartella_valido(auto_imposta=True)
         if not esito_cartella.ok:
             # Se non posso individuare una cartella attiva valida, non ha senso proseguire.
             # Propago l'esito così com'è, mantenendo codice errore e (se presente) evento.

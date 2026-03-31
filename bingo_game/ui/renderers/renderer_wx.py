@@ -312,7 +312,7 @@ class WxRenderer(BaseRenderer):
     def _handle_visualizza_cartella_semplice(self, evento: EventoVisualizzaCartellaSemplice) -> None:
         righe = []
         for i, riga in enumerate(evento.griglia_semplice):
-            celle = "  ".join(str(c).rjust(2) if c != "-" else " -" for c in riga if c != "-" or True)
+            celle = "  ".join(self._formatta_cella(c) for c in riga)
             righe.append(f"Riga {i+1}: {celle}")
         testo = f"Cartella {evento.numero_cartella}/{evento.totale_cartelle}.\n" + "\n".join(righe)
         self._wx_aggiorna_output(testo)
@@ -322,10 +322,7 @@ class WxRenderer(BaseRenderer):
         righe = []
         segnati_set = set(evento.numeri_segnati_ordinati)
         for i, riga in enumerate(evento.griglia_semplice):
-            celle = "  ".join(
-                (f"[{c}]" if isinstance(c, int) and c in segnati_set else str(c).rjust(2))
-                for c in riga
-            )
+            celle = "  ".join(self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set) for c in riga)
             righe.append(f"Riga {i+1}: {celle}")
         testo = f"Cartella {evento.numero_cartella}/{evento.totale_cartelle} (avanzata).\n" + "\n".join(righe)
         self._wx_aggiorna_output(testo)
@@ -338,7 +335,7 @@ class WxRenderer(BaseRenderer):
         for numero_c, griglia in evento.cartelle:
             parti.append(f"Cartella {numero_c}:")
             for i, riga in enumerate(griglia):
-                celle = "  ".join(str(c) for c in riga)
+                celle = "  ".join(self._formatta_cella(c) for c in riga)
                 parti.append(f"  Riga {i+1}: {celle}")
         testo = "\n".join(parti)
         self._wx_aggiorna_output(testo)
@@ -360,7 +357,7 @@ class WxRenderer(BaseRenderer):
                       if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_RIGHE_MASSIMO")
             testo = self._formatta_testo_da_catalogo(codice)
         else:
-            celle = "  ".join(str(c) for c in (evento.riga_semplice or []))
+            celle = "  ".join(self._formatta_cella(c) for c in (evento.riga_semplice or []))
             testo = f"Riga {evento.numero_riga_corrente}: {celle}"
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
@@ -373,7 +370,7 @@ class WxRenderer(BaseRenderer):
         else:
             segnati_set = set(evento.numeri_segnati_riga_ordinati or [])
             celle = "  ".join(
-                f"[{c}]" if isinstance(c, int) and c in segnati_set else str(c)
+                self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
                 for c in (evento.riga_semplice or [])
             )
             testo = f"Riga {evento.numero_riga_corrente} avanzata: {celle}"
@@ -386,7 +383,11 @@ class WxRenderer(BaseRenderer):
                       if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_RIGHE_MASSIMO")
             testo = self._formatta_testo_da_catalogo(codice)
         else:
-            celle = "  ".join(str(c) for c in (evento.riga_semplice or []))
+            segnati_set = set(evento.numeri_segnati_riga_ordinati or [])
+            celle = "  ".join(
+                self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
+                for c in (evento.riga_semplice or [])
+            )
             testo = f"Riga {evento.numero_riga_corrente}: {celle}"
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
@@ -401,7 +402,7 @@ class WxRenderer(BaseRenderer):
                       if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_COLONNE_MASSIMO")
             testo = self._formatta_testo_da_catalogo(codice)
         else:
-            celle = " / ".join(str(c) for c in (evento.colonna_semplice or []))
+            celle = ", ".join(self._formatta_cella(c) for c in (evento.colonna_semplice or []))
             testo = f"Colonna {evento.numero_colonna_corrente}: {celle}"
             # Aggiorna il numero in focus per la segnazione (Spazio)
             # Cerca il primo numero valido nelle celle
@@ -419,8 +420,8 @@ class WxRenderer(BaseRenderer):
             testo = self._formatta_testo_da_catalogo(codice)
         else:
             segnati_set = set(evento.numeri_segnati_colonna_ordinati or [])
-            celle = " / ".join(
-                f"[{c}]" if isinstance(c, int) and c in segnati_set else str(c)
+            celle = ", ".join(
+                self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
                 for c in (evento.colonna_semplice or [])
             )
             testo = f"Colonna {evento.numero_colonna_corrente} avanzata: {celle}"
@@ -437,7 +438,11 @@ class WxRenderer(BaseRenderer):
                       if evento.limite == "minimo" else "UMANI_LIMITE_NAVIGAZIONE_COLONNE_MASSIMO")
             testo = self._formatta_testo_da_catalogo(codice)
         else:
-            celle = " / ".join(str(c) for c in (evento.colonna_semplice or []))
+            segnati_set = set(evento.numeri_segnati_colonna_ordinati or [])
+            celle = ", ".join(
+                self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
+                for c in (evento.colonna_semplice or [])
+            )
             testo = f"Colonna {evento.numero_colonna_corrente}: {celle}"
             for c in (evento.colonna_semplice or []):
                 if isinstance(c, int):
@@ -637,6 +642,14 @@ class WxRenderer(BaseRenderer):
     # ---------------------------------------------------------------
     # Helper puri
     # ---------------------------------------------------------------
+
+    def _formatta_cella(self, cella: int | str, *, evidenziata: bool = False) -> str:
+        if cella == "-":
+            return self._formatta_testo_da_catalogo("UMANI_CARTELLA_SEMPLICE_CELLA_VUOTA")
+        testo = str(cella)
+        if evidenziata:
+            return f"[{testo}]"
+        return testo
 
     @staticmethod
     def _indice_umano(indice_zero_based: int) -> int:

@@ -14,7 +14,8 @@ Total: 29 test strutturati che coprono TUTTI gli edge case.
 """
 
 import unittest
-from bingo_game.comandi_partita import ComandiSistema
+from bingo_game.comandi_partita import ComandiGiocatoreUmano, ComandiSistema
+from bingo_game.events.eventi import EsitoAzione
 from bingo_game.partita import Partita
 
 
@@ -388,6 +389,24 @@ class TestComandiSistema(unittest.TestCase):
         self.comandi.termina_partita(partita)
 
         self.assertTrue(self.comandi.is_terminata(partita))
+
+
+class TestComandiGiocatoreUmano(unittest.TestCase):
+    """Regressioni mirate per la facade del layer di presentazione."""
+
+    def test_segna_numero_accetta_parametro_unico_e_restituisce_esito(self) -> None:
+        comandi_sistema = ComandiSistema()
+        partita = comandi_sistema.crea_nuova_partita("Mario", 1, 1)
+        self.assertIsNotNone(partita)
+
+        comandi = ComandiGiocatoreUmano(partita)
+        esito_focus = comandi.imposta_focus_cartella(1)
+        self.assertTrue(esito_focus.ok)
+
+        numero = partita.get_giocatori()[0].cartelle[0].get_numeri_cartella()[0]
+        esito = comandi.segna_numero(numero)
+
+        self.assertIsInstance(esito, EsitoAzione)
 
 
 if __name__ == "__main__":

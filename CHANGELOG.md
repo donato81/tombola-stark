@@ -9,6 +9,12 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Fixed
+- `bingo_game/ui/finestra_gioco.py`: rimossa l'opzione `wx.TE_AUTO_SCROLL` non supportata da wxPython Phoenix; il frame di gioco ora si istanzia correttamente dopo `Avvia partita`.
+- `bingo_game/ui/finestra_gioco.py`: corretto il parent di `PannelloGriglia` per renderlo coerente con il `wx.Panel` gestito dal sizer della finestra di gioco; eliminata l'assertion wx durante il caricamento del frame.
+- `bingo_game/players/helper_focus.py`: la navigazione tastiera auto-seleziona di nuovo la prima cartella disponibile quando il focus cartella non è ancora impostato; eliminato il falso errore ricorrente `Non hai selezionato nessuna cartella` al primo movimento.
+- `bingo_game/comandi_partita.py`: rimossi gli stub duplicati in `ComandiGiocatoreUmano` che sovrascrivevano la facade reale di `segna_numero(numero)` e rompevano la segnazione manuale dal layer wx.
+
 ### Changed
 - `my_lib/vocalizzatore.py`: refactor strutturale R2 — introdotti `IVocalizzatore` (Protocol), `NullVocalizzatore` (no-op headless-safe), backend iniettabile nel costruttore di `Vocalizzatore`, protezione best-effort `try/except` in `vocalizza_testo`, inoltro di `interrompi` come `interrupt=` verso AO2; rimossi 9 metodi dead code.
 - `bingo_game/ui/renderers/renderer_wx.py`: type hint del parametro `vocalizzatore` e dell'attributo `_vocalizzatore` aggiornati da `Vocalizzatore` a `IVocalizzatore` per dependency inversion.

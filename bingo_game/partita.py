@@ -146,6 +146,7 @@ if TYPE_CHECKING:
 from bingo_game.tabellone import Tabellone
 from bingo_game.exceptions.tabellone_exceptions import TabelloneNumeriEsauritiException
 from bingo_game.players.giocatore_base import GiocatoreBase
+from bingo_game.players.giocatore_umano import GiocatoreUmano
 # Import pulito grazie all'init aggiornato
 from bingo_game.exceptions import (
     PartitaException,
@@ -450,9 +451,11 @@ class Partita:
         propaga a tutti i giocatori registrati nella partita.
 
         La logica concreta di aggiornamento è delegata ai giocatori stessi:
-        per ogni giocatore viene chiamato GiocatoreBase.aggiorna_con_numero(numero),
-        che si occupa di validare il parametro e di segnare il numero su tutte le
-        cartelle possedute dal giocatore.
+        per ogni giocatore automatico o base viene chiamato
+        GiocatoreBase.aggiorna_con_numero(numero), che si occupa di validare il
+        parametro e di segnare il numero su tutte le cartelle possedute dal
+        giocatore. Il giocatore umano viene escluso da questo aggiornamento
+        automatico: la segnazione resta manuale tramite i comandi UI.
 
         Vincoli:
         - In una partita ben strutturata questo metodo viene usato durante lo stato
@@ -478,8 +481,11 @@ class Partita:
                 "È possibile aggiornare i giocatori solo quando la partita è in_corso."
             )
 
-        # Propaga il numero a tutti i giocatori registrati.
+        # Propaga il numero a tutti i giocatori registrati, ma lascia al
+        # giocatore umano la segnazione manuale tramite Space.
         for giocatore in self.giocatori:
+          if isinstance(giocatore, GiocatoreUmano):
+            continue
             giocatore.aggiorna_con_numero(numero)
 
 
