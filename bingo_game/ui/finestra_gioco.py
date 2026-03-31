@@ -11,6 +11,7 @@ Binding tastiera applicati (da report analisi):
   Categoria A — EVT_KEY_DOWN sul pannello griglia:
     Frecce su/giu          -> riga semplice
     Frecce sx/dx           -> colonna sinistra/destra semplice
+    Alt+Frecce             -> navigazione avanzata riga/colonna
         1..9                   -> vai a colonna diretta
     Spazio                 -> segna numero
         R                      -> riepilogo cartella corrente
@@ -102,31 +103,19 @@ class PannelloGriglia(wx.Panel):
 
         # Frecce su/giu
         if key == wx.WXK_UP:
-            if shift:
-                event.Skip()
-                return
             fg._dispatch(fg._comandi.riga_su())
             return
 
         if key == wx.WXK_DOWN:
-            if shift:
-                event.Skip()
-                return
             fg._dispatch(fg._comandi.riga_giu())
             return
 
         # Frecce sinistra/destra
         if key == wx.WXK_LEFT:
-            if shift:
-                event.Skip()
-                return
             fg._dispatch(fg._comandi.colonna_sinistra())
             return
 
         if key == wx.WXK_RIGHT:
-            if shift:
-                event.Skip()
-                return
             fg._dispatch(fg._comandi.colonna_destra())
             return
 
@@ -260,9 +249,9 @@ class FinestraGioco(wx.Frame):
 
         # Categoria B — blocca propagazione
 
-        # Shift+Frecce: intercettate a livello frame per evitare che
+        # Alt+Frecce: intercettate a livello frame per evitare che
         # Windows/NVDA consumino il gesto prima del pannello griglia.
-        if shift and not ctrl and not alt:
+        if alt and not ctrl and not shift:
             if key == wx.WXK_UP:
                 self._dispatch(self._comandi.riga_su_avanzata())
                 return
