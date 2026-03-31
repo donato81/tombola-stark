@@ -1,6 +1,7 @@
 #import delle librerie necessarie
 #importazione della libreria unittest per la creazione dei test
 import unittest
+from bingo_game.exceptions.tabellone_exceptions import TabelloneNumeriEsauritiException
 #importazione del modulo tabellone dalla cartella bingo_game
 from bingo_game.tabellone import Tabellone
 
@@ -39,7 +40,7 @@ class TestTabellone(unittest.TestCase):
         for _ in range(90):
             self.tabellone.estrai_numero()
         #verifica con assert che venga sollevata un'eccezione quando si tenta di estrarre un altro numero
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TabelloneNumeriEsauritiException):
             self.tabellone.estrai_numero()
         #verifica con assert che non ci siano più numeri disponibili
         self.assertEqual(len(self.tabellone.numeri_disponibili), 0)
@@ -741,7 +742,7 @@ class TestTabellone(unittest.TestCase):
 
     def test_gestione_errore_numeri_terminati(self):
         """
-        Verifica gestione_errore_numeri_terminati: solleva sempre ValueError con messaggio atteso,
+        Verifica gestione_errore_numeri_terminati: solleva sempre TabelloneNumeriEsauritiException con messaggio atteso,
         e non modifica lo stato del tabellone.
         """
 
@@ -751,8 +752,8 @@ class TestTabellone(unittest.TestCase):
         set_estratti_prima = set(self.tabellone.numeri_estratti)
         set_disponibili_prima = set(self.tabellone.numeri_disponibili)
 
-        # --- SCENARIO 1: chiamata diretta -> deve sollevare ValueError con messaggio corretto ---
-        with self.assertRaises(ValueError) as ctx:
+        # --- SCENARIO 1: chiamata diretta -> deve sollevare TabelloneNumeriEsauritiException con messaggio corretto ---
+        with self.assertRaises(TabelloneNumeriEsauritiException) as ctx:
             self.tabellone.gestione_errore_numeri_terminati()
 
         self.assertEqual(
@@ -793,7 +794,10 @@ class TestTabellone(unittest.TestCase):
             "Dopo 90 estrazioni, numeri_terminati deve essere True."
         )
 
-        with self.assertRaises(ValueError, msg="A tabellone esaurito, estrai_numero deve sollevare ValueError."):
+        with self.assertRaises(
+            TabelloneNumeriEsauritiException,
+            msg="A tabellone esaurito, estrai_numero deve sollevare TabelloneNumeriEsauritiException."
+        ):
             self.tabellone.estrai_numero()
 
 
