@@ -15,6 +15,7 @@ Binding tastiera applicati (da report analisi):
         1..9                   -> vai a colonna diretta
     Spazio                 -> segna numero
         R                      -> riepilogo cartella corrente
+    A                      -> lettura avanzata posizione corrente (riga o colonna)
     V                      -> visualizza semplice
     Shift+V                -> visualizza avanzata
     Shift+Ctrl+V           -> visualizza tutte avanzata
@@ -150,6 +151,11 @@ class PannelloGriglia(wx.Panel):
         # R — riepilogo rapido cartella corrente
         if key == ord("R") and not ctrl and not shift and not alt:
             fg._dispatch(fg._comandi.riepilogo_cartella_corrente())
+            return
+
+        # A — lettura avanzata della riga o colonna corrente senza spostarsi
+        if key == ord("A") and not ctrl and not shift and not alt:
+            fg._dispatch(fg._comandi.leggi_posizione_avanzata())
             return
 
         # F1..F5 — dichiara vittoria

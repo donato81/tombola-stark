@@ -201,6 +201,7 @@ class Partita:
         self.stato_partita: str = "non_iniziata"  # possibili valori: non_iniziata, in_corso, terminata
         self.ultimo_numero_estratto: Optional[int] = None
         self.premi_gia_assegnati = set()
+        self.premi_tipo_chiusi: set = set()
 
 
 
@@ -484,8 +485,8 @@ class Partita:
         # Propaga il numero a tutti i giocatori registrati, ma lascia al
         # giocatore umano la segnazione manuale tramite Space.
         for giocatore in self.giocatori:
-          if isinstance(giocatore, GiocatoreUmano):
-            continue
+            if isinstance(giocatore, GiocatoreUmano):
+                continue
             giocatore.aggiorna_con_numero(numero)
 
 
@@ -591,72 +592,60 @@ class Partita:
         # Lista vuota che riempiremo con i nuovi premi trovati in questo turno
         nuovi_eventi = []
 
-        # Ciclo su tutti i giocatori partecipanti (umani e bot)
+        # Solo i giocatori che hanno fatto un reclamo in questo turno possono ottenere premi.
+        # Il reclamo è impostato dal giocatore umano tramite F1-F5 e dai bot tramite
+        # _valuta_potenziale_reclamo(). Senza reclamo non si vince: nessuna assegnazione automatica.
         for giocatore in self.giocatori:
-            
-            # Ciclo su tutte le cartelle possedute dal giocatore corrente
-            for cartella in giocatore.get_cartelle():
-                
-                # 1. Scatto la "fotografia" dello stato attuale della cartella
-                #    (Uso il metodo che abbiamo creato prima)
-                stato_cartella = self.verifica_premi_per_cartella(cartella)
-                
-                # Recupero l'ID univoco della cartella per creare le chiavi di memoria
-                id_cartella = cartella.indice
+            if giocatore.reclamo_turno is None:
+                continue
 
-                # A. CONTROLLO TOMBOLA (Vittoria globale sulla cartella)
-                if stato_cartella["tombola"]:
-                    # Creo una chiave univoca per questo evento: es. "cartella_5_tombola"
-                    chiave_tombola = f"cartella_{id_cartella}_tombola"
-                    
-                    # Se questa chiave NON è nella memoria, è una novità!
-                    if chiave_tombola not in self.premi_gia_assegnati:
-                        # 1. Aggiungo alla memoria per non ripeterlo in futuro
-                        self.premi_gia_assegnati.add(chiave_tombola)
-                        
-                        # 2. Creo l'evento dettagliato
-                        evento = {
-                            "giocatore": giocatore.get_nome(),
-                            "id_giocatore": giocatore.get_id_giocatore(),  # Aggiunto per matching robusto
-                            "cartella": id_cartella,
-                            "premio": "tombola",
-                            "riga": None  # La tombola non ha riga specifica
-                        }
-                        
-                        # 3. Aggiungo alla lista da ritornare
-                        nuovi_eventi.append(evento)
+            reclamo = giocatore.reclamo_turno
 
-                # B. CONTROLLO PREMI INTERMEDI (Per ogni riga)
+            # Trova la cartella indicata nel reclamo.
+            cartella = next(
+                (c for c in giocatore.get_cartelle() if c.indice == reclamo.indice_cartella),
+                None
+            )
+            if cartella is None:
+                continue
 
-                # Scorro il dizionario delle righe: indice_riga (0-2), premi_riga (dict boolean)
-                for indice_riga, premi_riga in stato_cartella["righe"].items():
-                    
-                    # Definisco l'ordine di controllo per importanza (dal basso all'alto)
-                    # Anche se li controlliamo tutti, l'ordine qui è solo per pulizia.
-                    tipi_premio = ["ambo", "terno", "quaterna", "cinquina"]
-                    
-                    for tipo in tipi_premio:
-                        # Se il premio è True (è presente sulla riga)
-                        if premi_riga[tipo]:
-                            
-                            # Creo la chiave univoca: es. "cartella_5_riga_0_ambo"
-                            chiave_premio = f"cartella_{id_cartella}_riga_{indice_riga}_{tipo}"
-                            
-                            # Verifico se è una novità
-                            if chiave_premio not in self.premi_gia_assegnati:
-                                # È nuovo! Lo registro e creo l'evento
-                                self.premi_gia_assegnati.add(chiave_premio)
-                                
-                                evento = {
-                                    "giocatore": giocatore.get_nome(),
-                                    "id_giocatore": giocatore.get_id_giocatore(),  # Aggiunto per matching robusto
-                                    "cartella": id_cartella,
-                                    "premio": tipo,
-                                    "riga": indice_riga
-                                }
-                                nuovi_eventi.append(evento)
+            stato_cartella = self.verifica_premi_per_cartella(cartella)
+            id_cartella = cartella.indice
 
-        # Alla fine dei giri, ritorno la lista con tutte le novità trovate
+            if reclamo.tipo == "tombola":
+                chiave = f"cartella_{id_cartella}_tombola"
+                if stato_cartella["tombola"] and "tombola" not in self.premi_tipo_chiusi and chiave not in self.premi_gia_assegnati:
+                    self.premi_gia_assegnati.add(chiave)
+                    self.premi_tipo_chiusi.add("tombola")
+                    nuovi_eventi.append({
+                        "giocatore": giocatore.get_nome(),
+                        "id_giocatore": giocatore.get_id_giocatore(),
+                        "cartella": id_cartella,
+                        "premio": "tombola",
+                        "riga": None,
+                    })
+            else:
+                # Premio di riga: verifica l'effettivo stato della riga reclamata
+                # e assegna il premio più alto realmente presente (comportamento "indulgente").
+                indice_riga = reclamo.indice_riga
+                if indice_riga is None:
+                    continue
+                premi_riga = stato_cartella["righe"].get(indice_riga, {})
+                for tipo in ["cinquina", "quaterna", "terno", "ambo"]:
+                    if premi_riga.get(tipo, False):
+                        chiave = f"cartella_{id_cartella}_riga_{indice_riga}_{tipo}"
+                        if tipo not in self.premi_tipo_chiusi and chiave not in self.premi_gia_assegnati:
+                            self.premi_gia_assegnati.add(chiave)
+                            self.premi_tipo_chiusi.add(tipo)
+                            nuovi_eventi.append({
+                                "giocatore": giocatore.get_nome(),
+                                "id_giocatore": giocatore.get_id_giocatore(),
+                                "cartella": id_cartella,
+                                "premio": tipo,
+                                "riga": indice_riga,
+                            })
+                        break  # Solo il premio più alto presente sulla riga
+
         return nuovi_eventi
 
 
@@ -749,7 +738,7 @@ class Partita:
             if giocatore.is_automatico():
                 # Passa lo snapshot dei premi già assegnati (prima di questo turno)
                 # Il bot valuterà se ha un premio reclamabile che non è già stato assegnato
-                reclamo = giocatore._valuta_potenziale_reclamo(self.premi_gia_assegnati)
+                reclamo = giocatore._valuta_potenziale_reclamo(self.premi_gia_assegnati, self.premi_tipo_chiusi)
                 
                 # Se il bot ha trovato un reclamo valido, lo memorizza
                 if reclamo is not None:
@@ -795,11 +784,12 @@ class Partita:
                     "successo": successo
                 })
 
-        # 5. [NUOVO] Reset reclami bot
-        # Dopo aver processato i reclami, resettiamo lo stato per il turno successivo
+        # 5. Reset reclami tutti i giocatori (bot e umano)
+        # Dopo aver processato i reclami bot, resettiamo lo stato per il turno successivo
+        # per TUTTI i giocatori, incluso l'umano, altrimenti il blocco anti-doppio-reclamo
+        # rimane attivo anche ai turni successivi impedendo nuove dichiarazioni legittime.
         for giocatore in self.giocatori:
-            if giocatore.is_automatico():
-                giocatore.reset_reclamo_turno()
+            giocatore.reset_reclamo_turno()
 
         # 6. Verifica se è stata fatta tombola (condizione di fine partita)
         # Nota: La tombola sarà già presente anche dentro "premi_nuovi", ma qui serve per

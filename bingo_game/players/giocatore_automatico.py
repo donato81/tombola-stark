@@ -83,7 +83,7 @@ class GiocatoreAutomatico(GiocatoreBase):
         self.aggiorna_con_numero(numero)
 
 
-    def _valuta_potenziale_reclamo(self, premi_gia_assegnati: set[str]) -> Optional[ReclamoVittoria]:
+    def _valuta_potenziale_reclamo(self, premi_gia_assegnati: set[str], premi_tipo_chiusi: Optional[set] = None) -> Optional[ReclamoVittoria]:
         """
         Valuta se il bot può reclamare un premio in base allo stato attuale delle sue cartelle.
 
@@ -138,7 +138,7 @@ class GiocatoreAutomatico(GiocatoreBase):
                 chiave_tombola = f"cartella_{cartella.indice}_tombola"
 
                 # Verifica se il premio è già stato assegnato
-                if chiave_tombola not in premi_gia_assegnati:
+                if "tombola" not in (premi_tipo_chiusi or set()) and chiave_tombola not in premi_gia_assegnati:
                     # Tombola disponibile! Ha il rango più alto (4)
                     # Creo il reclamo direttamente (factory methods non disponibili nel file corrente)
                     reclamo = ReclamoVittoria(
@@ -166,7 +166,7 @@ class GiocatoreAutomatico(GiocatoreBase):
                         chiave_premio = f"cartella_{cartella.indice}_riga_{indice_riga}_{tipo}"
 
                         # Verifica se il premio è già stato assegnato
-                        if chiave_premio not in premi_gia_assegnati:
+                        if tipo not in (premi_tipo_chiusi or set()) and chiave_premio not in premi_gia_assegnati:
                             # Premio disponibile! Creo il reclamo direttamente
                             reclamo = ReclamoVittoria(
                                 tipo=tipo,

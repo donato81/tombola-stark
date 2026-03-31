@@ -1523,6 +1523,72 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
         )
 
 
+    def leggi_riga_avanzata(self) -> EsitoAzione:
+        """Legge in modo avanzato la riga attualmente in focus senza spostarsi."""
+        esito_nav = self._esito_pronto_per_navigazione()
+        if not esito_nav.ok:
+            return esito_nav
+
+        esito_init_riga = self._esito_inizializza_focus_riga_se_manca()
+        if not esito_init_riga.ok:
+            return esito_init_riga
+
+        cartella_in_focus = self.cartelle[self._indice_cartella_focus]
+        totale_cartelle = len(self.cartelle)
+        numero_cartella_corrente = self._indice_cartella_focus + 1
+        totale_righe = cartella_in_focus.righe
+        indice_riga_corrente = self._indice_riga_focus
+
+        dati_riga_avanzati = cartella_in_focus.get_dati_visualizzazione_riga_avanzata(
+            indice_riga_corrente
+        )
+
+        evento = EventoNavigazioneRigaAvanzata.mostra_riga(
+            id_giocatore=self.id_giocatore,
+            nome_giocatore=self.nome,
+            direzione="precedente",
+            totale_cartelle=totale_cartelle,
+            numero_cartella_corrente=numero_cartella_corrente,
+            totale_righe=totale_righe,
+            indice_riga_corrente=indice_riga_corrente,
+            dati_riga_avanzati=dati_riga_avanzati,
+        )
+
+        return EsitoAzione(ok=True, errore=None, evento=evento)
+
+    def leggi_colonna_avanzata(self) -> EsitoAzione:
+        """Legge in modo avanzato la colonna attualmente in focus senza spostarsi."""
+        esito_nav = self._esito_pronto_per_navigazione()
+        if not esito_nav.ok:
+            return esito_nav
+
+        esito_init_colonna = self._esito_inizializza_focus_colonna_se_manca()
+        if not esito_init_colonna.ok:
+            return esito_init_colonna
+
+        cartella_in_focus = self.cartelle[self._indice_cartella_focus]
+        totale_cartelle = len(self.cartelle)
+        numero_cartella_corrente = self._indice_cartella_focus + 1
+        totale_colonne = cartella_in_focus.colonne
+        indice_colonna_corrente = self._indice_colonna_focus
+
+        dati_colonna_avanzati = cartella_in_focus.get_dati_visualizzazione_colonna_avanzata(
+            indice_colonna_corrente
+        )
+
+        evento = EventoNavigazioneColonnaAvanzata.mostra_colonna(
+            id_giocatore=self.id_giocatore,
+            nome_giocatore=self.nome,
+            direzione="sinistra",
+            totale_cartelle=totale_cartelle,
+            numero_cartella_corrente=numero_cartella_corrente,
+            totale_colonne=totale_colonne,
+            indice_colonna_corrente=indice_colonna_corrente,
+            dati_colonna_avanzati=dati_colonna_avanzati,
+        )
+
+        return EsitoAzione(ok=True, errore=None, evento=evento)
+
     #sezione 5: metodi di segnazione e di ricerca numero 
 
     #metodo 17 ...

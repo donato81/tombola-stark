@@ -198,6 +198,8 @@ class ComandiGiocatoreUmano:
     def __init__(self, partita: Partita) -> None:
         self._partita = partita
         self._giocatore: Optional[GiocatoreUmano] = ottieni_giocatore_umano(partita)
+        # Traccia l'ultimo tipo di navigazione ("riga" o "colonna") per il tasto A.
+        self._tipo_navigazione_corrente: str = "riga"
 
     def _esito_nessun_giocatore(self) -> EsitoAzione:
         return EsitoAzione.fallimento(errore="CARTELLE_NESSUNA_ASSEGNATA")
@@ -261,11 +263,13 @@ class ComandiGiocatoreUmano:
     def riga_su(self) -> EsitoAzione:
         if self._giocatore is None:
             return self._esito_nessun_giocatore()
+        self._tipo_navigazione_corrente = "riga"
         return self._giocatore.sposta_focus_riga_su_semplice()
 
     def riga_giu(self) -> EsitoAzione:
         if self._giocatore is None:
             return self._esito_nessun_giocatore()
+        self._tipo_navigazione_corrente = "riga"
         return self._giocatore.sposta_focus_riga_giu_semplice()
 
     def riga_su_avanzata(self) -> EsitoAzione:
@@ -290,11 +294,13 @@ class ComandiGiocatoreUmano:
     def colonna_sinistra(self) -> EsitoAzione:
         if self._giocatore is None:
             return self._esito_nessun_giocatore()
+        self._tipo_navigazione_corrente = "colonna"
         return self._giocatore.sposta_focus_colonna_sinistra()
 
     def colonna_destra(self) -> EsitoAzione:
         if self._giocatore is None:
             return self._esito_nessun_giocatore()
+        self._tipo_navigazione_corrente = "colonna"
         return self._giocatore.sposta_focus_colonna_destra()
 
     def colonna_sinistra_avanzata(self) -> EsitoAzione:
@@ -358,6 +364,13 @@ class ComandiGiocatoreUmano:
     # ------------------------------------------------------------------
     # Vittoria
     # ------------------------------------------------------------------
+
+    def leggi_posizione_avanzata(self) -> EsitoAzione:
+        if self._giocatore is None:
+            return self._esito_nessun_giocatore()
+        if self._tipo_navigazione_corrente == "colonna":
+            return self._giocatore.leggi_colonna_avanzata()
+        return self._giocatore.leggi_riga_avanzata()
 
     def annuncia_vittoria(self, tipo: str, numero_turno: int) -> EsitoAzione:
         if self._giocatore is None:
