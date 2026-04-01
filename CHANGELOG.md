@@ -10,6 +10,9 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ## [Unreleased]
 
 ### Fixed
+- `bingo_game/players/giocatore_umano.py`: corretto un bug per cui il reclamo di vittoria del giocatore umano (ambo, terno, quaterna, cinquina, tombola) veniva ignorato silenziosamente ogni turno. La causa era che il sistema cercava la cartella del giocatore tramite un numero sbagliato (0 anziché 1), non la trovava, e scartava il reclamo senza produrre alcun messaggio di errore. Di conseguenza, nella co-vincita il premio veniva assegnato solo al bot. Ora il reclamo usa il numero identificativo corretto della cartella e il premio viene assegnato a tutti i co-vincitori.
+
+
 - `bingo_game/ui/renderers/renderer_wx.py`: modalità avanzata NVDA — il testo "Avanzata" è ora la prima parola pronunciata (prima era troncato dopo "Riga N"); i numeri segnati usano il token "N segnato" al posto di "[N]" (parentesi quadre silenti con NVDA); aggiunto conteggio segnati da `stato_riga`/`stato_colonna` nel messaggio breve; corretti `_handle_vai_a_riga_avanzata` e `_handle_vai_a_colonna_avanzata` che non esponevano la label "Avanzata".
 - `bingo_game/ui/finestra_gioco.py`: rimossa l'opzione `wx.TE_AUTO_SCROLL` non supportata da wxPython Phoenix; il frame di gioco ora si istanzia correttamente dopo `Avvia partita`.
 - `bingo_game/ui/finestra_gioco.py`: corretto il parent di `PannelloGriglia` per renderlo coerente con il `wx.Panel` gestito dal sizer della finestra di gioco; eliminata l'assertion wx durante il caricamento del frame.

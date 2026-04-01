@@ -2287,7 +2287,7 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
         if tipo_vittoria == "tombola":
             # Tombola: basta la cartella, la riga deve essere None.
             reclamo = ReclamoVittoria.tombola(
-                indice_cartella=self._indice_cartella_focus
+                indice_cartella=self.cartelle[self._indice_cartella_focus].indice
             )
         else:
             # Vittorie di riga: oltre alla cartella serve anche la riga selezionata esplicitamente.
@@ -2297,7 +2297,7 @@ class GiocatoreUmano(GestioneFocusMixin, GiocatoreBase):
 
             reclamo = ReclamoVittoria.vittoria_di_riga(
                 tipo=tipo_vittoria,
-                indice_cartella=self._indice_cartella_focus,
+                indice_cartella=self.cartelle[self._indice_cartella_focus].indice,
                 indice_riga=self._indice_riga_focus
             )
 
