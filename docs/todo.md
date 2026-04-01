@@ -126,6 +126,17 @@ stato: attivo
 
 ### Da fare
 
+## Ciclo Turno V2 — 2026-04-01
+Stato: IN PIANIFICAZIONE
+Riferimento design: docs/2 - projects/DESIGN_CICLO_TURNO_V2.md
+Riferimento plan: docs/3 - coding plan/PLAN_CICLO_TURNO_V2.md
+Riferimento todo: docs/5 - todolist/TODO_CICLO_TURNO_V2.md
+Sommario: Il ciclo di turno viene esteso con una finestra d'azione a time configurabile
+in cui il giocatore umano e i bot agiscono nella stessa finestra temporale con avvisi
+vocali progressivi. Viene aggiunta una pausa contata tra i turni e i bot dichiarano
+la propria risposta con un ritardo simulato realistico invece di registrare il reclamo
+istantaneamente al momento dell'estrazione.
+
 ### Task completati
 
 - Eccezione di dominio per numeri esauriti del tabellone
