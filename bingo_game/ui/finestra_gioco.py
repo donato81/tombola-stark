@@ -198,6 +198,9 @@ class FinestraGioco(wx.Frame):
         self._comandi_sistema = ComandiSistema()
         self._comandi = ComandiGiocatoreUmano(partita)
         self._turno_corrente: int = 0
+        # Stato bifasico UI: "attesa_estrazione" -> click estrae;
+        # "attesa_reclami" -> click verifica premi.
+        self._fase_turno_ui: str = "attesa_estrazione"
 
         self._build_ui()
         self._bind_finestra()
@@ -257,7 +260,7 @@ class FinestraGioco(wx.Frame):
 
         # Alt+Frecce: intercettate a livello frame per evitare che
         # Windows/NVDA consumino il gesto prima del pannello griglia.
-        if alt and not ctrl and not shift:
+        if not ctrl and (alt or shift):
             if key == wx.WXK_UP:
                 self._dispatch(self._comandi.riga_su_avanzata())
                 return
@@ -331,20 +334,35 @@ class FinestraGioco(wx.Frame):
             self._renderer.mostra_messaggio_sistema("La partita è terminata.")
             return
 
-        risultato = self._comandi_sistema.esegui_turno(self._partita)
-        if risultato is None:
-            self._renderer.mostra_messaggio_sistema(
-                "Impossibile eseguire il turno. La partita potrebbe essere terminata."
-            )
-            return
+        if self._fase_turno_ui == "attesa_estrazione":
+            # Fase 1: estrae il numero.
+            risultato_est = self._comandi_sistema.esegui_fase_estrazione(self._partita)
+            if risultato_est is None:
+                self._renderer.mostra_messaggio_sistema(
+                    "Impossibile estrarre il numero. La partita potrebbe essere terminata."
+                )
+                return
+            self._turno_corrente += 1
+            numero = risultato_est.get("numero_estratto", "?")
+            self._renderer.annuncia_numero_estratto(numero, self._turno_corrente)
+            self._fase_turno_ui = "attesa_reclami"
+            self._aggiorna_stato_pulsante()
+        else:
+            # Fase 2: verifica premi dopo la finestra di reclamo.
+            risultato_ver = self._comandi_sistema.esegui_fase_verifica(self._partita)
+            if risultato_ver is None:
+                self._renderer.mostra_messaggio_sistema(
+                    "Impossibile verificare i premi."
+                )
+                return
+            premi_nuovi = risultato_ver.get("premi_nuovi", [])
+            self._renderer.annuncia_premi_turno(premi_nuovi)
+            self._fase_turno_ui = "attesa_estrazione"
+            self._aggiorna_stato_pulsante()
 
-        self._turno_corrente += 1
-        self._annuncia_risultato_turno(risultato)
-        self._aggiorna_stato_pulsante()
-
-        if risultato.get("partita_terminata") or risultato.get("tombola_rilevata"):
-            self._renderer.mostra_messaggio_sistema("La partita è terminata.")
-            self._btn_principale.Disable()
+            if risultato_ver.get("partita_terminata") or risultato_ver.get("tombola_rilevata"):
+                self._renderer.mostra_messaggio_sistema("La partita è terminata.")
+                self._btn_principale.Disable()
 
     # ------------------------------------------------------------------
     # Consultazione log  
@@ -372,12 +390,17 @@ class FinestraGioco(wx.Frame):
         if self._log_ctrl:
             self._log_ctrl.AppendText(testo + "\n")
 
-    def aggiorna_stato_pulsante(self, primo_turno_eseguito: bool) -> None:
-        """Interfaccia per il renderer: aggiorna etichetta pulsante."""
-        if primo_turno_eseguito:
-            self._btn_principale.SetLabel("Passa turno")
+    def aggiorna_stato_pulsante(self, primo_turno_eseguito: bool, fase: Optional[str] = None) -> None:
+        """Interfaccia per il renderer: aggiorna etichetta pulsante in base alla fase."""
+        if fase == "attesa_reclami":
+            label = "Ho finito — avvia verifica"
+        elif primo_turno_eseguito:
+            label = "Passa turno"
         else:
-            self._btn_principale.SetLabel("Inizia partita")
+            label = "Inizia partita"
+        self._btn_principale.SetLabel(label)
+        # Re-announce esplicito per NVDA (l'etichetta potrebbe non essere riletta automaticamente).
+        self._renderer.annuncia_fase_turno(label)
 
     # ------------------------------------------------------------------
     # Helper interni
@@ -394,17 +417,14 @@ class FinestraGioco(wx.Frame):
         primo_turno_eseguito = (
             self._partita.tabellone.get_conteggio_estratti() > 0
         )
-        self.aggiorna_stato_pulsante(primo_turno_eseguito)
+        self.aggiorna_stato_pulsante(primo_turno_eseguito, fase=self._fase_turno_ui)
 
     def _annuncia_risultato_turno(self, risultato: dict) -> None:
-        """Costruisce e vocalizza il messaggio riassuntivo del turno."""
+        """Costruisce e vocalizza il messaggio riassuntivo del turno (percorso monolitico)."""
         numero = risultato.get("numero_estratto", "?")
         premi_nuovi = risultato.get("premi_nuovi", [])
-
-        testo = f"Turno {self._turno_corrente}. Numero estratto: {numero}."
-        if premi_nuovi:
-            testo += f" Premi: {', '.join(str(p) for p in premi_nuovi)}."
-        self._renderer.mostra_messaggio_sistema(testo)
+        self._renderer.annuncia_numero_estratto(numero, self._turno_corrente)
+        self._renderer.annuncia_premi_turno(premi_nuovi)
 
     def _apri_ricerca_numero(self) -> None:
         """Apre il dialog modale di ricerca numero."""

@@ -205,6 +205,35 @@ class TestComandiSistema(unittest.TestCase):
         # Numeri devono essere univoci (non ripetuti)
         self.assertEqual(len(set(numeri_estratti)), 5)
 
+    def test_esegui_fase_estrazione_successo(self) -> None:
+        partita = self.comandi.crea_nuova_partita("Mario", 1, 1)
+        self.comandi.avvia_partita(partita)
+
+        risultato = self.comandi.esegui_fase_estrazione(partita)
+
+        self.assertIsInstance(risultato, dict)
+        self.assertIn("numero_estratto", risultato)
+        self.assertEqual(risultato["fase"], "attesa_reclami")
+
+    def test_esegui_fase_verifica_successo(self) -> None:
+        partita = self.comandi.crea_nuova_partita("Mario", 1, 1)
+        self.comandi.avvia_partita(partita)
+        self.comandi.esegui_fase_estrazione(partita)
+
+        risultato = self.comandi.esegui_fase_verifica(partita)
+
+        self.assertIsInstance(risultato, dict)
+        self.assertIn("premi_nuovi", risultato)
+        self.assertIn("partita_terminata", risultato)
+
+    def test_dichiara_fine_turno_successo(self) -> None:
+        partita = self.comandi.crea_nuova_partita("Mario", 1, 1)
+        comandi_umano = ComandiGiocatoreUmano(partita)
+
+        risultato = comandi_umano.dichiara_fine_turno(partita)
+
+        self.assertTrue(risultato)
+
     # =========================================================================
     # SEZIONE 4: Test stato_partita (4 test)
     # =========================================================================

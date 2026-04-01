@@ -113,6 +113,40 @@ class BaseRenderer(ABC):
         """
         ...
 
+    @abstractmethod
+    def annuncia_numero_estratto(self, numero: int, numero_turno: int) -> None:
+        """
+        Vocalizza il numero estratto nel contesto del turno corrente, senza premi.
+
+        Parametri:
+        - numero: numero estratto dal tabellone.
+        - numero_turno: numero progressivo del turno corrente.
+        """
+        ...
+
+    @abstractmethod
+    def annuncia_premi_turno(self, premi: list) -> None:
+        """
+        Vocalizza i premi assegnati nel turno corrente.
+
+        Parametri:
+        - premi: lista di dizionari evento-premio da verifica_premi().
+          Lista vuota = nessun premio questo turno.
+        """
+        ...
+
+    @abstractmethod
+    def annuncia_fase_turno(self, testo_fase: str) -> None:
+        """
+        Vocalizza la fase corrente del turno (testo già risolto dal chiamante).
+
+        Usato dopo SetLabel del pulsante per garantire il re-announce NVDA.
+
+        Parametri:
+        - testo_fase: etichetta human-readable della fase (es. "Passa turno").
+        """
+        ...
+
     def _formatta_testo_da_catalogo(self, chiave: str, **kwargs: Any) -> str:
         """
         Cerca la chiave nei cataloghi nell'ordine canonico e restituisce il

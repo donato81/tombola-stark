@@ -20,6 +20,8 @@ from bingo_game.game_controller import (
     crea_partita_standard,
     avvia_partita_sicura,
     esegui_turno_sicuro,
+    esegui_fase_estrazione_sicura,
+    esegui_fase_verifica_sicura,
     ottieni_stato_sintetico,
     ha_partita_tombola,
     partita_terminata,
@@ -110,6 +112,38 @@ class ComandiSistema:
         
         risultato = esegui_turno_sicuro(partita)
         return risultato
+
+    def esegui_fase_estrazione(self, partita: Partita) -> Optional[Dict[str, Any]]:
+        """
+        Esegue la prima fase del turno: estrazione numero e reclami bot.
+
+        Parametri:
+        - partita: Partita - Partita in corso
+
+        Ritorna:
+        - dict: {"numero_estratto": int, "fase": str}
+        - None: errore
+        """
+        if not isinstance(partita, Partita):
+            return None
+        return esegui_fase_estrazione_sicura(partita)
+
+    def esegui_fase_verifica(self, partita: Partita) -> Optional[Dict[str, Any]]:
+        """
+        Esegue la seconda fase del turno: verifica premi, confronto bot,
+        reset e tombola check.
+
+        Parametri:
+        - partita: Partita - Partita in corso
+
+        Ritorna:
+        - dict: {"premi_nuovi": list, "reclami_bot": list,
+                 "tombola_rilevata": bool, "partita_terminata": bool}
+        - None: errore
+        """
+        if not isinstance(partita, Partita):
+            return None
+        return esegui_fase_verifica_sicura(partita)
 
     def stato_partita(self, partita: Partita) -> Optional[Dict[str, Any]]:
         """
@@ -376,3 +410,18 @@ class ComandiGiocatoreUmano:
         if self._giocatore is None:
             return self._esito_nessun_giocatore()
         return self._giocatore.annuncia_vittoria(tipo, numero_turno)
+
+    def dichiara_fine_turno(self, partita: Partita) -> bool:
+        """
+        Dichiara che il giocatore umano ha terminato il turno di reclamo.
+
+        Imposta turno_dichiarato_concluso = True sul giocatore umano.
+
+        Ritorna:
+        - True: dichiarazione registrata.
+        - False: nessun giocatore umano disponibile.
+        """
+        if self._giocatore is None:
+            return False
+        self._giocatore.dichiara_fine_turno()
+        return True

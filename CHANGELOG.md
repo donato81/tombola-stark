@@ -33,6 +33,19 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `main.py`: avvia `wx.App`, `Vocalizzatore`, `WxRenderer` e `FinestraConfigurazione` come nuovo entry point wx dell'applicazione.
 - `bingo_game/ui/finestra_configurazione.py`, `bingo_game/ui/finestra_gioco.py`, `bingo_game/ui/dialogo_ricerca.py`: aggiunti frame/dialog principali di presentazione per l'interfaccia wx.
 
+### Added
+- `tests/unit/test_fase_estrazione.py`: test unitario per la fase di estrazione (ciclo bifasico)
+- `tests/unit/test_fase_verifica_co_vincita.py`: test unitario per la fase di verifica e risoluzione reclami collettivi
+- `tests/unit/test_umano_dichiara_fine_turno.py`: test che simula la dichiarazione manuale di fine turno da parte di un giocatore umano
+
+### Changed
+- `bingo_game/partita.py`: introdotti `esegui_fase_estrazione()`, `esegui_fase_verifica()` e `tutti_hanno_dichiarato_fine()`; aggiornato il comportamento per la gestione dei reclami collettivi e della co-vincita nello stesso turno.
+- `bingo_game/game_controller.py`: aggiunti wrapper sicuri per le nuove fasi (`esegui_fase_estrazione_sicura`, `esegui_fase_verifica_sicura`) come bordo applicativo verso la presentazione.
+- `bingo_game/comandi_partita.py`: `ComandiGiocatoreUmano` esteso per esporre il comando di dichiarazione di fine turno e per orchestrare prompt accessibili nella UI.
+- `bingo_game/players/giocatore_base.py`: piccolo aggiornamento di API per supportare `reset_reclamo_turno()` nel contesto dei reclami collettivi.
+- `bingo_game/ui/renderers/base_renderer.py` / `bingo_game/ui/renderers/renderer_wx.py`: estesi i contratti renderer con i metodi `annuncia_numero_estratto`, `annuncia_premi_turno` e `annuncia_fase_turno` per supportare l'orchestrazione accessibile del flusso bifasico.
+- `docs/API.md`, `docs/ARCHITECTURE.md`: aggiornati per documentare il nuovo flusso bifasico del turno, le nuove API pubbliche e l'impatto sul layer di presentazione/accessibilità.
+
 ---
 
 ## [0.9.5] — 2026-03-30

@@ -40,6 +40,8 @@ from bingo_game.game_controller import (
     crea_giocatori_automatici,
     crea_partita_standard,
     avvia_partita_sicura,
+    esegui_fase_estrazione_sicura,
+    esegui_fase_verifica_sicura,
     esegui_turno_sicuro,
     ottieni_stato_sintetico,
     ha_partita_tombola,
@@ -483,6 +485,36 @@ class TestGameController(unittest.TestCase):
         # NOTA: Test manuale dopo 90 turni troppo lungo per unit test
         # Simuliamo con tabellone già "esaurito" in futuro
         self.assertTrue(True)
+
+    def test_esegui_fase_estrazione_sicura_successo(self) -> None:
+        partita = crea_partita_standard()
+        avvia_partita_sicura(partita)
+
+        risultato = esegui_fase_estrazione_sicura(partita)
+
+        self.assertIsInstance(risultato, dict)
+        self.assertIn("numero_estratto", risultato)
+        self.assertEqual(risultato["fase"], "attesa_reclami")
+
+    def test_esegui_fase_verifica_sicura_successo(self) -> None:
+        partita = crea_partita_standard()
+        avvia_partita_sicura(partita)
+        esegui_fase_estrazione_sicura(partita)
+
+        risultato = esegui_fase_verifica_sicura(partita)
+
+        self.assertIsInstance(risultato, dict)
+        self.assertIn("premi_nuovi", risultato)
+        self.assertIn("reclami_bot", risultato)
+        self.assertIn("tombola_rilevata", risultato)
+
+    def test_esegui_fase_verifica_sicura_senza_estrazione_ritorna_none(self) -> None:
+        partita = crea_partita_standard()
+        avvia_partita_sicura(partita)
+
+        risultato = esegui_fase_verifica_sicura(partita)
+
+        self.assertIsNone(risultato)
 
 
 

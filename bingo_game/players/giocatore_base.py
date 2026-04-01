@@ -122,6 +122,9 @@ class GiocatoreBase:
         # Reclamo del turno corrente (None = nessun reclamo inviato).
         # Il reclamo viene consumato e resettato dalla Partita quando processa il turno.
         self.reclamo_turno: Optional[ReclamoVittoria] = None
+        # Segnale bifasico: True quando il giocatore ha dichiarato fine del proprio turno.
+        # Resettato da Partita.esegui_fase_verifica() all'inizio di ogni nuovo turno.
+        self.turno_dichiarato_concluso: bool = False
 
     """metodi di classe per la gestione del giocatore base"""
 
@@ -263,6 +266,17 @@ class GiocatoreBase:
         - Imposta self.reclamo_turno a None.
         """
         self.reclamo_turno = None
+
+
+    def dichiara_fine_turno(self) -> None:
+        """
+        Dichiara che il giocatore ha concluso il proprio turno di reclamo.
+
+        Imposta turno_dichiarato_concluso = True.
+        Il flag viene resettato da Partita.esegui_fase_verifica() all'inizio
+        del turno successivo.
+        """
+        self.turno_dichiarato_concluso = True
 
 
     def is_automatico(self) -> bool:

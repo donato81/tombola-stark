@@ -2,7 +2,7 @@
 type: plan
 feature: ciclo_turno_fasi_reclami_collettivi
 agent: Agent-Plan
-status: DRAFT
+status: READY
 version: v0.9.5
 design_ref: docs/2 - projects/DESIGN_ciclo_turno_fasi_reclami_collettivi.md
 date: 2026-04-01

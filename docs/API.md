@@ -666,6 +666,55 @@ def esegui_turno() -> dict[str, Any]:
 
 ---
 
+### Ciclo turno — Fasi reclami collettivi (v0.12.0+)
+
+Il ciclo di gioco è stato rifattorizzato in due fasi distinte per supportare
+reclami collettivi e la dichiarazione manuale di fine turno da parte di un
+giocatore umano. Questa suddivisione migliora la chiarezza del flusso e
+consente al layer di presentazione di orchestrare prompt accessibili tra le
+fasi.
+
+Flusso sintetico:
+1. Fase di estrazione (`esegui_fase_estrazione`) — il dominio estrae il numero e
+     aggiorna lo stato dei giocatori (marking). I bot possono impostare
+     `reclamo_turno` come bozza interna ma non definitivo.
+2. Fase di verifica e reclami collettivi (`esegui_fase_verifica`) — la
+     Partita esegue la verifica ufficiale dei premi, confronta eventuali
+     reclami collettivi (bot/umani) e produce l'esito definitivo del turno.
+3. Segnale fine turno — il giocatore umano può dichiarare la chiusura della
+    finestra reclami tramite il relativo comando di presentazione.
+
+API pubbliche correlate (Partita):
+
+```python
+def esegui_fase_estrazione() -> Dict[str, Any]:
+        """Esegue la sola estrazione e la notifica ai giocatori.
+
+    Ritorna un dict con chiavi minime: `numero_estratto`, `fase`.
+        """
+
+def esegui_fase_verifica() -> Dict[str, Any]:
+        """Esegue la verifica ufficiale dei premi e risolve i reclami collettivi.
+
+    Ritorna un dict con chiavi: `premi_nuovi`, `reclami_bot`,
+        `tombola_rilevata`, `partita_terminata`.
+        """
+
+def tutti_hanno_dichiarato_fine() -> bool:
+    """Verifica che tutti i giocatori non automatici abbiano dichiarato
+    conclusa la finestra reclami del turno corrente."""
+```
+
+Note:
+- `esegui_fase_estrazione()` e `esegui_fase_verifica()` sono API pensate per
+    essere usate dal `game_controller` o dal layer di presentazione tramite i
+    wrapper sicuri del controller. Il dominio rimane l'unico arbitro della
+    verifica dei premi.
+- La dichiarazione esplicita di fine turno viene materializzata sul giocatore
+    tramite `GiocatoreBase.dichiara_fine_turno()` e inoltrata dal layer di
+    presentazione tramite `ComandiGiocatoreUmano.dichiara_fine_turno(...)`.
+
+
 #### is_terminata()
 
 ```python
@@ -1119,6 +1168,68 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
 **Chiavi garantite**: `numero_estratto`, `stato_partita_prima`, `stato_partita_dopo`, `tombola_rilevata`, `partita_terminata`, `premi_nuovi`, `reclami_bot` (v0.6.0+)
 
 **Note v0.8.0**: Premi loggati a INFO via `_logger_prizes`. Errori loggati a WARNING/ERROR via `_logger_errors`. Nessun output su stdout.
+
+---
+
+### Controller: supporto per ciclo bifasico
+
+Per supportare il nuovo ciclo turno bifasico il `game_controller` espone
+wrapper sicuri che delegano alle rispettive fasi del dominio mantenendo le
+garanzie di non-propagazione delle eccezioni e logging coerente.
+
+#### esegui_fase_estrazione_sicura()
+
+```python
+def esegui_fase_estrazione_sicura(partita: Partita) -> Optional[Dict[str, Any]]:
+```
+
+Esegue in modo sicuro la sola fase di estrazione (equivalente a
+`Partita.esegui_fase_estrazione()`) e ritorna un dizionario parziale o `None` in caso
+di errore. Garantisce che le eccezioni siano intercettate e loggate.
+
+---
+
+#### esegui_fase_verifica_sicura()
+
+```python
+def esegui_fase_verifica_sicura(partita: Partita) -> Optional[Dict[str, Any]]:
+```
+
+Esegue la fase di verifica e risoluzione dei reclami collettivi delegando a
+`Partita.esegui_fase_verifica()`. Ritorna l'esito ufficiale del turno
+(premi assegnati, esiti reclami, tombola, ecc.) oppure `None` in caso di
+errore gestibile.
+
+---
+
+#### ComandiSistema.esegui_fase_estrazione()
+
+```python
+def esegui_fase_estrazione(partita: Partita) -> Optional[Dict[str, Any]]:
+```
+
+Facade di presentazione che delega a `game_controller.esegui_fase_estrazione_sicura`.
+
+---
+
+#### ComandiSistema.esegui_fase_verifica()
+
+```python
+def esegui_fase_verifica(partita: Partita) -> Optional[Dict[str, Any]]:
+```
+
+Facade di presentazione che delega a `game_controller.esegui_fase_verifica_sicura`.
+
+---
+
+#### ComandiGiocatoreUmano.dichiara_fine_turno()
+
+```python
+def dichiara_fine_turno(partita: Partita) -> bool:
+```
+
+Imposta il flag `turno_dichiarato_concluso` del giocatore umano corrente.
+Restituisce `True` se il giocatore umano esiste, `False` altrimenti.
 
 ---
 
@@ -1694,10 +1805,13 @@ class StatoConfigurazione:
 
 ```python
 class BaseRenderer(ABC):
-        def render_esito(self, esito: EsitoAzione) -> None: ...
-        def mostra_schermata_configurazione(self, stato: StatoConfigurazione) -> None: ...
-        def mostra_report_finale(self, dati_partita: dict[str, Any]) -> None: ...
-        def mostra_messaggio_sistema(self, testo: str) -> None: ...
+    def render_esito(self, esito: EsitoAzione) -> None: ...
+    def mostra_schermata_configurazione(self, stato: StatoConfigurazione) -> None: ...
+    def mostra_report_finale(self, dati_partita: dict[str, Any]) -> None: ...
+    def mostra_messaggio_sistema(self, testo: str) -> None: ...
+    def annuncia_numero_estratto(self, numero: int, numero_turno: int) -> None: ...
+    def annuncia_premi_turno(self, premi: list[dict]) -> None: ...
+    def annuncia_fase_turno(self, testo_fase: str) -> None: ...
 ```
 
 **Contratto**:
@@ -1745,6 +1859,11 @@ class WxRenderer(BaseRenderer):
 - aggiornare i widget della finestra wx;
 - vocalizzare lo stesso testo mostrato a video;
 - mantenere separati i canali `_wx_*` e `_ao2_*` per evitare accoppiamenti impliciti.
+
+**Metodi aggiunti per il ciclo bifasico**:
+- `annuncia_numero_estratto(numero, numero_turno)` — annuncio atomico del numero estratto.
+- `annuncia_premi_turno(premi)` — annuncio atomico dei premi del turno.
+- `annuncia_fase_turno(testo_fase)` — re-announce esplicito della fase UI, usato anche dopo `SetLabel`.
 
 ### Entry Point Applicazione (`main.py`)
 

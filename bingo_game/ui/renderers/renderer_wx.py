@@ -148,6 +148,30 @@ class WxRenderer(BaseRenderer):
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
 
+    def annuncia_numero_estratto(self, numero: int, numero_turno: int) -> None:
+        """Vocalizza il numero estratto nel contesto del turno (senza premi)."""
+        testo = f"Turno {numero_turno}. Numero estratto: {numero}."
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
+
+    def annuncia_premi_turno(self, premi: list) -> None:
+        """Vocalizza i premi assegnati nel turno (o nessun premio)."""
+        if premi:
+            parti = []
+            for p in premi:
+                tipo = p.get("premio", "?")
+                nome = p.get("giocatore", "?")
+                parti.append(f"{tipo} per {nome}")
+            testo = "Premi: " + ", ".join(parti) + "."
+        else:
+            testo = "Nessun premio questo turno."
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
+
+    def annuncia_fase_turno(self, testo_fase: str) -> None:
+        """Vocalizza la fase corrente del turno (re-announce NVDA dopo SetLabel)."""
+        self._ao2_vocalizza(testo_fase)
+
     # ---------------------------------------------------------------
     # Dispatcher centrale
     # ---------------------------------------------------------------

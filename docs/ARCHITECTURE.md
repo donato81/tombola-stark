@@ -216,6 +216,33 @@ Il package `bingo_game/ui` ora espone non solo renderer (`BaseRenderer`, `WxRend
 
 > **Nota renderer 2026-03-30**: `renderer_terminal.py` e' stato rimosso dal perimetro corrente. Il nuovo confine di presentazione e' il package `bingo_game.ui.renderers`, che esporta `BaseRenderer`, `StatoConfigurazione` e `WxRenderer`.
 
+### Ciclo turno bifasico e impatto su presentazione / accessibilità
+
+Recenti modifiche hanno introdotto un ciclo turno bifasico (estrazione +
+verifica/reclami collettivi) che impatta il layer di presentazione. Le
+conseguenze principali:
+
+- Il renderer deve supportare segnali di inizio fase e la presentazione
+    strutturata del numero estratto, dei premi del turno e della fase UI
+    (`annuncia_numero_estratto`, `annuncia_premi_turno`,
+    `annuncia_fase_turno`). Questo consente ai screen reader di guidare
+    l'utente attraverso una sequenza di prompt accessibili.
+- È previsto un meccanismo per la dichiarazione manuale di `fine turno`
+    (tramite `GiocatoreBase.dichiara_fine_turno()` e la facade
+    `ComandiGiocatoreUmano`) che sblocca il passaggio dalla finestra reclami
+    alla verifica ufficiale.
+- I controller espongono wrapper sicuri per le fasi (`esegui_fase_estrazione_sicura`,
+    `esegui_fase_verifica_sicura`) in modo che la UI possa orchestrare
+    dialog/modal accessibili senza esporre direttamente oggetti di dominio.
+- Dal punto di vista dell'accessibilità, i prompt devono essere:
+    - sintetici e predicibili (ordine costante di annunci);
+    - congruenti tra output visivo e vocalizzazione AO2;
+    - navigabili via tastiera (focus management) e compatibili con NVDA.
+
+Queste regole preservano il principio di separazione dei livelli, mantenendo
+il dominio come sorgente della verità per la verifica dei premi mentre il
+renderer si occupa dell'orchestrazione della UX accessibile.
+
 ---
 
 #### Infrastruttura di Logging (trasversale)

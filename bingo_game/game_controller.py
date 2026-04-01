@@ -37,6 +37,7 @@ from bingo_game.exceptions import (
     PartitaGiaIniziataException,
     PartitaNonInCorsoException,
     PartitaNumeriEsauritiException,
+    PartitaGiocoException,
     #per game_controller
     ControllerNomeGiocatoreException,
     ControllerCartelleNegativeException,
@@ -505,6 +506,155 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
     except Exception as exc:
         _log_safe(f"[ERR] esegui_turno_sicuro: eccezione imprevista. tipo='{type(exc).__name__}'.", "error", logger=_logger_errors)
         _log_safe("[ERR] Eccezione imprevista turno #%d: %s — tipo: %s", "warning", _turno_corrente, str(exc), type(exc).__name__, logger=_logger_errors)
+        raise
+
+
+def esegui_fase_estrazione_sicura(partita: Partita) -> Optional[Dict[str, Any]]:
+    """
+    Esegue la prima fase del turno (estrazione + reclami bot) in modo sicuro.
+
+    Ritorna:
+    - Dict[str, Any]: {"numero_estratto": int, "fase": str} se successo.
+    - None: se errore.
+    """
+    if not isinstance(partita, Partita):
+        _log_safe(f"[ERR] esegui_fase_estrazione_sicura: parametro non e' Partita. tipo='{type(partita).__name__}'.", "error", logger=_logger_errors)
+        return None
+
+    stato_attuale = partita.get_stato_partita()
+    if stato_attuale != "in_corso":
+        _log_safe(f"[GAME] esegui_fase_estrazione_sicura: stato '{stato_attuale}' non in corso.", "warning", logger=_logger_game)
+        return None
+
+    try:
+        risultato = partita.esegui_fase_estrazione()
+
+        if not isinstance(risultato, dict):
+            _log_safe("[SYS] esegui_fase_estrazione_sicura: risultato non valido (non dict).", "warning", logger=_logger_system)
+            return None
+
+        numero = risultato.get("numero_estratto")
+        _log_safe(
+            "[GAME] Fase estrazione — estratto: %s, fase: %s",
+            "debug", numero, risultato.get("fase"),
+            logger=_logger_game
+        )
+        return risultato
+
+    except PartitaNonInCorsoException as exc:
+        _log_safe(f"[GAME] esegui_fase_estrazione_sicura: partita non in corso. tipo='{type(exc).__name__}'.", "warning", logger=_logger_game)
+        return None
+
+    except PartitaNumeriEsauritiException as exc:
+        _log_safe(f"[GAME] esegui_fase_estrazione_sicura: numeri esauriti. tipo='{type(exc).__name__}'.", "warning", logger=_logger_game)
+        return None
+
+    except PartitaGiocoException as exc:
+        _log_safe(f"[GAME] esegui_fase_estrazione_sicura: guard fase fallita. tipo='{type(exc).__name__}'. {exc}", "warning", logger=_logger_game)
+        return None
+
+    except PartitaException as exc:
+        _log_safe(f"[GAME] esegui_fase_estrazione_sicura: errore partita. tipo='{type(exc).__name__}'.", "warning", logger=_logger_game)
+        return None
+
+    except Exception as exc:
+        _log_safe(f"[ERR] esegui_fase_estrazione_sicura: eccezione imprevista. tipo='{type(exc).__name__}'.", "error", logger=_logger_errors)
+        raise
+
+
+def esegui_fase_verifica_sicura(partita: Partita) -> Optional[Dict[str, Any]]:
+    """
+    Esegue la seconda fase del turno (verifica premi + reset + tombola) in modo sicuro.
+
+    Ritorna:
+    - Dict[str, Any]: {"premi_nuovi": list, "reclami_bot": list,
+                       "tombola_rilevata": bool, "partita_terminata": bool} se successo.
+    - None: se errore.
+    """
+    if not isinstance(partita, Partita):
+        _log_safe(f"[ERR] esegui_fase_verifica_sicura: parametro non e' Partita. tipo='{type(partita).__name__}'.", "error", logger=_logger_errors)
+        return None
+
+    stato_attuale = partita.get_stato_partita()
+    if stato_attuale != "in_corso":
+        _log_safe(f"[GAME] esegui_fase_verifica_sicura: stato '{stato_attuale}' non in corso.", "warning", logger=_logger_game)
+        return None
+
+    global _turno_corrente
+    try:
+        risultato = partita.esegui_fase_verifica()
+
+        if not isinstance(risultato, dict):
+            _log_safe("[SYS] esegui_fase_verifica_sicura: risultato non valido (non dict).", "warning", logger=_logger_system)
+            return None
+
+        _turno_corrente += 1
+        premi_totali = _conta_premi_assegnati(partita)
+
+        _log_safe(
+            "[GAME] Turno #%d completato — premi_sessione=%d",
+            "debug", _turno_corrente, premi_totali,
+            logger=_logger_game
+        )
+
+        for evento in risultato.get("premi_nuovi", []):
+            _log_prize_event(evento)
+
+        reclami_bot = risultato.get("reclami_bot", [])
+        for reclamo_esito in reclami_bot:
+            try:
+                nome_bot = reclamo_esito.get("nome_giocatore", "?")
+                id_bot = reclamo_esito.get("id_giocatore", "?")
+                reclamo = reclamo_esito.get("reclamo")
+                successo = reclamo_esito.get("successo", False)
+                if reclamo is not None:
+                    tipo_premio = reclamo.tipo
+                    cartella = reclamo.indice_cartella
+                    riga = reclamo.indice_riga
+                    if successo:
+                        _log_safe(
+                            "[PRIZE] Bot '%s' (id=%s) dichiara %s — cartella=%s, riga=%s → ACCETTATO",
+                            "info", nome_bot, id_bot, tipo_premio.upper(), cartella, riga,
+                            logger=_logger_prizes
+                        )
+                    else:
+                        _log_safe(
+                            "[GAME]  Bot '%s' (id=%s) dichiara %s — cartella=%s, riga=%s → RIGETTATO",
+                            "info", nome_bot, id_bot, tipo_premio.upper(), cartella, riga,
+                            logger=_logger_game
+                        )
+            except Exception:
+                pass
+
+        if risultato.get("tombola_rilevata"):
+            _log_safe(
+                "[GAME] Partita terminata per TOMBOLA al turno #%d",
+                "info", _turno_corrente, logger=_logger_game
+            )
+            _log_game_summary(partita)
+        elif risultato.get("partita_terminata"):
+            _log_safe(
+                "[GAME] Partita terminata per NUMERI ESAURITI al turno #%d",
+                "info", _turno_corrente, logger=_logger_game
+            )
+            _log_game_summary(partita)
+
+        return risultato
+
+    except PartitaNonInCorsoException as exc:
+        _log_safe(f"[GAME] esegui_fase_verifica_sicura: partita non in corso. tipo='{type(exc).__name__}'.", "warning", logger=_logger_game)
+        return None
+
+    except PartitaGiocoException as exc:
+        _log_safe(f"[GAME] esegui_fase_verifica_sicura: guard fase fallita. tipo='{type(exc).__name__}'. {exc}", "warning", logger=_logger_game)
+        return None
+
+    except PartitaException as exc:
+        _log_safe(f"[GAME] esegui_fase_verifica_sicura: errore partita. tipo='{type(exc).__name__}'.", "warning", logger=_logger_game)
+        return None
+
+    except Exception as exc:
+        _log_safe(f"[ERR] esegui_fase_verifica_sicura: eccezione imprevista. tipo='{type(exc).__name__}'.", "error", logger=_logger_errors)
         raise
 
 

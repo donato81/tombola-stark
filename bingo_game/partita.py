@@ -138,7 +138,7 @@ NOTE DI UTILIZZO
 
 from __future__ import annotations
 #import dei tipi di dati avanzato 
-from typing import List, Optional, Any, Dict, TYPE_CHECKING
+from typing import Dict, Any, List, Literal, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from bingo_game.cartella import Cartella
 
@@ -202,6 +202,7 @@ class Partita:
         self.ultimo_numero_estratto: Optional[int] = None
         self.premi_gia_assegnati = set()
         self.premi_tipo_chiusi: set = set()
+        self.fase_turno_corrente: str = "attesa_estrazione"
 
 
 
@@ -589,12 +590,10 @@ class Partita:
           }
         """
         
-        # Lista vuota che riempiremo con i nuovi premi trovati in questo turno
-        nuovi_eventi = []
+        # Raccoglie tutti i candidati validi per tipo senza assegnare (prima passata).
+        # Struttura: tipo_premio -> lista di candidati {giocatore, cartella, indice_riga, chiave}
+        candidati_per_tipo: Dict[str, List[Dict]] = {}
 
-        # Solo i giocatori che hanno fatto un reclamo in questo turno possono ottenere premi.
-        # Il reclamo è impostato dal giocatore umano tramite F1-F5 e dai bot tramite
-        # _valuta_potenziale_reclamo(). Senza reclamo non si vince: nessuna assegnazione automatica.
         for giocatore in self.giocatori:
             if giocatore.reclamo_turno is None:
                 continue
@@ -614,19 +613,20 @@ class Partita:
 
             if reclamo.tipo == "tombola":
                 chiave = f"cartella_{id_cartella}_tombola"
-                if stato_cartella["tombola"] and "tombola" not in self.premi_tipo_chiusi and chiave not in self.premi_gia_assegnati:
-                    self.premi_gia_assegnati.add(chiave)
-                    self.premi_tipo_chiusi.add("tombola")
-                    nuovi_eventi.append({
-                        "giocatore": giocatore.get_nome(),
-                        "id_giocatore": giocatore.get_id_giocatore(),
+                if (stato_cartella["tombola"]
+                        and "tombola" not in self.premi_tipo_chiusi
+                        and chiave not in self.premi_gia_assegnati):
+                    tipo = "tombola"
+                    if tipo not in candidati_per_tipo:
+                        candidati_per_tipo[tipo] = []
+                    candidati_per_tipo[tipo].append({
+                        "giocatore": giocatore,
                         "cartella": id_cartella,
-                        "premio": "tombola",
-                        "riga": None,
+                        "indice_riga": None,
+                        "chiave": chiave,
                     })
             else:
-                # Premio di riga: verifica l'effettivo stato della riga reclamata
-                # e assegna il premio più alto realmente presente (comportamento "indulgente").
+                # Premio di riga: trova il premio più alto realmente presente sulla riga.
                 indice_riga = reclamo.indice_riga
                 if indice_riga is None:
                     continue
@@ -635,16 +635,29 @@ class Partita:
                     if premi_riga.get(tipo, False):
                         chiave = f"cartella_{id_cartella}_riga_{indice_riga}_{tipo}"
                         if tipo not in self.premi_tipo_chiusi and chiave not in self.premi_gia_assegnati:
-                            self.premi_gia_assegnati.add(chiave)
-                            self.premi_tipo_chiusi.add(tipo)
-                            nuovi_eventi.append({
-                                "giocatore": giocatore.get_nome(),
-                                "id_giocatore": giocatore.get_id_giocatore(),
+                            if tipo not in candidati_per_tipo:
+                                candidati_per_tipo[tipo] = []
+                            candidati_per_tipo[tipo].append({
+                                "giocatore": giocatore,
                                 "cartella": id_cartella,
-                                "premio": tipo,
-                                "riga": indice_riga,
+                                "indice_riga": indice_riga,
+                                "chiave": chiave,
                             })
                         break  # Solo il premio più alto presente sulla riga
+
+        # Seconda passata: assegna il premio a TUTTI i candidati validi per tipo (co-vincita).
+        nuovi_eventi = []
+        for tipo, candidati in candidati_per_tipo.items():
+            for candidato in candidati:
+                self.premi_gia_assegnati.add(candidato["chiave"])
+                nuovi_eventi.append({
+                    "giocatore": candidato["giocatore"].get_nome(),
+                    "id_giocatore": candidato["giocatore"].get_id_giocatore(),
+                    "cartella": candidato["cartella"],
+                    "premio": tipo,
+                    "riga": candidato["indice_riga"],
+                })
+            self.premi_tipo_chiusi.add(tipo)
 
         return nuovi_eventi
 
@@ -678,6 +691,140 @@ class Partita:
 
     """Sezione 6: Ciclo di gioco ad alto livello"""
 
+    #esegue la prima fase del turno: estrazione e reclami bot.
+    def esegui_fase_estrazione(self) -> Dict[str, Any]:
+        """
+        Esegue la prima fase del turno: estrae il numero e raccoglie i reclami bot.
+
+        La fase è consentita solo quando fase_turno_corrente == "attesa_estrazione".
+        Al termine imposta fase_turno_corrente = "attesa_reclami".
+
+        Ritorna:
+        - dict: {"numero_estratto": int, "fase": str}
+
+        Eccezioni:
+        - PartitaNonInCorsoException: partita non in_corso.
+        - PartitaGiocoException: fase_turno_corrente != "attesa_estrazione".
+        - PartitaNumeriEsauritiException: propagata dal tabellone.
+        """
+        if self.stato_partita != "in_corso":
+            raise PartitaNonInCorsoException(
+                f"Impossibile eseguire fase estrazione: stato '{self.stato_partita}'."
+            )
+        if self.fase_turno_corrente != "attesa_estrazione":
+            raise PartitaGiocoException(
+                f"Impossibile eseguire fase estrazione: fase corrente '{self.fase_turno_corrente}', "
+                "attesa 'attesa_estrazione'."
+            )
+
+        numero_estratto = self.estrai_prossimo_numero()
+
+        # Reclami bot: i bot valutano dopo l'estrazione, prima della verifica ufficiale.
+        for giocatore in self.giocatori:
+            if giocatore.is_automatico():
+                reclamo = giocatore._valuta_potenziale_reclamo(
+                    self.premi_gia_assegnati, self.premi_tipo_chiusi
+                )
+                if reclamo is not None:
+                    giocatore.reclamo_turno = reclamo
+
+        self.fase_turno_corrente = "attesa_reclami"
+
+        return {
+            "numero_estratto": numero_estratto,
+            "fase": self.fase_turno_corrente,
+        }
+
+
+    #esegue la seconda fase del turno: verifica premi, confronto bot, reset, tombola.
+    def esegui_fase_verifica(self) -> Dict[str, Any]:
+        """
+        Esegue la seconda fase del turno: verifica premi, confronto reclami bot,
+        reset stati di turno e controllo tombola.
+
+        La fase è consentita solo quando fase_turno_corrente == "attesa_reclami".
+        Al termine imposta fase_turno_corrente = "attesa_estrazione".
+
+        Ritorna:
+        - dict: {"premi_nuovi": list, "reclami_bot": list,
+                 "tombola_rilevata": bool, "partita_terminata": bool}
+
+        Eccezioni:
+        - PartitaNonInCorsoException: partita non in_corso.
+        - PartitaGiocoException: fase_turno_corrente != "attesa_reclami".
+        """
+        if self.stato_partita != "in_corso":
+            raise PartitaNonInCorsoException(
+                f"Impossibile eseguire fase verifica: stato '{self.stato_partita}'."
+            )
+        if self.fase_turno_corrente != "attesa_reclami":
+            raise PartitaGiocoException(
+                f"Impossibile eseguire fase verifica: fase corrente '{self.fase_turno_corrente}', "
+                "attesa 'attesa_reclami'."
+            )
+
+        premi_nuovi = self.verifica_premi()
+
+        # Confronto reclami bot vs premi reali.
+        reclami_bot = []
+        for giocatore in self.giocatori:
+            if giocatore.is_automatico() and giocatore.reclamo_turno is not None:
+                reclamo = giocatore.reclamo_turno
+                successo = False
+                id_bot = giocatore.get_id_giocatore()
+                for evento in premi_nuovi:
+                    giocatore_match = (
+                        (id_bot is not None and evento.get("id_giocatore") == id_bot) or
+                        (id_bot is None and evento["giocatore"] == giocatore.get_nome())
+                    )
+                    if (giocatore_match and
+                            evento["cartella"] == reclamo.indice_cartella and
+                            evento["premio"] == reclamo.tipo and
+                            evento["riga"] == reclamo.indice_riga):
+                        successo = True
+                        break
+                reclami_bot.append({
+                    "nome_giocatore": giocatore.get_nome(),
+                    "id_giocatore": giocatore.get_id_giocatore(),
+                    "reclamo": reclamo,
+                    "successo": successo,
+                })
+
+        # Reset: reclami e turno_dichiarato_concluso per tutti i giocatori.
+        for giocatore in self.giocatori:
+            giocatore.reset_reclamo_turno()
+            giocatore.turno_dichiarato_concluso = False
+
+        tombola_rilevata = self.has_tombola()
+        if tombola_rilevata:
+            self.termina_partita()
+
+        self.fase_turno_corrente = "attesa_estrazione"
+
+        return {
+            "premi_nuovi": premi_nuovi,
+            "reclami_bot": reclami_bot,
+            "tombola_rilevata": tombola_rilevata,
+            "partita_terminata": self.is_terminata(),
+        }
+
+
+    #verifica che tutti i giocatori umani abbiano dichiarato fine turno.
+    def tutti_hanno_dichiarato_fine(self) -> bool:
+        """
+        Verifica che tutti i giocatori non automatici abbiano dichiarato fine turno.
+
+        Ritorna:
+        - True: tutti i giocatori umani hanno turno_dichiarato_concluso == True.
+        - False: almeno uno non ha ancora dichiarato fine.
+        """
+        for giocatore in self.giocatori:
+            if not giocatore.is_automatico():
+                if not giocatore.turno_dichiarato_concluso:
+                    return False
+        return True
+
+
     #esegue un "passo" della partita: estrae un numero dal tabellone, aggiorna i giocatori e verifica se sono stati assegnati nuovi premi. Se viene rilevata una tombola, termina la partita.
     #esegue un "passo" della partita: estrae un numero dal tabellone, aggiorna i giocatori e verifica se sono stati assegnati nuovi premi. Se viene rilevata una tombola, termina la partita.
     def esegui_turno(self) -> dict[str, Any]: 
@@ -710,111 +857,32 @@ class Partita:
         - PartitaNonInCorsoException: se si tenta di eseguire un turno quando la partita non è "in_corso".
         - PartitaNumeriEsauritiException: (propagato da estrai_prossimo_numero) se i numeri finiscono.
         """
-        # Salva lo stato prima del turno (utile per log e interfaccia).
-        stato_prima = self.stato_partita
-
-        # Un turno ha senso solo quando la partita è stata avviata.
         if self.stato_partita != "in_corso":
             raise PartitaNonInCorsoException(
                 f"Impossibile eseguire un turno: lo stato della partita è '{self.stato_partita}'. "
                 "È possibile eseguire un turno solo quando la partita è in_corso."
             )
 
-        # 1. Estrae il prossimo numero.
-        # Questo metodo aggiorna anche self.ultimo_numero_estratto e notifica tutti i giocatori.
-        numero_estratto = self.estrai_prossimo_numero()
+        stato_prima = self.stato_partita
 
-        # 2. [NUOVO] Fase reclami bot: i bot valutano se hanno premi reclamabili
-        # Questa fase avviene DOPO l'estrazione e PRIMA della verifica ufficiale dei premi.
-        # I bot analizzano lo stato delle proprie cartelle e costruiscono un reclamo se appropriato.
-        #
-        # Nota architetturale: Chiamiamo _valuta_potenziale_reclamo() anche se è un metodo
-        # interno (prefisso _) perché Partita è il coordinatore naturale del ciclo di gioco
-        # e ha la responsabilità di orchestrare le azioni dei giocatori. Questo pattern
-        # mantiene l'incapsulamento (il bot decide autonomamente cosa reclamare) pur
-        # permettendo a Partita di coordinarle il timing della valutazione.
-        for giocatore in self.giocatori:
-            # Filtra solo i bot automatici usando il metodo is_automatico()
-            if giocatore.is_automatico():
-                # Passa lo snapshot dei premi già assegnati (prima di questo turno)
-                # Il bot valuterà se ha un premio reclamabile che non è già stato assegnato
-                reclamo = giocatore._valuta_potenziale_reclamo(self.premi_gia_assegnati, self.premi_tipo_chiusi)
-                
-                # Se il bot ha trovato un reclamo valido, lo memorizza
-                if reclamo is not None:
-                    giocatore.reclamo_turno = reclamo
+        # Fase 1: estrazione numero e reclami bot.
+        risultato_estrazione = self.esegui_fase_estrazione()
+        numero_estratto = risultato_estrazione["numero_estratto"]
 
-        # 3. Verifica i premi (Ambo, Terno, Quaterna, Cinquina, Tombola)
-        # Chiama il metodo che scansiona tutti i giocatori e ritorna solo le NOVITÀ rispetto al passato.
-        # Questo metodo rimane l'UNICO ARBITRO dei premi reali.
-        premi_nuovi = self.verifica_premi()
+        # Fase 2: verifica premi, confronto bot, reset, tombola.
+        risultato_verifica = self.esegui_fase_verifica()
 
-        # 4. [NUOVO] Confronto reclami bot vs premi reali
-        # Per ogni bot che ha fatto un reclamo, verifica se il reclamo corrisponde a un premio reale.
-        # Costruisce una lista di esiti per il logging e l'interfaccia.
-        reclami_bot = []
-        for giocatore in self.giocatori:
-            if giocatore.is_automatico() and giocatore.reclamo_turno is not None:
-                reclamo = giocatore.reclamo_turno
-                
-                # Determina se il reclamo è corretto confrontandolo con i premi reali
-                successo = False
-                id_bot = giocatore.get_id_giocatore()
-                
-                for evento in premi_nuovi:
-                    # Matching robusto: usa id_giocatore se disponibile, altrimenti fallback sul nome
-                    giocatore_match = (
-                        (id_bot is not None and evento.get("id_giocatore") == id_bot) or
-                        (id_bot is None and evento["giocatore"] == giocatore.get_nome())
-                    )
-                    
-                    # Verifica completa: giocatore + cartella + tipo + riga
-                    if (giocatore_match and
-                        evento["cartella"] == reclamo.indice_cartella and
-                        evento["premio"] == reclamo.tipo and
-                        evento["riga"] == reclamo.indice_riga):
-                        successo = True
-                        break
-                
-                # Aggiungi l'esito del reclamo alla lista
-                reclami_bot.append({
-                    "nome_giocatore": giocatore.get_nome(),
-                    "id_giocatore": giocatore.get_id_giocatore(),
-                    "reclamo": reclamo,
-                    "successo": successo
-                })
-
-        # 5. Reset reclami tutti i giocatori (bot e umano)
-        # Dopo aver processato i reclami bot, resettiamo lo stato per il turno successivo
-        # per TUTTI i giocatori, incluso l'umano, altrimenti il blocco anti-doppio-reclamo
-        # rimane attivo anche ai turni successivi impedendo nuove dichiarazioni legittime.
-        for giocatore in self.giocatori:
-            giocatore.reset_reclamo_turno()
-
-        # 6. Verifica se è stata fatta tombola (condizione di fine partita)
-        # Nota: La tombola sarà già presente anche dentro "premi_nuovi", ma qui serve per
-        # decidere se chiudere la partita.
-        tombola_rilevata = self.has_tombola()
-
-        # Se c'è tombola, termina la partita.
-        if tombola_rilevata:
-            self.termina_partita()
-
-        # Stato dopo il turno (potrebbe essere rimasto "in_corso" oppure diventare "terminata").
         stato_dopo = self.stato_partita
 
-        # Costruisce l'evento/risultato del turno in un dizionario pronto per il controller.
-        risultato_turno = {
+        return {
             "numero_estratto": numero_estratto,
             "stato_partita_prima": stato_prima,
             "stato_partita_dopo": stato_dopo,
-            "tombola_rilevata": tombola_rilevata,
-            "partita_terminata": self.is_terminata(),
-            "premi_nuovi": premi_nuovi,  # Qui ora passiamo i premi reali!
-            "reclami_bot": reclami_bot,  # [NUOVO] Lista degli esiti dei reclami bot (backward-compatible: lista vuota se nessun bot)
+            "tombola_rilevata": risultato_verifica["tombola_rilevata"],
+            "partita_terminata": risultato_verifica["partita_terminata"],
+            "premi_nuovi": risultato_verifica["premi_nuovi"],
+            "reclami_bot": risultato_verifica["reclami_bot"],
         }
-
-        return risultato_turno
 
 
     #helper che ritorna True se la partita è nello stato "terminata".

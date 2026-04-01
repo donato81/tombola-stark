@@ -42,6 +42,7 @@ SEZIONE 6: Reset e Utility
 """
 
 import unittest
+from bingo_game.events.eventi_partita import ReclamoVittoria
 from bingo_game.partita import Partita
 from bingo_game.tabellone import Tabellone 
 from bingo_game.cartella import Cartella
@@ -75,6 +76,28 @@ class TestPartita(unittest.TestCase):
         # Creiamo la partita passando il tabellone obbligatorio
         # Inizialmente senza giocatori (default)
         self.partita = Partita(tabellone=self.tabellone)
+
+    def _assegna_reclamo_riga(
+        self,
+        giocatore: GiocatoreBase,
+        cartella: Cartella,
+        indice_riga: int,
+        tipo: str,
+    ) -> None:
+        giocatore.reclamo_turno = ReclamoVittoria.vittoria_di_riga(
+            tipo=tipo,
+            indice_cartella=cartella.indice,
+            indice_riga=indice_riga,
+        )
+
+    def _assegna_reclamo_tombola(
+        self,
+        giocatore: GiocatoreBase,
+        cartella: Cartella,
+    ) -> None:
+        giocatore.reclamo_turno = ReclamoVittoria.tombola(
+            indice_cartella=cartella.indice,
+        )
 
 
     """SEZIONE 1: METODI DI Inizializzazione e Stato Iniziale"""
@@ -733,6 +756,8 @@ class TestPartita(unittest.TestCase):
             f"Il numero {numero_2} dovrebbe risultare segnato sulla cartella."
         )
 
+        self._assegna_reclamo_riga(giocatore, cartella, indice_riga, "ambo")
+
         # 4. Azione: chiamiamo verifica_premi() sulla partita
         premi_trovati = self.partita.verifica_premi()
 
@@ -818,6 +843,8 @@ class TestPartita(unittest.TestCase):
         # Verifica intermedia: i numeri devono risultare segnati
         self.assertTrue(cartella.is_numero_segnato(numero_1))
         self.assertTrue(cartella.is_numero_segnato(numero_2))
+
+        self._assegna_reclamo_riga(giocatore, cartella, indice_riga, "ambo")
 
         # 2. Prima chiamata a verifica_premi(): deve rilevare l'ambo
         premi_prima = self.partita.verifica_premi()
@@ -936,11 +963,15 @@ class TestPartita(unittest.TestCase):
         self.assertTrue(cartella.is_numero_segnato(numeri_riga[0]))
         self.assertTrue(cartella.is_numero_segnato(numeri_riga[1]))
 
+        self._assegna_reclamo_riga(giocatore, cartella, indice_riga, "ambo")
+
         _verifica_unico_premio_atteso("ambo", "Dopo 2 numeri segnati (ambo)")
 
         # 2) Segniamo il terzo numero: TERNO
         giocatore.aggiorna_con_numero(numeri_riga[2])
         self.assertTrue(cartella.is_numero_segnato(numeri_riga[2]))
+
+        self._assegna_reclamo_riga(giocatore, cartella, indice_riga, "terno")
 
         _verifica_unico_premio_atteso("terno", "Dopo 3 numeri segnati (terno)")
 
@@ -948,11 +979,15 @@ class TestPartita(unittest.TestCase):
         giocatore.aggiorna_con_numero(numeri_riga[3])
         self.assertTrue(cartella.is_numero_segnato(numeri_riga[3]))
 
+        self._assegna_reclamo_riga(giocatore, cartella, indice_riga, "quaterna")
+
         _verifica_unico_premio_atteso("quaterna", "Dopo 4 numeri segnati (quaterna)")
 
         # 4) Segniamo il quinto numero: CINQUINA
         giocatore.aggiorna_con_numero(numeri_riga[4])
         self.assertTrue(cartella.is_numero_segnato(numeri_riga[4]))
+
+        self._assegna_reclamo_riga(giocatore, cartella, indice_riga, "cinquina")
 
         _verifica_unico_premio_atteso("cinquina", "Dopo 5 numeri segnati (cinquina)")
 
@@ -967,6 +1002,8 @@ class TestPartita(unittest.TestCase):
             cartella.verifica_cartella_completa(),
             "La cartella dovrebbe risultare completa (tombola) dopo aver segnato tutti i numeri."
         )
+
+        self._assegna_reclamo_tombola(giocatore, cartella)
 
         # Chiamata a verifica_premi: deve rilevare la tombola come nuovo premio
         premi_tombola = self.partita.verifica_premi()
