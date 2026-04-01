@@ -219,6 +219,19 @@ class ComandiSistema:
         except Exception as exc:
             return False
 
+    def ottieni_giocatore_umano(self, partita: Partita) -> Optional[GiocatoreUmano]:
+        """
+        Ritorna il giocatore umano della partita.
+
+        Parametri:
+        - partita: Partita - Partita esistente (qualsiasi stato)
+
+        Ritorna:
+        - GiocatoreUmano: primo giocatore umano trovato
+        - None: parametro invalido o nessun giocatore umano presente
+        """
+        return ottieni_giocatore_umano(partita)
+
 
 class ComandiGiocatoreUmano:
     """

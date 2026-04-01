@@ -419,6 +419,31 @@ class TestComandiSistema(unittest.TestCase):
 
         self.assertTrue(self.comandi.is_terminata(partita))
 
+    # =========================================================================
+    # SEZIONE 8: Test ottieni_giocatore_umano (2 test)
+    # =========================================================================
+
+    def test_ottieni_giocatore_umano_ritorna_giocatore_umano(self) -> None:
+        """
+        Verifica che per una partita standard creata con crea_nuova_partita
+        il metodo ritorna un'istanza di GiocatoreUmano.
+        """
+        from bingo_game.players.giocatore_umano import GiocatoreUmano
+        partita = self.comandi.crea_nuova_partita("Mario", 1, 1)
+        self.assertIsNotNone(partita)
+
+        risultato = self.comandi.ottieni_giocatore_umano(partita)
+
+        self.assertIsNotNone(risultato)
+        self.assertIsInstance(risultato, GiocatoreUmano)
+
+    def test_ottieni_giocatore_umano_parametro_invalido_ritorna_none(self) -> None:
+        """
+        Verifica che un parametro non-Partita ritorna None.
+        """
+        risultato = self.comandi.ottieni_giocatore_umano("non una partita")
+        self.assertIsNone(risultato)
+
 
 class TestComandiGiocatoreUmano(unittest.TestCase):
     """Regressioni mirate per la facade del layer di presentazione."""

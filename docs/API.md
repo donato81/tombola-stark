@@ -1222,6 +1222,18 @@ Facade di presentazione che delega a `game_controller.esegui_fase_verifica_sicur
 
 ---
 
+#### ComandiSistema.ottieni_giocatore_umano()
+
+```python
+def ottieni_giocatore_umano(self, partita: Partita) -> Optional[GiocatoreUmano]:
+```
+
+Ritorna il primo `GiocatoreUmano` trovato nella partita, oppure `None`.
+Delega a `game_controller.ottieni_giocatore_umano`. Compatibile con qualsiasi stato
+della partita (incluso `non_iniziata`). Nessun side effect, nessuna eccezione propagata.
+
+---
+
 #### ComandiGiocatoreUmano.dichiara_fine_turno()
 
 ```python

@@ -10,6 +10,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ## [Unreleased]
 
 ### Fixed
+- `bingo_game/comandi_partita.py`: aggiunto metodo `ComandiSistema.ottieni_giocatore_umano(partita)` — era assente dalla facade pur essendo la funzione corrispondente già importata da `game_controller`; causava `AttributeError` nel ciclo turno V2 quando il layer UI lo invocava tramite `ComandiSistema`.
+
 - `bingo_game/players/giocatore_umano.py`: corretto un bug per cui il reclamo di vittoria del giocatore umano (ambo, terno, quaterna, cinquina, tombola) veniva ignorato silenziosamente ogni turno. La causa era che il sistema cercava la cartella del giocatore tramite un numero sbagliato (0 anziché 1), non la trovava, e scartava il reclamo senza produrre alcun messaggio di errore. Di conseguenza, nella co-vincita il premio veniva assegnato solo al bot. Ora il reclamo usa il numero identificativo corretto della cartella e il premio viene assegnato a tutti i co-vincitori.
 
 
