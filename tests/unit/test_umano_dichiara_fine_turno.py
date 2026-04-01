@@ -14,7 +14,8 @@ class TestUmanoDichiaraFineTurno(unittest.TestCase):
         giocatore.dichiara_fine_turno()
         self.assertTrue(giocatore.turno_dichiarato_concluso)
 
-    def test_tutti_hanno_dichiarato_fine_considera_solo_umani(self) -> None:
+    def test_tutti_hanno_dichiarato_fine_include_bot(self) -> None:
+        # V2: tutti_hanno_dichiarato_fine() include anche i giocatori automatici.
         tabellone = Tabellone()
         umano = GiocatoreUmano("Mario")
         bot = GiocatoreAutomatico("Bot1")
@@ -22,6 +23,13 @@ class TestUmanoDichiaraFineTurno(unittest.TestCase):
         bot.aggiungi_cartella(Cartella())
         partita = Partita(tabellone, [umano, bot])
 
+        # All'inizio nessuno ha dichiarato fine.
         self.assertFalse(partita.tutti_hanno_dichiarato_fine())
+
+        # Solo l'umano dichiara: il bot non ha ancora dichiarato → False.
         umano.dichiara_fine_turno()
+        self.assertFalse(partita.tutti_hanno_dichiarato_fine())
+
+        # Anche il bot dichiara → True.
+        bot.dichiara_fine_turno()
         self.assertTrue(partita.tutti_hanno_dichiarato_fine())

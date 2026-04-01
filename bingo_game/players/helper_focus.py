@@ -529,9 +529,10 @@ class GestioneFocusMixin:
         comune: esistere una cartella valida su cui navigare. [file:1]
 
         Comportamento:
-        - Delega al controllo del focus cartella valido, con auto-impostazione abilitata:
-          se il giocatore ha cartelle ma non ha ancora un focus, il focus può essere impostato
-          automaticamente sulla prima cartella, rendendo la navigazione immediatamente possibile. [file:1]
+        - Delega al controllo del focus cartella valido in modalità rigorosa (auto_imposta=False):
+          se il giocatore ha cartelle ma non ha ancora selezionato una cartella in focus,
+          il metodo ritorna ok=False con errore FOCUS_CARTELLA_NON_IMPOSTATO. L'utente deve
+          selezionare esplicitamente una cartella prima di navigare righe e colonne. [file:1]
         - Se il focus cartella non è determinabile o non è valido, ritorna un EsitoAzione con ok=False
           e un CodiceErrore coerente (propagato dall'helper chiamato). [file:2]
 
@@ -541,9 +542,10 @@ class GestioneFocusMixin:
                 - ok=False se mancano prerequisiti o la verifica fallisce (errore valorizzato). [file:2]
         """
 
-        # Delego ai controlli già centralizzati sul focus cartella (presenza + range).
-        # Per la navigazione la prima cartella disponibile viene selezionata automaticamente.
-        esito_cartella = self._esito_focus_cartella_valido(auto_imposta=True)
+        # Deleghiamo ai controlli centralizzati sul focus cartella (presenza + range).
+        # Per la navigazione riga/colonna il focus cartella deve essere impostato esplicitamente:
+        # non si auto-seleziona la prima cartella, per evitare cambi silenziosi di contesto.
+        esito_cartella = self._esito_focus_cartella_valido(auto_imposta=False)
         if not esito_cartella.ok:
             # Se non posso individuare una cartella attiva valida, non ha senso proseguire.
             # Propago l'esito così com'è, mantenendo codice errore e (se presente) evento.

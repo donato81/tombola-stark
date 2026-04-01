@@ -29,15 +29,17 @@ class TestGestioneFocusMixin(unittest.TestCase):
         self.assertFalse(esito.ok)
         self.assertEqual(esito.errore, "FOCUS_CARTELLA_NON_IMPOSTATO")
 
-    def test_esito_pronto_per_navigazione_auto_imposta_prima_cartella(self) -> None:
+    def test_esito_pronto_per_navigazione_senza_focus_cartella(self) -> None:
+        # _esito_pronto_per_navigazione usa auto_imposta=False:
+        # il focus cartella deve essere impostato esplicitamente dall'utente.
         self.stub.cartelle = [self.cartella]
         self.stub._indice_cartella_focus = None
 
         esito = self.stub._esito_pronto_per_navigazione()
 
-        self.assertTrue(esito.ok)
-        self.assertEqual(self.stub._indice_cartella_focus, 0)
-        self.assertIsNotNone(esito.evento)
+        self.assertFalse(esito.ok)
+        self.assertEqual(esito.errore, "FOCUS_CARTELLA_NON_IMPOSTATO")
+        self.assertIsNone(self.stub._indice_cartella_focus)
 
     def test_esito_focus_cartella_in_range_fuori_range_superiore(self) -> None:
         self.stub.cartelle = [self.cartella]

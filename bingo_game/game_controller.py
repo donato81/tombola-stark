@@ -511,7 +511,10 @@ def esegui_turno_sicuro(partita: Partita) -> Optional[Dict[str, Any]]:
 
 def esegui_fase_estrazione_sicura(partita: Partita) -> Optional[Dict[str, Any]]:
     """
-    Esegue la prima fase del turno (estrazione + reclami bot) in modo sicuro.
+    Esegue la prima fase del turno (estrazione) in modo sicuro (V2).
+
+    I reclami bot non vengono registrati qui ma durante la fase 2
+    tramite dichiara_fine_fase_azione().
 
     Ritorna:
     - Dict[str, Any]: {"numero_estratto": int, "fase": str} se successo.

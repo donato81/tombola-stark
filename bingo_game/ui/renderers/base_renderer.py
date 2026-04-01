@@ -147,6 +147,38 @@ class BaseRenderer(ABC):
         """
         ...
 
+    @abstractmethod
+    def annuncia_avviso_timeout(self, secondi_rimanenti: int, livello: int = 80) -> None:
+        """
+        Vocalizza un avviso progressivo durante la finestra d'azione (fase 2 V2).
+
+        Chiamato ai valori percentuali 60%, 80%, 95% del tempo trascorso.
+        Il testo vocale dipende dal livello e usa le chiavi TURNO_AVVISO_*.
+
+        Parametri:
+        - secondi_rimanenti: secondi ancora disponibili all'utente.
+        - livello: soglia percentuale raggiunta (60, 80 o 95). Default: 80.
+        """
+        ...
+
+    @abstractmethod
+    def annuncia_avvio_pausa_turno(self, secondi: int) -> None:
+        """
+        Vocalizza l'annuncio di avvio della pausa tra turni (fase 4 V2).
+
+        Parametri:
+        - secondi: durata della pausa in secondi.
+        """
+        ...
+
+    @abstractmethod
+    def annuncia_tutti_pronti(self) -> None:
+        """
+        Vocalizza il messaggio di terminazione anticipata della fase 2 V2:
+        tutti i giocatori hanno dichiarato fine prima della scadenza del timer.
+        """
+        ...
+
     def _formatta_testo_da_catalogo(self, chiave: str, **kwargs: Any) -> str:
         """
         Cerca la chiave nei cataloghi nell'ordine canonico e restituisce il

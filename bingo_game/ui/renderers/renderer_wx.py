@@ -172,6 +172,30 @@ class WxRenderer(BaseRenderer):
         """Vocalizza la fase corrente del turno (re-announce NVDA dopo SetLabel)."""
         self._ao2_vocalizza(testo_fase)
 
+    def annuncia_avviso_timeout(self, secondi_rimanenti: int, livello: int = 80) -> None:
+        """Vocalizza un avviso progressivo della finestra d'azione (V2)."""
+        _chiavi: dict[int, str] = {
+            60: "TURNO_AVVISO_60",
+            80: "TURNO_AVVISO_80",
+            95: "TURNO_AVVISO_95",
+        }
+        chiave = _chiavi.get(livello, "TURNO_AVVISO_80")
+        testo = self._formatta_testo_da_catalogo(chiave, s=secondi_rimanenti)
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
+
+    def annuncia_avvio_pausa_turno(self, secondi: int) -> None:
+        """Vocalizza l'annuncio di avvio della pausa tra turni (V2)."""
+        testo = self._formatta_testo_da_catalogo("TURNO_PAUSA_INIZIO", s=secondi)
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
+
+    def annuncia_tutti_pronti(self) -> None:
+        """Vocalizza il messaggio di terminazione anticipata della fase 2 (V2)."""
+        testo = self._formatta_testo_da_catalogo("TURNO_TUTTI_PRONTI")
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
+
     # ---------------------------------------------------------------
     # Dispatcher centrale
     # ---------------------------------------------------------------

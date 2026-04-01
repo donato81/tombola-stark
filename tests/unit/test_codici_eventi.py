@@ -234,7 +234,16 @@ class TestCodiciEventi(unittest.TestCase):
         )
 
     def test_allineamento_costante_literal(self) -> None:
-        costanti = {codici_eventi.EVENTO_FOCUS_AUTO_IMPOSTATO}
+        costanti = {
+            codici_eventi.EVENTO_FOCUS_AUTO_IMPOSTATO,
+            codici_eventi.TURNO_AVVISO_60,
+            codici_eventi.TURNO_AVVISO_80,
+            codici_eventi.TURNO_AVVISO_95,
+            codici_eventi.TURNO_TIMEOUT_SALTATO,
+            codici_eventi.TURNO_TUTTI_PRONTI,
+            codici_eventi.TURNO_PAUSA_INIZIO,
+            codici_eventi.TURNO_PAUSA_COUNTDOWN,
+        }
         literal_vals = set(get_args(codici_eventi.Codici_Eventi))
         self.assertEqual(costanti, literal_vals)
 

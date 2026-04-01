@@ -39,7 +39,7 @@ class FinestraConfigurazione(wx.Frame):
         super().__init__(
             parent,
             title="Tombola Stark — Configurazione partita",
-            size=(500, 340),
+            size=(500, 430),
             style=wx.DEFAULT_FRAME_STYLE,
         )
         self._renderer = renderer
@@ -72,6 +72,22 @@ class FinestraConfigurazione(wx.Frame):
         sizer.Add(wx.StaticText(panel, label="Cartelle per giocatore (1-6):"), 0, wx.LEFT | wx.TOP, 10)
         self._cartelle_ctrl = wx.SpinCtrl(panel, value="1", min=1, max=6)
         sizer.Add(self._cartelle_ctrl, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+
+        # Durata finestra d'azione (V2)
+        sizer.Add(
+            wx.StaticText(panel, label="Durata finestra d'azione in secondi (5-300):"),
+            0, wx.LEFT | wx.TOP, 10,
+        )
+        self._finestra_azione_ctrl = wx.SpinCtrl(panel, value="60", min=5, max=300)
+        sizer.Add(self._finestra_azione_ctrl, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+
+        # Durata pausa tra turni (V2)
+        sizer.Add(
+            wx.StaticText(panel, label="Durata pausa tra turni in secondi (1-30):"),
+            0, wx.LEFT | wx.TOP, 10,
+        )
+        self._pausa_turni_ctrl = wx.SpinCtrl(panel, value="5", min=1, max=30)
+        sizer.Add(self._pausa_turni_ctrl, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         # Pulsante conferma
         self._btn_conferma = wx.Button(panel, label="Avvia partita")
@@ -136,6 +152,14 @@ class FinestraConfigurazione(wx.Frame):
             self._mostra_errore("Impossibile avviare la partita.")
             return
 
+        durata_finestra_ms = self._finestra_azione_ctrl.GetValue() * 1000
+        durata_pausa_ms = self._pausa_turni_ctrl.GetValue() * 1000
+
+        _ui_logger.debug(
+            "Configurazione V2: durata_finestra=%dms durata_pausa=%dms",
+            durata_finestra_ms, durata_pausa_ms,
+        )
+
         # Apri finestra di gioco e nascondi questa
         from bingo_game.ui.finestra_gioco import FinestraGioco
 
@@ -143,6 +167,8 @@ class FinestraConfigurazione(wx.Frame):
             partita=partita,
             renderer=self._renderer,
             parent=None,
+            durata_finestra_ms=durata_finestra_ms,
+            durata_pausa_ms=durata_pausa_ms,
         )
         finestra_gioco.Show()
         self.Hide()

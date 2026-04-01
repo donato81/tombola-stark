@@ -141,6 +141,48 @@ MESSAGGI_EVENTI: Mapping[Codici_Eventi, tuple[str, ...]] = MappingProxyType({
     "EVENTO_FOCUS_AUTO_IMPOSTATO": (
         "{tipo} selezionata automaticamente: {numero}.",
     ),
+
+    # --- Ciclo turno V2 ---
+
+    # TURNO_AVVISO_60: avviso vocale al 60% del tempo trascorso.
+    # Placeholder: {s} secondi rimanenti.
+    "TURNO_AVVISO_60": (
+        "Attenzione: hai ancora {s} secondi per dichiarare la tua vittoria.",
+    ),
+
+    # TURNO_AVVISO_80: avviso vocale all'80% del tempo trascorso.
+    # Placeholder: {s} secondi rimanenti.
+    "TURNO_AVVISO_80": (
+        "Attenzione: {s} secondi rimanenti.",
+    ),
+
+    # TURNO_AVVISO_95: avviso vocale al 95% del tempo trascorso.
+    # Placeholder: {s} secondi rimanenti.
+    "TURNO_AVVISO_95": (
+        "Ultimo avviso: {s} secondi. Dichiara ora o il turno verr\u00e0 saltato.",
+    ),
+
+    # TURNO_TIMEOUT_SALTATO: il timer è scaduto senza dichiarazione umano.
+    "TURNO_TIMEOUT_SALTATO": (
+        "Tempo scaduto. Il tuo turno \u00e8 stato saltato.",
+    ),
+
+    # TURNO_TUTTI_PRONTI: terminazione anticipata — tutti hanno dichiarato fine.
+    "TURNO_TUTTI_PRONTI": (
+        "Tutti i giocatori sono pronti. Avvio verifica premi.",
+    ),
+
+    # TURNO_PAUSA_INIZIO: annuncio pausa tra turni.
+    # Placeholder: {s} secondi alla pausa.
+    "TURNO_PAUSA_INIZIO": (
+        "Turno terminato. Prossimo turno tra {s} secondi.",
+    ),
+
+    # TURNO_PAUSA_COUNTDOWN: conto alla rovescia durante la pausa.
+    # Placeholder: {s} secondi al prossimo turno.
+    "TURNO_PAUSA_COUNTDOWN": (
+        "{s} secondi al prossimo turno.",
+    ),
 })
 
 

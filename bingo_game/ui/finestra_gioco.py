@@ -42,6 +42,7 @@ path: bingo_game/ui/finestra_gioco.py
 from __future__ import annotations
 
 import logging
+import random
 from typing import TYPE_CHECKING, Optional
 
 import wx
@@ -186,6 +187,8 @@ class FinestraGioco(wx.Frame):
         partita: Partita,
         renderer: "WxRenderer",
         parent: Optional[wx.Window] = None,
+        durata_finestra_ms: int = 60000,
+        durata_pausa_ms: int = 5000,
     ) -> None:
         super().__init__(
             parent,
@@ -198,9 +201,18 @@ class FinestraGioco(wx.Frame):
         self._comandi_sistema = ComandiSistema()
         self._comandi = ComandiGiocatoreUmano(partita)
         self._turno_corrente: int = 0
-        # Stato bifasico UI: "attesa_estrazione" -> click estrae;
-        # "attesa_reclami" -> click verifica premi.
+        # Stato trifasico UI V2: "attesa_estrazione" -> "attesa_reclami" -> "pausa_turno"
         self._fase_turno_ui: str = "attesa_estrazione"
+
+        # --- Timer e scheduling V2 ---
+        self._durata_finestra_ms: int = durata_finestra_ms
+        self._durata_pausa_ms: int = durata_pausa_ms
+        self._timer_azione: Optional[wx.Timer] = None
+        self._timer_pausa: Optional[wx.Timer] = None
+        self._tick_ms: int = 500
+        self._ms_trascorsi_azione: int = 0
+        self._durata_finestra_corrente_ms: int = 0
+        self._avvisi_emessi: set[int] = set()
 
         self._build_ui()
         self._bind_finestra()
@@ -335,7 +347,7 @@ class FinestraGioco(wx.Frame):
             return
 
         if self._fase_turno_ui == "attesa_estrazione":
-            # Fase 1: estrae il numero.
+            # Fase 1: estrae il numero + avvia finestra d'azione V2.
             risultato_est = self._comandi_sistema.esegui_fase_estrazione(self._partita)
             if risultato_est is None:
                 self._renderer.mostra_messaggio_sistema(
@@ -347,22 +359,148 @@ class FinestraGioco(wx.Frame):
             self._renderer.annuncia_numero_estratto(numero, self._turno_corrente)
             self._fase_turno_ui = "attesa_reclami"
             self._aggiorna_stato_pulsante()
-        else:
-            # Fase 2: verifica premi dopo la finestra di reclamo.
-            risultato_ver = self._comandi_sistema.esegui_fase_verifica(self._partita)
-            if risultato_ver is None:
-                self._renderer.mostra_messaggio_sistema(
-                    "Impossibile verificare i premi."
-                )
-                return
-            premi_nuovi = risultato_ver.get("premi_nuovi", [])
-            self._renderer.annuncia_premi_turno(premi_nuovi)
+            # Avvia il timer della finestra d'azione e pianifica le risposte dei bot.
+            self._avvia_timer_azione(self._durata_finestra_ms)
+            self._pianifica_risposta_bot()
+
+        elif self._fase_turno_ui == "attesa_reclami":
+            # Fase 2: l'umano dichiara fine manualmente (prima del timeout).
+            umano = self._comandi_sistema.ottieni_giocatore_umano(self._partita)
+            if umano is not None and not umano.turno_dichiarato_concluso:
+                umano.dichiara_fine_turno()
+            self._controlla_tutti_pronti()
+
+        # Stato "pausa_turno": il pulsante è disabilitato o ignorato durante la pausa.
+
+    # ------------------------------------------------------------------
+    # Timer finestra d'azione (D-2)
+    # ------------------------------------------------------------------
+
+    def _avvia_timer_azione(self, durata_ms: int) -> None:
+        """Avvia il timer tick della finestra d'azione."""
+        self._durata_finestra_corrente_ms = durata_ms
+        self._ms_trascorsi_azione = 0
+        self._avvisi_emessi = set()
+        if self._timer_azione is not None:
+            self._timer_azione.Stop()
+        self._timer_azione = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self._on_tick_azione, self._timer_azione)
+        self._timer_azione.Start(self._tick_ms)
+
+    def _on_tick_azione(self, event: wx.TimerEvent) -> None:
+        """Tick del timer d'azione: calcola percentuale e lancia avvisi vocali."""
+        if self._fase_turno_ui != "attesa_reclami":
+            return
+        self._ms_trascorsi_azione += self._tick_ms
+        if self._durata_finestra_corrente_ms <= 0:
+            return
+        pct = self._ms_trascorsi_azione / self._durata_finestra_corrente_ms * 100
+        secondi_rim = max(0, (self._durata_finestra_corrente_ms - self._ms_trascorsi_azione) // 1000)
+
+        if pct >= 95 and 95 not in self._avvisi_emessi:
+            self._avvisi_emessi.add(95)
+            self._renderer.annuncia_avviso_timeout(secondi_rim, livello=95)
+        elif pct >= 80 and 80 not in self._avvisi_emessi:
+            self._avvisi_emessi.add(80)
+            self._renderer.annuncia_avviso_timeout(secondi_rim, livello=80)
+        elif pct >= 60 and 60 not in self._avvisi_emessi:
+            self._avvisi_emessi.add(60)
+            self._renderer.annuncia_avviso_timeout(secondi_rim, livello=60)
+
+        if self._ms_trascorsi_azione >= self._durata_finestra_corrente_ms:
+            self._on_timeout_azione()
+
+    # ------------------------------------------------------------------
+    # Timeout finestra (D-3) e terminazione anticipata (D-4)
+    # ------------------------------------------------------------------
+
+    def _on_timeout_azione(self) -> None:
+        """Scaduto il timer: salta il reclamo umano e avanza alla verifica."""
+        if self._timer_azione is not None:
+            self._timer_azione.Stop()
+            self._timer_azione = None
+        if self._fase_turno_ui != "attesa_reclami":
+            return
+        self._esegui_verifica_premi()
+
+    def _controlla_tutti_pronti(self) -> None:
+        """Verifica se tutti i giocatori hanno dichiarato fine; avanza se sì."""
+        if self._partita.tutti_hanno_dichiarato_fine():
+            self._on_all_ready()
+
+    def _on_all_ready(self) -> None:
+        """Tutti pronti: ferma il timer e avanza a verifica in anticipo."""
+        if self._timer_azione is not None:
+            self._timer_azione.Stop()
+            self._timer_azione = None
+        if self._fase_turno_ui != "attesa_reclami":
+            return
+        self._renderer.annuncia_tutti_pronti()
+        self._esegui_verifica_premi()
+
+    def _esegui_verifica_premi(self) -> None:
+        """Esegue la fase di verifica premi e avvia la pausa tra turni."""
+        self._fase_turno_ui = "pausa_turno"
+        self._aggiorna_stato_pulsante()
+        risultato_ver = self._comandi_sistema.esegui_fase_verifica(self._partita)
+        if risultato_ver is None:
+            self._renderer.mostra_messaggio_sistema("Impossibile verificare i premi.")
             self._fase_turno_ui = "attesa_estrazione"
             self._aggiorna_stato_pulsante()
+            return
+        premi_nuovi = risultato_ver.get("premi_nuovi", [])
+        self._renderer.annuncia_premi_turno(premi_nuovi)
 
-            if risultato_ver.get("partita_terminata") or risultato_ver.get("tombola_rilevata"):
-                self._renderer.mostra_messaggio_sistema("La partita è terminata.")
-                self._btn_principale.Disable()
+        if risultato_ver.get("partita_terminata") or risultato_ver.get("tombola_rilevata"):
+            self._renderer.mostra_messaggio_sistema("La partita è terminata.")
+            self._btn_principale.Disable()
+            return
+
+        self._avvia_pausa_turno(self._durata_pausa_ms)
+
+    # ------------------------------------------------------------------
+    # Pianificazione risposte bot (D-5)
+    # ------------------------------------------------------------------
+
+    def _pianifica_risposta_bot(self) -> None:
+        """Schedula con wx.CallLater le dichiarazioni dei bot con ritardi distribuiti."""
+        bots = [g for g in self._partita.giocatori if g.is_automatico()]
+        if not bots:
+            return
+        premi_gia_assegnati: set = self._partita.premi_gia_assegnati
+        premi_tipo_chiusi: set = self._partita.premi_tipo_chiusi
+        delay_max = max(500, int(self._durata_finestra_corrente_ms * 0.70))
+        for bot in bots:
+            delay = random.randint(500, delay_max)
+            wx.CallLater(delay, self._dichiara_fine_bot, bot, premi_gia_assegnati, premi_tipo_chiusi)
+
+    def _dichiara_fine_bot(self, bot: object, premi_gia_assegnati: set, premi_tipo_chiusi: set) -> None:
+        """Handler chiamato dal CallLater dopo il ritardo di risposta del bot."""
+        if self._fase_turno_ui != "attesa_reclami":
+            return
+        bot.dichiara_fine_fase_azione(premi_gia_assegnati, premi_tipo_chiusi)  # type: ignore[union-attr]
+        self._controlla_tutti_pronti()
+
+    # ------------------------------------------------------------------
+    # Pausa tra turni (D-7)
+    # ------------------------------------------------------------------
+
+    def _avvia_pausa_turno(self, durata_ms: int) -> None:
+        """Avvia la pausa tra turni con annuncio vocale iniziale."""
+        secondi = durata_ms // 1000
+        self._renderer.annuncia_avvio_pausa_turno(secondi)
+        if self._timer_pausa is not None:
+            self._timer_pausa.Stop()
+        self._timer_pausa = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self._on_tick_pausa, self._timer_pausa)
+        self._timer_pausa.Start(durata_ms, wx.TIMER_ONE_SHOT)
+
+    def _on_tick_pausa(self, event: wx.TimerEvent) -> None:
+        """Fine della pausa: ripristina lo stato attesa_estrazione."""
+        self._timer_pausa = None
+        self._fase_turno_ui = "attesa_estrazione"
+        self._aggiorna_stato_pulsante()
+
 
     # ------------------------------------------------------------------
     # Consultazione log  
@@ -394,11 +532,14 @@ class FinestraGioco(wx.Frame):
         """Interfaccia per il renderer: aggiorna etichetta pulsante in base alla fase."""
         if fase == "attesa_reclami":
             label = "Ho finito — avvia verifica"
+        elif fase == "pausa_turno":
+            label = "Pausa in corso…"
         elif primo_turno_eseguito:
             label = "Passa turno"
         else:
             label = "Inizia partita"
         self._btn_principale.SetLabel(label)
+        self._btn_principale.Enable(fase != "pausa_turno")
         # Re-announce esplicito per NVDA (l'etichetta potrebbe non essere riletta automaticamente).
         self._renderer.annuncia_fase_turno(label)
 

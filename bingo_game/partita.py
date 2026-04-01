@@ -694,7 +694,13 @@ class Partita:
     #esegue la prima fase del turno: estrazione e reclami bot.
     def esegui_fase_estrazione(self) -> Dict[str, Any]:
         """
-        Esegue la prima fase del turno: estrae il numero e raccoglie i reclami bot.
+        Esegue la prima fase del turno (V2): estrae il numero e porta il dominio
+        nello stato "attesa_reclami".
+
+        I bot aggiornano internamente le proprie cartelle tramite
+        aggiorna_giocatori_con_numero() (già chiamato da estrai_prossimo_numero()),
+        ma NON registrano ancora nessun reclamo. I reclami bot vengono registrati
+        esplicitamente durante la fase 2 tramite dichiara_fine_fase_azione().
 
         La fase è consentita solo quando fase_turno_corrente == "attesa_estrazione".
         Al termine imposta fase_turno_corrente = "attesa_reclami".
@@ -718,15 +724,6 @@ class Partita:
             )
 
         numero_estratto = self.estrai_prossimo_numero()
-
-        # Reclami bot: i bot valutano dopo l'estrazione, prima della verifica ufficiale.
-        for giocatore in self.giocatori:
-            if giocatore.is_automatico():
-                reclamo = giocatore._valuta_potenziale_reclamo(
-                    self.premi_gia_assegnati, self.premi_tipo_chiusi
-                )
-                if reclamo is not None:
-                    giocatore.reclamo_turno = reclamo
 
         self.fase_turno_corrente = "attesa_reclami"
 
@@ -809,19 +806,22 @@ class Partita:
         }
 
 
-    #verifica che tutti i giocatori umani abbiano dichiarato fine turno.
+    #verifica che tutti i giocatori (umani e bot) abbiano dichiarato fine turno.
     def tutti_hanno_dichiarato_fine(self) -> bool:
         """
-        Verifica che tutti i giocatori non automatici abbiano dichiarato fine turno.
+        Verifica che tutti i giocatori (umani e automatici) abbiano dichiarato fine turno.
+
+        Nel ciclo V2 sia i giocatori umani (tramite il pulsante "Ho finito"/Ctrl+P)
+        che i bot (tramite dichiara_fine_fase_azione()) devono esplicitamente
+        segnalare la fine della propria azione prima che la finestra possa chiudersi.
 
         Ritorna:
-        - True: tutti i giocatori umani hanno turno_dichiarato_concluso == True.
-        - False: almeno uno non ha ancora dichiarato fine.
+        - True: tutti i giocatori hanno turno_dichiarato_concluso == True.
+        - False: almeno uno (umano o bot) non ha ancora dichiarato fine.
         """
         for giocatore in self.giocatori:
-            if not giocatore.is_automatico():
-                if not giocatore.turno_dichiarato_concluso:
-                    return False
+            if not giocatore.turno_dichiarato_concluso:
+                return False
         return True
 
 

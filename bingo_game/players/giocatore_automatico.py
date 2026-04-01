@@ -185,3 +185,31 @@ class GiocatoreAutomatico(GiocatoreBase):
 
         # Ritorno il miglior reclamo trovato (o None se nessuno disponibile)
         return best_claim
+
+    def dichiara_fine_fase_azione(
+        self,
+        premi_gia_assegnati: set[str],
+        premi_tipo_chiusi: Optional[set] = None,
+    ) -> None:
+        """
+        Dichiara la fine della fase di azione del turno per il bot (ciclo V2).
+
+        Questo metodo è il punto di ingresso per la fase 2 del ciclo V2:
+        viene schedulato dalla UI tramite wx.CallLater con un ritardo casuale
+        e registra il reclamo del bot nella finestra d'azione.
+
+        Sequenza:
+        1. Valuta se esiste un reclamo da fare in base allo stato attuale
+           delle cartelle e dei premi già assegnati.
+        2. Imposta self.reclamo_turno (può essere None se nessun premio).
+        3. Chiama dichiara_fine_turno() per segnalare che il bot ha completato
+           la propria azione → turno_dichiarato_concluso = True.
+
+        Parametri:
+        - premi_gia_assegnati: snapshot dei premi assegnati passato al momento
+          della pianificazione (da Partita.premi_gia_assegnati).
+        - premi_tipo_chiusi: snapshot dei tipi premio chiusi (opzionale).
+        """
+        reclamo = self._valuta_potenziale_reclamo(premi_gia_assegnati, premi_tipo_chiusi)
+        self.reclamo_turno = reclamo
+        self.dichiara_fine_turno()

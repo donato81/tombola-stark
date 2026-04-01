@@ -13,7 +13,12 @@ from __future__ import annotations
 import logging
 from typing import Protocol, runtime_checkable
 
-from accessible_output2.outputs.auto import Auto
+try:
+    from accessible_output2.outputs.auto import Auto as _Auto
+    _AO2_DISPONIBILE = True
+except ImportError:
+    _Auto = None  # type: ignore[assignment]
+    _AO2_DISPONIBILE = False
 
 _error_logger = logging.getLogger("error")
 
@@ -55,8 +60,19 @@ class Vocalizzatore:
 
         Args:
             backend: backend TTS iniettabile. Se None, viene usato Auto() di AO2.
+
+        Raises:
+            ImportError: se backend è None e accessible_output2 non è installato.
         """
-        self._backend: _SpeakBackend = backend if backend is not None else Auto()
+        if backend is not None:
+            self._backend: _SpeakBackend = backend
+        elif _AO2_DISPONIBILE and _Auto is not None:
+            self._backend = _Auto()
+        else:
+            raise ImportError(
+                "accessible_output2 non è disponibile. "
+                "Installa la dipendenza o inietta un backend esplicito."
+            )
 
     def vocalizza_testo(self, testo: str, interrompi: bool = False) -> None:
         """
