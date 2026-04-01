@@ -18,6 +18,15 @@ stato: IN_PIANIFICAZIONE
 
 ---
 
+## Aggiornamento implementazione
+
+- 2026-04-01 — Completate Azione 2 e Azione 3 della sotto-fase D in `bingo_game/ui/finestra_gioco.py`.
+- Azione 2: `_on_tick_pausa()` riporta la UI in `attesa_estrazione` e invoca automaticamente `_on_pulsante_principale(None)` per riaprire subito il turno successivo.
+- Azione 3: aggiunto `_ferma_tutti_i_timer()` e usato nei passaggi tra finestra d'azione, timeout, terminazione anticipata e pausa per impedire timer attivi contemporaneamente.
+- Validazione automatica eseguita: `tests/unit/test_ciclo_turno_v2_azioni_2_3.py`, `tests/unit/test_ciclo_turno_v2_timeout_umano.py`, `tests/unit/test_ciclo_turno_v2_tutti_pronti.py`, `tests/unit/test_ciclo_turno_v2_early_exit.py`, `tests/unit/test_ciclo_turno_v2_config.py` -> 33 test verdi.
+
+---
+
 ## Prerequisiti (da verificare prima di iniziare)
 
 - [ ] PRE-1 — Decidere il valore del tetto massimo `durata_finestra_azione_max_multiplayer_secondi`

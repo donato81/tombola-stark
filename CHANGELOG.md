@@ -10,6 +10,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ## [Unreleased]
 
 ### Fixed
+- `bingo_game/ui/finestra_gioco.py`: alla fine della pausa tra turni il frame riavvia automaticamente la stessa logica di estrazione del pulsante principale, evitando che il ciclo V2 resti fermo in attesa di un click manuale.
+- `bingo_game/ui/finestra_gioco.py`: introdotta una protezione esplicita di mutua esclusione tra timer della finestra d'azione e timer della pausa; ogni transizione ora ferma sempre l'eventuale timer precedente prima di avviarne uno nuovo.
 - `bingo_game/comandi_partita.py`: aggiunto metodo `ComandiSistema.ottieni_giocatore_umano(partita)` — era assente dalla facade pur essendo la funzione corrispondente già importata da `game_controller`; causava `AttributeError` nel ciclo turno V2 quando il layer UI lo invocava tramite `ComandiSistema`.
 
 - `bingo_game/players/giocatore_umano.py`: corretto un bug per cui il reclamo di vittoria del giocatore umano (ambo, terno, quaterna, cinquina, tombola) veniva ignorato silenziosamente ogni turno. La causa era che il sistema cercava la cartella del giocatore tramite un numero sbagliato (0 anziché 1), non la trovava, e scartava il reclamo senza produrre alcun messaggio di errore. Di conseguenza, nella co-vincita il premio veniva assegnato solo al bot. Ora il reclamo usa il numero identificativo corretto della cartella e il premio viene assegnato a tutti i co-vincitori.
@@ -32,6 +34,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `bingo_game/partita.py`: aggiornato il blocco di intercettazione dell'estrazione per tradurre `TabelloneNumeriEsauritiException` in `PartitaNumeriEsauritiException` senza cambiare il comportamento runtime.
 
 ### Added
+- `tests/unit/test_ciclo_turno_v2_azioni_2_3.py`: nuova suite unitaria dedicata ad Azione 2 e Azione 3 del Ciclo Turno V2; copre riavvio automatico dopo la pausa e arresto esplicito dei timer concorrenti.
 - `tests/unit/test_vocalizzatore.py`: suite unittest per `my_lib/vocalizzatore.py`; 8 test su `NullVocalizzatore` e `Vocalizzatore` con backend fake iniettabile; nessun patch su AO2.
 - `bingo_game/exceptions/tabellone_exceptions.py`: introdotta `TabelloneNumeriEsauritiException` come eccezione di dominio specifica del tabellone.
 - `tests/unit/test_tabellone_eccezioni.py`: nuovo test unittest dedicato alla verifica del tipo di eccezione e del messaggio per il caso di numeri esauriti del tabellone.

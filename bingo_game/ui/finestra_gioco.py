@@ -376,13 +376,21 @@ class FinestraGioco(wx.Frame):
     # Timer finestra d'azione (D-2)
     # ------------------------------------------------------------------
 
+    def _ferma_tutti_i_timer(self) -> None:
+        """Ferma entrambi i timer garantendo mutua esclusione."""
+        if self._timer_azione is not None:
+            self._timer_azione.Stop()
+            self._timer_azione = None
+        if self._timer_pausa is not None:
+            self._timer_pausa.Stop()
+            self._timer_pausa = None
+
     def _avvia_timer_azione(self, durata_ms: int) -> None:
         """Avvia il timer tick della finestra d'azione."""
+        self._ferma_tutti_i_timer()  # Protezione mutua esclusione
         self._durata_finestra_corrente_ms = durata_ms
         self._ms_trascorsi_azione = 0
         self._avvisi_emessi = set()
-        if self._timer_azione is not None:
-            self._timer_azione.Stop()
         self._timer_azione = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self._on_tick_azione, self._timer_azione)
         self._timer_azione.Start(self._tick_ms)
@@ -416,9 +424,7 @@ class FinestraGioco(wx.Frame):
 
     def _on_timeout_azione(self) -> None:
         """Scaduto il timer: salta il reclamo umano e avanza alla verifica."""
-        if self._timer_azione is not None:
-            self._timer_azione.Stop()
-            self._timer_azione = None
+        self._ferma_tutti_i_timer()  # Protezione mutua esclusione
         if self._fase_turno_ui != "attesa_reclami":
             return
         self._esegui_verifica_premi()
@@ -430,9 +436,7 @@ class FinestraGioco(wx.Frame):
 
     def _on_all_ready(self) -> None:
         """Tutti pronti: ferma il timer e avanza a verifica in anticipo."""
-        if self._timer_azione is not None:
-            self._timer_azione.Stop()
-            self._timer_azione = None
+        self._ferma_tutti_i_timer()  # Protezione mutua esclusione
         if self._fase_turno_ui != "attesa_reclami":
             return
         self._renderer.annuncia_tutti_pronti()
@@ -487,19 +491,20 @@ class FinestraGioco(wx.Frame):
 
     def _avvia_pausa_turno(self, durata_ms: int) -> None:
         """Avvia la pausa tra turni con annuncio vocale iniziale."""
+        self._ferma_tutti_i_timer()  # Protezione mutua esclusione
         secondi = durata_ms // 1000
         self._renderer.annuncia_avvio_pausa_turno(secondi)
-        if self._timer_pausa is not None:
-            self._timer_pausa.Stop()
         self._timer_pausa = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self._on_tick_pausa, self._timer_pausa)
         self._timer_pausa.Start(durata_ms, wx.TIMER_ONE_SHOT)
 
     def _on_tick_pausa(self, event: wx.TimerEvent) -> None:
-        """Fine della pausa: ripristina lo stato attesa_estrazione."""
+        """Fine della pausa: avvia automaticamente un nuovo turno."""
         self._timer_pausa = None
         self._fase_turno_ui = "attesa_estrazione"
         self._aggiorna_stato_pulsante()
+        # Azione 2: simula click automatico sul pulsante per avviare il turno successivo.
+        self._on_pulsante_principale(None)
 
 
     # ------------------------------------------------------------------
