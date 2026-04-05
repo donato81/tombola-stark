@@ -10,6 +10,9 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ## [Unreleased]
 
 ### Fixed
+- `bingo_game/ui/finestra_gioco.py`: all'avvio del frame di gioco il focus logico viene impostato automaticamente su cartella 1, riga 1, colonna 1 tramite `wx.CallAfter(_imposta_focus_iniziale)`; in precedenza NVDA non annunciava la cella iniziale e le frecce non producevano feedback fino al primo clic.
+- `bingo_game/ui/finestra_gioco.py`: gli avvisi vocali del timer di reclamo (60 %, 80 %, 95 %) non vengono più emessi dopo che il giocatore umano ha già dichiarato la fine del proprio turno; il guard in `_on_tick_azione` chiama `_on_timeout_azione()` se il tempo è scaduto e poi ritorna senza emettere notifiche.
+- `bingo_game/ui/finestra_gioco.py`: il passaggio del turno di ogni bot viene ora annunciato tramite `mostra_messaggio_sistema` ("<NomeBot> ha passato il turno.") prima di chiamare `_controlla_tutti_pronti`; in precedenza il turno bot era silente per NVDA.
 - `bingo_game/comandi_partita.py`: aggiunto metodo pubblico `ComandiGiocatoreUmano.turno_gia_dichiarato()` per permettere al layer di presentazione di interrogare se il giocatore umano ha già dichiarato la fine del turno di reclamo; evita condizioni di race e semplifica la logica di abilitazione dei suggerimenti (hotkey/feedback).
 - `bingo_game/ui/finestra_gioco.py`, `bingo_game/ui/dialogo_ricerca.py`: corretto il feedback legato alla hotkey `Ctrl+P` durante la fase `attesa_reclami` e reso `DialogoRicerca` persistente fino a chiusura esplicita; risolve il comportamento di feedback mancante e la chiusura involontaria del dialog durante l'interazione.
 - `bingo_game/ui/finestra_gioco.py`: alla fine della pausa tra turni il frame riavvia automaticamente la stessa logica di estrazione del pulsante principale, evitando che il ciclo V2 resti fermo in attesa di un click manuale.

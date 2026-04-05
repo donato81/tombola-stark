@@ -224,6 +224,7 @@ class FinestraGioco(wx.Frame):
 
         # Focus iniziale sulla griglia
         self._pannello_griglia.SetFocus()
+        wx.CallAfter(self._imposta_focus_iniziale)
 
     # ------------------------------------------------------------------
     # Costruzione UI
@@ -406,6 +407,10 @@ class FinestraGioco(wx.Frame):
         if self._fase_turno_ui != "attesa_reclami":
             return
         self._ms_trascorsi_azione += self._tick_ms
+        if self._comandi.turno_gia_dichiarato():
+            if self._ms_trascorsi_azione >= self._durata_finestra_corrente_ms:
+                self._on_timeout_azione()
+            return
         if self._durata_finestra_corrente_ms <= 0:
             return
         pct = self._ms_trascorsi_azione / self._durata_finestra_corrente_ms * 100
@@ -489,6 +494,8 @@ class FinestraGioco(wx.Frame):
         if self._fase_turno_ui != "attesa_reclami":
             return
         bot.dichiara_fine_fase_azione(premi_gia_assegnati, premi_tipo_chiusi)  # type: ignore[union-attr]
+        nome_bot: str = getattr(bot, "nome", "Bot")
+        self._renderer.mostra_messaggio_sistema(f"{nome_bot} ha passato il turno.")
         self._controlla_tutti_pronti()
 
     # ------------------------------------------------------------------
@@ -605,3 +612,9 @@ class FinestraGioco(wx.Frame):
             "Nessun numero in focus. Naviga su una cella prima di segnare."
         )
         return None
+
+    def _imposta_focus_iniziale(self) -> None:
+        """Imposta il focus di gioco su cartella 1, riga 1, colonna 1 all'avvio."""
+        self._dispatch(self._comandi.imposta_focus_cartella(1))
+        self._dispatch(self._comandi.vai_a_riga(1))
+        self._dispatch(self._comandi.vai_a_colonna(1))
