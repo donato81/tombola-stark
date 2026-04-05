@@ -65,3 +65,39 @@ class TestFinestraGiocoShortcuts(unittest.TestCase):
         finestra._comandi.colonna_destra_avanzata.assert_called_once_with()
         finestra._dispatch.assert_called_once_with("evento-avanzato-colonna")
         self.assertFalse(evento.skip_chiamato)
+
+
+@unittest.skipIf(wx is None or FinestraGioco is None, "wxPython non disponibile nel test environment")
+class TestFinestraGiocoCtrlPAttesaReclami(unittest.TestCase):
+    def _crea_finestra_stub(self) -> FinestraGioco:
+        finestra = FinestraGioco.__new__(FinestraGioco)
+        finestra._comandi_sistema = Mock()
+        finestra._comandi_sistema.is_terminata.return_value = False
+        finestra._comandi = Mock()
+        finestra._renderer = Mock()
+        finestra._partita = Mock()
+        finestra._fase_turno_ui = "attesa_reclami"
+        finestra._controlla_tutti_pronti = Mock()
+        return finestra
+
+    def test_ctrl_p_attesa_reclami_emette_conferma_prima_dichiarazione(self) -> None:
+        finestra = self._crea_finestra_stub()
+        finestra._comandi.turno_gia_dichiarato.return_value = False
+
+        FinestraGioco._on_pulsante_principale(finestra, None)
+
+        finestra._comandi.dichiara_fine_turno.assert_called_once_with(finestra._partita)
+        args, _ = finestra._renderer.mostra_messaggio_sistema.call_args
+        self.assertIn("concluso", args[0])
+        finestra._controlla_tutti_pronti.assert_called_once()
+
+    def test_ctrl_p_attesa_reclami_emette_messaggio_idempotente(self) -> None:
+        finestra = self._crea_finestra_stub()
+        finestra._comandi.turno_gia_dichiarato.return_value = True
+
+        FinestraGioco._on_pulsante_principale(finestra, None)
+
+        finestra._comandi.dichiara_fine_turno.assert_not_called()
+        args, _ = finestra._renderer.mostra_messaggio_sistema.call_args
+        self.assertIn("già dichiarato", args[0])
+        finestra._controlla_tutti_pronti.assert_called_once()

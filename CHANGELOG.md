@@ -10,6 +10,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ## [Unreleased]
 
 ### Fixed
+- `bingo_game/comandi_partita.py`: aggiunto metodo pubblico `ComandiGiocatoreUmano.turno_gia_dichiarato()` per permettere al layer di presentazione di interrogare se il giocatore umano ha già dichiarato la fine del turno di reclamo; evita condizioni di race e semplifica la logica di abilitazione dei suggerimenti (hotkey/feedback).
+- `bingo_game/ui/finestra_gioco.py`, `bingo_game/ui/dialogo_ricerca.py`: corretto il feedback legato alla hotkey `Ctrl+P` durante la fase `attesa_reclami` e reso `DialogoRicerca` persistente fino a chiusura esplicita; risolve il comportamento di feedback mancante e la chiusura involontaria del dialog durante l'interazione.
 - `bingo_game/ui/finestra_gioco.py`: alla fine della pausa tra turni il frame riavvia automaticamente la stessa logica di estrazione del pulsante principale, evitando che il ciclo V2 resti fermo in attesa di un click manuale.
 - `bingo_game/ui/finestra_gioco.py`: introdotta una protezione esplicita di mutua esclusione tra timer della finestra d'azione e timer della pausa; ogni transizione ora ferma sempre l'eventuale timer precedente prima di avviarne uno nuovo.
 - `bingo_game/comandi_partita.py`: aggiunto metodo `ComandiSistema.ottieni_giocatore_umano(partita)` — era assente dalla facade pur essendo la funzione corrispondente già importata da `game_controller`; causava `AttributeError` nel ciclo turno V2 quando il layer UI lo invocava tramite `ComandiSistema`.

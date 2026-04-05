@@ -424,6 +424,12 @@ class ComandiGiocatoreUmano:
             return self._esito_nessun_giocatore()
         return self._giocatore.annuncia_vittoria(tipo, numero_turno)
 
+    def turno_gia_dichiarato(self) -> bool:
+        """Ritorna True se il giocatore umano ha già dichiarato fine turno."""
+        if self._giocatore is None:
+            return False
+        return self._giocatore.turno_dichiarato_concluso
+
     def dichiara_fine_turno(self, partita: Partita) -> bool:
         """
         Dichiara che il giocatore umano ha terminato il turno di reclamo.

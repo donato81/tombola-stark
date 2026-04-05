@@ -1245,6 +1245,36 @@ Restituisce `True` se il giocatore umano esiste, `False` altrimenti.
 
 ---
 
+---
+
+#### ComandiGiocatoreUmano.turno_gia_dichiarato()
+
+```python
+def turno_gia_dichiarato() -> bool:
+```
+
+**Scopo**: Verifica se il giocatore umano ha già dichiarato la fine del turno di reclamo.
+
+**Parametri**: Nessuno (metodo della facade `ComandiGiocatoreUmano`).
+
+**Ritorna**:
+- `True`: il giocatore umano esiste e ha già dichiarato fine turno.
+- `False`: il giocatore umano non esiste o non ha dichiarato fine turno.
+
+**Note**: Il metodo è pensato per essere interrogato dal layer di presentazione (UI)
+per abilitare/disabilitare comandi contestuali (es. feedback hotkey, chiusura dialog). Se non
+è presente un giocatore umano nella partita, il metodo ritorna `False` senza sollevare eccezioni.
+
+**Esempio**:
+```python
+comandi = ComandiGiocatoreUmano(partita)
+if comandi.turno_gia_dichiarato():
+    # disabilita suggerimenti di fine turno o mostra messaggio "attesa conclusione"
+    pass
+```
+
+---
+
 #### ottieni_stato_sintetico()
 
 ```python

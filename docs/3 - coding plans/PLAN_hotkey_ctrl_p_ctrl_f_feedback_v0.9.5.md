@@ -2,7 +2,7 @@
 type: plan
 feature: hotkey_ctrl_p_ctrl_f_feedback
 agent: Agent-Plan
-status: DRAFT
+status: READY
 version: v0.9.5
 design_ref: docs/2 - projects/DESIGN_hotkey_ctrl_p_ctrl_f_feedback.md
 date: 2026-04-05

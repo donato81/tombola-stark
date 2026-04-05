@@ -365,9 +365,15 @@ class FinestraGioco(wx.Frame):
 
         elif self._fase_turno_ui == "attesa_reclami":
             # Fase 2: l'umano dichiara fine manualmente (prima del timeout).
-            umano = self._comandi_sistema.ottieni_giocatore_umano(self._partita)
-            if umano is not None and not umano.turno_dichiarato_concluso:
-                umano.dichiara_fine_turno()
+            if self._comandi.turno_gia_dichiarato():
+                self._renderer.mostra_messaggio_sistema(
+                    "Hai già dichiarato la fine del tuo turno. Attendo gli altri giocatori."
+                )
+            else:
+                self._comandi.dichiara_fine_turno(self._partita)
+                self._renderer.mostra_messaggio_sistema(
+                    "Turno dichiarato concluso. Attendo gli altri giocatori."
+                )
             self._controlla_tutti_pronti()
 
         # Stato "pausa_turno": il pulsante è disabilitato o ignorato durante la pausa.

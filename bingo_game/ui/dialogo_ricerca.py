@@ -3,8 +3,9 @@ Dialog modale di ricerca numero — wxPython accessibile.
 
 Aperto da FinestraGioco tramite Ctrl+F.
 L'utente digita un numero, preme Invio o il tasto Cerca.
-AO2 vocalizza l'esito nel dialog prima della chiusura automatica.
-Il focus torna alla posizione precedente nella finestra chiamante.
+L'esito viene mostrato nell'area risultato interna e vocalizzato da NVDA/JAWS.
+Il dialog rimane aperto per permettere ricerche successive.
+L'utente chiude il dialog tramite il pulsante Chiudi o il tasto Escape.
 
 path: bingo_game/ui/dialogo_ricerca.py
 """
@@ -29,9 +30,9 @@ class DialogoRicercaNumero(wx.Dialog):
     Flusso:
     - Si apre con il focus sul campo di input.
     - L'utente digita un numero e preme Invio o il pulsante Cerca.
-    - AO2 vocalizza l'esito (trovato/non trovato/errore).
-    - Il dialog si chiude automaticamente dopo l'esito.
-    - Il focus torna al pannello griglia della finestra chiamante.
+    - L'esito viene mostrato nell'area risultato interna e vocalizzato da NVDA/JAWS.
+    - Il dialog rimane aperto per permettere ricerche successive.
+    - L'utente chiude il dialog tramite il pulsante Chiudi o il tasto Escape.
     """
 
     def __init__(
@@ -43,7 +44,7 @@ class DialogoRicercaNumero(wx.Dialog):
         super().__init__(
             parent,
             title="Cerca numero",
-            size=(300, 160),
+            size=(300, 230),
             style=wx.DEFAULT_DIALOG_STYLE,
         )
         self._renderer = renderer
@@ -70,6 +71,12 @@ class DialogoRicercaNumero(wx.Dialog):
         self._btn_cerca = wx.Button(panel, label="Cerca")
         sizer.Add(self._btn_cerca, 0, wx.ALL | wx.ALIGN_CENTER, 10)
 
+        self._lbl_risultato = wx.StaticText(panel, label="")
+        sizer.Add(self._lbl_risultato, 0, wx.ALL | wx.EXPAND, 10)
+
+        self._btn_chiudi = wx.Button(panel, wx.ID_CANCEL, label="Chiudi")
+        sizer.Add(self._btn_chiudi, 0, wx.ALL | wx.ALIGN_CENTER, 10)
+
         panel.SetSizer(sizer)
         panel.Layout()
 
@@ -82,6 +89,7 @@ class DialogoRicercaNumero(wx.Dialog):
 
     def _bind_events(self) -> None:
         self._btn_cerca.Bind(wx.EVT_BUTTON, self._on_cerca)
+        self._btn_chiudi.Bind(wx.EVT_BUTTON, lambda _: self.EndModal(wx.ID_CANCEL))
         self.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
 
     def _on_char_hook(self, event: wx.KeyEvent) -> None:
@@ -111,5 +119,8 @@ class DialogoRicercaNumero(wx.Dialog):
         esito = self._comandi.cerca_numero(numero)
         self._renderer.render_esito(esito)
 
-        # Chiusura automatica dopo l'esito
-        self.EndModal(wx.ID_OK)
+        testo_risultato = getattr(self._renderer, "_ultimo_annuncio", "")
+        if not testo_risultato and esito is not None:
+            testo_risultato = str(esito)
+        self._lbl_risultato.SetLabel(testo_risultato)
+        self._input_ctrl.SetFocus()
