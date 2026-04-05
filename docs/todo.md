@@ -12,6 +12,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/2 - projects/ -->
 
+- [DESIGN_fix_accessibilita_focus_timer_bot.md](2%20-%20projects/DESIGN_fix_accessibilita_focus_timer_bot.md)
 - [DESIGN_hotkey_ctrl_p_ctrl_f_feedback.md](2%20-%20projects/DESIGN_hotkey_ctrl_p_ctrl_f_feedback.md)
 - [DESIGN_ciclo_turno_fasi_reclami_collettivi.md](2%20-%20projects/DESIGN_ciclo_turno_fasi_reclami_collettivi.md)
 - [DESIGN_interfaccia_wx_finestre_configurazione_gioco.md](2%20-%20projects/DESIGN_interfaccia_wx_finestre_configurazione_gioco.md)
@@ -73,6 +74,7 @@ stato: attivo
 - [PLAN_test_eventi_output_bulk_focus_v1.0.0.md](3%20-%20coding%20plans/PLAN_test_eventi_output_bulk_focus_v1.0.0.md)
 - [PLAN_interfaccia_wx_finestre_configurazione_gioco_v0.9.5.md](3%20-%20coding%20plans/PLAN_interfaccia_wx_finestre_configurazione_gioco_v0.9.5.md)
 - [PLAN_ciclo_turno_fasi_reclami_collettivi_v0.9.5.md](3%20-%20coding%20plans/PLAN_ciclo_turno_fasi_reclami_collettivi_v0.9.5.md)
+- [PLAN_fix_accessibilita_focus_timer_bot_v0.9.5.md](3%20-%20coding%20plans/PLAN_fix_accessibilita_focus_timer_bot_v0.9.5.md)
 - [PLAN_hotkey_ctrl_p_ctrl_f_feedback_v0.9.5.md](3%20-%20coding%20plans/PLAN_hotkey_ctrl_p_ctrl_f_feedback_v0.9.5.md)
 
 ### Reports
@@ -125,6 +127,7 @@ stato: attivo
 - [TODO_test_eventi_output_bulk_focus_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_bulk_focus_v1.0.0.md)
 - [TODO_interfaccia_wx_finestre_configurazione_gioco_v0.9.5.md](5%20-%20todolist/TODO_interfaccia_wx_finestre_configurazione_gioco_v0.9.5.md)
 - [TODO_ciclo_turno_fasi_reclami_collettivi_v0.9.5.md](5%20-%20todolist/TODO_ciclo_turno_fasi_reclami_collettivi_v0.9.5.md)
+- [TODO_fix_accessibilita_focus_timer_bot_v0.9.5.md](5%20-%20todolist/TODO_fix_accessibilita_focus_timer_bot_v0.9.5.md)
 - [TODO_hotkey_ctrl_p_ctrl_f_feedback_v0.9.5.md](5%20-%20todolist/TODO_hotkey_ctrl_p_ctrl_f_feedback_v0.9.5.md)
 
 ### Da fare
