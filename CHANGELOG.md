@@ -10,6 +10,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ## [Unreleased]
 
 ### Fixed
+- `bingo_game/ui/finestra_gioco.py`: il tasto rapido `F6` nella griglia richiama ora correttamente `self._renderer.ripeti_ultimo_annuncio()` dal frame di gioco; prima tentava di accedere a `fg._finestra._renderer` e generava `AttributeError`, lasciando NVDA silente.
+- `bingo_game/ui/renderers/renderer_wx.py`: `Ctrl+Shift+V` ora costruisce e vocalizza il contenuto avanzato completo di tutte le cartelle, inclusa l'evidenziazione dei numeri segnati; prima annunciava solo il conteggio delle cartelle senza leggerne alcuna.
 - `bingo_game/ui/finestra_gioco.py`: all'avvio del frame di gioco il focus logico viene impostato automaticamente su cartella 1, riga 1, colonna 1 tramite `wx.CallAfter(_imposta_focus_iniziale)`; in precedenza NVDA non annunciava la cella iniziale e le frecce non producevano feedback fino al primo clic.
 - `bingo_game/ui/finestra_gioco.py`: gli avvisi vocali del timer di reclamo (60 %, 80 %, 95 %) non vengono più emessi dopo che il giocatore umano ha già dichiarato la fine del proprio turno; il guard in `_on_tick_azione` chiama `_on_timeout_azione()` se il tempo è scaduto e poi ritorna senza emettere notifiche.
 - `bingo_game/ui/finestra_gioco.py`: il passaggio del turno di ogni bot viene ora annunciato tramite `mostra_messaggio_sistema` ("<NomeBot> ha passato il turno.") prima di chiamare `_controlla_tutti_pronti`; in precedenza il turno bot era silente per NVDA.

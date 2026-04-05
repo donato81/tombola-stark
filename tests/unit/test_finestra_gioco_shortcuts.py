@@ -3,10 +3,11 @@ from unittest.mock import Mock
 
 try:
     import wx
-    from bingo_game.ui.finestra_gioco import FinestraGioco
+    from bingo_game.ui.finestra_gioco import FinestraGioco, PannelloGriglia
 except Exception:  # pragma: no cover - ambiente senza wx
     wx = None
     FinestraGioco = None
+    PannelloGriglia = None
 
 
 class _EventoTastoFittizio:
@@ -64,6 +65,17 @@ class TestFinestraGiocoShortcuts(unittest.TestCase):
 
         finestra._comandi.colonna_destra_avanzata.assert_called_once_with()
         finestra._dispatch.assert_called_once_with("evento-avanzato-colonna")
+        self.assertFalse(evento.skip_chiamato)
+
+    def test_key_down_f6_ripete_ultimo_annuncio_sul_renderer_del_frame(self) -> None:
+        pannello = PannelloGriglia.__new__(PannelloGriglia)
+        pannello._finestra = Mock()
+        pannello._finestra._renderer = Mock()
+        evento = _EventoTastoFittizio(wx.WXK_F6)
+
+        PannelloGriglia._on_key_down(pannello, evento)
+
+        pannello._finestra._renderer.ripeti_ultimo_annuncio.assert_called_once_with()
         self.assertFalse(evento.skip_chiamato)
 
 

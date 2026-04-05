@@ -168,7 +168,7 @@ class PannelloGriglia(wx.Panel):
 
         # F6 — ripeti ultimo annuncio
         if key == wx.WXK_F6 and not ctrl and not shift:
-            fg._finestra._renderer.ripeti_ultimo_annuncio()
+            fg._renderer.ripeti_ultimo_annuncio()
             return
 
         event.Skip()

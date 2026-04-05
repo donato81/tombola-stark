@@ -399,8 +399,19 @@ class WxRenderer(BaseRenderer):
     def _handle_visualizza_tutte_cartelle_avanzata(
         self, evento: EventoVisualizzaTutteCartelleAvanzata
     ) -> None:
-        self._wx_aggiorna_output(f"Tutte le {evento.totale_cartelle} cartelle (avanzata).")
-        self._ao2_vocalizza(f"Tutte le {evento.totale_cartelle} cartelle mostrate in modalità avanzata.")
+        parti = []
+        for numero_c, griglia, _stato_cartella, numeri_segnati_ordinati in evento.cartelle:
+            parti.append(f"Cartella {numero_c}:")
+            segnati_set = set(numeri_segnati_ordinati)
+            for i, riga in enumerate(griglia):
+                celle = "  ".join(
+                    self._formatta_cella(c, evidenziata=isinstance(c, int) and c in segnati_set)
+                    for c in riga
+                )
+                parti.append(f"  Riga {i+1}: {celle}")
+        testo = "\n".join(parti)
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
 
     # ---------------------------------------------------------------
     # Handler famiglia: navigazione riga

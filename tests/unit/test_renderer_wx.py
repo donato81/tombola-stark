@@ -3,6 +3,7 @@ import unittest
 from bingo_game.events.eventi import EsitoAzione
 from bingo_game.events.eventi_output_ui_umani import (
     EventoNavigazioneColonna,
+    EventoVisualizzaTutteCartelleAvanzata,
     EventoVaiAColonnaAvanzata,
     EventoVaiARigaAvanzata,
 )
@@ -84,3 +85,31 @@ class TestWxRenderer(unittest.TestCase):
 
         self.assertEqual(finestra.testi[-1], "Avanzata riga 2, 1 segnato su 2: 10  vuoto  33 segnato")
         self.assertEqual(vocalizzatore.testi[-1], "Avanzata riga 2, 1 segnato su 2: 10  vuoto  33 segnato")
+
+    def test_render_esito_visualizza_tutte_cartelle_avanzata_legge_contenuto_completo(self) -> None:
+        finestra = _FinestraFittizia()
+        vocalizzatore = _VocalizzatoreFittizio()
+        renderer = WxRenderer(finestra, vocalizzatore)
+
+        evento = EventoVisualizzaTutteCartelleAvanzata(
+            totale_cartelle=1,
+            cartelle=(
+                (
+                    1,
+                    ((10, "-", 33), ("-", 25, "-"), (44, "-", "-")),
+                    {"numeri_segnati": 2, "numeri_totali": 4},
+                    (25, 33),
+                ),
+            ),
+        )
+
+        renderer.render_esito(EsitoAzione(ok=True, errore=None, evento=evento))
+
+        atteso = (
+            "Cartella 1:\n"
+            "  Riga 1: 10  vuoto  33 segnato\n"
+            "  Riga 2: vuoto  25 segnato  vuoto\n"
+            "  Riga 3: 44  vuoto  vuoto"
+        )
+        self.assertEqual(finestra.testi[-1], atteso)
+        self.assertEqual(vocalizzatore.testi[-1], atteso)
