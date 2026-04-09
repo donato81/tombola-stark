@@ -189,6 +189,7 @@ class FinestraGioco(wx.Frame):
         parent: Optional[wx.Window] = None,
         durata_finestra_ms: int = 60000,
         durata_pausa_ms: int = 5000,
+        finestra_principale: Optional[wx.Frame] = None,
     ) -> None:
         super().__init__(
             parent,
@@ -198,6 +199,7 @@ class FinestraGioco(wx.Frame):
         )
         self._partita = partita
         self._renderer = renderer
+        self._finestra_principale: Optional[wx.Frame] = finestra_principale
         self._comandi_sistema = ComandiSistema()
         self._comandi = ComandiGiocatoreUmano(partita)
         self._turno_corrente: int = 0
@@ -237,6 +239,13 @@ class FinestraGioco(wx.Frame):
         # Pulsante principale a due stati
         self._btn_principale = wx.Button(panel, label="Inizia partita")
         sizer.Add(self._btn_principale, 0, wx.ALL | wx.EXPAND, 5)
+
+        # Pulsante ritorno al menu (nascosto fino a fine partita)
+        self._btn_torna_menu = wx.Button(panel, label="Torna al menu principale")
+        self._btn_torna_menu.Hide()
+        self._btn_torna_menu.Disable()
+        sizer.Add(self._btn_torna_menu, 0, wx.ALL | wx.EXPAND, 5)
+        self.Bind(wx.EVT_BUTTON, self._on_torna_menu, self._btn_torna_menu)
 
         # Pannello griglia
         self._pannello_griglia = PannelloGriglia(panel, self)
@@ -469,6 +478,11 @@ class FinestraGioco(wx.Frame):
         if risultato_ver.get("partita_terminata") or risultato_ver.get("tombola_rilevata"):
             self._renderer.mostra_messaggio_sistema("La partita è terminata.")
             self._btn_principale.Disable()
+            if self._finestra_principale is not None:
+                self._btn_torna_menu.Enable()
+                self._btn_torna_menu.Show()
+                self.Layout()
+                self._btn_torna_menu.SetFocus()
             return
 
         self._avvia_pausa_turno(self._durata_pausa_ms)
@@ -497,6 +511,14 @@ class FinestraGioco(wx.Frame):
         nome_bot: str = getattr(bot, "nome", "Bot")
         self._renderer.mostra_messaggio_sistema(f"{nome_bot} ha passato il turno.")
         self._controlla_tutti_pronti()
+
+    def _on_torna_menu(self, event: wx.Event) -> None:
+        """Torna alla finestra principale nascondendo questa finestra di gioco."""
+        self._renderer.imposta_widget_log(None)
+        self.Hide()
+        if self._finestra_principale is not None:
+            self._finestra_principale.Show()
+            self._renderer.aggiorna_finestra(self._finestra_principale)
 
     # ------------------------------------------------------------------
     # Pausa tra turni (D-7)
