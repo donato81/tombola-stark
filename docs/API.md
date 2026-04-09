@@ -51,7 +51,9 @@ L'obiettivo è documentare le interfacce che altri livelli o componenti chiamano
 
 **Interfaccia (wx)** (`bingo_game/ui/`):
 - `main.py` (entry point wx) – Avvia `wx.App`, `Vocalizzatore`, `WxRenderer` e `FinestraConfigurazione`.
-- `bingo_game/ui/finestra_configurazione.py` – `FinestraConfigurazione` (frame di configurazione partita; componente pubblico di presentazione).
+ - `main.py` (entry point wx) – Avvia `wx.App`, `Vocalizzatore`, `WxRenderer` e `FinestraPrincipale`.
+ - `bingo_game/ui/finestra_principale.py` – `FinestraPrincipale` (menu principale; primo frame mostrato all'avvio).
+ - `bingo_game/ui/finestra_configurazione.py` – `FinestraConfigurazione` (frame di configurazione partita; componente pubblico di presentazione).
 - `bingo_game/ui/finestra_gioco.py` – `FinestraGioco` (frame principale di gioco; pannello griglia focalizzabile e area annunci).
 - `bingo_game/ui/dialogo_ricerca.py` – `DialogoRicerca` (dialog modale per ricerca numero, vocalizza risultato prima della chiusura).
 - `bingo_game/comandi_partita.py` – espone `ComandiGiocatoreUmano` come facade per il layer di presentazione.
@@ -1916,7 +1918,7 @@ Comportamento corrente:
 - supporta il flag `--debug` tramite `argparse`;
 - inizializza `GameLogger.initialize(debug_mode=args.debug)` all'avvio;
 - crea `wx.App`, `Vocalizzatore` e `WxRenderer`;
-- apre `FinestraConfigurazione`, che a sua volta puo' creare la partita e transitare a `FinestraGioco`;
+- apre `FinestraPrincipale`, che a sua volta può aprire `FinestraConfigurazione` e transitare a `FinestraGioco`;
 - chiude correttamente il logging con `GameLogger.shutdown()` nel blocco `finally`.
 
 Nel perimetro di presentazione rimangono componenti di supporto riutilizzabili:
@@ -1927,9 +1929,46 @@ Nel perimetro di presentazione rimangono componenti di supporto riutilizzabili:
 - `my_lib/vocalizzatore.py` per l'adattatore verso `accessible_output2`
 - i wrapper di `game_controller.py` per esporre uno strato sicuro verso il renderer accessibile
 
+### UI Frames (wx)
+
+`bingo_game/ui/finestra_principale.py`
+
+**Class**: `FinestraPrincipale(wx.Frame)`
+
+**Costruttore**:
+```python
+FinestraPrincipale(renderer, parent: Optional[wx.Frame] = None)
+```
+
+**Scopo**: Menu principale dell'applicazione. Presenta quattro pulsanti funzione principali: "Nuova partita", "Impostazioni", "Guida", "Esci".
+
+**Dettagli operativi**:
+- Chiama `renderer.aggiorna_finestra(self)` dopo l'inizializzazione per allineare lo stato UI.
+- Emette `renderer.mostra_messaggio_sistema("Tombola Stark. Scegli un'opzione.")` all'apertura.
+- Imposta il focus iniziale su `_btn_nuova_partita`.
+- Titolo della finestra: "Tombola Stark — Menu principale".
+
+**Metodi pubblici**:
+- `__init__(renderer, parent=None)`
+- `_on_nuova_partita(event)`
+- `_on_impostazioni(event)`
+- `_on_guida(event)`
+- `_on_esci(event)`
+
+`bingo_game/ui/finestra_configurazione.py` — aggiornamento
+
+- `__init__` ora accetta `parent_frame: Optional[wx.Frame] = None` e salva `self._parent_frame` per propagare il riferimento al menu principale.
+- Quando crea `FinestraGioco`, passa `finestra_principale=self._parent_frame` per abilitare il ritorno al menu.
+
+`bingo_game/ui/finestra_gioco.py` — aggiornamento
+
+- `__init__` ora accetta `finestra_principale: Optional[wx.Frame] = None` e salva `self._finestra_principale`.
+- Aggiunto `_btn_torna_menu` (inizialmente nascosto). Alla fine della partita `_esegui_verifica_premi()` abilita e mostra `_btn_torna_menu` e gli imposta il focus.
+- Nuovo metodo `_on_torna_menu(event)`: esegue `imposta_widget_log(None)`, `Hide()`, `self._finestra_principale.Show()` e `aggiorna_finestra(self._finestra_principale)` per riportare l'utente al menu principale.
+
 ## 🔄 Note di Versione
 
-- **v0.9.5** — `main.py` avvia ora la UI wx corrente tramite `wx.App`, `WxRenderer` e `FinestraConfigurazione`; aggiunti anche `FinestraGioco`, `DialogoRicercaNumero` e la facade `ComandiGiocatoreUmano` per il layer di presentazione.
+- **v0.9.5** — `main.py` avvia ora la UI wx corrente tramite `wx.App`, `WxRenderer` e `FinestraPrincipale`; aggiunti anche `FinestraConfigurazione`, `FinestraGioco`, `DialogoRicercaNumero` e la facade `ComandiGiocatoreUmano` per il layer di presentazione.
 - **v0.9.4** — Introdotto il layer renderer corrente: `BaseRenderer`, `StatoConfigurazione` e `WxRenderer`. Rimosso `renderer_terminal.py` dal perimetro architetturale attivo.
 - **v0.11.0** — Wrapper controller per il layer di presentazione: `imposta_focus_cartella`, `imposta_focus_cartella_fallback`, `esegui_azione_giocatore`, `esegui_azione_giocatore_con_numero`, `stato_focus_corrente`, `riepilogo_cartella_corrente`.
 - **v0.8.0** — Silent Controller: rimozione ~22 `print()` da `game_controller.py`, sostituzione con `_log_safe()` sui sub-logger con prefissi `[GAME]`/`[ERR]`/`[SYS]`. Aggiunta `codici_controller.py` (4 costanti `CTRL_*`) e messaggi localizzati lato presentazione. I 15 test di non-regressione su `tests/test_silent_controller.py` sono ora mantenuti in `unittest` con cattura stdout non basata su pytest.

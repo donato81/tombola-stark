@@ -2,7 +2,7 @@
 type: todo
 feature: finestra_principale_menu
 agent: Agent-Plan
-status: DRAFT
+status: COMPLETED
 version: v1.1.0
 plan_ref: docs/3 - coding plans/PLAN_finestra_principale_menu_v1.1.0.md
 design_ref: docs/2 - projects/DESIGN_finestra_principale_menu.md

@@ -196,11 +196,11 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 **Flusso corrente documentabile**:
 
 ```
-main.py (entry wx) → wx.App → GameController → (EsitoAzione/bool/dict/None) → WxRenderer → FinestraConfigurazione / FinestraGioco
+main.py (entry wx) → wx.App → GameController → (EsitoAzione/bool/dict/None) → WxRenderer → FinestraPrincipale → FinestraConfigurazione → FinestraGioco
                                                         → (log) → tombola_stark.log
 ```
 
-Il package `bingo_game/ui` ora espone non solo renderer (`BaseRenderer`, `WxRenderer`) ma anche i principali frame e dialog di presentazione: `FinestraConfigurazione`, `FinestraGioco` e `DialogoRicerca`.
+Il package `bingo_game/ui` ora espone non solo renderer (`BaseRenderer`, `WxRenderer`) ma anche i principali frame e dialog di presentazione: `FinestraPrincipale`, `FinestraConfigurazione`, `FinestraGioco` e `DialogoRicerca`.
 
 1. Il chiamante crea o recupera una `Partita` tramite il controller
 2. Il controller orchestra il dominio e ritorna esiti sicuri (`EsitoAzione`, `bool`, `dict`, `None`)
@@ -557,7 +557,7 @@ tombola-stark/
 - `renderers/`: package del layer renderer con contratto astratto e implementazione wx accessibile
 - `BaseRenderer` separa il protocollo di presentazione dalla tecnologia concreta
 - `WxRenderer` riceve `wx.Frame` e `Vocalizzatore` via dependency injection e separa canale widget da canale vocale
-- L'entry point UI attivo avvia `wx.App`, `WxRenderer` e `FinestraConfigurazione`; restano incrementali i dettagli widget avanzati e la validazione NVDA live
+- L'entry point UI attivo avvia `wx.App`, `WxRenderer` e `FinestraPrincipale`; restano incrementali i dettagli widget avanzati e la validazione NVDA live
 
 #### `tests/`
 - Test unitari per dominio (isolati)

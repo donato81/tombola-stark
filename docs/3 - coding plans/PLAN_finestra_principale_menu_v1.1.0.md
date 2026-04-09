@@ -2,7 +2,7 @@
 type: plan
 feature: finestra_principale_menu
 agent: Agent-Plan
-status: DRAFT
+status: READY
 version: v1.1.0
 design_ref: docs/2 - projects/DESIGN_finestra_principale_menu.md
 date: 2026-04-09

@@ -45,8 +45,16 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `tests/unit/test_vocalizzatore.py`: suite unittest per `my_lib/vocalizzatore.py`; 8 test su `NullVocalizzatore` e `Vocalizzatore` con backend fake iniettabile; nessun patch su AO2.
 - `bingo_game/exceptions/tabellone_exceptions.py`: introdotta `TabelloneNumeriEsauritiException` come eccezione di dominio specifica del tabellone.
 - `tests/unit/test_tabellone_eccezioni.py`: nuovo test unittest dedicato alla verifica del tipo di eccezione e del messaggio per il caso di numeri esauriti del tabellone.
-- `main.py`: avvia `wx.App`, `Vocalizzatore`, `WxRenderer` e `FinestraConfigurazione` come nuovo entry point wx dell'applicazione.
-- `bingo_game/ui/finestra_configurazione.py`, `bingo_game/ui/finestra_gioco.py`, `bingo_game/ui/dialogo_ricerca.py`: aggiunti frame/dialog principali di presentazione per l'interfaccia wx.
+- `main.py`: avvia `wx.App`, `Vocalizzatore`, `WxRenderer` e `FinestraPrincipale` come nuovo entry point wx dell'applicazione.
+- `bingo_game/ui/finestra_principale.py`, `bingo_game/ui/finestra_configurazione.py`, `bingo_game/ui/finestra_gioco.py`, `bingo_game/ui/dialogo_ricerca.py`: aggiunti frame/dialog principali di presentazione per l'interfaccia wx.
+
+### Added
+- `FinestraPrincipale`: nuovo frame wxPython con menu principale (Nuova partita, Impostazioni, Guida, Esci); primo punto di ingresso dell'applicazione dopo l'avvio
+
+### Changed
+- `main.py`: apre `FinestraPrincipale` come prima finestra invece di `FinestraConfigurazione`
+- `FinestraConfigurazione`: aggiunto parametro `parent_frame` a `__init__` per propagare il riferimento al menu principale verso `FinestraGioco`
+- `FinestraGioco`: aggiunto parametro `finestra_principale` a `__init__` e pulsante "Torna al menu principale" (visibile solo a partita terminata)
 
 ### Added
 - `tests/unit/test_fase_estrazione.py`: test unitario per la fase di estrazione (ciclo bifasico)
