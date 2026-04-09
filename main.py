@@ -5,7 +5,7 @@ import argparse
 import wx
 
 from bingo_game.logging import GameLogger
-from bingo_game.ui.finestra_configurazione import FinestraConfigurazione
+from bingo_game.ui.finestra_principale import FinestraPrincipale
 from bingo_game.ui.renderers.renderer_wx import WxRenderer
 from my_lib.vocalizzatore import Vocalizzatore
 
@@ -41,7 +41,7 @@ def main() -> None:
         renderer._log_text_ctrl = None
         renderer.numero_in_focus = None
 
-        finestra = FinestraConfigurazione(renderer=renderer)
+        finestra = FinestraPrincipale(renderer=renderer)
         finestra.Show()
         app.MainLoop()
     finally:
