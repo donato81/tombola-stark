@@ -43,7 +43,7 @@ from __future__ import annotations
 
 import logging
 import random
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import wx
 
@@ -615,10 +615,19 @@ class FinestraGioco(wx.Frame):
             renderer=self._renderer,
             comandi=self._comandi,
         )
-        dlg.ShowModal()
+        rc = dlg.ShowModal()
+        primo_risultato = getattr(dlg, "_primo_risultato", None) if rc == wx.ID_OK else None
         dlg.Destroy()
-        # Ripristina focus sulla griglia
-        self._pannello_griglia.SetFocus()
+        if primo_risultato is not None:
+            self._naviga_a_risultato_ricerca(primo_risultato)
+        else:
+            self._pannello_griglia.SetFocus()
+
+    def _naviga_a_risultato_ricerca(self, risultato: Any) -> None:
+        """Naviga alla posizione del primo risultato della ricerca."""
+        self._dispatch(self._comandi.imposta_focus_cartella(risultato.numero_cartella))
+        self._dispatch(self._comandi.vai_a_riga(risultato.indice_riga + 1))
+        self._dispatch(self._comandi.vai_a_colonna(risultato.indice_colonna + 1))
 
     def _ottieni_numero_in_focus(self) -> Optional[int]:
         """

@@ -12,7 +12,7 @@ path: bingo_game/ui/dialogo_ricerca.py
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
 import wx
 
@@ -49,6 +49,7 @@ class DialogoRicercaNumero(wx.Dialog):
         )
         self._renderer = renderer
         self._comandi = comandi
+        self._primo_risultato: Optional[Any] = None
         self._build_ui()
         self._bind_events()
         self.Centre()
@@ -123,4 +124,15 @@ class DialogoRicercaNumero(wx.Dialog):
         if not testo_risultato and esito is not None:
             testo_risultato = str(esito)
         self._lbl_risultato.SetLabel(testo_risultato)
-        self._input_ctrl.SetFocus()
+
+        from bingo_game.events.eventi_output_ui_umani import EventoRicercaNumeroInCartelle
+        evento_ricerca = esito.evento if hasattr(esito, "evento") else None
+        if isinstance(evento_ricerca, EventoRicercaNumeroInCartelle) and evento_ricerca.esito == "trovato":
+            if not evento_ricerca.risultati:
+                self._input_ctrl.SetFocus()
+                return
+            self._primo_risultato = evento_ricerca.risultati[0]
+            ritardo_ms = 400 + max(0, len(evento_ricerca.risultati) - 1) * 200
+            wx.CallLater(ritardo_ms, self.EndModal, wx.ID_OK)
+        else:
+            self._input_ctrl.SetFocus()

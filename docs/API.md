@@ -50,12 +50,11 @@ L'obiettivo è documentare le interfacce che altri livelli o componenti chiamano
 - [game_controller](#game_controller) – Funzioni di orchestrazione di alto livello
 
 **Interfaccia (wx)** (`bingo_game/ui/`):
-- `main.py` (entry point wx) – Avvia `wx.App`, `Vocalizzatore`, `WxRenderer` e `FinestraConfigurazione`.
- - `main.py` (entry point wx) – Avvia `wx.App`, `Vocalizzatore`, `WxRenderer` e `FinestraPrincipale`.
- - `bingo_game/ui/finestra_principale.py` – `FinestraPrincipale` (menu principale; primo frame mostrato all'avvio).
- - `bingo_game/ui/finestra_configurazione.py` – `FinestraConfigurazione` (frame di configurazione partita; componente pubblico di presentazione).
+- `main.py` (entry point wx) – Avvia `wx.App`, `Vocalizzatore`, `WxRenderer` e `FinestraPrincipale`.
+- `bingo_game/ui/finestra_principale.py` – `FinestraPrincipale` (menu principale; primo frame mostrato all'avvio).
+- `bingo_game/ui/finestra_configurazione.py` – `FinestraConfigurazione` (frame di configurazione partita; componente pubblico di presentazione).
 - `bingo_game/ui/finestra_gioco.py` – `FinestraGioco` (frame principale di gioco; pannello griglia focalizzabile e area annunci).
-- `bingo_game/ui/dialogo_ricerca.py` – `DialogoRicerca` (dialog modale per ricerca numero, vocalizza risultato prima della chiusura).
+- `bingo_game/ui/dialogo_ricerca.py` – `DialogoRicercaNumero` (dialog persistente per ricerca numero; vocalizza i risultati e si auto-chiude sul primo risultato trovato).
 - `bingo_game/comandi_partita.py` – espone `ComandiGiocatoreUmano` come facade per il layer di presentazione.
 
 **Eccezioni** (`bingo_game/exceptions/`):

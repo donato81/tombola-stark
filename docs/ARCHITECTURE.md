@@ -200,7 +200,7 @@ main.py (entry wx) → wx.App → GameController → (EsitoAzione/bool/dict/None
                                                         → (log) → tombola_stark.log
 ```
 
-Il package `bingo_game/ui` ora espone non solo renderer (`BaseRenderer`, `WxRenderer`) ma anche i principali frame e dialog di presentazione: `FinestraPrincipale`, `FinestraConfigurazione`, `FinestraGioco` e `DialogoRicerca`.
+Il package `bingo_game/ui` ora espone non solo renderer (`BaseRenderer`, `WxRenderer`) ma anche i principali frame e dialog di presentazione: `FinestraPrincipale`, `FinestraConfigurazione`, `FinestraGioco` e `DialogoRicercaNumero`.
 
 1. Il chiamante crea o recupera una `Partita` tramite il controller
 2. Il controller orchestra il dominio e ritorna esiti sicuri (`EsitoAzione`, `bool`, `dict`, `None`)

@@ -45,6 +45,7 @@ stato: attivo
 - [DESIGN_fix_hotkey_f6_ctrl_shift_v.md](2%20-%20projects/DESIGN_fix_hotkey_f6_ctrl_shift_v.md)
 - [DESIGN_finestra_principale_menu.md](2%20-%20projects/DESIGN_finestra_principale_menu.md)
 - [DESIGN_ricerca_auto_chiusura_dialog_v1.1.0.md](2%20-%20projects/DESIGN_ricerca_auto_chiusura_dialog_v1.1.0.md)
+- [DESIGN_ricerca_conferma_esplicita_dialog.md](2%20-%20projects/DESIGN_ricerca_conferma_esplicita_dialog.md)
 
 ### Piani
 
@@ -82,6 +83,7 @@ stato: attivo
 - [PLAN_fix_hotkey_f6_ctrl_shift_v_v0.9.5.md](3%20-%20coding%20plans/PLAN_fix_hotkey_f6_ctrl_shift_v_v0.9.5.md)
 - [PLAN_finestra_principale_menu_v1.1.0.md](3%20-%20coding%20plans/PLAN_finestra_principale_menu_v1.1.0.md)
 - [PLAN_ricerca_auto_chiusura_dialog_v1.1.0.md](3%20-%20coding%20plans/PLAN_ricerca_auto_chiusura_dialog_v1.1.0.md)
+- [PLAN_ricerca_conferma_esplicita_dialog_v1.1.1.md](3%20-%20coding%20plans/PLAN_ricerca_conferma_esplicita_dialog_v1.1.1.md)
 
 ### Reports
 
@@ -133,6 +135,7 @@ stato: attivo
 - [TODO_test_eventi_output_segnazione_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_segnazione_v1.0.0.md)
 - [TODO_test_eventi_output_bulk_focus_v1.0.0.md](5%20-%20todolist/TODO_test_eventi_output_bulk_focus_v1.0.0.md)
 - [TODO_interfaccia_wx_finestre_configurazione_gioco_v0.9.5.md](5%20-%20todolist/TODO_interfaccia_wx_finestre_configurazione_gioco_v0.9.5.md)
+- [TODO_ricerca_conferma_esplicita_dialog_v1.1.1.md](5%20-%20todolist/TODO_ricerca_conferma_esplicita_dialog_v1.1.1.md)
 - [TODO_ciclo_turno_fasi_reclami_collettivi_v0.9.5.md](5%20-%20todolist/TODO_ciclo_turno_fasi_reclami_collettivi_v0.9.5.md)
 - [TODO_fix_accessibilita_focus_timer_bot_v0.9.5.md](5%20-%20todolist/TODO_fix_accessibilita_focus_timer_bot_v0.9.5.md)
 - [TODO_hotkey_ctrl_p_ctrl_f_feedback_v0.9.5.md](5%20-%20todolist/TODO_hotkey_ctrl_p_ctrl_f_feedback_v0.9.5.md)
