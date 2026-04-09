@@ -35,6 +35,7 @@ class FinestraConfigurazione(wx.Frame):
         self,
         renderer: "WxRenderer",
         parent: Optional[wx.Window] = None,
+        parent_frame: Optional[wx.Frame] = None,
     ) -> None:
         super().__init__(
             parent,
@@ -43,6 +44,7 @@ class FinestraConfigurazione(wx.Frame):
             style=wx.DEFAULT_FRAME_STYLE,
         )
         self._renderer = renderer
+        self._parent_frame = parent_frame
         self._comandi_sistema = ComandiSistema()
         self._build_ui()
         self._bind_events()
@@ -169,6 +171,7 @@ class FinestraConfigurazione(wx.Frame):
             parent=None,
             durata_finestra_ms=durata_finestra_ms,
             durata_pausa_ms=durata_pausa_ms,
+            finestra_principale=self._parent_frame,
         )
         finestra_gioco.Show()
         self.Hide()
