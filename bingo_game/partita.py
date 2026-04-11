@@ -811,7 +811,7 @@ class Partita:
         """
         Verifica che tutti i giocatori (umani e automatici) abbiano dichiarato fine turno.
 
-        Nel ciclo V2 sia i giocatori umani (tramite il pulsante "Ho finito"/Ctrl+P)
+        Nel ciclo V2 sia i giocatori umani (tramite il pulsante "Ho finito"/Ctrl+Enter)
         che i bot (tramite dichiara_fine_fase_azione()) devono esplicitamente
         segnalare la fine della propria azione prima che la finestra possa chiudersi.
 

@@ -25,7 +25,7 @@ Binding tastiera applicati (da report analisi):
     Escape                 -> esci dalla griglia (focus a pulsante)
 
   Categoria B — EVT_CHAR_HOOK sul frame (Skip=False per bloccare propagazione):
-    Ctrl+P                 -> passa turno
+    Ctrl+Enter             -> passa turno
     Ctrl+F                 -> apre dialog ricerca numero
     Ctrl+1..6              -> salta a cartella N
         Alt+1..3               -> salta a riga N
@@ -56,6 +56,8 @@ if TYPE_CHECKING:
 _ui_logger = logging.getLogger("ui")
 
 _TIPI_VITTORIA = ["ambo", "terno", "quaterna", "cinquina", "tombola"]
+# WXK_RETURN = 13 in tutte le versioni wx; getattr per robustezza in ambienti stub
+_KEY_RETURN: int = getattr(wx, "WXK_RETURN", 13)
 
 
 class PannelloGriglia(wx.Panel):
@@ -296,8 +298,8 @@ class FinestraGioco(wx.Frame):
                 self._dispatch(self._comandi.colonna_destra_avanzata())
                 return
 
-        # Ctrl+P — passa turno
-        if ctrl and key == ord("P"):
+        # Ctrl+Enter — passa turno
+        if ctrl and key == _KEY_RETURN:
             self._on_pulsante_principale(None)
             return
 

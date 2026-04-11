@@ -78,9 +78,21 @@ class TestFinestraGiocoShortcuts(unittest.TestCase):
         pannello._finestra._renderer.ripeti_ultimo_annuncio.assert_called_once_with()
         self.assertFalse(evento.skip_chiamato)
 
+    def test_char_hook_ctrl_enter_invoca_pulsante_principale(self) -> None:
+        finestra = self._crea_finestra_stub()
+        finestra._on_pulsante_principale = Mock()
+        # 13 == wx.WXK_RETURN su tutte le versioni wx; intero diretto per
+        # robustezza in ambienti con stub wx parziale.
+        evento = _EventoTastoFittizio(13, ctrl=True)
+
+        FinestraGioco._on_char_hook(finestra, evento)
+
+        finestra._on_pulsante_principale.assert_called_once_with(None)
+        self.assertFalse(evento.skip_chiamato)
+
 
 @unittest.skipIf(wx is None or FinestraGioco is None, "wxPython non disponibile nel test environment")
-class TestFinestraGiocoCtrlPAttesaReclami(unittest.TestCase):
+class TestFinestraGiocoCtrlEnterAttesaReclami(unittest.TestCase):
     def _crea_finestra_stub(self) -> FinestraGioco:
         finestra = FinestraGioco.__new__(FinestraGioco)
         finestra._comandi_sistema = Mock()
@@ -92,7 +104,7 @@ class TestFinestraGiocoCtrlPAttesaReclami(unittest.TestCase):
         finestra._controlla_tutti_pronti = Mock()
         return finestra
 
-    def test_ctrl_p_attesa_reclami_emette_conferma_prima_dichiarazione(self) -> None:
+    def test_ctrl_enter_attesa_reclami_emette_conferma_prima_dichiarazione(self) -> None:
         finestra = self._crea_finestra_stub()
         finestra._comandi.turno_gia_dichiarato.return_value = False
 
@@ -103,7 +115,7 @@ class TestFinestraGiocoCtrlPAttesaReclami(unittest.TestCase):
         self.assertIn("concluso", args[0])
         finestra._controlla_tutti_pronti.assert_called_once()
 
-    def test_ctrl_p_attesa_reclami_emette_messaggio_idempotente(self) -> None:
+    def test_ctrl_enter_attesa_reclami_emette_messaggio_idempotente(self) -> None:
         finestra = self._crea_finestra_stub()
         finestra._comandi.turno_gia_dichiarato.return_value = True
 
