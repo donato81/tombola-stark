@@ -2,7 +2,7 @@
 
 tipo: todo_coordinator
 titolo: Coordinatore documenti attivi
-data_creazione: 2026-03-28
+data_creazione: 2026-04-11
 agente: Agent-Docs
 stato: attivo
 
@@ -50,6 +50,7 @@ stato: attivo
 - [DESIGN_ricerca_conferma_esplicita_dialog.md](2%20-%20projects/DESIGN_ricerca_conferma_esplicita_dialog.md)
 - [DESIGN_sostituzione_hotkey_ctrl_enter_v0.9.6.md](2%20-%20projects/DESIGN_sostituzione_hotkey_ctrl_enter_v0.9.6.md)
 - [DESIGN_griglie_visive_statiche_v0.11.0.md](2%20-%20projects/DESIGN_griglie_visive_statiche_v0.11.0.md)
+- [DESIGN_griglie_visive_dinamiche_v0.11.1.md](2%20-%20projects/DESIGN_griglie_visive_dinamiche_v0.11.1.md)
 
 ### Piani
 
@@ -91,6 +92,7 @@ stato: attivo
 - [PLAN_sostituzione_hotkey_ctrl_enter_v0.9.6.md](3%20-%20coding%20plans/PLAN_sostituzione_hotkey_ctrl_enter_v0.9.6.md)
 - [PLAN_pausa_gioco_v1.2.0.md](3%20-%20coding%20plans/PLAN_pausa_gioco_v1.2.0.md)
 - [PLAN_griglie_visive_statiche_v0.11.0.md](3%20-%20coding%20plans/PLAN_griglie_visive_statiche_v0.11.0.md)
+- [PLAN_griglie_visive_dinamiche_v0.11.1.md](3%20-%20coding%20plans/PLAN_griglie_visive_dinamiche_v0.11.1.md)
 
 ### Reports
 
@@ -152,6 +154,7 @@ stato: attivo
 - [TODO_pausa_gioco_v1.2.0.md](5%20-%20todolist/TODO_pausa_gioco_v1.2.0.md)
 - [TODO_pausa_gioco_v1.2.0.md](5%20-%20todolist/TODO_pausa_gioco_v1.2.0.md) — COMPLETED
 - [TODO_griglie_visive_statiche_v0.11.0.md](5%20-%20todolist/TODO_griglie_visive_statiche_v0.11.0.md) — COMPLETED
+- [TODO_griglie_visive_dinamiche_v0.11.1.md](5%20-%20todolist/TODO_griglie_visive_dinamiche_v0.11.1.md) — COMPLETED
 
 ### Da fare
 
