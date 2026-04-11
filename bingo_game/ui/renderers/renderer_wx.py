@@ -315,6 +315,7 @@ class WxRenderer(BaseRenderer):
         self._indice_cartella_corrente = evento.numero_cartella - 1
         testo = f"Cartella {evento.numero_cartella} selezionata."
         self._wx_aggiorna_output(testo)
+        self._wx_aggiorna_cartella(evento.numero_cartella, [])  # Fase 5: aggiorna pannello visivo
         self._ao2_vocalizza(testo)
 
     def _handle_stato_focus_corrente(self, evento: EventoStatoFocusCorrente) -> None:
@@ -583,6 +584,8 @@ class WxRenderer(BaseRenderer):
                 numero=evento.numero,
             )
         self._wx_aggiorna_output(testo)
+        if esito == "segnato":  # Fase 5: aggiorna pannello cartella solo a segnazione riuscita
+            self._wx_aggiorna_cartella(evento.numero_cartella, [])
         self._ao2_vocalizza(testo)
 
     def _handle_ricerca_numero_in_cartelle(self, evento: EventoRicercaNumeroInCartelle) -> None:
@@ -723,18 +726,18 @@ class WxRenderer(BaseRenderer):
         griglia: list[list[int | str]] | None = None,
         numeri_segnati: list[int] | None = None,
     ) -> None:
-        # collegato nella Fase 4
-        if self._finestra is None or not hasattr(self._finestra, "pannello_cartella"):
-            _ui_logger.debug("_wx_aggiorna_cartella: finestra o pannello_cartella mancante")
+        # collegato nelle Fasi 4 e 5
+        if self._finestra is None:
             return
         if griglia is None:
-            _ui_logger.debug("_wx_aggiorna_cartella: griglia None per cartella %s", numero_cartella)
+            # Nessuna griglia esplicita: delega a _aggiorna_griglie_visive per
+            # recuperare i dati live dalla partita (usato da Fase 5: focus/segnazione)
+            if hasattr(self._finestra, "_aggiorna_griglie_visive"):
+                self._finestra._aggiorna_griglie_visive()  # type: ignore[union-attr]
             return
-        # Aggiorna indice cartella corrente per tenere lo stato in sync
-        try:
-            self._indice_cartella_corrente = int(numero_cartella) - 1
-        except Exception:
-            pass
+        if not hasattr(self._finestra, "pannello_cartella"):
+            _ui_logger.debug("_wx_aggiorna_cartella: pannello_cartella mancante")
+            return
         _ui_logger.debug(
             "_wx_aggiorna_cartella: aggiorna cartella=%s numeri_segnati=%s",
             numero_cartella,
