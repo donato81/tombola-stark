@@ -31,6 +31,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `bingo_game/comandi_partita.py`: rimossi gli stub duplicati in `ComandiGiocatoreUmano` che sovrascrivevano la facade reale di `segna_numero(numero)` e rompevano la segnazione manuale dal layer wx.
 
 ### Changed
+- `bingo_game/ui/finestra_gioco.py`: hotkey passa-turno spostata da `Ctrl+P` a `Ctrl+Enter` per maggiore ergonomia d'uso continuato da tastiera; aggiunta costante modulo `_KEY_RETURN` per robustezza in ambienti di test con stub wx parziale.
 - `my_lib/vocalizzatore.py`: refactor strutturale R2 — introdotti `IVocalizzatore` (Protocol), `NullVocalizzatore` (no-op headless-safe), backend iniettabile nel costruttore di `Vocalizzatore`, protezione best-effort `try/except` in `vocalizza_testo`, inoltro di `interrompi` come `interrupt=` verso AO2; rimossi 9 metodi dead code.
 - `bingo_game/ui/renderers/renderer_wx.py`: type hint del parametro `vocalizzatore` e dell'attributo `_vocalizzatore` aggiornati da `Vocalizzatore` a `IVocalizzatore` per dependency inversion.
 - `bingo_game/ui/renderers/renderer_wx.py`: introdotto stato locale per ultimo annuncio e log, feedback runtime per eventi principali, duck typing verso i frame wx e supporto operativo a F6 e Ctrl+E.
