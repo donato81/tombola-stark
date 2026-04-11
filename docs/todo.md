@@ -12,6 +12,8 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/2 - projects/ -->
 
+- [DESIGN_pausa_gioco.md](2%20-%20projects/DESIGN_pausa_gioco.md)
+
 - [DESIGN_fix_accessibilita_focus_timer_bot.md](2%20-%20projects/DESIGN_fix_accessibilita_focus_timer_bot.md)
 - [DESIGN_hotkey_ctrl_p_ctrl_f_feedback.md](2%20-%20projects/DESIGN_hotkey_ctrl_p_ctrl_f_feedback.md)
 - [DESIGN_ciclo_turno_fasi_reclami_collettivi.md](2%20-%20projects/DESIGN_ciclo_turno_fasi_reclami_collettivi.md)
@@ -86,6 +88,7 @@ stato: attivo
 - [PLAN_ricerca_auto_chiusura_dialog_v1.1.0.md](3%20-%20coding%20plans/PLAN_ricerca_auto_chiusura_dialog_v1.1.0.md)
 - [PLAN_ricerca_conferma_esplicita_dialog_v1.1.1.md](3%20-%20coding%20plans/PLAN_ricerca_conferma_esplicita_dialog_v1.1.1.md)
 - [PLAN_sostituzione_hotkey_ctrl_enter_v0.9.6.md](3%20-%20coding%20plans/PLAN_sostituzione_hotkey_ctrl_enter_v0.9.6.md)
+- [PLAN_pausa_gioco_v1.2.0.md](3%20-%20coding%20plans/PLAN_pausa_gioco_v1.2.0.md)
 
 ### Reports
 
@@ -144,6 +147,7 @@ stato: attivo
 - [TODO_finestra_principale_menu_v1.1.0.md](5%20-%20todolist/TODO_finestra_principale_menu_v1.1.0.md)
 - [TODO_ricerca_auto_chiusura_dialog_v1.1.0.md](5%20-%20todolist/TODO_ricerca_auto_chiusura_dialog_v1.1.0.md)
 - [TODO_sostituzione_hotkey_ctrl_enter_v0.9.6.md](5%20-%20todolist/TODO_sostituzione_hotkey_ctrl_enter_v0.9.6.md)
+- [TODO_pausa_gioco_v1.2.0.md](5%20-%20todolist/TODO_pausa_gioco_v1.2.0.md)
 
 ### Da fare
 
