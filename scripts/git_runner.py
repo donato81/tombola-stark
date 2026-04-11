@@ -111,8 +111,8 @@ def cmd_status() -> int:
     return 0
 
 
-def cmd_commit(message: str, push: bool) -> int:
-    """Esegue git add . + git commit [+ push se richiesto]."""
+def cmd_commit(message: str, push: bool, paths: Optional[list[str]] = None) -> int:
+    """Esegue git add (o git add <paths>) + git commit [+ push se richiesto]."""
 
     # 1. Verifica modifiche presenti
     rc, out, err = run_git(["status", "--porcelain"])
@@ -135,8 +135,11 @@ def cmd_commit(message: str, push: bool) -> int:
         )
         return 1
 
-    # 2. git add .
-    rc, out_add, err_add = run_git(["add", "."])
+    # 2. git add . oppure git add <paths> se forniti
+    if paths:
+        rc, out_add, err_add = run_git(["add", "--"] + paths)
+    else:
+        rc, out_add, err_add = run_git(["add", "."])
     if rc != 0:
         print_report(
             "COMMIT",
@@ -388,6 +391,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=False,
         help="Esegui git push dopo il commit.",
     )
+    p_commit.add_argument(
+        "--paths",
+        nargs="*",
+        help="Elenco di percorsi da passare a 'git add' (se omesso usa '.')",
+    )
 
     # push
     p_push = subparsers.add_parser("push", help="Esegui git push su branch.")
@@ -420,7 +428,7 @@ def main() -> int:
         if args.subcommand == "status":
             return cmd_status()
         elif args.subcommand == "commit":
-            return cmd_commit(args.message, args.push)
+            return cmd_commit(args.message, args.push, args.paths)
         elif args.subcommand == "push":
             return cmd_push(args.branch)
         elif args.subcommand == "merge":
