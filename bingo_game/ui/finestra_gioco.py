@@ -50,7 +50,9 @@ import wx
 
 from bingo_game.ui.tema import (
     COLORE_CELLA_VUOTA, COLORE_CELLA_TESTO_INATTIVO,
+    COLORE_CELLA_ESTRATTO, COLORE_TESTO_CHIARO,
     COLORE_CELLA_CARTELLA_VUOTA, COLORE_CELLA_CARTELLA_NUMERO,
+    COLORE_CELLA_SEGNATA, COLORE_CELLA_ESTRATTA_NON_SEGNATA,
     COLORE_TESTO_SCURO,
     FONT_CARTELLA_NUMERO_PT,
     DIMENSIONE_FINESTRA_GIOCO,
@@ -95,6 +97,7 @@ class PannelloTabellone(wx.Panel):
             wx.FONTSTYLE_NORMAL,
             wx.FONTWEIGHT_NORMAL,
         )
+        self._celle: dict[int, wx.StaticText] = {}
         sizer = wx.GridSizer(rows=10, cols=9, vgap=1, hgap=1)
         for row in range(10):
             for col in range(9):
@@ -107,7 +110,19 @@ class PannelloTabellone(wx.Panel):
                 cell.SetForegroundColour(wx.Colour(COLORE_CELLA_TESTO_INATTIVO))
                 cell.SetFont(font)
                 sizer.Add(cell, 1, wx.EXPAND)
+                self._celle[numero] = cell
         self.SetSizer(sizer)
+
+    def aggiorna(self, numeri_estratti: set) -> None:
+        """Ridipinge le celle secondo i numeri già estratti."""
+        for numero, cell in self._celle.items():
+            if numero in numeri_estratti:
+                cell.SetBackgroundColour(wx.Colour(COLORE_CELLA_ESTRATTO))
+                cell.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+            else:
+                cell.SetBackgroundColour(wx.Colour(COLORE_CELLA_VUOTA))
+                cell.SetForegroundColour(wx.Colour(COLORE_CELLA_TESTO_INATTIVO))
+        self.Refresh()
 
 
 class PannelloCartella(wx.Panel):
@@ -117,13 +132,6 @@ class PannelloCartella(wx.Panel):
     Puramente visiva e non focalizzabile. Celle vuote e celle con numero
     usano colori distinti da tema.py. Dati statici placeholder.
     """
-
-    # Placeholder 3×9: 0 = cella vuota, int positivo = numero da mostrare
-    _PLACEHOLDER: list[list[int]] = [
-        [ 3, 12,  0, 33,  0, 54,  0, 74,  0],
-        [ 0, 16, 24,  0, 42,  0, 62,  0, 82],
-        [ 8,  0, 27, 36,  0, 58,  0, 78, 90],
-    ]
 
     def __init__(self, parent: wx.Window) -> None:
         super().__init__(parent, style=wx.NO_BORDER)
@@ -138,25 +146,57 @@ class PannelloCartella(wx.Panel):
             wx.FONTSTYLE_NORMAL,
             wx.FONTWEIGHT_NORMAL,
         )
+        self._celle: list[list[wx.StaticText]] = []
         sizer = wx.GridSizer(rows=3, cols=9, vgap=2, hgap=2)
         for row in range(3):
+            riga: list[wx.StaticText] = []
             for col in range(9):
-                numero = self._PLACEHOLDER[row][col]
-                if numero > 0:
-                    label = str(numero)
-                    bg = wx.Colour(COLORE_CELLA_CARTELLA_NUMERO)
-                else:
-                    label = ""
-                    bg = wx.Colour(COLORE_CELLA_CARTELLA_VUOTA)
                 cell = wx.StaticText(
-                    self, label=label, style=wx.ALIGN_CENTER | wx.ST_NO_AUTORESIZE
+                    self, label="", style=wx.ALIGN_CENTER | wx.ST_NO_AUTORESIZE
                 )
                 cell.SetMinSize(wx.Size(*DIMENSIONE_CELLA_CARTELLA))
-                cell.SetBackgroundColour(bg)
+                cell.SetBackgroundColour(wx.Colour(COLORE_CELLA_CARTELLA_VUOTA))
                 cell.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
                 cell.SetFont(font)
                 sizer.Add(cell, 1, wx.EXPAND)
+                riga.append(cell)
+            self._celle.append(riga)
         self.SetSizer(sizer)
+
+    def aggiorna(
+        self,
+        griglia: tuple,
+        numeri_segnati: set,
+        numeri_estratti: set,
+    ) -> None:
+        """Ridipinge la cartella con i colori semantici correnti.
+
+        griglia: restituita da Cartella.get_griglia_semplice() —
+                 "-" per cella vuota, int per numero.
+        numeri_segnati: set dei numeri già segnati sul questa cartella.
+        numeri_estratti: set dei numeri già usciti dal tabellone.
+        """
+        for row in range(3):
+            for col in range(9):
+                val = griglia[row][col]
+                cell = self._celle[row][col]
+                if isinstance(val, str):            # cella vuota ("-")
+                    cell.SetBackgroundColour(wx.Colour(COLORE_CELLA_CARTELLA_VUOTA))
+                    cell.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
+                    cell.SetLabel("")
+                elif val in numeri_segnati:          # numero segnato
+                    cell.SetBackgroundColour(wx.Colour(COLORE_CELLA_SEGNATA))
+                    cell.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+                    cell.SetLabel(str(val))
+                elif val in numeri_estratti:         # estratto non segnato
+                    cell.SetBackgroundColour(wx.Colour(COLORE_CELLA_ESTRATTA_NON_SEGNATA))
+                    cell.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
+                    cell.SetLabel(str(val))
+                else:                               # numero non ancora estratto
+                    cell.SetBackgroundColour(wx.Colour(COLORE_CELLA_CARTELLA_NUMERO))
+                    cell.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
+                    cell.SetLabel(str(val))
+        self.Refresh()
 
 
 class PannelloGriglia(wx.Panel):
@@ -332,6 +372,13 @@ class FinestraGioco(wx.Frame):
         self._renderer.aggiorna_finestra(self)
         self._renderer.imposta_widget_log(self._log_ctrl)
 
+        # Connessione opzionale allo stato partita per aggiornamenti live delle griglie
+        if hasattr(self._partita, "subscribe"):
+            try:
+                self._partita.subscribe(self._on_partita_change)
+            except Exception as e:
+                _ui_logger.debug("Partita.subscribe non disponibile: %s", e)
+
         # Focus iniziale sulla griglia
         self._pannello_griglia.SetFocus()
         wx.CallAfter(self._imposta_focus_iniziale)
@@ -500,6 +547,7 @@ class FinestraGioco(wx.Frame):
             self._turno_corrente += 1
             numero = risultato_est.get("numero_estratto", "?")
             self._renderer.annuncia_numero_estratto(numero, self._turno_corrente)
+            self._aggiorna_griglie_visive()
             self._fase_turno_ui = "attesa_reclami"
             self._aggiorna_stato_pulsante()
             # Avvia il timer della finestra d'azione e pianifica le risposte dei bot.
@@ -607,6 +655,7 @@ class FinestraGioco(wx.Frame):
             return
         premi_nuovi = risultato_ver.get("premi_nuovi", [])
         self._renderer.annuncia_premi_turno(premi_nuovi)
+        self._aggiorna_griglie_visive()
 
         if risultato_ver.get("partita_terminata") or risultato_ver.get("tombola_rilevata"):
             self._renderer.mostra_messaggio_sistema("La partita è terminata.")
@@ -804,6 +853,27 @@ class FinestraGioco(wx.Frame):
     # Helper interni
     # ------------------------------------------------------------------
 
+    def _aggiorna_griglie_visive(self) -> None:
+        """Sincronizza le griglie visive con lo stato corrente della partita."""
+        if not hasattr(self, "_pannello_tabellone") or not hasattr(self, "_pannello_cartella"):
+            return
+        self._pannello_tabellone.aggiorna(self._partita.tabellone.numeri_estratti)
+        giocatore_umano = next(
+            (g for g in self._partita.giocatori if not g.is_automatico()), None
+        )
+        if giocatore_umano is None or not giocatore_umano.cartelle:
+            return
+        indice = getattr(giocatore_umano, "_indice_cartella_focus", None)
+        if indice is None:
+            indice = 0
+        indice = max(0, min(indice, len(giocatore_umano.cartelle) - 1))
+        cartella = giocatore_umano.cartelle[indice]
+        self._pannello_cartella.aggiorna(
+            griglia=cartella.get_griglia_semplice(),
+            numeri_segnati=cartella.numeri_segnati,
+            numeri_estratti=self._partita.tabellone.numeri_estratti,
+        )
+
     def _dispatch(self, esito: object) -> None:
         """Delega l'esito al renderer per visualizzazione e vocalizzazione."""
         # EsitoAzione è importato lazy per evitare import circolari
@@ -866,3 +936,15 @@ class FinestraGioco(wx.Frame):
         self._dispatch(self._comandi.imposta_focus_cartella(1))
         self._dispatch(self._comandi.vai_a_riga(1))
         self._dispatch(self._comandi.vai_a_colonna(1))
+        self._aggiorna_griglie_visive()
+
+    def _on_partita_change(self, *args, **kwargs) -> None:
+        """Handler duck-typed per ricevere eventi di stato partita (se supportato).
+
+        Usa wx.CallAfter per aggiornare le griglie in modo thread-safe dal dominio.
+        """
+        try:
+            wx.CallAfter(self._aggiorna_griglie_visive)
+        except Exception:
+            # Non fatale: il subscribe è opzionale e l'aggiornamento è best-effort
+            pass
