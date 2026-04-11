@@ -49,6 +49,7 @@ stato: attivo
 - [DESIGN_ricerca_auto_chiusura_dialog_v1.1.0.md](2%20-%20projects/DESIGN_ricerca_auto_chiusura_dialog_v1.1.0.md)
 - [DESIGN_ricerca_conferma_esplicita_dialog.md](2%20-%20projects/DESIGN_ricerca_conferma_esplicita_dialog.md)
 - [DESIGN_sostituzione_hotkey_ctrl_enter_v0.9.6.md](2%20-%20projects/DESIGN_sostituzione_hotkey_ctrl_enter_v0.9.6.md)
+- [DESIGN_griglie_visive_statiche_v0.11.0.md](2%20-%20projects/DESIGN_griglie_visive_statiche_v0.11.0.md)
 
 ### Piani
 
@@ -89,6 +90,7 @@ stato: attivo
 - [PLAN_ricerca_conferma_esplicita_dialog_v1.1.1.md](3%20-%20coding%20plans/PLAN_ricerca_conferma_esplicita_dialog_v1.1.1.md)
 - [PLAN_sostituzione_hotkey_ctrl_enter_v0.9.6.md](3%20-%20coding%20plans/PLAN_sostituzione_hotkey_ctrl_enter_v0.9.6.md)
 - [PLAN_pausa_gioco_v1.2.0.md](3%20-%20coding%20plans/PLAN_pausa_gioco_v1.2.0.md)
+- [PLAN_griglie_visive_statiche_v0.11.0.md](3%20-%20coding%20plans/PLAN_griglie_visive_statiche_v0.11.0.md)
 
 ### Reports
 
@@ -149,6 +151,7 @@ stato: attivo
 - [TODO_sostituzione_hotkey_ctrl_enter_v0.9.6.md](5%20-%20todolist/TODO_sostituzione_hotkey_ctrl_enter_v0.9.6.md)
 - [TODO_pausa_gioco_v1.2.0.md](5%20-%20todolist/TODO_pausa_gioco_v1.2.0.md)
 - [TODO_pausa_gioco_v1.2.0.md](5%20-%20todolist/TODO_pausa_gioco_v1.2.0.md) — COMPLETED
+- [TODO_griglie_visive_statiche_v0.11.0.md](5%20-%20todolist/TODO_griglie_visive_statiche_v0.11.0.md) — COMPLETED
 
 ### Da fare
 

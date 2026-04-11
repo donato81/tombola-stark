@@ -9,6 +9,16 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Added
+- `bingo_game/ui/tema.py`: nuovo modulo con tutte le costanti visive (colori, font, dimensioni)
+  usate dall'interfaccia grafica; aggiunge `DIMENSIONE_CELLA_TABELLONE` e `DIMENSIONE_CELLA_CARTELLA`
+  per le griglie di gioco.
+- `bingo_game/ui/finestra_gioco.py`: nuove classi `PannelloTabellone` (griglia 9×10, numeri 1-90)
+  e `PannelloCartella` (griglia 9×3, 15 numeri placeholder), entrambe non focalizzabili e colorate
+  con le costanti di `tema.py`; integrate in `FinestraGioco._build_ui` affiancate orizzontalmente.
+- `bingo_game/ui/finestra_gioco.py`: dimensione finestra di gioco aggiornata da 700×500 a
+  1000×700 (da `DIMENSIONE_FINESTRA_GIOCO` in `tema.py`).
+
 ## [0.10.0] — 2026-04-11
 
 ### Fixed

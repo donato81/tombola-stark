@@ -48,6 +48,15 @@ from typing import TYPE_CHECKING, Any, Optional
 
 import wx
 
+from bingo_game.ui.tema import (
+    COLORE_CELLA_VUOTA, COLORE_CELLA_TESTO_INATTIVO,
+    COLORE_CELLA_CARTELLA_VUOTA, COLORE_CELLA_CARTELLA_NUMERO,
+    COLORE_TESTO_SCURO,
+    FONT_CARTELLA_NUMERO_PT,
+    DIMENSIONE_FINESTRA_GIOCO,
+    DIMENSIONE_CELLA_TABELLONE, DIMENSIONE_CELLA_CARTELLA,
+)
+
 from bingo_game.comandi_partita import ComandiSistema, ComandiGiocatoreUmano
 from bingo_game.partita import Partita
 
@@ -63,6 +72,91 @@ _KEY_RETURN: int = getattr(wx, "WXK_RETURN", 13)
 _KEY_F1: int = getattr(wx, "WXK_F1", 340)
 _KEY_F5: int = getattr(wx, "WXK_F5", 344)
 _KEY_F6: int = getattr(wx, "WXK_F6", 345)
+
+
+class PannelloTabellone(wx.Panel):
+    """
+    Griglia visiva 9 colonne × 10 righe del tabellone (numeri 1-90).
+
+    Puramente visiva e non focalizzabile. Ogni colonna raggruppa una decina.
+    Dati statici placeholder: aggiornamento dinamico in fase successiva.
+    """
+
+    def __init__(self, parent: wx.Window) -> None:
+        super().__init__(parent, style=wx.NO_BORDER)
+        # Rimuove TAB_TRAVERSAL: il pannello non partecipa al ciclo focus
+        self.SetWindowStyleFlag(self.GetWindowStyleFlag() & ~wx.TAB_TRAVERSAL)
+        self._build_ui()
+
+    def _build_ui(self) -> None:
+        font = wx.Font(
+            FONT_CARTELLA_NUMERO_PT,
+            wx.FONTFAMILY_DEFAULT,
+            wx.FONTSTYLE_NORMAL,
+            wx.FONTWEIGHT_NORMAL,
+        )
+        sizer = wx.GridSizer(rows=10, cols=9, vgap=1, hgap=1)
+        for row in range(10):
+            for col in range(9):
+                numero = col * 10 + row + 1  # 1..90; ogni colonna raggruppa una decina
+                cell = wx.StaticText(
+                    self, label=str(numero), style=wx.ALIGN_CENTER | wx.ST_NO_AUTORESIZE
+                )
+                cell.SetMinSize(wx.Size(*DIMENSIONE_CELLA_TABELLONE))
+                cell.SetBackgroundColour(wx.Colour(COLORE_CELLA_VUOTA))
+                cell.SetForegroundColour(wx.Colour(COLORE_CELLA_TESTO_INATTIVO))
+                cell.SetFont(font)
+                sizer.Add(cell, 1, wx.EXPAND)
+        self.SetSizer(sizer)
+
+
+class PannelloCartella(wx.Panel):
+    """
+    Griglia visiva 9 colonne × 3 righe per una cartella (15 numeri).
+
+    Puramente visiva e non focalizzabile. Celle vuote e celle con numero
+    usano colori distinti da tema.py. Dati statici placeholder.
+    """
+
+    # Placeholder 3×9: 0 = cella vuota, int positivo = numero da mostrare
+    _PLACEHOLDER: list[list[int]] = [
+        [ 3, 12,  0, 33,  0, 54,  0, 74,  0],
+        [ 0, 16, 24,  0, 42,  0, 62,  0, 82],
+        [ 8,  0, 27, 36,  0, 58,  0, 78, 90],
+    ]
+
+    def __init__(self, parent: wx.Window) -> None:
+        super().__init__(parent, style=wx.NO_BORDER)
+        # Rimuove TAB_TRAVERSAL: il pannello non partecipa al ciclo focus
+        self.SetWindowStyleFlag(self.GetWindowStyleFlag() & ~wx.TAB_TRAVERSAL)
+        self._build_ui()
+
+    def _build_ui(self) -> None:
+        font = wx.Font(
+            FONT_CARTELLA_NUMERO_PT,
+            wx.FONTFAMILY_DEFAULT,
+            wx.FONTSTYLE_NORMAL,
+            wx.FONTWEIGHT_NORMAL,
+        )
+        sizer = wx.GridSizer(rows=3, cols=9, vgap=2, hgap=2)
+        for row in range(3):
+            for col in range(9):
+                numero = self._PLACEHOLDER[row][col]
+                if numero > 0:
+                    label = str(numero)
+                    bg = wx.Colour(COLORE_CELLA_CARTELLA_NUMERO)
+                else:
+                    label = ""
+                    bg = wx.Colour(COLORE_CELLA_CARTELLA_VUOTA)
+                cell = wx.StaticText(
+                    self, label=label, style=wx.ALIGN_CENTER | wx.ST_NO_AUTORESIZE
+                )
+                cell.SetMinSize(wx.Size(*DIMENSIONE_CELLA_CARTELLA))
+                cell.SetBackgroundColour(bg)
+                cell.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
+                cell.SetFont(font)
+                sizer.Add(cell, 1, wx.EXPAND)
+        self.SetSizer(sizer)
 
 
 class PannelloGriglia(wx.Panel):
@@ -201,7 +295,7 @@ class FinestraGioco(wx.Frame):
         super().__init__(
             parent,
             title="Tombola Stark — In gioco",
-            size=(700, 500),
+            size=DIMENSIONE_FINESTRA_GIOCO,
             style=wx.DEFAULT_FRAME_STYLE,
         )
         self._partita = partita
@@ -270,6 +364,14 @@ class FinestraGioco(wx.Frame):
         # Pannello griglia
         self._pannello_griglia = PannelloGriglia(panel, self)
         sizer.Add(self._pannello_griglia, 1, wx.ALL | wx.EXPAND, 5)
+
+        # Pannelli visivi affiancati: tabellone (sinistra) e cartella (destra)
+        sizer_griglie = wx.BoxSizer(wx.HORIZONTAL)
+        self._pannello_tabellone = PannelloTabellone(panel)
+        sizer_griglie.Add(self._pannello_tabellone, 0, wx.ALL, 5)
+        self._pannello_cartella = PannelloCartella(panel)
+        sizer_griglie.Add(self._pannello_cartella, 1, wx.ALL | wx.EXPAND, 5)
+        sizer.Add(sizer_griglie, 0, wx.ALL | wx.EXPAND, 0)
 
         # Area log annunci (read-only)
         sizer.Add(wx.StaticText(panel, label="Log annunci (Ctrl+E per consultare):"), 0, wx.LEFT | wx.TOP, 5)
