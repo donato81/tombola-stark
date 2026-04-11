@@ -88,6 +88,7 @@ class WxRenderer(BaseRenderer):
         self.numero_in_focus: Optional[int] = None
         self._indice_riga_focus: Optional[int] = None
         self._indice_colonna_focus: Optional[int] = None
+        self._indice_cartella_corrente: int = 0
 
     # ---------------------------------------------------------------
     # Metodi pubblici — contratto BaseRenderer
@@ -311,6 +312,7 @@ class WxRenderer(BaseRenderer):
             self._indice_riga_focus = None
             self._indice_colonna_focus = None
             self.numero_in_focus = None
+        self._indice_cartella_corrente = evento.numero_cartella - 1
         testo = f"Cartella {evento.numero_cartella} selezionata."
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
@@ -376,6 +378,12 @@ class WxRenderer(BaseRenderer):
             righe.append(f"Riga {i+1}: {celle}")
         testo = f"Cartella {evento.numero_cartella}/{evento.totale_cartelle}.\n" + "\n".join(righe)
         self._wx_aggiorna_output(testo)
+        self._wx_aggiorna_cartella(
+            evento.numero_cartella,
+            righe,
+            griglia=evento.griglia_semplice,
+            numeri_segnati=[],
+        )
         self._ao2_vocalizza(testo)
 
     def _handle_visualizza_cartella_avanzata(self, evento: EventoVisualizzaCartellaAvanzata) -> None:
@@ -386,6 +394,12 @@ class WxRenderer(BaseRenderer):
             righe.append(f"Riga {i+1}: {celle}")
         testo = f"Cartella {evento.numero_cartella}/{evento.totale_cartelle} (avanzata).\n" + "\n".join(righe)
         self._wx_aggiorna_output(testo)
+        self._wx_aggiorna_cartella(
+            evento.numero_cartella,
+            righe,
+            griglia=evento.griglia_semplice,
+            numeri_segnati=list(segnati_set),
+        )
         self._ao2_vocalizza(testo)
 
     def _handle_visualizza_tutte_cartelle_semplice(
@@ -674,6 +688,9 @@ class WxRenderer(BaseRenderer):
         )
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
+        # Il tabellone viene già aggiornato tramite _aggiorna_griglie_visive
+        # in FinestraGioco (collegato nella Fase 3). Non è necessario
+        # chiamare _wx_aggiorna_tabellone qui.
         if hasattr(self._finestra, "aggiorna_stato_pulsante"):
             self._finestra.aggiorna_stato_pulsante(primo_turno_eseguito=True)
 
@@ -699,13 +716,43 @@ class WxRenderer(BaseRenderer):
         if hasattr(self._finestra, "aggiungi_a_log"):
             self._finestra.aggiungi_a_log(testo)  # type: ignore[union-attr]
 
-    def _wx_aggiorna_cartella(self, numero_cartella: int, righe: list[str]) -> None:
-        # stub: aggiornamento pannello cartella rimandato al ciclo successivo
-        pass
+    def _wx_aggiorna_cartella(
+        self,
+        numero_cartella: int,
+        righe: list[str],
+        griglia: list[list[int | str]] | None = None,
+        numeri_segnati: list[int] | None = None,
+    ) -> None:
+        # collegato nella Fase 4
+        if self._finestra is None or not hasattr(self._finestra, "pannello_cartella"):
+            _ui_logger.debug("_wx_aggiorna_cartella: finestra o pannello_cartella mancante")
+            return
+        if griglia is None:
+            _ui_logger.debug("_wx_aggiorna_cartella: griglia None per cartella %s", numero_cartella)
+            return
+        # Aggiorna indice cartella corrente per tenere lo stato in sync
+        try:
+            self._indice_cartella_corrente = int(numero_cartella) - 1
+        except Exception:
+            pass
+        _ui_logger.debug(
+            "_wx_aggiorna_cartella: aggiorna cartella=%s numeri_segnati=%s",
+            numero_cartella,
+            numeri_segnati or [],
+        )
+        self._finestra.pannello_cartella.aggiorna(  # type: ignore[union-attr]
+            griglia, numeri_segnati or []
+        )
 
     def _wx_aggiorna_tabellone(self, numeri_estratti: list[int]) -> None:
-        # stub: aggiornamento pannello tabellone rimandato al ciclo successivo
-        pass
+        # collegato nella Fase 4
+        if self._finestra is None or not hasattr(self._finestra, "pannello_tabellone"):
+            _ui_logger.debug("_wx_aggiorna_tabellone: pannello_tabellone non disponibile")
+            return
+        # Normalizza input: rimuove duplicati e ordina per sicurezza
+        numeri = sorted(set(numeri_estratti or []))
+        _ui_logger.debug("_wx_aggiorna_tabellone: aggiorna %d numeri", len(numeri))
+        self._finestra.pannello_tabellone.aggiorna(numeri)  # type: ignore[union-attr]
 
     def _wx_mostra_configurazione(self, stato: StatoConfigurazione) -> None:
         testo = self._formatta_testo_da_catalogo(stato.codice_messaggio)
