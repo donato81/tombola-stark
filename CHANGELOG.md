@@ -26,6 +26,10 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   implementati (via duck typing su `pannello_tabellone` e `pannello_cartella`); aggiunto
   `_indice_cartella_corrente` allo stato interno; `_handle_visualizza_cartella_semplice` e
   `_handle_visualizza_cartella_avanzata` chiamano ora `_wx_aggiorna_cartella` dopo `_wx_aggiorna_output`.
+- `bingo_game/ui/renderers/renderer_wx.py`: sincronizzazione visiva in tempo reale (Fase 5):
+  `_handle_focus_cartella_impostato` e `_handle_segnazione_numero` (solo esito `segnato`) chiamano
+  `_wx_aggiorna_cartella()` che delega a `_finestra._aggiorna_griglie_visive()` per aggiornare
+  `PannelloCartella` immediatamente dopo cambio cartella o segnazione riuscita.
   - Aggiornamento Fase 4: miglioramenti runtime — aggiunti logging diagnostico e
     normalizzazione input in `_wx_aggiorna_tabellone` e `_wx_aggiorna_cartella`.
 
