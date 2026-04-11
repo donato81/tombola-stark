@@ -41,8 +41,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `bingo_game/partita.py`: aggiornato il blocco di intercettazione dell'estrazione per tradurre `TabelloneNumeriEsauritiException` in `PartitaNumeriEsauritiException` senza cambiare il comportamento runtime.
 
 ### Added
-- `bingo_game/ui/dialogo_ricerca.py`: nuova classe `DialogoRicercaNumero` — dialog persistente di ricerca numero che vocalizza i risultati; quando trova risultati si auto-chiude dopo un breve ritardo e segnala il primo risultato a `FinestraGioco`.
-- `bingo_game/ui/finestra_gioco.py`: apre `DialogoRicercaNumero` in modalità modale e, se il dialog ritorna `wx.ID_OK`, naviga automaticamente al primo risultato tramite `_naviga_a_risultato_ricerca()` migliorando l'esperienza accessibile di ricerca.
+- `bingo_game/ui/dialogo_ricerca.py`: nuova classe `DialogoRicercaNumero` — dialog persistente di ricerca numero che vocalizza i risultati; non utilizza più una chiusura automatica: quando trova risultati rimane aperto, abilita un pulsante esplicito `Vai al risultato` e attende la conferma dell'utente.
+- `bingo_game/ui/finestra_gioco.py`: apre `DialogoRicercaNumero` in modalità modale e, se il dialog ritorna `wx.ID_OK` con `_primo_risultato` valorizzato (l'utente ha premuto `Vai al risultato`), naviga al primo risultato tramite `_naviga_a_risultato_ricerca()` migliorando l'esperienza accessibile di ricerca.
 - `tests/unit/test_ciclo_turno_v2_azioni_2_3.py`: nuova suite unitaria dedicata ad Azione 2 e Azione 3 del Ciclo Turno V2; copre riavvio automatico dopo la pausa e arresto esplicito dei timer concorrenti.
 - `tests/unit/test_vocalizzatore.py`: suite unittest per `my_lib/vocalizzatore.py`; 8 test su `NullVocalizzatore` e `Vocalizzatore` con backend fake iniettabile; nessun patch su AO2.
 - `bingo_game/exceptions/tabellone_exceptions.py`: introdotta `TabelloneNumeriEsauritiException` come eccezione di dominio specifica del tabellone.

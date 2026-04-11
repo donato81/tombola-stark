@@ -54,7 +54,7 @@ L'obiettivo è documentare le interfacce che altri livelli o componenti chiamano
 - `bingo_game/ui/finestra_principale.py` – `FinestraPrincipale` (menu principale; primo frame mostrato all'avvio).
 - `bingo_game/ui/finestra_configurazione.py` – `FinestraConfigurazione` (frame di configurazione partita; componente pubblico di presentazione).
 - `bingo_game/ui/finestra_gioco.py` – `FinestraGioco` (frame principale di gioco; pannello griglia focalizzabile e area annunci).
-- `bingo_game/ui/dialogo_ricerca.py` – `DialogoRicercaNumero` (dialog persistente per ricerca numero; vocalizza i risultati e si auto-chiude sul primo risultato trovato).
+- `bingo_game/ui/dialogo_ricerca.py` – `DialogoRicercaNumero` (dialog persistente per ricerca numero; vocalizza i risultati e non utilizza più la chiusura automatica: quando trova risultati rimane aperto, abilita un pulsante `Vai al risultato` e richiede la conferma dell'utente prima di restituire `wx.ID_OK`).
 - `bingo_game/comandi_partita.py` – espone `ComandiGiocatoreUmano` come facade per il layer di presentazione.
 
 **Eccezioni** (`bingo_game/exceptions/`):

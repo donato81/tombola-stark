@@ -28,32 +28,32 @@ Piano di riferimento:
 
 ## Checklist operativa
 
-- [ ] FASE 1 — Rifattorizzare `bingo_game/ui/dialogo_ricerca.py`
-- [ ] Rimuovere la chiusura automatica con timer dal ramo `trovato`
-- [ ] Introdurre `_risultato_pronto_per_conferma`
-- [ ] Garantire reset di `_primo_risultato` a ogni nuova ricerca
-- [ ] Aggiungere il controllo `Vai al risultato` inizialmente disabilitato
-- [ ] Abilitare e focalizzare `Vai al risultato` dopo un esito `trovato`
-- [ ] Lasciare input focalizzato dopo un esito `non_trovato`
-- [ ] Verificare che `Escape` continui a chiudere con `wx.ID_CANCEL`
-- [ ] `python -m py_compile bingo_game/ui/dialogo_ricerca.py`
+- [x] FASE 1 — Rifattorizzare `bingo_game/ui/dialogo_ricerca.py`
+- [x] Rimuovere la chiusura automatica con timer dal ramo `trovato`
+- [x] Introdurre `_risultato_pronto_per_conferma`
+- [x] Garantire reset di `_primo_risultato` a ogni nuova ricerca
+- [x] Aggiungere il controllo `Vai al risultato` inizialmente disabilitato
+- [x] Abilitare e focalizzare `Vai al risultato` dopo un esito `trovato`
+- [x] Lasciare input focalizzato dopo un esito `non_trovato`
+- [x] Verificare che `Escape` continui a chiudere con `wx.ID_CANCEL`
+- [x] `python -m py_compile bingo_game/ui/dialogo_ricerca.py`
 - [ ] Commit fase 1
 
-- [ ] FASE 2 — Rifinire `bingo_game/ui/finestra_gioco.py`
-- [ ] Confermare lettura di `_primo_risultato` solo con `rc == wx.ID_OK`
-- [ ] Confermare assenza di navigazione sul ramo cancel
-- [ ] Aggiungere eventuali guard difensivi se necessari
-- [ ] `python -m py_compile bingo_game/ui/finestra_gioco.py`
+- [x] FASE 2 — Rifinire `bingo_game/ui/finestra_gioco.py`
+- [x] Confermare lettura di `_primo_risultato` solo con `rc == wx.ID_OK`
+- [x] Confermare assenza di navigazione sul ramo cancel
+- [x] Aggiungere eventuali guard difensivi se necessari
+- [x] `python -m py_compile bingo_game/ui/finestra_gioco.py`
 - [ ] Commit fase 2
 
-- [ ] FASE 3 — Aggiornare `tests/unit/test_dialogo_ricerca_persistente.py`
-- [ ] Rimuovere i test dipendenti da `wx.CallLater`
-- [ ] Aggiungere test per esito trovato con conferma esplicita
-- [ ] Aggiungere test per esito non trovato con reset stato
-- [ ] Aggiungere test per `Escape` e `wx.ID_CANCEL`
-- [ ] Aggiungere test contro riuso di risultato stantio
-- [ ] `python -m py_compile tests/unit/test_dialogo_ricerca_persistente.py`
-- [ ] Eseguire i test mirati del file
+- [x] FASE 3 — Aggiornare `tests/unit/test_dialogo_ricerca_persistente.py`
+- [x] Rimuovere i test dipendenti da `wx.CallLater`
+- [x] Aggiungere test per esito trovato con conferma esplicita
+- [x] Aggiungere test per esito non trovato con reset stato
+- [x] Aggiungere test per `Escape` e `wx.ID_CANCEL`
+- [x] Aggiungere test contro riuso di risultato stantio
+- [x] `python -m py_compile tests/unit/test_dialogo_ricerca_persistente.py`
+- [x] Eseguire i test mirati del file (13/13 OK con .venv)
 - [ ] Commit fase 3
 
 ---
@@ -70,6 +70,6 @@ Piano di riferimento:
 ## Stato Avanzamento
 
 - [x] Pianificato
-- [ ] In corso
+- [x] In corso
 - [ ] Completato
 - [ ] Verificato

@@ -202,6 +202,8 @@ main.py (entry wx) → wx.App → GameController → (EsitoAzione/bool/dict/None
 
 Il package `bingo_game/ui` ora espone non solo renderer (`BaseRenderer`, `WxRenderer`) ma anche i principali frame e dialog di presentazione: `FinestraPrincipale`, `FinestraConfigurazione`, `FinestraGioco` e `DialogoRicercaNumero`.
 
+Nota sul comportamento di `DialogoRicercaNumero`: il dialog è persistente e non effettua più una chiusura automatica al primo esito trovato; invece abilita un pulsante `Vai al risultato` che l'utente deve premere per confermare la navigazione. `FinestraGioco` procede a navigare soltanto se il dialog restituisce `wx.ID_OK` con `_primo_risultato` valorizzato.
+
 1. Il chiamante crea o recupera una `Partita` tramite il controller
 2. Il controller orchestra il dominio e ritorna esiti sicuri (`EsitoAzione`, `bool`, `dict`, `None`)
 3. `BaseRenderer` definisce il contratto comune tra configurazione, messaggi di sistema, report finale ed esiti evento-driven

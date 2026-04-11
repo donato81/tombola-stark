@@ -44,12 +44,15 @@ class DialogoRicercaNumero(wx.Dialog):
         super().__init__(
             parent,
             title="Cerca numero",
-            size=(300, 230),
+            size=(300, 280),
             style=wx.DEFAULT_DIALOG_STYLE,
         )
         self._renderer = renderer
         self._comandi = comandi
         self._primo_risultato: Optional[Any] = None
+        self._risultato_pronto_per_conferma: bool = False
+        self._no_risultati: bool = False
+        self._ultimo_numero_cercato: str = ""
         self._build_ui()
         self._bind_events()
         self.Centre()
@@ -75,8 +78,12 @@ class DialogoRicercaNumero(wx.Dialog):
         self._lbl_risultato = wx.StaticText(panel, label="")
         sizer.Add(self._lbl_risultato, 0, wx.ALL | wx.EXPAND, 10)
 
+        self._btn_vai = wx.Button(panel, label="Vai al risultato")
+        self._btn_vai.Disable()
+        sizer.Add(self._btn_vai, 0, wx.ALL | wx.ALIGN_CENTER, 5)
+
         self._btn_chiudi = wx.Button(panel, wx.ID_CANCEL, label="Chiudi")
-        sizer.Add(self._btn_chiudi, 0, wx.ALL | wx.ALIGN_CENTER, 10)
+        sizer.Add(self._btn_chiudi, 0, wx.ALL | wx.ALIGN_CENTER, 5)
 
         panel.SetSizer(sizer)
         panel.Layout()
@@ -90,13 +97,25 @@ class DialogoRicercaNumero(wx.Dialog):
 
     def _bind_events(self) -> None:
         self._btn_cerca.Bind(wx.EVT_BUTTON, self._on_cerca)
+        self._btn_vai.Bind(wx.EVT_BUTTON, self._on_vai_al_risultato)
         self._btn_chiudi.Bind(wx.EVT_BUTTON, lambda _: self.EndModal(wx.ID_CANCEL))
         self.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
 
     def _on_char_hook(self, event: wx.KeyEvent) -> None:
-        if event.GetKeyCode() == wx.WXK_RETURN:
-            self._on_cerca(None)
-        elif event.GetKeyCode() == wx.WXK_ESCAPE:
+        key = event.GetKeyCode()
+        if key == wx.WXK_RETURN:
+            focused = self.FindFocus()
+            if self._risultato_pronto_per_conferma and focused is self._btn_vai:
+                self._on_vai_al_risultato(None)
+            elif (
+                self._no_risultati
+                and focused is self._input_ctrl
+                and self._input_ctrl.GetValue().strip() == self._ultimo_numero_cercato
+            ):
+                self.EndModal(wx.ID_CANCEL)
+            else:
+                self._on_cerca(None)
+        elif key == wx.WXK_ESCAPE:
             self.EndModal(wx.ID_CANCEL)
         else:
             event.Skip()
@@ -106,6 +125,13 @@ class DialogoRicercaNumero(wx.Dialog):
     # ------------------------------------------------------------------
 
     def _on_cerca(self, event: object) -> None:
+        # Reset stato conferma a ogni nuova ricerca
+        self._primo_risultato = None
+        self._risultato_pronto_per_conferma = False
+        self._no_risultati = False
+        self._ultimo_numero_cercato = ""
+        self._btn_vai.Disable()
+
         testo = self._input_ctrl.GetValue().strip()
         try:
             numero = int(testo)
@@ -132,7 +158,13 @@ class DialogoRicercaNumero(wx.Dialog):
                 self._input_ctrl.SetFocus()
                 return
             self._primo_risultato = evento_ricerca.risultati[0]
-            ritardo_ms = 400 + max(0, len(evento_ricerca.risultati) - 1) * 200
-            wx.CallLater(ritardo_ms, self.EndModal, wx.ID_OK)
+            self._risultato_pronto_per_conferma = True
+            self._btn_vai.Enable()
+            self._btn_vai.SetFocus()
         else:
+            self._ultimo_numero_cercato = testo
+            self._no_risultati = True
             self._input_ctrl.SetFocus()
+
+    def _on_vai_al_risultato(self, event: object) -> None:
+        self.EndModal(wx.ID_OK)

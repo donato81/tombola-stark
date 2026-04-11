@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 try:
     import wx
@@ -38,8 +38,13 @@ class TestDialogoRicercaPersistente(unittest.TestCase):
         dialogo._input_ctrl = MagicMock()
         dialogo._input_ctrl.GetValue.return_value = "42"
         dialogo._lbl_risultato = MagicMock()
+        dialogo._btn_vai = MagicMock()
         dialogo.EndModal = MagicMock()
+        dialogo.FindFocus = MagicMock(return_value=None)
         dialogo._primo_risultato = None
+        dialogo._risultato_pronto_per_conferma = False
+        dialogo._no_risultati = False
+        dialogo._ultimo_numero_cercato = ""
         return dialogo
 
     def _esito_trovato(self, risultati: list) -> MagicMock:
@@ -74,13 +79,12 @@ class TestDialogoRicercaPersistente(unittest.TestCase):
         esito_fittizio = MagicMock()
         dialogo._comandi.cerca_numero.return_value = esito_fittizio
 
-        with patch("wx.CallLater"):
-            DialogoRicercaNumero._on_cerca(dialogo, None)
+        DialogoRicercaNumero._on_cerca(dialogo, None)
 
         dialogo._lbl_risultato.SetLabel.assert_called_once_with("Numero 42 trovato in una cartella.")
 
     # ------------------------------------------------------------------
-    # Test: EndModal non chiamata direttamente (sostituisce il vecchio test)
+    # Test: EndModal non chiamata su non trovato
     # ------------------------------------------------------------------
 
     def test_on_cerca_non_chiama_end_modal_se_non_trovato(self) -> None:
@@ -91,40 +95,14 @@ class TestDialogoRicercaPersistente(unittest.TestCase):
 
         dialogo.EndModal.assert_not_called()
 
-    def test_on_cerca_non_chiama_end_modal_immediatamente_se_trovato(self) -> None:
+    def test_on_cerca_non_chiama_end_modal_se_trovato(self) -> None:
+        """Il dialog NON chiude automaticamente dopo un esito trovato."""
         dialogo = self._crea_dialog_stub()
         dialogo._comandi.cerca_numero.return_value = self._esito_trovato([_crea_risultato()])
 
-        with patch("wx.CallLater") as mock_calllater:
-            DialogoRicercaNumero._on_cerca(dialogo, None)
+        DialogoRicercaNumero._on_cerca(dialogo, None)
 
         dialogo.EndModal.assert_not_called()
-        mock_calllater.assert_called_once()
-
-    # ------------------------------------------------------------------
-    # Test: ritardo dinamico
-    # ------------------------------------------------------------------
-
-    def test_ritardo_dinamico_1_risultato(self) -> None:
-        dialogo = self._crea_dialog_stub()
-        dialogo._comandi.cerca_numero.return_value = self._esito_trovato([_crea_risultato()])
-
-        with patch("wx.CallLater") as mock_calllater:
-            DialogoRicercaNumero._on_cerca(dialogo, None)
-
-        ritardo = mock_calllater.call_args[0][0]
-        self.assertEqual(ritardo, 400)
-
-    def test_ritardo_dinamico_3_risultati(self) -> None:
-        dialogo = self._crea_dialog_stub()
-        risultati = [_crea_risultato(0), _crea_risultato(1), _crea_risultato(2)]
-        dialogo._comandi.cerca_numero.return_value = self._esito_trovato(risultati)
-
-        with patch("wx.CallLater") as mock_calllater:
-            DialogoRicercaNumero._on_cerca(dialogo, None)
-
-        ritardo = mock_calllater.call_args[0][0]
-        self.assertEqual(ritardo, 800)
 
     # ------------------------------------------------------------------
     # Test: attributo _primo_risultato
@@ -135,8 +113,7 @@ class TestDialogoRicercaPersistente(unittest.TestCase):
         r = _crea_risultato()
         dialogo._comandi.cerca_numero.return_value = self._esito_trovato([r])
 
-        with patch("wx.CallLater"):
-            DialogoRicercaNumero._on_cerca(dialogo, None)
+        DialogoRicercaNumero._on_cerca(dialogo, None)
 
         self.assertIs(dialogo._primo_risultato, r)
 
@@ -171,3 +148,139 @@ class TestDialogoRicercaPersistente(unittest.TestCase):
 
         dialogo.EndModal.assert_not_called()
         self.assertIsNone(dialogo._primo_risultato)
+
+    # ------------------------------------------------------------------
+    # Test: stato di conferma dopo esito trovato
+    # ------------------------------------------------------------------
+
+    def test_trovato_abilita_btn_vai(self) -> None:
+        dialogo = self._crea_dialog_stub()
+        dialogo._comandi.cerca_numero.return_value = self._esito_trovato([_crea_risultato()])
+
+        DialogoRicercaNumero._on_cerca(dialogo, None)
+
+        dialogo._btn_vai.Enable.assert_called_once()
+
+    def test_trovato_imposta_risultato_pronto_per_conferma(self) -> None:
+        dialogo = self._crea_dialog_stub()
+        dialogo._comandi.cerca_numero.return_value = self._esito_trovato([_crea_risultato()])
+
+        DialogoRicercaNumero._on_cerca(dialogo, None)
+
+        self.assertTrue(dialogo._risultato_pronto_per_conferma)
+
+    # ------------------------------------------------------------------
+    # Test: reset stato dopo esito non trovato
+    # ------------------------------------------------------------------
+
+    def test_non_trovato_resetta_stato(self) -> None:
+        dialogo = self._crea_dialog_stub()
+        # Simula stato precedente da una ricerca trovato
+        dialogo._primo_risultato = _crea_risultato()
+        dialogo._risultato_pronto_per_conferma = True
+        dialogo._comandi.cerca_numero.return_value = self._esito_non_trovato()
+
+        DialogoRicercaNumero._on_cerca(dialogo, None)
+
+        self.assertIsNone(dialogo._primo_risultato)
+        self.assertFalse(dialogo._risultato_pronto_per_conferma)
+        dialogo._btn_vai.Disable.assert_called()
+
+    # ------------------------------------------------------------------
+    # Test: conferma chiude con ID_OK
+    # ------------------------------------------------------------------
+
+    def test_on_vai_al_risultato_chiude_con_id_ok(self) -> None:
+        dialogo = self._crea_dialog_stub()
+
+        DialogoRicercaNumero._on_vai_al_risultato(dialogo, None)
+
+        dialogo.EndModal.assert_called_once_with(wx.ID_OK)
+
+    # ------------------------------------------------------------------
+    # Test: Escape chiude con ID_CANCEL
+    # ------------------------------------------------------------------
+
+    def test_escape_chiude_con_id_cancel(self) -> None:
+        dialogo = self._crea_dialog_stub()
+        evento = MagicMock()
+        evento.GetKeyCode.return_value = wx.WXK_ESCAPE
+
+        DialogoRicercaNumero._on_char_hook(dialogo, evento)
+
+        dialogo.EndModal.assert_called_once_with(wx.ID_CANCEL)
+
+    # ------------------------------------------------------------------
+    # Test: Invio su btn_vai con stato confermato chiude con ID_OK
+    # ------------------------------------------------------------------
+
+    def test_invio_su_btn_vai_chiude_con_id_ok(self) -> None:
+        dialogo = self._crea_dialog_stub()
+        dialogo._risultato_pronto_per_conferma = True
+        dialogo.FindFocus.return_value = dialogo._btn_vai
+        evento = MagicMock()
+        evento.GetKeyCode.return_value = wx.WXK_RETURN
+
+        DialogoRicercaNumero._on_char_hook(dialogo, evento)
+
+        dialogo.EndModal.assert_called_once_with(wx.ID_OK)
+
+    # ------------------------------------------------------------------
+    # Test: ricerca fallita dopo successo non riusa il risultato precedente
+    # ------------------------------------------------------------------
+
+    def test_ricerca_fallita_dopo_successo_non_riusa_risultato(self) -> None:
+        dialogo = self._crea_dialog_stub()
+        r = _crea_risultato()
+        dialogo._comandi.cerca_numero.return_value = self._esito_trovato([r])
+        DialogoRicercaNumero._on_cerca(dialogo, None)
+        self.assertIs(dialogo._primo_risultato, r)
+
+        # Seconda ricerca — fallisce
+        dialogo._comandi.cerca_numero.return_value = self._esito_non_trovato()
+        DialogoRicercaNumero._on_cerca(dialogo, None)
+
+        self.assertIsNone(dialogo._primo_risultato)
+        self.assertFalse(dialogo._risultato_pronto_per_conferma)
+
+    # ------------------------------------------------------------------
+    # Test: stato _no_risultati dopo ricerca fallita
+    # ------------------------------------------------------------------
+
+    def test_non_trovato_imposta_no_risultati(self) -> None:
+        dialogo = self._crea_dialog_stub()
+        dialogo._comandi.cerca_numero.return_value = self._esito_non_trovato()
+
+        DialogoRicercaNumero._on_cerca(dialogo, None)
+
+        self.assertTrue(dialogo._no_risultati)
+        self.assertEqual(dialogo._ultimo_numero_cercato, "42")
+
+    def test_invio_su_input_senza_risultati_chiude_con_id_cancel(self) -> None:
+        """Se _no_risultati è True e l'input non è cambiato, Enter chiude il dialog."""
+        dialogo = self._crea_dialog_stub()
+        dialogo._no_risultati = True
+        dialogo._ultimo_numero_cercato = "42"
+        dialogo.FindFocus.return_value = dialogo._input_ctrl
+        evento = MagicMock()
+        evento.GetKeyCode.return_value = wx.WXK_RETURN
+
+        DialogoRicercaNumero._on_char_hook(dialogo, evento)
+
+        dialogo.EndModal.assert_called_once_with(wx.ID_CANCEL)
+
+    def test_invio_su_input_numero_cambiato_esegue_ricerca(self) -> None:
+        """Se l'utente ha modificato il numero, Enter deve lanciare _on_cerca non chiudere."""
+        dialogo = self._crea_dialog_stub()
+        dialogo._no_risultati = True
+        dialogo._ultimo_numero_cercato = "42"
+        dialogo._input_ctrl.GetValue.return_value = "7"  # numero diverso
+        dialogo.FindFocus.return_value = dialogo._input_ctrl
+        dialogo._comandi.cerca_numero.return_value = self._esito_non_trovato()
+        evento = MagicMock()
+        evento.GetKeyCode.return_value = wx.WXK_RETURN
+
+        DialogoRicercaNumero._on_char_hook(dialogo, evento)
+
+        dialogo._comandi.cerca_numero.assert_called_once_with(7)
+        dialogo.EndModal.assert_not_called()
