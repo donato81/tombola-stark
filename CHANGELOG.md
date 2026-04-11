@@ -22,6 +22,12 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `bingo_game/ui/finestra_gioco.py`: `PannelloTabellone.aggiorna()` e `PannelloCartella.aggiorna()`
   collegano le griglie visive allo stato live della partita; `_aggiorna_griglie_visive()` viene
   chiamato automaticamente dopo ogni estrazione, dopo la verifica premi e all'avvio del gioco.
+- `bingo_game/ui/renderers/renderer_wx.py`: `_wx_aggiorna_tabellone()` e `_wx_aggiorna_cartella()`
+  implementati (via duck typing su `pannello_tabellone` e `pannello_cartella`); aggiunto
+  `_indice_cartella_corrente` allo stato interno; `_handle_visualizza_cartella_semplice` e
+  `_handle_visualizza_cartella_avanzata` chiamano ora `_wx_aggiorna_cartella` dopo `_wx_aggiorna_output`.
+  - Aggiornamento Fase 4: miglioramenti runtime — aggiunti logging diagnostico e
+    normalizzazione input in `_wx_aggiorna_tabellone` e `_wx_aggiorna_cartella`.
 
 ## [0.10.0] — 2026-04-11
 
