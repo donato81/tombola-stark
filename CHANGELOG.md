@@ -9,6 +9,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+## [0.10.0] — 2026-04-11
+
 ### Fixed
 - `bingo_game/ui/finestra_gioco.py`: il tasto rapido `F6` nella griglia richiama ora correttamente `self._renderer.ripeti_ultimo_annuncio()` dal frame di gioco; prima tentava di accedere a `fg._finestra._renderer` e generava `AttributeError`, lasciando NVDA silente.
 - `bingo_game/ui/renderers/renderer_wx.py`: `Ctrl+Shift+V` ora costruisce e vocalizza il contenuto avanzato completo di tutte le cartelle, inclusa l'evidenziazione dei numeri segnati; prima annunciava solo il conteggio delle cartelle senza leggerne alcuna.
