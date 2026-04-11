@@ -103,6 +103,9 @@ DIMENSIONE_BTN_SELEZIONE_CARTELLA = (36, 36)    # Dimensione pulsanti [1]..[6] s
 SPAZIATURA_BTN = 10                             # Spaziatura standard tra pulsanti
 SPAZIATURA_BTN_PICCOLA = 8                      # Spaziatura ridotta tra pulsanti piccoli
 
+DIMENSIONE_CELLA_TABELLONE = (24, 26)   # Dimensione minima cella griglia tabellone (w, h) in pixel
+DIMENSIONE_CELLA_CARTELLA = (60, 34)    # Dimensione minima cella griglia cartella (w, h) in pixel
+
 DIMENSIONE_FINESTRA_GIOCO = (1000, 700)          # Dimensione finestra principale di gioco
 DIMENSIONE_FINESTRA_PRINCIPALE = (400, 300)      # Dimensione finestra menu principale
 DIMENSIONE_FINESTRA_CONFIGURAZIONE = (500, 430)  # Dimensione finestra configurazione partita
