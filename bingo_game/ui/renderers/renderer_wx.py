@@ -196,6 +196,11 @@ class WxRenderer(BaseRenderer):
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
 
+    def annuncia_pausa(self, testo: str) -> None:
+        """Vocalizza lo stato di pausa o ripresa del gioco."""
+        self._wx_aggiorna_output(testo)
+        self._ao2_vocalizza(testo)
+
     # ---------------------------------------------------------------
     # Dispatcher centrale
     # ---------------------------------------------------------------

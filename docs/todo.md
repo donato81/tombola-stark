@@ -148,6 +148,7 @@ stato: attivo
 - [TODO_ricerca_auto_chiusura_dialog_v1.1.0.md](5%20-%20todolist/TODO_ricerca_auto_chiusura_dialog_v1.1.0.md)
 - [TODO_sostituzione_hotkey_ctrl_enter_v0.9.6.md](5%20-%20todolist/TODO_sostituzione_hotkey_ctrl_enter_v0.9.6.md)
 - [TODO_pausa_gioco_v1.2.0.md](5%20-%20todolist/TODO_pausa_gioco_v1.2.0.md)
+- [TODO_pausa_gioco_v1.2.0.md](5%20-%20todolist/TODO_pausa_gioco_v1.2.0.md) — COMPLETED
 
 ### Da fare
 

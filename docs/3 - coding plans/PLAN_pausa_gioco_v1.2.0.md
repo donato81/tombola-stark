@@ -1,7 +1,7 @@
 ---
 type: plan
 feature: pausa_gioco
-status: DRAFT
+status: READY
 agent: Agent-Plan
 versione: 1.2.0
 design_ref: docs/2 - projects/DESIGN_pausa_gioco.md

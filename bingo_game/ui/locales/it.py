@@ -183,6 +183,30 @@ MESSAGGI_EVENTI: Mapping[Codici_Eventi, tuple[str, ...]] = MappingProxyType({
     "TURNO_PAUSA_COUNTDOWN": (
         "{s} secondi al prossimo turno.",
     ),
+
+    # --- Pausa gioco (layer UI) ---
+
+    # PAUSA_ATTIVATA: gioco messo in pausa dal giocatore.
+    "PAUSA_ATTIVATA": (
+        "Gioco in pausa.",
+    ),
+
+    # PAUSA_DISATTIVATA_ESTRAZIONE: ripresa dalla fase attesa estrazione.
+    "PAUSA_DISATTIVATA_ESTRAZIONE": (
+        "Gioco ripreso. Fase: Attesa nuova estrazione.",
+    ),
+
+    # PAUSA_DISATTIVATA_RECLAMI: ripresa dalla fase finestra reclami.
+    # Placeholder: {s} secondi rimanenti.
+    "PAUSA_DISATTIVATA_RECLAMI": (
+        "Gioco ripreso. Fase: Finestra reclami aperta. Tempo rimanente: {s} secondi.",
+    ),
+
+    # PAUSA_DISATTIVATA_PAUSA_TURNO: ripresa dalla fase pausa tra turni.
+    # Placeholder: {s} secondi rimanenti.
+    "PAUSA_DISATTIVATA_PAUSA_TURNO": (
+        "Gioco ripreso. Fase: Pausa breve tra turni. Tempo rimanente: {s} secondi.",
+    ),
 })
 
 

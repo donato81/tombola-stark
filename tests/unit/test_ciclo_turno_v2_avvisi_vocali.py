@@ -52,6 +52,9 @@ class _RendererStub(BaseRenderer):
     def annuncia_tutti_pronti(self) -> None:
         self.chiamate.append(("annuncia_tutti_pronti", None))
 
+    def annuncia_pausa(self, testo: str) -> None:
+        self.chiamate.append(("annuncia_pausa", testo))
+
 
 class TestAvvisiVocali(unittest.TestCase):
 

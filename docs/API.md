@@ -54,6 +54,13 @@ L'obiettivo è documentare le interfacce che altri livelli o componenti chiamano
 - `bingo_game/ui/finestra_principale.py` – `FinestraPrincipale` (menu principale; primo frame mostrato all'avvio).
 - `bingo_game/ui/finestra_configurazione.py` – `FinestraConfigurazione` (frame di configurazione partita; componente pubblico di presentazione).
 - `bingo_game/ui/finestra_gioco.py` – `FinestraGioco` (frame principale di gioco; pannello griglia focalizzabile e area annunci).
+  
+Pausa di gioco (v1.2.0)
+
+- `FinestraGioco` espone i controlli di pausa a livello di presentazione: pulsante "Pausa" e binding `Ctrl+P` per alternare lo stato di pausa della UI. La pausa è implementata esclusivamente nel layer UI (non modifica lo stato di dominio) e sospende i timer della finestra di azione e le azioni automatiche dell'interfaccia. Alla ripresa la UI esegue un annuncio completo dello stato corrente (ultimo numero, timer residuo, premi del turno) tramite il renderer.
+- `bingo_game/events/codici_eventi.py`: nuove costanti evento pubbliche `PAUSA_ATTIVATA` e `PAUSA_DISATTIVATA` (usate per notifiche strutturate verso il renderer).
+- `bingo_game/ui/renderers/base_renderer.py`: aggiunto metodo pubblico `annuncia_pausa(self, testo: str) -> None` nel contratto del renderer. `renderer_wx` implementa `annuncia_pausa` per la vocalizzazione AO2 e l'aggiornamento visivo del pannello stato.
+- Comportamento UX chiave: `Ctrl+P` e il pulsante pausa mostrano il tempo residuo della finestra d'azione (se applicabile), impediscono l'estrazione/azione principale mentre `in_pausa == True` e al `riprendi` richiamano il renderer per l'annuncio completo della ripresa.
 - `bingo_game/ui/dialogo_ricerca.py` – `DialogoRicercaNumero` (dialog persistente per ricerca numero; vocalizza i risultati e non utilizza più la chiusura automatica: quando trova risultati rimane aperto, abilita un pulsante `Vai al risultato` e richiede la conferma dell'utente prima di restituire `wx.ID_OK`).
 - `bingo_game/comandi_partita.py` – espone `ComandiGiocatoreUmano` come facade per il layer di presentazione.
 

@@ -84,6 +84,7 @@ class TestOnTickPausaAzione2(unittest.TestCase):
         class _Stub:
             _timer_pausa: object = MagicMock()
             _fase_turno_ui: str = "pausa_turno"
+            _in_pausa: bool = False
 
             def _aggiorna_stato_pulsante(self) -> None:
                 pass
@@ -105,6 +106,7 @@ class TestOnTickPausaAzione2(unittest.TestCase):
         class _Stub:
             _timer_pausa: object = MagicMock()
             _fase_turno_ui: str = "pausa_turno"
+            _in_pausa: bool = False
 
             def _aggiorna_stato_pulsante(self) -> None:
                 pass
@@ -126,6 +128,7 @@ class TestOnTickPausaAzione2(unittest.TestCase):
         class _Stub:
             _timer_pausa: object = MagicMock()
             _fase_turno_ui: str = "pausa_turno"
+            _in_pausa: bool = False
 
             def _aggiorna_stato_pulsante(self) -> None:
                 pass
@@ -145,6 +148,7 @@ class TestOnTickPausaAzione2(unittest.TestCase):
         class _Stub:
             _timer_pausa: object = MagicMock()
             _fase_turno_ui: str = "pausa_turno"
+            _in_pausa: bool = False
 
             def _aggiorna_stato_pulsante(self) -> None:
                 pass

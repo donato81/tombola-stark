@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import logging
 import random
+import time
 from typing import TYPE_CHECKING, Any, Optional
 
 import wx
@@ -58,6 +59,10 @@ _ui_logger = logging.getLogger("ui")
 _TIPI_VITTORIA = ["ambo", "terno", "quaterna", "cinquina", "tombola"]
 # WXK_RETURN = 13 in tutte le versioni wx; getattr per robustezza in ambienti stub
 _KEY_RETURN: int = getattr(wx, "WXK_RETURN", 13)
+# Tasti funzione — getattr per robustezza in ambienti di test con stub wx parziale
+_KEY_F1: int = getattr(wx, "WXK_F1", 340)
+_KEY_F5: int = getattr(wx, "WXK_F5", 344)
+_KEY_F6: int = getattr(wx, "WXK_F6", 345)
 
 
 class PannelloGriglia(wx.Panel):
@@ -162,14 +167,14 @@ class PannelloGriglia(wx.Panel):
             return
 
         # F1..F5 — dichiara vittoria
-        if wx.WXK_F1 <= key <= wx.WXK_F5 and not ctrl and not shift:
-            indice = key - wx.WXK_F1  # 0..4
+        if _KEY_F1 <= key <= _KEY_F5 and not ctrl and not shift:
+            indice = key - _KEY_F1  # 0..4
             tipo = _TIPI_VITTORIA[indice]
             fg._dispatch(fg._comandi.annuncia_vittoria(tipo, fg._turno_corrente))
             return
 
         # F6 — ripeti ultimo annuncio
-        if key == wx.WXK_F6 and not ctrl and not shift:
+        if key == _KEY_F6 and not ctrl and not shift:
             fg._renderer.ripeti_ultimo_annuncio()
             return
 
@@ -218,6 +223,13 @@ class FinestraGioco(wx.Frame):
         self._durata_finestra_corrente_ms: int = 0
         self._avvisi_emessi: set[int] = set()
 
+        # --- Stato pausa ---
+        self._in_pausa: bool = False
+        self._fase_pre_pausa: str = ""
+        self._ms_residui_azione: int = 0
+        self._ms_residui_pausa: int = 0
+        self._avvio_pausa_turno_mono: float = 0.0
+
         self._build_ui()
         self._bind_finestra()
         self.Centre()
@@ -241,6 +253,12 @@ class FinestraGioco(wx.Frame):
         # Pulsante principale a due stati
         self._btn_principale = wx.Button(panel, label="Inizia partita")
         sizer.Add(self._btn_principale, 0, wx.ALL | wx.EXPAND, 5)
+
+        # Pulsante pausa (disabilitato fino al primo turno)
+        self._btn_pausa = wx.Button(panel, label="Metti in pausa")
+        self._btn_pausa.Disable()
+        sizer.Add(self._btn_pausa, 0, wx.ALL | wx.EXPAND, 5)
+        self.Bind(wx.EVT_BUTTON, self._on_pausa, self._btn_pausa)
 
         # Pulsante ritorno al menu (nascosto fino a fine partita)
         self._btn_torna_menu = wx.Button(panel, label="Torna al menu principale")
@@ -274,6 +292,10 @@ class FinestraGioco(wx.Frame):
     def _bind_finestra(self) -> None:
         self.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
 
+    def _on_pausa(self, event: object) -> None:
+        """Handler del pulsante pausa: delega a _toggle_pausa."""
+        self._toggle_pausa()
+
     def _on_char_hook(self, event: wx.KeyEvent) -> None:
         key = event.GetKeyCode()
         ctrl = event.ControlDown()
@@ -301,6 +323,11 @@ class FinestraGioco(wx.Frame):
         # Ctrl+Enter — passa turno
         if ctrl and key == _KEY_RETURN:
             self._on_pulsante_principale(None)
+            return
+
+        # Ctrl+P — pausa/ripresa
+        if ctrl and key == ord("P"):
+            self._toggle_pausa()
             return
 
         # Ctrl+F — ricerca numero
@@ -356,6 +383,8 @@ class FinestraGioco(wx.Frame):
     def _on_pulsante_principale(self, event: object) -> None:
         if self._comandi_sistema.is_terminata(self._partita):
             self._renderer.mostra_messaggio_sistema("La partita è terminata.")
+            return
+        if self._in_pausa:
             return
 
         if self._fase_turno_ui == "attesa_estrazione":
@@ -529,6 +558,7 @@ class FinestraGioco(wx.Frame):
     def _avvia_pausa_turno(self, durata_ms: int) -> None:
         """Avvia la pausa tra turni con annuncio vocale iniziale."""
         self._ferma_tutti_i_timer()  # Protezione mutua esclusione
+        self._avvio_pausa_turno_mono = time.monotonic()
         secondi = durata_ms // 1000
         self._renderer.annuncia_avvio_pausa_turno(secondi)
         self._timer_pausa = wx.Timer(self)
@@ -537,11 +567,73 @@ class FinestraGioco(wx.Frame):
 
     def _on_tick_pausa(self, event: wx.TimerEvent) -> None:
         """Fine della pausa: avvia automaticamente un nuovo turno."""
+        # Guard difensiva: ignora callback tardivi se la partita è in pausa utente
+        # o se la fase non è più "pausa_turno" (es. riprendi anticipato).
+        if self._in_pausa or self._fase_turno_ui != "pausa_turno":
+            return
         self._timer_pausa = None
         self._fase_turno_ui = "attesa_estrazione"
         self._aggiorna_stato_pulsante()
         # Azione 2: simula click automatico sul pulsante per avviare il turno successivo.
         self._on_pulsante_principale(None)
+
+    # ------------------------------------------------------------------
+    # Pausa gioco su richiesta del giocatore (Ctrl+P)
+    # ------------------------------------------------------------------
+
+    def _toggle_pausa(self) -> None:
+        """Alterna tra pausa e ripresa del gioco."""
+        if self._in_pausa:
+            self._riprendi_gioco()
+        else:
+            self._metti_in_pausa()
+
+    def _metti_in_pausa(self) -> None:
+        """Mette in pausa la partita attiva, congela timer e aggiorna UI."""
+        if self._comandi_sistema.is_terminata(self._partita):
+            return
+        if self._partita.tabellone.get_conteggio_estratti() == 0:
+            return  # Pausa disponibile solo durante partita attiva
+        self._fase_pre_pausa = self._fase_turno_ui
+        # Calcola residuo timer azione (se attivo)
+        self._ms_residui_azione = max(
+            0, self._durata_finestra_corrente_ms - self._ms_trascorsi_azione
+        )
+        # Calcola residuo timer pausa turno (se attivo)
+        if self._timer_pausa is not None and self._avvio_pausa_turno_mono > 0:
+            elapsed = int((time.monotonic() - self._avvio_pausa_turno_mono) * 1000)
+            self._ms_residui_pausa = max(0, self._durata_pausa_ms - elapsed)
+        else:
+            self._ms_residui_pausa = 0
+        self._ferma_tutti_i_timer()
+        self._in_pausa = True
+        self._fase_turno_ui = "in_pausa"
+        self._aggiorna_stato_pulsante()
+        self._renderer.annuncia_pausa("Gioco in pausa.")
+
+    def _riprendi_gioco(self) -> None:
+        """Riprende il gioco dalla pausa, ripristinando timer e fase precedente."""
+        self._in_pausa = False
+        self._fase_turno_ui = self._fase_pre_pausa
+        self._aggiorna_stato_pulsante()
+        # Costruisce testo di ripresa con stato completo
+        _mappa_fase = {
+            "attesa_estrazione": "Attesa nuova estrazione",
+            "attesa_reclami": "Finestra reclami aperta",
+            "pausa_turno": "Pausa breve tra turni",
+        }
+        desc_fase = _mappa_fase.get(self._fase_pre_pausa, self._fase_pre_pausa)
+        if self._fase_pre_pausa == "attesa_reclami" and self._ms_residui_azione > 0:
+            secondi = max(1, self._ms_residui_azione // 1000)
+            testo = f"Gioco ripreso. Fase: {desc_fase}. Tempo rimanente: {secondi} secondi."
+            self._avvia_timer_azione(self._ms_residui_azione)
+        elif self._fase_pre_pausa == "pausa_turno" and self._ms_residui_pausa > 0:
+            secondi = max(1, self._ms_residui_pausa // 1000)
+            testo = f"Gioco ripreso. Fase: {desc_fase}. Tempo rimanente: {secondi} secondi."
+            self._avvia_pausa_turno(self._ms_residui_pausa)
+        else:
+            testo = f"Gioco ripreso. Fase: {desc_fase}."
+        self._renderer.annuncia_pausa(testo)
 
 
     # ------------------------------------------------------------------
@@ -572,6 +664,15 @@ class FinestraGioco(wx.Frame):
 
     def aggiorna_stato_pulsante(self, primo_turno_eseguito: bool, fase: Optional[str] = None) -> None:
         """Interfaccia per il renderer: aggiorna etichetta pulsante in base alla fase."""
+        if fase == "in_pausa":
+            label = "Gioco in pausa"
+            self._btn_principale.SetLabel(label)
+            self._btn_principale.Disable()
+            if hasattr(self, "_btn_pausa"):
+                self._btn_pausa.SetLabel("Riprendi")
+                self._btn_pausa.Enable()
+            self._renderer.annuncia_fase_turno(label)
+            return
         if fase == "attesa_reclami":
             label = "Ho finito — avvia verifica"
         elif fase == "pausa_turno":
@@ -582,6 +683,18 @@ class FinestraGioco(wx.Frame):
             label = "Inizia partita"
         self._btn_principale.SetLabel(label)
         self._btn_principale.Enable(fase != "pausa_turno")
+        # Abilita btn_pausa solo se la partita è attiva
+        if hasattr(self, "_btn_pausa"):
+            partita_attiva = (
+                self._partita.tabellone.get_conteggio_estratti() > 0
+                and not self._comandi_sistema.is_terminata(self._partita)
+                and fase != "pausa_turno"
+            )
+            self._btn_pausa.SetLabel("Metti in pausa")
+            if partita_attiva:
+                self._btn_pausa.Enable()
+            else:
+                self._btn_pausa.Disable()
         # Re-announce esplicito per NVDA (l'etichetta potrebbe non essere riletta automaticamente).
         self._renderer.annuncia_fase_turno(label)
 

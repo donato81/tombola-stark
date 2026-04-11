@@ -37,12 +37,16 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - `bingo_game/ui/renderers/renderer_wx.py`: introdotto stato locale per ultimo annuncio e log, feedback runtime per eventi principali, duck typing verso i frame wx e supporto operativo a F6 e Ctrl+E.
 - `bingo_game/comandi_partita.py`: `ComandiGiocatoreUmano` non e' piu' un placeholder; ora espone una facade dei comandi del giocatore umano per il layer di presentazione.
 - `docs/API.md` e `docs/ARCHITECTURE.md`: sincronizzate con l'entry point wx attivo e con i nuovi componenti frame/dialog della UI.
+- Pausa di gioco (v1.2.0): la documentazione del presentation layer ora descrive la pausa UI-only con binding `Ctrl+P`, pulsante "Pausa", visualizzazione del timer residuo e annuncio completo alla ripresa.
 - `bingo_game/tabellone.py`: allineamento formale del modulo (type hints, docstring) senza modifiche logiche; unit tests eseguiti con successo (329 passed, 0 failed).
 - `bingo_game/tabellone.py`: sostituito `ValueError` con `TabelloneNumeriEsauritiException` nel caso di numeri esauriti, mantenendo invariato il messaggio testuale e la logica di gioco.
 - `bingo_game/partita.py`: aggiornato il blocco di intercettazione dell'estrazione per tradurre `TabelloneNumeriEsauritiException` in `PartitaNumeriEsauritiException` senza cambiare il comportamento runtime.
 
 ### Added
 - `bingo_game/ui/dialogo_ricerca.py`: nuova classe `DialogoRicercaNumero` — dialog persistente di ricerca numero che vocalizza i risultati; non utilizza più una chiusura automatica: quando trova risultati rimane aperto, abilita un pulsante esplicito `Vai al risultato` e attende la conferma dell'utente.
+- `bingo_game/events/codici_eventi.py`: aggiunte costanti `PAUSA_ATTIVATA`, `PAUSA_DISATTIVATA` per notifiche strutturate della pausa.
+- `bingo_game/ui/renderers/base_renderer.py`: aggiunto metodo `annuncia_pausa(self, testo: str) -> None` nel contratto del renderer per supportare l'annuncio di pausa/ripresa.
+- `bingo_game/ui/finestra_gioco.py`: aggiunto pulsante "Pausa" e binding `Ctrl+P`; la UI gestisce il timer residuo della finestra di azione, sospende le azioni durante la pausa e invia l'annuncio completo al resume.
 - `bingo_game/ui/finestra_gioco.py`: apre `DialogoRicercaNumero` in modalità modale e, se il dialog ritorna `wx.ID_OK` con `_primo_risultato` valorizzato (l'utente ha premuto `Vai al risultato`), naviga al primo risultato tramite `_naviga_a_risultato_ricerca()` migliorando l'esperienza accessibile di ricerca.
 - `tests/unit/test_ciclo_turno_v2_azioni_2_3.py`: nuova suite unitaria dedicata ad Azione 2 e Azione 3 del Ciclo Turno V2; copre riavvio automatico dopo la pausa e arresto esplicito dei timer concorrenti.
 - `tests/unit/test_vocalizzatore.py`: suite unittest per `my_lib/vocalizzatore.py`; 8 test su `NullVocalizzatore` e `Vocalizzatore` con backend fake iniettabile; nessun patch su AO2.

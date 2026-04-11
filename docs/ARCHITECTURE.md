@@ -247,6 +247,20 @@ renderer si occupa dell'orchestrazione della UX accessibile.
 
 ---
 
+### Pausa di gioco (v1.2.0)
+
+La funzionalità di "pausa" è stata introdotta come comportamento del layer di presentazione senza modificare lo stato del dominio. Principali vincoli e comportamento:
+
+- Ambito: la pausa è UI-only. Il dominio (`Partita`, `Tabellone`) non viene alterato; la pausa sospende i timer e le azioni di presentazione (estrazione/inoltro UI) finché l'utente non riprende.
+- Attivazione: `Ctrl+P` o il pulsante "Pausa" in `FinestraGioco` alternano lo stato di pausa della UI.
+- Timer residuo: durante la pausa la UI mantiene e visualizza il tempo residuo della finestra d'azione; al ripristino il calcolo prende in considerazione il tempo trascorso prima della pausa per presentare un valore coerente.
+- Comunicazione: vengono emessi eventi strutturati `PAUSA_ATTIVATA` / `PAUSA_DISATTIVATA` tramite il package `bingo_game/events/` per consentire al renderer di comporre messaggi TTS senza toccare il dominio.
+- Ripresa: al `riprendi` la presentazione effettua un annuncio completo e coerente dello stato di partita (ultimo numero estratto, premi del turno, timer aggiornato) tramite il metodo `annuncia_pausa`/`annuncia_fase_turno` del renderer: questo garantisce che lo screen reader riceva un singolo, chiaro messaggio di ripresa.
+
+Impatto architetturale: la pausa è compatibile con il principio di separazione dei livelli — il controller resta il punto di accesso al dominio e la UI coordina solo l'orchestrazione temporale e gli annunci vocali.
+
+---
+
 #### Infrastruttura di Logging (trasversale)
 
 **Scopo**: Sistema di logging centralizzato che traccia eventi di gioco, eccezioni e stato senza accoppiare il dominio a dipendenze esterne. È una **cross-cutting concern** accessibile solo da Controller e Interfaccia.

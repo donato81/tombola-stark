@@ -5,7 +5,7 @@ feature: pausa_gioco
 versione: 1.2.0
 data_creazione: 2026-04-11
 agent: Agent-Design
-status: DRAFT
+status: REVIEWED
 ---
 
 # Design: Pausa del gioco (v1.2.0)

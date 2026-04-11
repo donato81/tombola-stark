@@ -15,6 +15,10 @@ TURNO_TUTTI_PRONTI: Final = "TURNO_TUTTI_PRONTI"
 TURNO_PAUSA_INIZIO: Final = "TURNO_PAUSA_INIZIO"
 TURNO_PAUSA_COUNTDOWN: Final = "TURNO_PAUSA_COUNTDOWN"
 
+# Chiavi pausa gioco (layer UI).
+PAUSA_ATTIVATA: Final = "PAUSA_ATTIVATA"
+PAUSA_DISATTIVATA: Final = "PAUSA_DISATTIVATA"
+
 # Tipo per tipizzare le chiavi evento (in modo simile a Codici_Errori).
 Codici_Eventi = Literal[
     "EVENTO_FOCUS_AUTO_IMPOSTATO",
@@ -25,4 +29,6 @@ Codici_Eventi = Literal[
     "TURNO_TUTTI_PRONTI",
     "TURNO_PAUSA_INIZIO",
     "TURNO_PAUSA_COUNTDOWN",
+    "PAUSA_ATTIVATA",
+    "PAUSA_DISATTIVATA",
 ]

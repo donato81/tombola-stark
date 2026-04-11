@@ -179,6 +179,11 @@ class BaseRenderer(ABC):
         """
         ...
 
+    @abstractmethod
+    def annuncia_pausa(self, testo: str) -> None:
+        """Vocalizza lo stato di pausa o ripresa del gioco."""
+        ...
+
     def _formatta_testo_da_catalogo(self, chiave: str, **kwargs: Any) -> str:
         """
         Cerca la chiave nei cataloghi nell'ordine canonico e restituisce il

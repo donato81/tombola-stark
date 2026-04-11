@@ -101,6 +101,7 @@ class TestFinestraGiocoCtrlEnterAttesaReclami(unittest.TestCase):
         finestra._renderer = Mock()
         finestra._partita = Mock()
         finestra._fase_turno_ui = "attesa_reclami"
+        finestra._in_pausa = False
         finestra._controlla_tutti_pronti = Mock()
         return finestra
 

@@ -243,6 +243,8 @@ class TestCodiciEventi(unittest.TestCase):
             codici_eventi.TURNO_TUTTI_PRONTI,
             codici_eventi.TURNO_PAUSA_INIZIO,
             codici_eventi.TURNO_PAUSA_COUNTDOWN,
+            codici_eventi.PAUSA_ATTIVATA,
+            codici_eventi.PAUSA_DISATTIVATA,
         }
         literal_vals = set(get_args(codici_eventi.Codici_Eventi))
         self.assertEqual(costanti, literal_vals)
