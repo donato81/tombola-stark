@@ -189,7 +189,8 @@ class WxRenderer(BaseRenderer):
         self._ao2_vocalizza(testo)
 
     def annuncia_fase_turno(self, testo_fase: str) -> None:
-        """Vocalizza la fase corrente del turno (re-announce NVDA dopo SetLabel)."""
+        """Aggiorna il widget e vocalizza la fase corrente del turno (re-announce NVDA dopo SetLabel)."""
+        self._wx_aggiorna_output(testo_fase)
         self._ao2_vocalizza(testo_fase)
 
     def annuncia_avviso_timeout(self, secondi_rimanenti: int, livello: int = 80) -> None:
