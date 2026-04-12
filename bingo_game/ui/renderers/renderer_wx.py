@@ -134,15 +134,30 @@ class WxRenderer(BaseRenderer):
         """
         Presenta il riepilogo finale della partita.
 
-        Chiavi attese: turni_giocati, stato_partita, numeri_estratti,
-        premi_gia_assegnati, giocatori.
-        Chiavi consigliate: conteggio_estratti, conteggio_premi,
-        conteggio_giocatori, vincitore_tombola.
-
-        TODO: refactoring futuro verso DatiReportFinale tipizzata.
+        Chiavi attese: turni_giocati, conteggio_estratti,
+        premi_gia_assegnati, vincitore_tombola, giocatori.
         """
+        turni = dati_partita.get("turni_giocati", "?")
+        estratti = dati_partita.get("conteggio_estratti", "?")
+        vincitore = dati_partita.get("vincitore_tombola", "\u2014")
+        premi = dati_partita.get("premi_gia_assegnati", [])
+
+        parti = [f"Partita terminata. Turni giocati: {turni}. Numeri estratti: {estratti} su 90."]
+        if vincitore and vincitore != "\u2014":
+            parti.append(f"Tombola vinta da: {vincitore}.")
+        if premi:
+            lista_premi = []
+            for p in premi:
+                if isinstance(p, dict):
+                    lista_premi.append(f"{p.get('premio', '?')} per {p.get('giocatore', '?')}")
+                else:
+                    tipo = getattr(p, "tipo", "?")
+                    giocat = getattr(p, "giocatore", "?")
+                    lista_premi.append(f"{tipo} per {giocat}")
+            parti.append("Premi assegnati: " + ", ".join(lista_premi) + ".")
+        testo = " ".join(parti)
+
         self._wx_mostra_report_finale(dati_partita)
-        testo = self._formatta_testo_da_catalogo(SISTEMA_ERRORE_CODICE_MANCANTE)
         self._ao2_vocalizza(testo)
 
     def mostra_messaggio_sistema(self, testo: str) -> None:
@@ -792,10 +807,16 @@ class WxRenderer(BaseRenderer):
             self._finestra.mostra_testo(testo)  # type: ignore[union-attr]
 
     def _wx_mostra_report_finale(self, dati_partita: dict[str, Any]) -> None:
+        if self._finestra is None:
+            return
         turni = dati_partita.get("turni_giocati", "?")
         testo = f"Partita terminata. Turni giocati: {turni}."
-        if self._finestra is not None and hasattr(self._finestra, "mostra_testo"):
+        if hasattr(self._finestra, "mostra_testo"):
             self._finestra.mostra_testo(testo)  # type: ignore[union-attr]
+        if hasattr(self._finestra, "aggiungi_a_log"):
+            self._finestra.aggiungi_a_log(testo)  # type: ignore[union-attr]
+        if hasattr(self._finestra, "mostra_riepilogo_finale"):
+            self._finestra.mostra_riepilogo_finale(dati_partita)  # type: ignore[union-attr]
 
     # ---------------------------------------------------------------
     # Layer voce (_ao2_*)

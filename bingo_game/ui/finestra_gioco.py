@@ -286,6 +286,84 @@ class PannelloCartella(wx.Panel):
 _N_TICK_LAMPEGGIO: int = 7  # 7 tick × 300ms ≈ 2.1 secondi totali
 
 
+class PannelloRiepilogoFinale(wx.Panel):
+    """
+    Pannello visivo di riepilogo finale dopo tombola.
+
+    Non focalizzabile. Mostra titolo, vincitore, turni, estratti e lista premi.
+    Parte nascosto; viene mostrato da FinestraGioco.mostra_riepilogo_finale().
+    """
+
+    def __init__(self, parent: wx.Window) -> None:
+        super().__init__(parent, style=wx.NO_BORDER)
+        self.SetWindowStyleFlag(self.GetWindowStyleFlag() & ~wx.TAB_TRAVERSAL)
+        self._lbl_titolo: wx.StaticText
+        self._lbl_vincitore: wx.StaticText
+        self._lbl_turni: wx.StaticText
+        self._lbl_estratti: wx.StaticText
+        self._sizer_premi: wx.BoxSizer
+        self._build_ui()
+        self.Hide()
+
+    def _build_ui(self) -> None:
+        sizer = wx.BoxSizer(wx.VERTICAL)
+
+        font_titolo = wx.Font(
+            16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD
+        )
+        self._lbl_titolo = wx.StaticText(self, label="Partita terminata")
+        self._lbl_titolo.SetFont(font_titolo)
+        self._lbl_titolo.SetForegroundColour(wx.Colour(COLORE_ACCENT_BLU))
+        sizer.Add(self._lbl_titolo, 0, wx.ALL, 8)
+
+        self._lbl_vincitore = wx.StaticText(self, label="")
+        self._lbl_vincitore.SetForegroundColour(wx.Colour(COLORE_BTN_TOMBOLA))
+        sizer.Add(self._lbl_vincitore, 0, wx.ALL, 4)
+
+        self._lbl_turni = wx.StaticText(self, label="")
+        self._lbl_turni.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
+        sizer.Add(self._lbl_turni, 0, wx.ALL, 4)
+
+        self._lbl_estratti = wx.StaticText(self, label="")
+        self._lbl_estratti.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
+        sizer.Add(self._lbl_estratti, 0, wx.ALL, 4)
+
+        self._sizer_premi = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self._sizer_premi, 0, wx.LEFT, 8)
+
+        self.SetSizer(sizer)
+
+    def mostra(self, dati: dict) -> None:
+        """Popola le etichette con i dati di fine partita e ridisegna il layout."""
+        vincitore = dati.get("vincitore_tombola", "—")
+        turni = dati.get("turni_giocati", "?")
+        estratti = dati.get("conteggio_estratti", "?")
+        premi = dati.get("premi_gia_assegnati", [])
+
+        if vincitore and vincitore != "—":
+            self._lbl_vincitore.SetLabel(f"Tombola: {vincitore}")
+            self._lbl_vincitore.Show()
+        else:
+            self._lbl_vincitore.Hide()
+
+        self._lbl_turni.SetLabel(f"Turni giocati: {turni}")
+        self._lbl_estratti.SetLabel(f"Numeri estratti: {estratti} su 90")
+
+        self._sizer_premi.Clear(delete_windows=True)
+        for p in premi:
+            if isinstance(p, dict):
+                tipo = p.get("premio", "?")
+                giocatore = p.get("giocatore", "?")
+            else:
+                tipo = getattr(p, "tipo", "?")
+                giocatore = getattr(p, "giocatore", "?")
+            lbl = wx.StaticText(self, label=f"{tipo} — {giocatore}")
+            lbl.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
+            self._sizer_premi.Add(lbl, 0, wx.TOP, 2)
+
+        self.Layout()
+
+
 class PannelloGriglia(wx.Panel):
     """
     Pannello focalizzabile che funge da centro della navigazione tastiera.
@@ -582,6 +660,10 @@ class FinestraGioco(wx.Frame):
         # Pannello griglia
         self._pannello_griglia = PannelloGriglia(panel, self)
         sizer.Add(self._pannello_griglia, 1, wx.ALL | wx.EXPAND, 5)
+
+        # Pannello riepilogo finale (nascosto fino a tombola dichiarata)
+        self._pannello_riepilogo = PannelloRiepilogoFinale(panel)
+        sizer.Add(self._pannello_riepilogo, 1, wx.ALL | wx.EXPAND, 5)
 
         # Pannelli visivi affiancati: tabellone (sinistra) e cartella con frecce (destra)
         sizer_griglie = wx.BoxSizer(wx.HORIZONTAL)
@@ -902,8 +984,16 @@ class FinestraGioco(wx.Frame):
         self._aggiorna_griglie_visive()
 
         if risultato_ver.get("partita_terminata") or risultato_ver.get("tombola_rilevata"):
-            self._renderer.mostra_messaggio_sistema("La partita è terminata.")
+            dati_report = {
+                "turni_giocati": self._turno_corrente,
+                "conteggio_estratti": self._partita.tabellone.get_conteggio_estratti(),
+                "premi_gia_assegnati": list(getattr(self._partita, "premi_gia_assegnati", [])),
+                "vincitore_tombola": self._ottieni_vincitore_tombola(),
+                "giocatori": [g.nome for g in self._partita.giocatori],
+            }
+            self._renderer.mostra_report_finale(dati_report)
             self._btn_principale.Disable()
+            self._btn_pausa.Disable()
             if self._finestra_principale is not None:
                 self._btn_torna_menu.Enable()
                 self._btn_torna_menu.Show()
@@ -912,6 +1002,18 @@ class FinestraGioco(wx.Frame):
             return
 
         self._avvia_pausa_turno(self._durata_pausa_ms)
+
+    def _ottieni_vincitore_tombola(self) -> str:
+        """Restituisce il nome del vincitore tombola, o '—' se non disponibile."""
+        try:
+            for premio_info in getattr(self._partita, "premi_gia_assegnati", []):
+                if hasattr(premio_info, "tipo") and premio_info.tipo == "tombola":
+                    return getattr(premio_info, "giocatore", str(premio_info))
+                if isinstance(premio_info, dict) and premio_info.get("premio") == "tombola":
+                    return premio_info.get("giocatore", "—")
+        except Exception:
+            pass
+        return "—"
 
     # ------------------------------------------------------------------
     # Pianificazione risposte bot (D-5)
@@ -1056,6 +1158,21 @@ class FinestraGioco(wx.Frame):
         """Interfaccia per il renderer: aggiunge riga al log annunci."""
         if self._log_ctrl:
             self._log_ctrl.AppendText(testo + "\n")
+
+    def mostra_riepilogo_finale(self, dati: dict) -> None:
+        """Mostra il pannello riepilogo finale e nasconde i pannelli di gioco."""
+        self._pannello_griglia.Hide()
+        self._pannello_tabellone.Hide()
+        self._pannello_cartella.Hide()
+        if hasattr(self, "_btn_freccia_sx"):
+            self._btn_freccia_sx.Hide()
+            self._btn_freccia_dx.Hide()
+        if hasattr(self, "_sizer_selezione"):
+            for btn in self._pulsanti_selezione:
+                btn.Hide()
+        self._pannello_riepilogo.mostra(dati)
+        self._pannello_riepilogo.Show()
+        self.Layout()
 
     def aggiorna_stato_pulsante(self, primo_turno_eseguito: bool, fase: Optional[str] = None) -> None:
         """Interfaccia per il renderer: aggiorna etichetta pulsante in base alla fase."""

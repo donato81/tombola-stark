@@ -113,3 +113,120 @@ class TestWxRenderer(unittest.TestCase):
         )
         self.assertEqual(finestra.testi[-1], atteso)
         self.assertEqual(vocalizzatore.testi[-1], atteso)
+
+
+class TestMostraReportFinale(unittest.TestCase):
+    """Verifica la costruzione del testo accessibile in mostra_report_finale."""
+
+    def _crea_renderer(self) -> tuple:
+        finestra = _FinestraFittizia()
+        vocalizzatore = _VocalizzatoreFittizio()
+        renderer = WxRenderer(finestra, vocalizzatore)
+        return renderer, finestra, vocalizzatore
+
+    def test_testo_base_con_turni_e_estratti(self) -> None:
+        renderer, _, vocalizzatore = self._crea_renderer()
+        dati = {
+            "turni_giocati": 15,
+            "conteggio_estratti": 30,
+            "premi_gia_assegnati": [],
+            "vincitore_tombola": "—",
+        }
+        renderer.mostra_report_finale(dati)
+        testo = vocalizzatore.testi[-1]
+        self.assertIn("Turni giocati: 15", testo)
+        self.assertIn("Numeri estratti: 30 su 90", testo)
+
+    def test_con_vincitore_tombola_include_frase_vinta(self) -> None:
+        renderer, _, vocalizzatore = self._crea_renderer()
+        dati = {
+            "turni_giocati": 20,
+            "conteggio_estratti": 45,
+            "premi_gia_assegnati": [],
+            "vincitore_tombola": "Alice",
+        }
+        renderer.mostra_report_finale(dati)
+        testo = vocalizzatore.testi[-1]
+        self.assertIn("Tombola vinta da: Alice", testo)
+
+    def test_senza_vincitore_non_include_frase_vinta(self) -> None:
+        renderer, _, vocalizzatore = self._crea_renderer()
+        dati = {
+            "turni_giocati": 10,
+            "conteggio_estratti": 20,
+            "premi_gia_assegnati": [],
+            "vincitore_tombola": "—",
+        }
+        renderer.mostra_report_finale(dati)
+        testo = vocalizzatore.testi[-1]
+        self.assertNotIn("Tombola vinta da", testo)
+
+    def test_premi_lista_vuota_non_include_premi_assegnati(self) -> None:
+        renderer, _, vocalizzatore = self._crea_renderer()
+        dati = {
+            "turni_giocati": 5,
+            "conteggio_estratti": 10,
+            "premi_gia_assegnati": [],
+            "vincitore_tombola": "—",
+        }
+        renderer.mostra_report_finale(dati)
+        testo = vocalizzatore.testi[-1]
+        self.assertNotIn("Premi assegnati", testo)
+
+    def test_premi_dict_inclusi_nel_testo(self) -> None:
+        renderer, _, vocalizzatore = self._crea_renderer()
+        dati = {
+            "turni_giocati": 25,
+            "conteggio_estratti": 50,
+            "premi_gia_assegnati": [
+                {"premio": "ambo", "giocatore": "Mario"},
+                {"premio": "tombola", "giocatore": "Alice"},
+            ],
+            "vincitore_tombola": "Alice",
+        }
+        renderer.mostra_report_finale(dati)
+        testo = vocalizzatore.testi[-1]
+        self.assertIn("Premi assegnati", testo)
+        self.assertIn("ambo per Mario", testo)
+        self.assertIn("tombola per Alice", testo)
+
+    def test_premi_oggetto_con_attributi_inclusi(self) -> None:
+        class _Premio:
+            def __init__(self, tipo: str, giocatore: str) -> None:
+                self.tipo = tipo
+                self.giocatore = giocatore
+
+        renderer, _, vocalizzatore = self._crea_renderer()
+        dati = {
+            "turni_giocati": 30,
+            "conteggio_estratti": 60,
+            "premi_gia_assegnati": [_Premio("terno", "Luigi")],
+            "vincitore_tombola": "—",
+        }
+        renderer.mostra_report_finale(dati)
+        testo = vocalizzatore.testi[-1]
+        self.assertIn("terno per Luigi", testo)
+
+    def test_chiama_mostra_riepilogo_finale_sulla_finestra(self) -> None:
+        class _FinestraConRiepilogo(_FinestraFittizia):
+            def __init__(self) -> None:
+                super().__init__()
+                self.riepilogo_chiamato: bool = False
+                self.dati_ricevuti: dict = {}
+
+            def mostra_riepilogo_finale(self, dati: dict) -> None:
+                self.riepilogo_chiamato = True
+                self.dati_ricevuti = dati
+
+        finestra = _FinestraConRiepilogo()
+        vocalizzatore = _VocalizzatoreFittizio()
+        renderer = WxRenderer(finestra, vocalizzatore)
+        dati = {
+            "turni_giocati": 8,
+            "conteggio_estratti": 16,
+            "premi_gia_assegnati": [],
+            "vincitore_tombola": "—",
+        }
+        renderer.mostra_report_finale(dati)
+        self.assertTrue(finestra.riepilogo_chiamato)
+        self.assertEqual(finestra.dati_ricevuti["turni_giocati"], 8)
