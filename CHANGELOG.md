@@ -9,6 +9,23 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+---
+
+## [0.12.1] — 2026-04-12
+
+### Fixed — Accessibilita Tab navigazione (v0.12.1)
+
+- `bingo_game/ui/finestra_gioco.py`: `PannelloGriglia._on_key_down` gestisce ora
+  esplicitamente `WXK_TAB` e `Shift+WXK_TAB` chiamando `self.Navigate(IsForward)`
+  / `Navigate(IsBackward)`; il flag `wx.WANTS_CHARS` intercettava Tab senza cedere
+  il focus al ciclo `TAB_TRAVERSAL`, rendendo irraggiungibili con Tab tutti i
+  pulsanti della finestra (frecce cartella, selezione, premi).
+- `bingo_game/ui/finestra_gioco.py`: `_crea_pulsanti_selezione_cartella` chiama ora
+  `MoveAfterInTabOrder` dopo la creazione dinamica dei pulsanti `1..N`; i pulsanti
+  vengono posizionati immediatamente dopo `_btn_freccia_dx` nell'ordine Tab,
+  eliminando il posizionamento errato in fondo al ciclo focus causato dalla
+  creazione tardiva al primo turno.
+
 ### Fase 2 — Pulsanti interattivi
 
 - `bingo_game/ui/finestra_gioco.py`: aggiunto Gruppo 1 — pulsanti freccia `◀` `▶` ai

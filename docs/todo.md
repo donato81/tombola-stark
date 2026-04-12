@@ -95,6 +95,7 @@ stato: attivo
 - [PLAN_griglie_visive_statiche_v0.11.0.md](3%20-%20coding%20plans/PLAN_griglie_visive_statiche_v0.11.0.md)
 - [PLAN_griglie_visive_dinamiche_v0.11.1.md](3%20-%20coding%20plans/PLAN_griglie_visive_dinamiche_v0.11.1.md)
 - [PLAN_pulsanti_interattivi_v0.12.0.md](3%20-%20coding%20plans/PLAN_pulsanti_interattivi_v0.12.0.md)
+- [PLAN_fix_tab_navigation_finestra_gioco_v0.12.1.md](3%20-%20coding%20plans/PLAN_fix_tab_navigation_finestra_gioco_v0.12.1.md)
 
 ### Reports
 
@@ -114,6 +115,7 @@ stato: attivo
 - [REPORT_VALIDAZIONE_GRUPPO_C_EVENTI_PARTITA_2026-03-30.md](4%20-%20reports/REPORT_VALIDAZIONE_GRUPPO_C_EVENTI_PARTITA_2026-03-30.md)
 - [REPORT_VALIDAZIONE_GRUPPO_D_ESITO_AZIONE_2026-03-30.md](4%20-%20reports/REPORT_VALIDAZIONE_GRUPPO_D_ESITO_AZIONE_2026-03-30.md)
 - [REPORT_VALIDAZIONE_GRUPPO_E_EVENTI_OUTPUT_UI_2026-03-30.md](4%20-%20reports/REPORT_VALIDAZIONE_GRUPPO_E_EVENTI_OUTPUT_UI_2026-03-30.md)
+- [REPORT_tab_navigation_finestra_gioco.md](4%20-%20reports/REPORT_tab_navigation_finestra_gioco.md)
 
 ### Tasks
 
@@ -158,6 +160,7 @@ stato: attivo
 - [TODO_griglie_visive_statiche_v0.11.0.md](5%20-%20todolist/TODO_griglie_visive_statiche_v0.11.0.md) — COMPLETED
 - [TODO_griglie_visive_dinamiche_v0.11.1.md](5%20-%20todolist/TODO_griglie_visive_dinamiche_v0.11.1.md) — COMPLETED
 - [TODO_pulsanti_interattivi_v0.12.0.md](5%20-%20todolist/TODO_pulsanti_interattivi_v0.12.0.md) — IN_PROGRESS
+- [TODO_fix_tab_navigation_finestra_gioco_v0.12.1.md](5%20-%20todolist/TODO_fix_tab_navigation_finestra_gioco_v0.12.1.md)
 
 ### Da fare
 

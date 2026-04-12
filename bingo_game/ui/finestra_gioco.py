@@ -316,6 +316,16 @@ class PannelloGriglia(wx.Panel):
             fg._renderer.ripeti_ultimo_annuncio()
             return
 
+        # Tab / Shift+Tab — naviga tra controlli della finestra
+        # Necessario perche wx.WANTS_CHARS intercetta Tab senza delegarlo
+        # al ciclo TAB_TRAVERSAL del framework. Navigate() lo cede correttamente.
+        if key == wx.WXK_TAB:
+            flags = wx.NavigationKeyEvent.IsForward
+            if shift:
+                flags = wx.NavigationKeyEvent.IsBackward
+            self.Navigate(flags)
+            return
+
         event.Skip()
 
 
@@ -398,16 +408,19 @@ class FinestraGioco(wx.Frame):
 
         # Pulsante principale a due stati
         self._btn_principale = wx.Button(panel, label="Inizia partita")
+        self._btn_principale.SetName("Pulsante principale partita")
         sizer.Add(self._btn_principale, 0, wx.ALL | wx.EXPAND, 5)
 
         # Pulsante pausa (disabilitato fino al primo turno)
         self._btn_pausa = wx.Button(panel, label="Metti in pausa")
+        self._btn_pausa.SetName("Metti in pausa")
         self._btn_pausa.Disable()
         sizer.Add(self._btn_pausa, 0, wx.ALL | wx.EXPAND, 5)
         self.Bind(wx.EVT_BUTTON, self._on_pausa, self._btn_pausa)
 
         # Pulsante ritorno al menu (nascosto fino a fine partita)
         self._btn_torna_menu = wx.Button(panel, label="Torna al menu principale")
+        self._btn_torna_menu.SetName("Torna al menu principale")
         self._btn_torna_menu.Hide()
         self._btn_torna_menu.Disable()
         sizer.Add(self._btn_torna_menu, 0, wx.ALL | wx.EXPAND, 5)
@@ -483,6 +496,7 @@ class FinestraGioco(wx.Frame):
                 style=wx.TE_MULTILINE | wx.TE_READONLY,
             size=(-1, 120),
         )
+        self._log_ctrl.SetName("Log annunci. Usa Ctrl+E per consultare.")
         sizer.Add(self._log_ctrl, 0, wx.ALL | wx.EXPAND, 5)
 
         panel.SetSizer(sizer)
@@ -932,6 +946,7 @@ class FinestraGioco(wx.Frame):
                         btn.SetLabel(f"{etichetta} ✓")
                 elif fase == "attesa_reclami":
                     btn.Enable()
+                    btn.SendSizeEvent()
                 else:
                     btn.Disable()
         # Re-announce esplicito per NVDA (l'etichetta potrebbe non essere riletta automaticamente).
@@ -1056,35 +1071,45 @@ class FinestraGioco(wx.Frame):
     # ------------------------------------------------------------------
 
     def _crea_pulsanti_selezione_cartella(self) -> None:
-        """Crea dinamicamente i pulsanti 1…N per la selezione diretta della cartella.
-
-        Chiamato una sola volta al primo click su 'Inizia partita', quando le
-        cartelle del giocatore umano sono già configurate.
-        """
+        """Crea dinamicamente i pulsanti di selezione diretta cartella (1…N)."""
         if self._pulsanti_selezione:
-            return  # già creati
+            return
         giocatore_umano = next(
             (g for g in self._partita.giocatori if not g.is_automatico()), None
         )
-        if giocatore_umano is None or not giocatore_umano.cartelle:
+        if giocatore_umano is None:
             return
-        n = min(6, len(giocatore_umano.cartelle))
-        for i in range(1, n + 1):
+        n_cartelle = len(giocatore_umano.cartelle)
+        for i in range(1, n_cartelle + 1):
             btn = wx.Button(
                 self._panel, label=str(i), size=wx.Size(*DIMENSIONE_BTN_SELEZIONE_CARTELLA)
             )
-            btn.SetName(f"Cartella {i}")
+            btn.SetName(f"Vai a cartella {i}")
+            btn.SetToolTip(f"Salta direttamente alla cartella {i}")
             btn.SetBackgroundColour(wx.Colour(COLORE_BTN_NEUTRO))
             btn.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
-            self.Bind(wx.EVT_BUTTON, functools.partial(self._on_seleziona_cartella, i), btn)
+            self.Bind(
+                wx.EVT_BUTTON,
+                functools.partial(self._on_selezione_cartella_btn, i),
+                btn,
+            )
             self._sizer_selezione.Add(btn, 0, wx.ALL, 3)
             self._pulsanti_selezione.append(btn)
+        # Corregge ordine Tab: i pulsanti creati tardivamente andrebbero in fondo
+        # al ciclo focus; MoveAfterInTabOrder li posiziona dopo la freccia destra.
+        if self._pulsanti_selezione:
+            self._pulsanti_selezione[0].MoveAfterInTabOrder(self._btn_freccia_dx)
+            for i in range(1, len(self._pulsanti_selezione)):
+                self._pulsanti_selezione[i].MoveAfterInTabOrder(
+                    self._pulsanti_selezione[i - 1]
+                )
         self._panel.Layout()
         self.Layout()
 
-    def _on_seleziona_cartella(self, numero: int, event: object) -> None:
-        """Handler dei pulsanti 1…N: salta direttamente alla cartella N."""
+    def _on_selezione_cartella_btn(self, numero: int, event: object) -> None:
+        """Handler dei pulsanti selezione diretta cartella."""
         self._dispatch(self._comandi.imposta_focus_cartella(numero))
+        self._pannello_griglia.SetFocus()
         return
 
     def _aggiorna_evidenziazione_selezione(self, numero_cartella: int) -> None:

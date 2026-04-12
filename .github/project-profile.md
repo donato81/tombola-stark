@@ -1,7 +1,7 @@
 ---
 initialized: true
 project_name: "Tombola Stark"
-version: "0.9.5"
+version: "0.12.1"
 primary_language: "Python"
 secondary_languages: []
 ui_framework: "wxPython"
