@@ -680,8 +680,20 @@ class FinestraGioco(wx.Frame):
         self._btn_freccia_sx.Disable()
         sizer_griglie.Add(self._btn_freccia_sx, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 2)
 
+        sizer_cartella_con_titolo = wx.BoxSizer(wx.VERTICAL)
+
+        self._lbl_cartella_titolo = wx.StaticText(panel, label="Cartella")
+        self._lbl_cartella_titolo.SetFont(
+            wx.Font(FONT_LABEL_PT, wx.FONTFAMILY_DEFAULT,
+                    wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+        )
+        self._lbl_cartella_titolo.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
+        sizer_cartella_con_titolo.Add(self._lbl_cartella_titolo, 0, wx.BOTTOM | wx.ALIGN_CENTER, 2)
+
         self._pannello_cartella = PannelloCartella(panel)
-        sizer_griglie.Add(self._pannello_cartella, 1, wx.ALL | wx.EXPAND, 5)
+        sizer_cartella_con_titolo.Add(self._pannello_cartella, 1, wx.EXPAND)
+
+        sizer_griglie.Add(sizer_cartella_con_titolo, 1, wx.ALL | wx.EXPAND, 5)
 
         # Gruppo 1 — freccia destra [▶]
         self._btn_freccia_dx = wx.Button(
@@ -1288,6 +1300,23 @@ class FinestraGioco(wx.Frame):
             numeri_segnati=cartella.numeri_segnati,
             numeri_estratti=self._partita.tabellone.numeri_estratti,
         )
+        self._aggiorna_titolo_cartella()
+
+    def _aggiorna_titolo_cartella(self) -> None:
+        """Aggiorna l'etichetta visiva 'Cartella N di M' sopra il pannello cartella."""
+        if not hasattr(self, "_lbl_cartella_titolo"):
+            return
+        giocatore_umano = next(
+            (g for g in self._partita.giocatori if not g.is_automatico()), None
+        )
+        if giocatore_umano is None or not giocatore_umano.cartelle:
+            return
+        totale = len(giocatore_umano.cartelle)
+        indice = getattr(giocatore_umano, "_indice_cartella_focus", None)
+        if indice is None:
+            indice = 0
+        indice = max(0, min(indice, totale - 1))
+        self._lbl_cartella_titolo.SetLabel(f"Cartella {indice + 1} di {totale}")
 
     def _dispatch(self, esito: object) -> None:
         """Delega l'esito al renderer per visualizzazione e vocalizzazione."""
@@ -1352,6 +1381,7 @@ class FinestraGioco(wx.Frame):
         self._dispatch(self._comandi.vai_a_riga(1))
         self._dispatch(self._comandi.vai_a_colonna(1))
         self._aggiorna_griglie_visive()
+        self._aggiorna_titolo_cartella()
 
     def _on_partita_change(self, *args, **kwargs) -> None:
         """Handler duck-typed per ricevere eventi di stato partita (se supportato).
