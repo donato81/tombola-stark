@@ -57,6 +57,11 @@ from bingo_game.ui.tema import (
     COLORE_TESTO_SCURO,
     COLORE_ACCENT_BLU, COLORE_ACCENT_ROSSO,
     COLORE_BTN_TOMBOLA, COLORE_BTN_TOMBOLA_TESTO, COLORE_BTN_NEUTRO,
+    COLORE_BTN_INIZIA, COLORE_BTN_PASSA_TURNO, COLORE_BTN_HO_FINITO, COLORE_BTN_RIPRENDI,
+    COLORE_BTN_PAUSA, COLORE_BTN_GRIGIO, COLORE_BTN_DISABILITATO,
+    COLORE_LOG_BG, COLORE_TESTO_MUTED, FONT_LOG_PT, FONT_LOG_FAMIGLIA, FONT_LABEL_PT,
+    COLORE_CELLA_EVIDENZIATA,
+    COLORE_HEADER_BG, FONT_HEADER_PT, ALTEZZA_HEADER, COLORE_HEADER_ACCENT,
     FONT_CARTELLA_NUMERO_PT,
     DIMENSIONE_FINESTRA_GIOCO,
     DIMENSIONE_CELLA_TABELLONE, DIMENSIONE_CELLA_CARTELLA,
@@ -142,6 +147,12 @@ class PannelloCartella(wx.Panel):
         # Rimuove TAB_TRAVERSAL: il pannello non partecipa al ciclo focus
         self.SetWindowStyleFlag(self.GetWindowStyleFlag() & ~wx.TAB_TRAVERSAL)
         self._build_ui()
+        # Stato animazione lampeggio
+        self._timer_lampeggio: Optional[wx.Timer] = None
+        self._numero_lampeggio: Optional[int] = None
+        self._lampeggio_attivo: bool = False
+        self._tick_lampeggio: int = 0
+        self._mappa_celle_numero: dict[int, wx.StaticText] = {}
 
     def _build_ui(self) -> None:
         font = wx.Font(
@@ -180,6 +191,8 @@ class PannelloCartella(wx.Panel):
         numeri_segnati: set dei numeri già segnati sul questa cartella.
         numeri_estratti: set dei numeri già usciti dal tabellone.
         """
+        if self._lampeggio_attivo:
+            self.ferma_lampeggio()
         for row in range(3):
             for col in range(9):
                 val = griglia[row][col]
@@ -201,6 +214,76 @@ class PannelloCartella(wx.Panel):
                     cell.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
                     cell.SetLabel(str(val))
         self.Refresh()
+        self._mappa_celle_numero = {
+            int(griglia[row][col]): self._celle[row][col]
+            for row in range(3)
+            for col in range(9)
+            if isinstance(griglia[row][col], int)
+        }
+
+    def avvia_lampeggio(self, numero: int) -> None:
+        """Avvia l'animazione lampeggio sulla cella del numero indicato.
+
+        Se un lampeggio precedente è attivo, lo ferma e stabilizza la cella
+        precedente prima di avviarne uno nuovo.
+        Il numero deve essere presente in _mappa_celle_numero (cioè nella
+        cartella correntemente visualizzata).
+        """
+        if numero not in self._mappa_celle_numero:
+            return
+
+        # Ferma eventuale lampeggio precedente (cella diversa)
+        if self._timer_lampeggio is not None:
+            self._timer_lampeggio.Stop()
+            self._timer_lampeggio = None
+        if self._numero_lampeggio is not None:
+            cella_prec = self._mappa_celle_numero.get(self._numero_lampeggio)
+            if cella_prec is not None:
+                cella_prec.SetBackgroundColour(wx.Colour(COLORE_CELLA_ESTRATTA_NON_SEGNATA))
+                cella_prec.Refresh()
+
+        self._numero_lampeggio = numero
+        self._lampeggio_attivo = True
+        self._tick_lampeggio = 0
+        self._timer_lampeggio = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self._on_tick_lampeggio, self._timer_lampeggio)
+        self._timer_lampeggio.Start(300)
+
+    def _on_tick_lampeggio(self, event: wx.TimerEvent) -> None:
+        """Tick del timer lampeggio: alterna i colori per N cicli, poi stabilizza."""
+        if not self._lampeggio_attivo or self._numero_lampeggio is None:
+            return
+        cella = self._mappa_celle_numero.get(self._numero_lampeggio)
+        if cella is None:
+            self.ferma_lampeggio()
+            return
+
+        self._tick_lampeggio += 1
+
+        if self._tick_lampeggio >= _N_TICK_LAMPEGGIO:
+            # Fine ciclo: stabilizza sul colore fisso e ferma il timer
+            self.ferma_lampeggio()
+            cella.SetBackgroundColour(wx.Colour(COLORE_CELLA_ESTRATTA_NON_SEGNATA))
+            cella.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
+            cella.Refresh()
+            return
+
+        # Toggle colore al ritmo del tick
+        if self._tick_lampeggio % 2 == 1:
+            cella.SetBackgroundColour(wx.Colour(COLORE_CELLA_EVIDENZIATA))
+        else:
+            cella.SetBackgroundColour(wx.Colour(COLORE_CELLA_ESTRATTA_NON_SEGNATA))
+        cella.Refresh()
+
+    def ferma_lampeggio(self) -> None:
+        """Ferma il timer lampeggio e azzera lo stato. Non ripristina il colore della cella."""
+        if self._timer_lampeggio is not None:
+            self._timer_lampeggio.Stop()
+            self._timer_lampeggio = None
+        self._lampeggio_attivo = False
+
+
+_N_TICK_LAMPEGGIO: int = 7  # 7 tick × 300ms ≈ 2.1 secondi totali
 
 
 class PannelloGriglia(wx.Panel):
@@ -329,6 +412,72 @@ class PannelloGriglia(wx.Panel):
         event.Skip()
 
 
+class HeaderBar(wx.Panel):
+    """
+    Striscia informativa orizzontale fissa in cima alla FinestraGioco.
+
+    Mostra: turno corrente, ultimo numero estratto (con colore accent), premi assegnati.
+    Puramente visiva: non focalizzabile, nessun binding tastiera.
+    """
+
+    def __init__(self, parent: wx.Window) -> None:
+        super().__init__(parent, style=wx.NO_BORDER)
+        self.SetWindowStyleFlag(self.GetWindowStyleFlag() & ~wx.TAB_TRAVERSAL)
+        self.SetBackgroundColour(wx.Colour(COLORE_HEADER_BG))
+        self.SetMinSize((-1, ALTEZZA_HEADER))
+        self._build_ui()
+
+    def _build_ui(self) -> None:
+        font_normale = wx.Font(
+            FONT_HEADER_PT, wx.FONTFAMILY_DEFAULT,
+            wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD
+        )
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        self._lbl_turno = wx.StaticText(self, label="Turno: —")
+        self._lbl_turno.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+        self._lbl_turno.SetFont(font_normale)
+        sizer.Add(self._lbl_turno, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
+
+        sizer.Add(10, 0)  # spacer
+
+        self._lbl_estratto = wx.StaticText(self, label="Estratto: —")
+        self._lbl_estratto.SetForegroundColour(wx.Colour(COLORE_HEADER_ACCENT))
+        self._lbl_estratto.SetFont(font_normale)
+        sizer.Add(self._lbl_estratto, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
+
+        sizer.Add(10, 0)  # spacer
+
+        self._lbl_premi = wx.StaticText(self, label="Premi: —")
+        self._lbl_premi.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+        self._lbl_premi.SetFont(font_normale)
+        sizer.Add(self._lbl_premi, 1, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
+
+        self.SetSizer(sizer)
+
+    def aggiorna(
+        self,
+        turno: Optional[int] = None,
+        ultimo_numero: Optional[int] = None,
+        premi_lista: Optional[list] = None,
+    ) -> None:
+        """Aggiorna le tre etichette dell'header.
+
+        I parametri None significano "non aggiornare quel campo".
+        """
+        if turno is not None:
+            self._lbl_turno.SetLabel(f"Turno: {turno}")
+        if ultimo_numero is not None:
+            self._lbl_estratto.SetLabel(f"Estratto: {ultimo_numero}")
+        if premi_lista is not None:
+            if premi_lista:
+                testo_premi = "Premi: " + ", ".join(premi_lista)
+            else:
+                testo_premi = "Premi: —"
+            self._lbl_premi.SetLabel(testo_premi)
+        self.Layout()
+
+
 class FinestraGioco(wx.Frame):
     """
     Frame principale del gioco.
@@ -405,6 +554,10 @@ class FinestraGioco(wx.Frame):
         self._panel = wx.Panel(self)
         panel = self._panel
         sizer = wx.BoxSizer(wx.VERTICAL)
+
+        # Header bar informativa (turno, estratto, premi) — prima riga
+        self._header_bar = HeaderBar(panel)
+        sizer.Add(self._header_bar, 0, wx.EXPAND, 0)
 
         # Pulsante principale a due stati
         self._btn_principale = wx.Button(panel, label="Inizia partita")
@@ -490,12 +643,21 @@ class FinestraGioco(wx.Frame):
         sizer.Add(sizer_premi, 0, wx.ALL | wx.EXPAND, 5)
 
         # Area log annunci (read-only)
-        sizer.Add(wx.StaticText(panel, label="Log annunci (Ctrl+E per consultare):"), 0, wx.LEFT | wx.TOP, 5)
+        _lbl_log = wx.StaticText(panel, label="Cronologia annunci (Ctrl+E)")
+        _lbl_log.SetFont(wx.Font(FONT_LABEL_PT, wx.FONTFAMILY_DEFAULT,
+                                 wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
+        sizer.Add(_lbl_log, 0, wx.LEFT | wx.TOP, 5)
         self._log_ctrl = wx.TextCtrl(
             panel,
                 style=wx.TE_MULTILINE | wx.TE_READONLY,
             size=(-1, 120),
         )
+        self._log_ctrl.SetBackgroundColour(wx.Colour(COLORE_LOG_BG))
+        self._log_ctrl.SetForegroundColour(wx.Colour(COLORE_TESTO_MUTED))
+        font_log = wx.Font(FONT_LOG_PT, wx.FONTFAMILY_TELETYPE,
+                           wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+        font_log.SetFaceName(FONT_LOG_FAMIGLIA)
+        self._log_ctrl.SetFont(font_log)
         self._log_ctrl.SetName("Log annunci. Usa Ctrl+E per consultare.")
         sizer.Add(self._log_ctrl, 0, wx.ALL | wx.EXPAND, 5)
 
@@ -510,6 +672,15 @@ class FinestraGioco(wx.Frame):
 
     def _bind_finestra(self) -> None:
         self.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
+        self.Bind(wx.EVT_CLOSE, self._on_close)
+
+    def _on_close(self, event: wx.CloseEvent) -> None:
+        """Ferma il timer lampeggio prima della distruzione della finestra."""
+        if hasattr(self, "_pannello_cartella"):
+            pannello = self._pannello_cartella
+            if hasattr(pannello, "ferma_lampeggio"):
+                pannello.ferma_lampeggio()
+        event.Skip()
 
     def _on_pausa(self, event: object) -> None:
         """Handler del pulsante pausa: delega a _toggle_pausa."""
@@ -892,9 +1063,15 @@ class FinestraGioco(wx.Frame):
             label = "Gioco in pausa"
             self._btn_principale.SetLabel(label)
             self._btn_principale.Disable()
+            self._btn_principale.SetBackgroundColour(wx.Colour(COLORE_BTN_DISABILITATO))
+            self._btn_principale.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
+            self._btn_principale.Refresh()
             if hasattr(self, "_btn_pausa"):
                 self._btn_pausa.SetLabel("Riprendi")
                 self._btn_pausa.Enable()
+                self._btn_pausa.SetBackgroundColour(wx.Colour(COLORE_BTN_RIPRENDI))
+                self._btn_pausa.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+                self._btn_pausa.Refresh()
             # Frecce e premi disabilitati durante pausa
             if hasattr(self, "_btn_freccia_sx"):
                 self._btn_freccia_sx.Disable()
@@ -913,6 +1090,18 @@ class FinestraGioco(wx.Frame):
         else:
             label = "Inizia partita"
         self._btn_principale.SetLabel(label)
+        if fase == "attesa_reclami":
+            self._btn_principale.SetBackgroundColour(wx.Colour(COLORE_BTN_HO_FINITO))
+            self._btn_principale.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+        elif fase == "pausa_turno":
+            self._btn_principale.SetBackgroundColour(wx.Colour(COLORE_BTN_GRIGIO))
+            self._btn_principale.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+        elif primo_turno_eseguito:
+            self._btn_principale.SetBackgroundColour(wx.Colour(COLORE_BTN_PASSA_TURNO))
+            self._btn_principale.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+        else:
+            self._btn_principale.SetBackgroundColour(wx.Colour(COLORE_BTN_INIZIA))
+            self._btn_principale.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
         self._btn_principale.Enable(fase != "pausa_turno")
         # Abilita btn_pausa solo se la partita è attiva
         if hasattr(self, "_btn_pausa"):
@@ -922,6 +1111,9 @@ class FinestraGioco(wx.Frame):
                 and fase != "pausa_turno"
             )
             self._btn_pausa.SetLabel("Metti in pausa")
+            self._btn_pausa.SetBackgroundColour(wx.Colour(COLORE_BTN_PAUSA))
+            self._btn_pausa.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+            self._btn_pausa.Refresh()
             if partita_attiva:
                 self._btn_pausa.Enable()
             else:
@@ -950,6 +1142,7 @@ class FinestraGioco(wx.Frame):
                 else:
                     btn.Disable()
         # Re-announce esplicito per NVDA (l'etichetta potrebbe non essere riletta automaticamente).
+        self._btn_principale.Refresh()
         self._renderer.annuncia_fase_turno(label)
 
     # ------------------------------------------------------------------
@@ -971,6 +1164,8 @@ class FinestraGioco(wx.Frame):
             indice = 0
         indice = max(0, min(indice, len(giocatore_umano.cartelle) - 1))
         cartella = giocatore_umano.cartelle[indice]
+        if hasattr(self._pannello_cartella, "ferma_lampeggio"):
+            self._pannello_cartella.ferma_lampeggio()
         self._pannello_cartella.aggiorna(
             griglia=cartella.get_griglia_semplice(),
             numeri_segnati=cartella.numeri_segnati,

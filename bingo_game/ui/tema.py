@@ -38,6 +38,7 @@ COLORE_ACCENT_VERDE = "#43A047"       # Accento verde (azioni positive)
 COLORE_VERDE_SCURO = "#2E7D32"        # Verde scuro (conferme, sicurezza)
 COLORE_VERDE_RIPRENDI = "#388E3C"     # Verde pulsante riprendi partita
 COLORE_TITOLO_MENU = "#FFD54F"        # Colore titolo sulla schermata menu
+COLORE_HEADER_ACCENT = "#FFB300"      # Numero estratto nell'header (alias semantico di COLORE_ACCENT_DORATO)
 
 # ---------------------------------------------------------------------------
 # COLORI — Pulsanti
@@ -47,6 +48,10 @@ COLORE_BTN_PAUSA = "#424242"         # Sfondo pulsante pausa
 COLORE_BTN_NEUTRO = "#E0E0E0"        # Sfondo pulsante neutro / inattivo
 COLORE_BTN_DISABILITATO = "#BDBDBD"  # Sfondo pulsante disabilitato
 COLORE_BTN_GRIGIO = "#757575"        # Sfondo pulsanti secondari grigi
+COLORE_BTN_INIZIA = "#2E7D32"         # "Inizia partita" (verde scuro)
+COLORE_BTN_PASSA_TURNO = "#1565C0"    # "Passa turno" (blu istituzionale)
+COLORE_BTN_HO_FINITO = "#E65100"      # "Ho finito — avvia verifica" (arancione)
+COLORE_BTN_RIPRENDI = "#388E3C"       # "Riprendi" (verde medio)
 
 # ---------------------------------------------------------------------------
 # COLORI — Celle tabellone (griglia 10×9, numeri 1-90)

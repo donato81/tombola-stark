@@ -9,6 +9,12 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Added
+- Header Bar visiva in cima a FinestraGioco (turno, ultimo estratto, premi)
+- Colori semantici sui pulsanti principali (verde/blu/arancione/grigio per fase)
+- Animazione lampeggio post-estrazione sulla cella cartella (~2 secondi, wx.Timer)
+- Stile visivo scuro sul log annunci (sfondo #263238, testo #B0BEC5, Courier New 10pt)
+
 ---
 
 ## [0.12.1] — 2026-04-12

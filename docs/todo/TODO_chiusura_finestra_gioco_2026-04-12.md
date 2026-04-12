@@ -2,7 +2,7 @@
 **Data:** 2026-04-12
 **Riferimento piano:** `docs/design/PLAN_chiusura_finestra_gioco_2026-04-12.md`
 **Riferimento analisi:** `docs/design/REPORT_ANALISI_chiusura_finestra_gioco_2026-04-12.md`
-**Stato:** ATTIVO
+**Stato:** COMPLETATO
 
 Ordine di implementazione: **B → D → C → A**
 (colori pulsanti → stile log → lampeggio → header bar)

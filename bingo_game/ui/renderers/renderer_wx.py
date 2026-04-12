@@ -153,6 +153,8 @@ class WxRenderer(BaseRenderer):
         """Vocalizza il numero estratto nel contesto del turno (senza premi)."""
         testo = f"Turno {numero_turno}. Numero estratto: {numero}."
         self._wx_aggiorna_output(testo)
+        self._wx_avvia_lampeggio(numero)
+        self._wx_aggiorna_header(turno=numero_turno, ultimo_numero=numero)
         self._ao2_vocalizza(testo)
 
     def annuncia_premi_turno(self, premi: list) -> None:
@@ -167,6 +169,8 @@ class WxRenderer(BaseRenderer):
         else:
             testo = "Nessun premio questo turno."
         self._wx_aggiorna_output(testo)
+        nomi_premi = [f"{p.get('premio', '?')} — {p.get('giocatore', '?')}" for p in premi] if premi else []
+        self._wx_aggiorna_header(premi_lista=nomi_premi)
         self._ao2_vocalizza(testo)
 
     def annuncia_fase_turno(self, testo_fase: str) -> None:
@@ -758,6 +762,29 @@ class WxRenderer(BaseRenderer):
         numeri = sorted(set(numeri_estratti or []))
         _ui_logger.debug("_wx_aggiorna_tabellone: aggiorna %d numeri", len(numeri))
         self._finestra.pannello_tabellone.aggiorna(numeri)  # type: ignore[union-attr]
+
+    def _wx_avvia_lampeggio(self, numero: int) -> None:
+        """Avvia l'animazione lampeggio sulla cella del numero estratto (se presente nella cartella)."""
+        if self._finestra is None:
+            return
+        if not hasattr(self._finestra, "_pannello_cartella"):
+            return
+        pannello = self._finestra._pannello_cartella
+        if hasattr(pannello, "avvia_lampeggio"):
+            pannello.avvia_lampeggio(numero)
+
+    def _wx_aggiorna_header(
+        self,
+        turno: Optional[int] = None,
+        ultimo_numero: Optional[int] = None,
+        premi_lista: Optional[list] = None,
+    ) -> None:
+        """Aggiorna la HeaderBar della finestra di gioco (se disponibile)."""
+        if self._finestra is None:
+            return
+        if not hasattr(self._finestra, "_header_bar"):
+            return
+        self._finestra._header_bar.aggiorna(turno, ultimo_numero, premi_lista)
 
     def _wx_mostra_configurazione(self, stato: StatoConfigurazione) -> None:
         testo = self._formatta_testo_da_catalogo(stato.codice_messaggio)
