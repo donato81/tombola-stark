@@ -53,6 +53,7 @@ stato: attivo
 - [DESIGN_griglie_visive_dinamiche_v0.11.1.md](2%20-%20projects/DESIGN_griglie_visive_dinamiche_v0.11.1.md)
 - [DESIGN_pulsanti_interattivi_v0.12.0.md](2%20-%20projects/DESIGN_pulsanti_interattivi_v0.12.0.md)
 - [DESIGN_lettura_nvda_stato_premi_v1.2.0.md](2%20-%20projects/DESIGN_lettura_nvda_stato_premi_v1.2.0.md)
+- [DESIGN_finestra_aiuto_tasti_rapidi.md](2%20-%20projects/DESIGN_finestra_aiuto_tasti_rapidi.md)
 
 ### Piani
 
@@ -98,6 +99,7 @@ stato: attivo
 - [PLAN_pulsanti_interattivi_v0.12.0.md](3%20-%20coding%20plans/PLAN_pulsanti_interattivi_v0.12.0.md)
 - [PLAN_fix_tab_navigation_finestra_gioco_v0.12.1.md](3%20-%20coding%20plans/PLAN_fix_tab_navigation_finestra_gioco_v0.12.1.md)
 - [PLAN_lettura_nvda_stato_premi_v1.2.0.md](3%20-%20coding%20plans/PLAN_lettura_nvda_stato_premi_v1.2.0.md)
+- [PLAN_finestra_aiuto_tasti_rapidi_v0.13.0.md](3%20-%20coding%20plans/PLAN_finestra_aiuto_tasti_rapidi_v0.13.0.md)
 
 ### Reports
 
@@ -164,6 +166,7 @@ stato: attivo
 - [TODO_pulsanti_interattivi_v0.12.0.md](5%20-%20todolist/TODO_pulsanti_interattivi_v0.12.0.md) — IN_PROGRESS
 - [TODO_fix_tab_navigation_finestra_gioco_v0.12.1.md](5%20-%20todolist/TODO_fix_tab_navigation_finestra_gioco_v0.12.1.md)
 - [TODO_lettura_nvda_stato_premi_v1.2.0.md](5%20-%20todolist/TODO_lettura_nvda_stato_premi_v1.2.0.md)
+- [TODO_finestra_aiuto_tasti_rapidi_v0.13.0.md](5%20-%20todolist/TODO_finestra_aiuto_tasti_rapidi_v0.13.0.md)
 
 ### Da fare
 

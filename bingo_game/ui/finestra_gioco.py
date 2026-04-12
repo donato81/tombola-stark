@@ -70,6 +70,7 @@ from bingo_game.ui.tema import (
     DIMENSIONE_BTN_FRECCIA, DIMENSIONE_BTN_SELEZIONE_CARTELLA,
 )
 
+from bingo_game.ui.finestra_aiuto_tasti_rapidi import FinestraAiutoTastiRapidi
 from bingo_game.comandi_partita import ComandiSistema, ComandiGiocatoreUmano
 from bingo_game.partita import Partita
 
@@ -870,6 +871,14 @@ class FinestraGioco(wx.Frame):
         if ctrl and key == ord("I"):
             testo = self._comandi.dettaglio_premi()
             self._renderer.annuncia_dettaglio_premi(testo)
+            return
+
+        # Ctrl+H — apri guida tasti rapidi  [Categoria C]
+        if ctrl and key == ord("H"):
+            dlg = FinestraAiutoTastiRapidi(self)
+            dlg.ShowModal()
+            dlg.Destroy()
+            self._pannello_griglia.SetFocus()
             return
 
         event.Skip()

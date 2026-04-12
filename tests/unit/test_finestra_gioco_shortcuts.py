@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 try:
     import wx
@@ -88,6 +88,22 @@ class TestFinestraGiocoShortcuts(unittest.TestCase):
         FinestraGioco._on_char_hook(finestra, evento)
 
         finestra._on_pulsante_principale.assert_called_once_with(None)
+        self.assertFalse(evento.skip_chiamato)
+
+    def test_char_hook_ctrl_h_apre_dialog_e_ripristina_focus_griglia(self) -> None:
+        finestra = self._crea_finestra_stub()
+        finestra._pannello_griglia = Mock()
+        evento = _EventoTastoFittizio(ord("H"), ctrl=True)
+
+        with patch("bingo_game.ui.finestra_gioco.FinestraAiutoTastiRapidi") as dialog_cls:
+            dialogo = dialog_cls.return_value
+
+            FinestraGioco._on_char_hook(finestra, evento)
+
+        dialog_cls.assert_called_once_with(finestra)
+        dialogo.ShowModal.assert_called_once_with()
+        dialogo.Destroy.assert_called_once_with()
+        finestra._pannello_griglia.SetFocus.assert_called_once_with()
         self.assertFalse(evento.skip_chiamato)
 
 

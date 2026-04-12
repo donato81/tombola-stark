@@ -25,6 +25,7 @@ def _mock_wx() -> None:
         return
     wx_mock = types.ModuleType("wx")
     wx_mock.Frame = object
+    wx_mock.Dialog = object
     wx_mock.Panel = object
     wx_mock.Button = MagicMock
     wx_mock.TextCtrl = MagicMock

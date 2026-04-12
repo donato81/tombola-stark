@@ -9,7 +9,13 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+- Pending NVDA smoke test: `FinestraAiutoTastiRapidi` e pronta ma resta in attesa dello smoke test manuale NVDA (chiusura con Escape, annunci e ripristino focus). Non finalizzare `v0.13.0` finche il test non e stato completato e validato.
+
 ### Added
+- `FinestraAiutoTastiRapidi`: nuovo `wx.Dialog` modale con elenco statico
+  tasti rapidi (35 binding), apribile con `Ctrl+H` da `FinestraGioco`.
+  Chiusura con `Escape` o pulsante Chiudi, focus iniziale sul `wx.TextCtrl`
+  read-only, ripristino focus su `PannelloGriglia` alla chiusura.
 - Header Bar visiva in cima a FinestraGioco (turno, ultimo estratto, premi)
 - Colori semantici sui pulsanti principali (verde/blu/arancione/grigio per fase)
 - Animazione lampeggio post-estrazione sulla cella cartella (~2 secondi, wx.Timer)

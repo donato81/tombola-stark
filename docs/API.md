@@ -62,6 +62,19 @@ Pausa di gioco (v1.2.0)
 - `bingo_game/ui/renderers/base_renderer.py`: aggiunto metodo pubblico `annuncia_pausa(self, testo: str) -> None` nel contratto del renderer. `renderer_wx` implementa `annuncia_pausa` per la vocalizzazione AO2 e l'aggiornamento visivo del pannello stato.
 - Comportamento UX chiave: `Ctrl+P` e il pulsante pausa mostrano il tempo residuo della finestra d'azione (se applicabile), impediscono l'estrazione/azione principale mentre `in_pausa == True` e al `riprendi` richiamano il renderer per l'annuncio completo della ripresa.
 - `bingo_game/ui/dialogo_ricerca.py` – `DialogoRicercaNumero` (dialog persistente per ricerca numero; vocalizza i risultati e non utilizza più la chiusura automatica: quando trova risultati rimane aperto, abilita un pulsante `Vai al risultato` e richiede la conferma dell'utente prima di restituire `wx.ID_OK`).
+- `bingo_game/ui/finestra_aiuto_tasti_rapidi.py` – `FinestraAiutoTastiRapidi` (v0.13.0).
+
+### FinestraAiutoTastiRapidi
+
+- **Percorso**: `bingo_game/ui/finestra_aiuto_tasti_rapidi.py`
+- **Tipo**: `wx.Dialog` (modale)
+- **Scopo**: espone l'elenco statico delle scorciatoie di gioco in un dialog modale read-only.
+- **Apertura**: `Ctrl+H` da `FinestraGioco` (hotkey globale Categoria C).
+- **Chiusura**: `Escape` o pulsante Chiudi — entrambi chiamano `EndModal(wx.ID_CANCEL)`.
+- **Focus iniziale**: `wx.TextCtrl` multilinea read-only (leggibile riga per riga con NVDA).
+- **Focus finale**: `PannelloGriglia` di `FinestraGioco` (ripristino deterministico).
+- **Dipendenze**: nessuna dipendenza da dominio, renderer o eventi.
+
 - `bingo_game/comandi_partita.py` – espone `ComandiGiocatoreUmano` come facade per il layer di presentazione.
 
 **Eccezioni** (`bingo_game/exceptions/`):
