@@ -316,6 +316,8 @@ class WxRenderer(BaseRenderer):
         testo = f"Cartella {evento.numero_cartella} selezionata."
         self._wx_aggiorna_output(testo)
         self._wx_aggiorna_cartella(evento.numero_cartella, [])  # Fase 5: aggiorna pannello visivo
+        if hasattr(self._finestra, "aggiorna_selezione_cartella"):
+            self._finestra.aggiorna_selezione_cartella(evento.numero_cartella)
         self._ao2_vocalizza(testo)
 
     def _handle_stato_focus_corrente(self, evento: EventoStatoFocusCorrente) -> None:

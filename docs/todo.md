@@ -51,6 +51,7 @@ stato: attivo
 - [DESIGN_sostituzione_hotkey_ctrl_enter_v0.9.6.md](2%20-%20projects/DESIGN_sostituzione_hotkey_ctrl_enter_v0.9.6.md)
 - [DESIGN_griglie_visive_statiche_v0.11.0.md](2%20-%20projects/DESIGN_griglie_visive_statiche_v0.11.0.md)
 - [DESIGN_griglie_visive_dinamiche_v0.11.1.md](2%20-%20projects/DESIGN_griglie_visive_dinamiche_v0.11.1.md)
+- [DESIGN_pulsanti_interattivi_v0.12.0.md](2%20-%20projects/DESIGN_pulsanti_interattivi_v0.12.0.md)
 
 ### Piani
 
@@ -93,6 +94,7 @@ stato: attivo
 - [PLAN_pausa_gioco_v1.2.0.md](3%20-%20coding%20plans/PLAN_pausa_gioco_v1.2.0.md)
 - [PLAN_griglie_visive_statiche_v0.11.0.md](3%20-%20coding%20plans/PLAN_griglie_visive_statiche_v0.11.0.md)
 - [PLAN_griglie_visive_dinamiche_v0.11.1.md](3%20-%20coding%20plans/PLAN_griglie_visive_dinamiche_v0.11.1.md)
+- [PLAN_pulsanti_interattivi_v0.12.0.md](3%20-%20coding%20plans/PLAN_pulsanti_interattivi_v0.12.0.md)
 
 ### Reports
 
@@ -155,6 +157,7 @@ stato: attivo
 - [TODO_pausa_gioco_v1.2.0.md](5%20-%20todolist/TODO_pausa_gioco_v1.2.0.md) — COMPLETED
 - [TODO_griglie_visive_statiche_v0.11.0.md](5%20-%20todolist/TODO_griglie_visive_statiche_v0.11.0.md) — COMPLETED
 - [TODO_griglie_visive_dinamiche_v0.11.1.md](5%20-%20todolist/TODO_griglie_visive_dinamiche_v0.11.1.md) — COMPLETED
+- [TODO_pulsanti_interattivi_v0.12.0.md](5%20-%20todolist/TODO_pulsanti_interattivi_v0.12.0.md) — IN_PROGRESS
 
 ### Da fare
 

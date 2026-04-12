@@ -9,6 +9,23 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Fase 2 — Pulsanti interattivi
+
+- `bingo_game/ui/finestra_gioco.py`: aggiunto Gruppo 1 — pulsanti freccia `◀` `▶` ai
+  lati del `PannelloCartella` per navigazione via mouse tra le cartelle
+  (`cartella_precedente` / `cartella_successiva`); abilitati durante la partita attiva,
+  disabilitati a fine partita e in pausa.
+- `bingo_game/ui/finestra_gioco.py`: aggiunto Gruppo 2 — riga di pulsanti `1`…`N` per
+  selezione diretta cartella, creati dinamicamente al primo avvio della partita
+  (`_crea_pulsanti_selezione_cartella`); evidenziazione blu sul pulsante della
+  cartella corrente (`aggiorna_selezione_cartella` / `_aggiorna_evidenziazione_selezione`).
+- `bingo_game/ui/finestra_gioco.py`: aggiunto Gruppo 3 — pulsanti `Ambo`, `Terno`,
+  `Quaterna`, `Cinquina`, `Tombola` per dichiarazione premi; abilitati solo in fase
+  `attesa_reclami`, disabilitati con label ` ✓` per premi già assegnati definitivamente.
+- `bingo_game/ui/renderers/renderer_wx.py`: in `_handle_focus_cartella_impostato`
+  aggiunta chiamata duck typing `aggiorna_selezione_cartella` per aggiornare
+  l'evidenziazione visiva del pulsante cartella corrente.
+
 ### Added
 - `bingo_game/ui/finestra_gioco.py`: collega le griglie visive allo stato dinamico della partita (v0.11.1)
 - `bingo_game/ui/tema.py`: nuovo modulo con tutte le costanti visive (colori, font, dimensioni)

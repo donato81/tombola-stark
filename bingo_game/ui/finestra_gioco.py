@@ -41,6 +41,7 @@ path: bingo_game/ui/finestra_gioco.py
 """
 from __future__ import annotations
 
+import functools
 import logging
 import random
 import time
@@ -54,9 +55,12 @@ from bingo_game.ui.tema import (
     COLORE_CELLA_CARTELLA_VUOTA, COLORE_CELLA_CARTELLA_NUMERO,
     COLORE_CELLA_SEGNATA, COLORE_CELLA_ESTRATTA_NON_SEGNATA,
     COLORE_TESTO_SCURO,
+    COLORE_ACCENT_BLU, COLORE_ACCENT_ROSSO,
+    COLORE_BTN_TOMBOLA, COLORE_BTN_TOMBOLA_TESTO, COLORE_BTN_NEUTRO,
     FONT_CARTELLA_NUMERO_PT,
     DIMENSIONE_FINESTRA_GIOCO,
     DIMENSIONE_CELLA_TABELLONE, DIMENSIONE_CELLA_CARTELLA,
+    DIMENSIONE_BTN_FRECCIA, DIMENSIONE_BTN_SELEZIONE_CARTELLA,
 )
 
 from bingo_game.comandi_partita import ComandiSistema, ComandiGiocatoreUmano
@@ -388,7 +392,8 @@ class FinestraGioco(wx.Frame):
     # ------------------------------------------------------------------
 
     def _build_ui(self) -> None:
-        panel = wx.Panel(self)
+        self._panel = wx.Panel(self)
+        panel = self._panel
         sizer = wx.BoxSizer(wx.VERTICAL)
 
         # Pulsante principale a due stati
@@ -412,13 +417,64 @@ class FinestraGioco(wx.Frame):
         self._pannello_griglia = PannelloGriglia(panel, self)
         sizer.Add(self._pannello_griglia, 1, wx.ALL | wx.EXPAND, 5)
 
-        # Pannelli visivi affiancati: tabellone (sinistra) e cartella (destra)
+        # Pannelli visivi affiancati: tabellone (sinistra) e cartella con frecce (destra)
         sizer_griglie = wx.BoxSizer(wx.HORIZONTAL)
         self._pannello_tabellone = PannelloTabellone(panel)
         sizer_griglie.Add(self._pannello_tabellone, 0, wx.ALL, 5)
+
+        # Gruppo 1 — freccia sinistra [◀]
+        self._btn_freccia_sx = wx.Button(
+            panel, label="◀", size=wx.Size(*DIMENSIONE_BTN_FRECCIA)
+        )
+        self._btn_freccia_sx.SetName("Cartella precedente")
+        self._btn_freccia_sx.SetBackgroundColour(wx.Colour(COLORE_ACCENT_BLU))
+        self._btn_freccia_sx.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+        self._btn_freccia_sx.Disable()
+        sizer_griglie.Add(self._btn_freccia_sx, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 2)
+
         self._pannello_cartella = PannelloCartella(panel)
         sizer_griglie.Add(self._pannello_cartella, 1, wx.ALL | wx.EXPAND, 5)
+
+        # Gruppo 1 — freccia destra [▶]
+        self._btn_freccia_dx = wx.Button(
+            panel, label="▶", size=wx.Size(*DIMENSIONE_BTN_FRECCIA)
+        )
+        self._btn_freccia_dx.SetName("Cartella successiva")
+        self._btn_freccia_dx.SetBackgroundColour(wx.Colour(COLORE_ACCENT_BLU))
+        self._btn_freccia_dx.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+        self._btn_freccia_dx.Disable()
+        sizer_griglie.Add(self._btn_freccia_dx, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 2)
+
         sizer.Add(sizer_griglie, 0, wx.ALL | wx.EXPAND, 0)
+
+        # Bind frecce navigazione
+        self.Bind(wx.EVT_BUTTON, self._on_cartella_precedente, self._btn_freccia_sx)
+        self.Bind(wx.EVT_BUTTON, self._on_cartella_successiva, self._btn_freccia_dx)
+
+        # Gruppo 2 — riga selezione diretta cartella (pulsanti 1…N, creati dinamicamente)
+        self._sizer_selezione = wx.BoxSizer(wx.HORIZONTAL)
+        self._pulsanti_selezione: list[wx.Button] = []
+        sizer.Add(self._sizer_selezione, 0, wx.ALL | wx.EXPAND, 5)
+
+        # Gruppo 3 — riga pulsanti premi (Ambo…Tombola)
+        sizer_premi = wx.BoxSizer(wx.HORIZONTAL)
+        self._btn_premi: dict[str, wx.Button] = {}
+        for tipo in _TIPI_VITTORIA:
+            if tipo == "tombola":
+                bg = COLORE_BTN_TOMBOLA
+                fg = COLORE_BTN_TOMBOLA_TESTO
+            else:
+                bg = COLORE_ACCENT_ROSSO
+                fg = "#FFFFFF"
+            btn = wx.Button(panel, label=tipo.capitalize())
+            btn.SetName(f"Dichiara {tipo}")
+            btn.SetBackgroundColour(wx.Colour(bg))
+            btn.SetForegroundColour(wx.Colour(fg))
+            btn.Disable()
+            self.Bind(wx.EVT_BUTTON, functools.partial(self._on_premio, tipo), btn)
+            sizer_premi.Add(btn, 1, wx.ALL, 3)
+            self._btn_premi[tipo] = btn
+        sizer.Add(sizer_premi, 0, wx.ALL | wx.EXPAND, 5)
 
         # Area log annunci (read-only)
         sizer.Add(wx.StaticText(panel, label="Log annunci (Ctrl+E per consultare):"), 0, wx.LEFT | wx.TOP, 5)
@@ -537,6 +593,9 @@ class FinestraGioco(wx.Frame):
             return
 
         if self._fase_turno_ui == "attesa_estrazione":
+            # Al primo turno, crea i pulsanti di selezione diretta cartella
+            if self._partita.tabellone.get_conteggio_estratti() == 0:
+                self._crea_pulsanti_selezione_cartella()
             # Fase 1: estrae il numero + avvia finestra d'azione V2.
             risultato_est = self._comandi_sistema.esegui_fase_estrazione(self._partita)
             if risultato_est is None:
@@ -822,6 +881,13 @@ class FinestraGioco(wx.Frame):
             if hasattr(self, "_btn_pausa"):
                 self._btn_pausa.SetLabel("Riprendi")
                 self._btn_pausa.Enable()
+            # Frecce e premi disabilitati durante pausa
+            if hasattr(self, "_btn_freccia_sx"):
+                self._btn_freccia_sx.Disable()
+                self._btn_freccia_dx.Disable()
+            if hasattr(self, "_btn_premi"):
+                for btn in self._btn_premi.values():
+                    btn.Disable()
             self._renderer.annuncia_fase_turno(label)
             return
         if fase == "attesa_reclami":
@@ -846,6 +912,28 @@ class FinestraGioco(wx.Frame):
                 self._btn_pausa.Enable()
             else:
                 self._btn_pausa.Disable()
+        # Frecce navigazione cartella
+        if hasattr(self, "_btn_freccia_sx"):
+            nav_attiva = (
+                self._partita.tabellone.get_conteggio_estratti() > 0
+                and not self._comandi_sistema.is_terminata(self._partita)
+                and fase not in ("pausa_turno",)
+            )
+            self._btn_freccia_sx.Enable(nav_attiva)
+            self._btn_freccia_dx.Enable(nav_attiva)
+        # Pulsanti premi
+        if hasattr(self, "_btn_premi") and self._btn_premi:
+            premi_chiusi: set = getattr(self._partita, "premi_tipo_chiusi", set())
+            for tipo, btn in self._btn_premi.items():
+                if tipo in premi_chiusi:
+                    btn.Disable()
+                    etichetta = tipo.capitalize()
+                    if not btn.GetLabel().endswith(" ✓"):
+                        btn.SetLabel(f"{etichetta} ✓")
+                elif fase == "attesa_reclami":
+                    btn.Enable()
+                else:
+                    btn.Disable()
         # Re-announce esplicito per NVDA (l'etichetta potrebbe non essere riletta automaticamente).
         self._renderer.annuncia_fase_turno(label)
 
@@ -948,3 +1036,78 @@ class FinestraGioco(wx.Frame):
         except Exception:
             # Non fatale: il subscribe è opzionale e l'aggiornamento è best-effort
             pass
+
+    # ------------------------------------------------------------------
+    # Gruppo 1 — Handler frecce navigazione cartella
+    # ------------------------------------------------------------------
+
+    def _on_cartella_precedente(self, event: object) -> None:
+        """Handler del pulsante ◀: naviga alla cartella precedente."""
+        self._dispatch(self._comandi.cartella_precedente())
+        return
+
+    def _on_cartella_successiva(self, event: object) -> None:
+        """Handler del pulsante ▶: naviga alla cartella successiva."""
+        self._dispatch(self._comandi.cartella_successiva())
+        return
+
+    # ------------------------------------------------------------------
+    # Gruppo 2 — Selezione diretta cartella
+    # ------------------------------------------------------------------
+
+    def _crea_pulsanti_selezione_cartella(self) -> None:
+        """Crea dinamicamente i pulsanti 1…N per la selezione diretta della cartella.
+
+        Chiamato una sola volta al primo click su 'Inizia partita', quando le
+        cartelle del giocatore umano sono già configurate.
+        """
+        if self._pulsanti_selezione:
+            return  # già creati
+        giocatore_umano = next(
+            (g for g in self._partita.giocatori if not g.is_automatico()), None
+        )
+        if giocatore_umano is None or not giocatore_umano.cartelle:
+            return
+        n = min(6, len(giocatore_umano.cartelle))
+        for i in range(1, n + 1):
+            btn = wx.Button(
+                self._panel, label=str(i), size=wx.Size(*DIMENSIONE_BTN_SELEZIONE_CARTELLA)
+            )
+            btn.SetName(f"Cartella {i}")
+            btn.SetBackgroundColour(wx.Colour(COLORE_BTN_NEUTRO))
+            btn.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
+            self.Bind(wx.EVT_BUTTON, functools.partial(self._on_seleziona_cartella, i), btn)
+            self._sizer_selezione.Add(btn, 0, wx.ALL, 3)
+            self._pulsanti_selezione.append(btn)
+        self._panel.Layout()
+        self.Layout()
+
+    def _on_seleziona_cartella(self, numero: int, event: object) -> None:
+        """Handler dei pulsanti 1…N: salta direttamente alla cartella N."""
+        self._dispatch(self._comandi.imposta_focus_cartella(numero))
+        return
+
+    def _aggiorna_evidenziazione_selezione(self, numero_cartella: int) -> None:
+        """Colora il pulsante attivo con blu e gli altri con grigio neutro."""
+        for i, btn in enumerate(self._pulsanti_selezione, start=1):
+            if i == numero_cartella:
+                btn.SetBackgroundColour(wx.Colour(COLORE_ACCENT_BLU))
+                btn.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+            else:
+                btn.SetBackgroundColour(wx.Colour(COLORE_BTN_NEUTRO))
+                btn.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
+            btn.Refresh()
+
+    def aggiorna_selezione_cartella(self, numero: int) -> None:
+        """Aggiorna l'evidenziazione del pulsante selezione cartella (duck typing per renderer)."""
+        self._aggiorna_evidenziazione_selezione(numero)
+
+    # ------------------------------------------------------------------
+    # Gruppo 3 — Handler pulsanti premi
+    # ------------------------------------------------------------------
+
+    def _on_premio(self, tipo: str, event: object) -> None:
+        """Handler dei pulsanti premi: annuncia vittoria del tipo indicato."""
+        self._dispatch(self._comandi.annuncia_vittoria(tipo, self._turno_corrente))
+        return
+
