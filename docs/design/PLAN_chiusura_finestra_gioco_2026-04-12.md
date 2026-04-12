@@ -12,7 +12,7 @@
 
 I tre pulsanti principali (`_btn_principale`, `_btn_pausa`, `_btn_torna_menu`) ricevono
 `SetBackgroundColour()` e `SetForegroundColour()` sincronizzati con l'etichetta assegnata
-in `aggiorna_stato_pulsante()`.
+in `_aggiorna_stato_pulsante()`.
 
 ### Costanti da aggiungere in tema.py
 
@@ -37,7 +37,7 @@ COLORE_BTN_INIZIA, COLORE_BTN_PASSA_TURNO, COLORE_BTN_HO_FINITO, COLORE_BTN_RIPR
 COLORE_BTN_PAUSA, COLORE_BTN_GRIGIO, COLORE_BTN_DISABILITATO,
 ```
 
-### Modifica a `aggiorna_stato_pulsante()` — ramo "in_pausa"
+### Modifica a `_aggiorna_stato_pulsante()` — ramo "in_pausa"
 
 Posizione: riga ~875 — all'inizio del metodo, ramo `if fase == "in_pausa":`.
 
@@ -57,7 +57,7 @@ self._btn_pausa.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
 self._btn_pausa.Refresh()
 ```
 
-### Modifica a `aggiorna_stato_pulsante()` — ramo generico
+### Modifica a `_aggiorna_stato_pulsante()` — ramo generico
 
 Dopo l'assegnazione di `label` (quattro sotto-rami) e dopo `self._btn_principale.SetLabel(label)`:
 
@@ -347,15 +347,15 @@ def _wx_avvia_lampeggio(self, numero: int) -> None:
 
 ### Modifica a `WxRenderer.annuncia_numero_estratto()`
 
-Aggiungere dopo `self._ao2_vocalizza(testo)`:
+Aggiungere dopo `self._wx_aggiorna_output(testo)` e **prima** di
+`self._ao2_vocalizza(testo)`:
 
 ```python
 self._wx_avvia_lampeggio(numero)
 ```
 
-La chiamata va **dopo** `_ao2_vocalizza` per rispettare la regola
-testo → widget visivo → voce. Il lampeggio è visivo puro e non
-altera il flusso voce già completato.
+Questo rispetta la regola invariante del progetto: testo → widget visivo → voce.
+Il lampeggio è un aggiornamento visivo puro e deve precedere la vocalizzazione.
 
 ---
 
@@ -493,6 +493,10 @@ self._wx_aggiorna_header(turno=numero_turno, ultimo_numero=numero)
 Rispetta la regola: testo (`_wx_aggiorna_output`) → widget visivo (header) → voce (`_ao2_vocalizza`).
 
 ### Modifica a `WxRenderer.annuncia_premi_turno()`
+
+⚠️ La chiamata va inserita **dopo** `self._wx_aggiorna_output(testo)` e
+**prima** di `self._ao2_vocalizza(testo)`, in tutti i rami del metodo
+(sia il ramo con premi, sia il ramo senza premi). Stessa regola di A6.
 
 Aggiungere prima di `self._ao2_vocalizza(testo)` (in entrambi i rami premi/nessun_premio):
 

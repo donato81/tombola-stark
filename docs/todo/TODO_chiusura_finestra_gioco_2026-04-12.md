@@ -41,7 +41,7 @@ COLORE_BTN_PAUSA, COLORE_BTN_GRIGIO, COLORE_BTN_DISABILITATO,
 
 ### B3 — Colori nel ramo "in_pausa" di `aggiorna_stato_pulsante()`
 
-**File:** `bingo_game/ui/finestra_gioco.py` — metodo `aggiorna_stato_pulsante()`, ramo `fase == "in_pausa"`
+**File:** `bingo_game/ui/finestra_gioco.py` — metodo `_aggiorna_stato_pulsante()`, ramo `fase == "in_pausa"`
 **Cosa fare:**
 - Dopo `self._btn_principale.Disable()`: aggiungere `SetBackgroundColour(COLORE_BTN_DISABILITATO)` + `SetForegroundColour(COLORE_TESTO_SCURO)` + `Refresh()`.
 - Dopo `self._btn_pausa.Enable()`: aggiungere `SetBackgroundColour(COLORE_BTN_RIPRENDI)` + `SetForegroundColour(COLORE_TESTO_CHIARO)` + `Refresh()`.
@@ -52,7 +52,7 @@ COLORE_BTN_PAUSA, COLORE_BTN_GRIGIO, COLORE_BTN_DISABILITATO,
 
 ### B4 — Colori nel ramo generico di `aggiorna_stato_pulsante()` per `_btn_principale`
 
-**File:** `bingo_game/ui/finestra_gioco.py` — metodo `aggiorna_stato_pulsante()`, ramo `else` generico
+**File:** `bingo_game/ui/finestra_gioco.py` — metodo `_aggiorna_stato_pulsante()`, ramo `else` generico
 **Cosa fare:** Dopo ciascuna assegnazione di `label`, subito dopo `self._btn_principale.SetLabel(label)`, aggiungere i tre sotto-rami:
 - `fase == "attesa_reclami"` → `SetBackgroundColour(COLORE_BTN_HO_FINITO)` + `SetForegroundColour(COLORE_TESTO_CHIARO)`.
 - `fase == "pausa_turno"` → `SetBackgroundColour(COLORE_BTN_GRIGIO)` + `SetForegroundColour(COLORE_TESTO_CHIARO)`.
@@ -67,7 +67,7 @@ Aggiungere `self._btn_principale.Refresh()` alla fine del ramo generico.
 
 ### B5 — Colore del `_btn_pausa` nel ramo generico
 
-**File:** `bingo_game/ui/finestra_gioco.py` — metodo `aggiorna_stato_pulsante()`, sezione `if hasattr(self, "_btn_pausa"):`
+**File:** `bingo_game/ui/finestra_gioco.py` — metodo `_aggiorna_stato_pulsante()`, sezione `if hasattr(self, "_btn_pausa"):`
 **Cosa fare:** Dopo `self._btn_pausa.SetLabel("Metti in pausa")` nel ramo generico: aggiungere `SetBackgroundColour(COLORE_BTN_PAUSA)` + `SetForegroundColour(COLORE_TESTO_CHIARO)` + `Refresh()`.
 **Dipende da:** B2, B3
 **Test minimo:** All'avvio, il pulsante "Metti in pausa" deve essere grigio scuro (`#424242`). Dopo aver premuto Riprendi, deve tornare grigio scuro.
@@ -204,7 +204,16 @@ if hasattr(self._pannello_cartella, "ferma_lampeggio"):
     self._pannello_cartella.ferma_lampeggio()
 ```
 **Dipende da:** C5
-**Test minimo:** Avviare la partita, giocare un turno. La cella nuovamente aggiornata non deve avere colori incoerenti (né timer fantasma che alterna colori dopo il repaint).
+**Test minimo:** 
+
+**Test A:** Avviare la partita, giocare un turno con un numero presente nella
+cartella (lampeggio attivo). Attendere la fine del lampeggio naturale: la cella
+deve stabilizzarsi sul giallo chiaro senza colori incoerenti.
+
+**Test B (caso bordo critico):** Con il lampeggio attivo, premere immediatamente
+Ctrl+1 (o Ctrl+2…6) per cambiare cartella. Il lampeggio deve interrompersi
+immediatamente. La cella della vecchia cartella non deve continuare ad alternare
+colori dopo il cambio. Nessun timer fantasma attivo dopo la navigazione.
 
 ---
 
@@ -220,10 +229,13 @@ if hasattr(self._pannello_cartella, "ferma_lampeggio"):
 ### C9 — Chiamare `_wx_avvia_lampeggio()` in `annuncia_numero_estratto()`
 
 **File:** `bingo_game/ui/renderers/renderer_wx.py` — metodo `annuncia_numero_estratto()`
-**Cosa fare:** Aggiungere alla fine del metodo (dopo `self._ao2_vocalizza(testo)`):
+**Cosa fare:** Aggiungere in `annuncia_numero_estratto()`, dopo `self._wx_aggiorna_output(testo)`
+e **prima** di `self._ao2_vocalizza(testo)`:
 ```python
 self._wx_avvia_lampeggio(numero)
 ```
+⚠️ NON aggiungere dopo `_ao2_vocalizza` — posizione errata rispetto alla regola
+testo → widget visivo → voce.
 **Dipende da:** C8
 **Test minimo:** Giocare un turno completo con un numero presente nella cartella. La cella lampeggia. Giocare un turno con un numero assente dalla cartella: nessun lampeggio visibile, nessun errore.
 
@@ -301,7 +313,10 @@ self._wx_aggiorna_header(turno=numero_turno, ultimo_numero=numero)
 ### A7 — Chiamare `_wx_aggiorna_header()` in `annuncia_premi_turno()`
 
 **File:** `bingo_game/ui/renderers/renderer_wx.py` — metodo `annuncia_premi_turno()`
-**Cosa fare:** Aggiungere tra `self._wx_aggiorna_output(testo)` e `self._ao2_vocalizza(testo)`:
+**Cosa fare:** ⚠️ Posizione obbligatoria: dopo `self._wx_aggiorna_output(testo)` e
+prima di `self._ao2_vocalizza(testo)` — identico al task A6.
+
+Aggiungere tra `self._wx_aggiorna_output(testo)` e `self._ao2_vocalizza(testo)`:
 ```python
 nomi_premi = [f"{p.get('premio', '?')} — {p.get('giocatore', '?')}" for p in premi] if premi else []
 self._wx_aggiorna_header(premi_lista=nomi_premi)

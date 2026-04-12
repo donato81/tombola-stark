@@ -213,6 +213,10 @@ a ogni chiamata perché la cartella visualizzata può cambiare (navigazione tra 
 - Il timer non sposta mai il focus; NVDA non intercetta variazioni di colore su `StaticText`.
 - Nessuna chiamata ad `_ao2_vocalizza()` nel percorso del lampeggio.
 
+**Nota posizionamento:** `_wx_avvia_lampeggio()` va chiamato dopo
+`_wx_aggiorna_output()` e prima di `_ao2_vocalizza()`, rispettando l'ordine
+testo → widget visivo → voce.
+
 ### Rischio focus
 
 **Rischio: Nullo.**
