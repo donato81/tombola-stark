@@ -17,6 +17,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ### Changed
 - bingo_game/ui/finestra_principale.py: applicato stile visivo del menu principale con titolo, sottotitolo NVDA, pulsanti tematizzati e acceleratori Ctrl+N, Ctrl+I, Ctrl+G, Ctrl+Q; aggiornata coerentemente la dimensione finestra in bingo_game/ui/tema.py a 400x380.
+- bingo_game/ui/finestra_configurazione.py: bot e cartelle da SpinCtrl a wx.Choice (selezione da lista, nessun input libero); applicato stile visivo completo (sfondo, etichette colorate, titolo bold blu, pulsante Avvia verde, messaggio errore rosso); DIMENSIONE_FINESTRA_CONFIGURAZIONE aggiornata da 500×430 a 500×460 in tema.py.
 
 ---
 

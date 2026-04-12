@@ -14,6 +14,17 @@ from typing import TYPE_CHECKING, Optional
 
 import wx
 
+from bingo_game.ui.tema import (
+    COLORE_ACCENT_BLU,
+    COLORE_BTN_INIZIA,
+    COLORE_CONFIGURAZIONE_BG,
+    COLORE_TESTO_CHIARO,
+    COLORE_TESTO_ERRORE,
+    COLORE_TESTO_LABEL,
+    DIMENSIONE_FINESTRA_CONFIGURAZIONE,
+    FONT_BTN_PT,
+    FONT_LABEL_PT,
+)
 from bingo_game.comandi_partita import ComandiSistema
 
 if TYPE_CHECKING:
@@ -40,7 +51,7 @@ class FinestraConfigurazione(wx.Frame):
         super().__init__(
             parent,
             title="Tombola Stark — Configurazione partita",
-            size=(500, 430),
+            size=DIMENSIONE_FINESTRA_CONFIGURAZIONE,
             style=wx.DEFAULT_FRAME_STYLE,
         )
         self._renderer = renderer
@@ -58,45 +69,85 @@ class FinestraConfigurazione(wx.Frame):
 
     def _build_ui(self) -> None:
         panel = wx.Panel(self)
+        panel.SetBackgroundColour(wx.Colour(COLORE_CONFIGURAZIONE_BG))
         sizer = wx.BoxSizer(wx.VERTICAL)
 
+        # Titolo visivo
+        lbl_titolo = wx.StaticText(panel, label="Configurazione partita")
+        lbl_titolo.SetFont(
+            wx.Font(14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+        )
+        lbl_titolo.SetForegroundColour(wx.Colour(COLORE_ACCENT_BLU))
+        sizer.Add(lbl_titolo, 0, wx.TOP | wx.ALIGN_CENTER_HORIZONTAL, 15)
+
         # Nome giocatore
-        sizer.Add(wx.StaticText(panel, label="Nome giocatore:"), 0, wx.LEFT | wx.TOP, 10)
+        lbl_nome = wx.StaticText(panel, label="Nome giocatore:")
+        lbl_nome.SetFont(
+            wx.Font(FONT_LABEL_PT, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+        )
+        lbl_nome.SetForegroundColour(wx.Colour(COLORE_TESTO_LABEL))
+        sizer.Add(lbl_nome, 0, wx.LEFT | wx.TOP, 10)
         self._nome_ctrl = wx.TextCtrl(panel, value="Giocatore")
         sizer.Add(self._nome_ctrl, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         # Numero bot
-        sizer.Add(wx.StaticText(panel, label="Numero bot avversari (1-7):"), 0, wx.LEFT | wx.TOP, 10)
-        self._bot_ctrl = wx.SpinCtrl(panel, value="1", min=1, max=7)
+        lbl_bot = wx.StaticText(panel, label="Numero bot avversari (1-7):")
+        lbl_bot.SetFont(
+            wx.Font(FONT_LABEL_PT, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+        )
+        lbl_bot.SetForegroundColour(wx.Colour(COLORE_TESTO_LABEL))
+        sizer.Add(lbl_bot, 0, wx.LEFT | wx.TOP, 10)
+        self._bot_ctrl = wx.Choice(panel, choices=["1", "2", "3", "4", "5", "6", "7"])
+        self._bot_ctrl.SetSelection(0)
         sizer.Add(self._bot_ctrl, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         # Numero cartelle
-        sizer.Add(wx.StaticText(panel, label="Cartelle per giocatore (1-6):"), 0, wx.LEFT | wx.TOP, 10)
-        self._cartelle_ctrl = wx.SpinCtrl(panel, value="1", min=1, max=6)
+        lbl_cartelle = wx.StaticText(panel, label="Cartelle per giocatore (1-6):")
+        lbl_cartelle.SetFont(
+            wx.Font(FONT_LABEL_PT, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+        )
+        lbl_cartelle.SetForegroundColour(wx.Colour(COLORE_TESTO_LABEL))
+        sizer.Add(lbl_cartelle, 0, wx.LEFT | wx.TOP, 10)
+        self._cartelle_ctrl = wx.Choice(panel, choices=["1", "2", "3", "4", "5", "6"])
+        self._cartelle_ctrl.SetSelection(0)
         sizer.Add(self._cartelle_ctrl, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         # Durata finestra d'azione (V2)
-        sizer.Add(
-            wx.StaticText(panel, label="Durata finestra d'azione in secondi (5-300):"),
-            0, wx.LEFT | wx.TOP, 10,
+        lbl_fa = wx.StaticText(panel, label="Durata finestra d'azione in secondi (5-300):")
+        lbl_fa.SetFont(
+            wx.Font(FONT_LABEL_PT, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
         )
+        lbl_fa.SetForegroundColour(wx.Colour(COLORE_TESTO_LABEL))
+        sizer.Add(lbl_fa, 0, wx.LEFT | wx.TOP, 10)
         self._finestra_azione_ctrl = wx.SpinCtrl(panel, value="60", min=5, max=300)
         sizer.Add(self._finestra_azione_ctrl, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         # Durata pausa tra turni (V2)
-        sizer.Add(
-            wx.StaticText(panel, label="Durata pausa tra turni in secondi (1-30):"),
-            0, wx.LEFT | wx.TOP, 10,
+        lbl_p = wx.StaticText(panel, label="Durata pausa tra turni in secondi (1-30):")
+        lbl_p.SetFont(
+            wx.Font(FONT_LABEL_PT, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
         )
+        lbl_p.SetForegroundColour(wx.Colour(COLORE_TESTO_LABEL))
+        sizer.Add(lbl_p, 0, wx.LEFT | wx.TOP, 10)
         self._pausa_turni_ctrl = wx.SpinCtrl(panel, value="5", min=1, max=30)
         sizer.Add(self._pausa_turni_ctrl, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         # Pulsante conferma
         self._btn_conferma = wx.Button(panel, label="Avvia partita")
+        self._btn_conferma.SetBackgroundColour(wx.Colour(COLORE_BTN_INIZIA))
+        self._btn_conferma.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+        self._btn_conferma.SetFont(
+            wx.Font(FONT_BTN_PT, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+        )
+        self._btn_conferma.SetMinSize((200, 44))
         sizer.Add(self._btn_conferma, 0, wx.ALL | wx.ALIGN_CENTER, 10)
 
         # Riga messaggi errori
         self._msg_ctrl = wx.StaticText(panel, label="")
+        self._msg_ctrl.SetFont(
+            wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+        )
+        self._msg_ctrl.SetForegroundColour(wx.Colour(COLORE_TESTO_ERRORE))
         sizer.Add(self._msg_ctrl, 0, wx.LEFT | wx.BOTTOM, 10)
 
         panel.SetSizer(sizer)
@@ -130,8 +181,8 @@ class FinestraConfigurazione(wx.Frame):
             self._nome_ctrl.SetFocus()
             return
 
-        num_bot = self._bot_ctrl.GetValue()
-        num_cartelle = self._cartelle_ctrl.GetValue()
+        num_bot = int(self._bot_ctrl.GetString(self._bot_ctrl.GetSelection()))
+        num_cartelle = int(self._cartelle_ctrl.GetString(self._cartelle_ctrl.GetSelection()))
 
         _ui_logger.debug(
             "Configurazione: nome=%s bot=%d cartelle=%d",

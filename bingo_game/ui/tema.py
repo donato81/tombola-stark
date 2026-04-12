@@ -113,4 +113,4 @@ DIMENSIONE_CELLA_CARTELLA = (60, 34)    # Dimensione minima cella griglia cartel
 
 DIMENSIONE_FINESTRA_GIOCO = (1000, 700)          # Dimensione finestra principale di gioco
 DIMENSIONE_FINESTRA_PRINCIPALE = (400, 380)      # Dimensione finestra menu principale
-DIMENSIONE_FINESTRA_CONFIGURAZIONE = (500, 430)  # Dimensione finestra configurazione partita
+DIMENSIONE_FINESTRA_CONFIGURAZIONE = (500, 460)  # Dimensione finestra configurazione partita
