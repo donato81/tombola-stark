@@ -36,6 +36,8 @@ Binding tastiera applicati (da report analisi):
     Ctrl+U                 -> ultimi 5 estratti
     Ctrl+R                 -> riepilogo tabellone
     Ctrl+E                 -> consulta log annunci
+    Ctrl+G                 -> stato premi sintetico (ultima vittoria + prossimo)
+    Ctrl+I                 -> dettaglio premi completo (lista vincitori)
 
 path: bingo_game/ui/finestra_gioco.py
 """
@@ -856,6 +858,18 @@ class FinestraGioco(wx.Frame):
         # Ctrl+E — consulta log annunci
         if ctrl and key == ord("E"):
             self._consulta_log()
+            return
+
+        # Ctrl+G — stato premi sintetico (ultima vittoria + prossimo)  [Categoria C]
+        if ctrl and key == ord("G"):
+            testo = self._comandi.stato_premi()
+            self._renderer.annuncia_stato_premi(testo)
+            return
+
+        # Ctrl+I — dettaglio premi completo (lista vincitori)  [Categoria C]
+        if ctrl and key == ord("I"):
+            testo = self._comandi.dettaglio_premi()
+            self._renderer.annuncia_dettaglio_premi(testo)
             return
 
         event.Skip()

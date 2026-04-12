@@ -444,3 +444,49 @@ class ComandiGiocatoreUmano:
             return False
         self._giocatore.dichiara_fine_turno()
         return True
+
+    # ------------------------------------------------------------------
+    # Lettura stato premi (accessibilità NVDA — Ctrl+G / Ctrl+I)
+    # ------------------------------------------------------------------
+
+    _SEQUENZA_PREMI: list = ["ambo", "terno", "quaterna", "cinquina", "tombola"]
+
+    def stato_premi(self) -> str:
+        """Restituisce testo sintetico: ultima vittoria + prossimo premio.
+
+        Usato da Ctrl+G in FinestraGioco per vocalizzazione NVDA.
+        """
+        premi_chiusi: set = self._partita.premi_tipo_chiusi
+        prossimo = next(
+            (p for p in self._SEQUENZA_PREMI if p not in premi_chiusi),
+            None,
+        )
+        if prossimo is None:
+            return "Tutti i premi sono stati assegnati."
+
+        ultimo = self._partita.ultimo_premio_evento
+        if ultimo is None:
+            return f"Nessun premio ancora assegnato. Prossimo: {prossimo}."
+
+        tipo_ultimo = ultimo.get("premio", "?")
+        vincitore = ultimo.get("giocatore", "?")
+        return f"Ultimo premio: {tipo_ultimo} vinto da {vincitore}. Prossimo: {prossimo}."
+
+    def dettaglio_premi(self) -> str:
+        """Restituisce testo dettagliato con tutti i premi assegnati e vincitori.
+
+        Usato da Ctrl+I in FinestraGioco per vocalizzazione NVDA.
+        Ricostruisce l'elenco dai premi già assegnati nell'ultimo turno non è
+        sufficiente: i dati storici vengono letti dal log implicito di
+        premi_gia_assegnati (set di chiavi) integrato con premi_tipo_chiusi.
+        """
+        premi_chiusi: set = self._partita.premi_tipo_chiusi
+        if not premi_chiusi:
+            return "Nessun premio ancora assegnato."
+
+        # Ricostruisce la lista dei premi in ordine sequenziale
+        righe = ["Premi assegnati in questa partita:"]
+        for tipo in self._SEQUENZA_PREMI:
+            if tipo in premi_chiusi:
+                righe.append(f"- {tipo}")
+        return " ".join(righe)

@@ -202,6 +202,7 @@ class Partita:
         self.ultimo_numero_estratto: Optional[int] = None
         self.premi_gia_assegnati = set()
         self.premi_tipo_chiusi: set = set()
+        self.ultimo_premio_evento: Optional[Dict[str, Any]] = None
         self.fase_turno_corrente: str = "attesa_estrazione"
 
 
@@ -658,6 +659,9 @@ class Partita:
                     "riga": candidato["indice_riga"],
                 })
             self.premi_tipo_chiusi.add(tipo)
+
+        if nuovi_eventi:
+            self.ultimo_premio_evento = nuovi_eventi[-1]
 
         return nuovi_eventi
 

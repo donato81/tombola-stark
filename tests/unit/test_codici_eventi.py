@@ -552,6 +552,12 @@ class TestCodiciOutputUiUmani(unittest.TestCase):
         "LOOP_REPORT_FINALE_NESSUN_VINCITORE",
         "LOOP_REPORT_FINALE_PREMI",
         "LOOP_COMANDO_NON_RICONOSCIUTO",
+        # Lettura NVDA stato premi (v1.2.0)
+        "UMANI_STATO_PREMI_SINTETICO",
+        "UMANI_STATO_PREMI_NESSUNO",
+        "UMANI_STATO_PREMI_TUTTI",
+        "UMANI_DETTAGLIO_PREMI_HEADER",
+        "UMANI_DETTAGLIO_PREMI_VOCE",
     })
 
     def test_importazione_modulo(self) -> None:

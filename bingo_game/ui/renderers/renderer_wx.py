@@ -164,6 +164,14 @@ class WxRenderer(BaseRenderer):
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
 
+    def annuncia_stato_premi(self, testo: str) -> None:
+        """Vocalizza lo stato sintetico dei premi (Ctrl+G — lettura NVDA)."""
+        self.mostra_messaggio_sistema(testo)
+
+    def annuncia_dettaglio_premi(self, testo: str) -> None:
+        """Vocalizza il dettaglio completo dei premi assegnati (Ctrl+I — lettura NVDA)."""
+        self.mostra_messaggio_sistema(testo)
+
     def annuncia_numero_estratto(self, numero: int, numero_turno: int) -> None:
         """Vocalizza il numero estratto nel contesto del turno (senza premi)."""
         testo = f"Turno {numero_turno}. Numero estratto: {numero}."
