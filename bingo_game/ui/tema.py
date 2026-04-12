@@ -112,5 +112,5 @@ DIMENSIONE_CELLA_TABELLONE = (24, 26)   # Dimensione minima cella griglia tabell
 DIMENSIONE_CELLA_CARTELLA = (60, 34)    # Dimensione minima cella griglia cartella (w, h) in pixel
 
 DIMENSIONE_FINESTRA_GIOCO = (1000, 700)          # Dimensione finestra principale di gioco
-DIMENSIONE_FINESTRA_PRINCIPALE = (400, 300)      # Dimensione finestra menu principale
+DIMENSIONE_FINESTRA_PRINCIPALE = (400, 380)      # Dimensione finestra menu principale
 DIMENSIONE_FINESTRA_CONFIGURAZIONE = (500, 430)  # Dimensione finestra configurazione partita

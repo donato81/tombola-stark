@@ -15,6 +15,9 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - Animazione lampeggio post-estrazione sulla cella cartella (~2 secondi, wx.Timer)
 - Stile visivo scuro sul log annunci (sfondo #263238, testo #B0BEC5, Courier New 10pt)
 
+### Changed
+- bingo_game/ui/finestra_principale.py: applicato stile visivo del menu principale con titolo, sottotitolo NVDA, pulsanti tematizzati e acceleratori Ctrl+N, Ctrl+I, Ctrl+G, Ctrl+Q; aggiornata coerentemente la dimensione finestra in bingo_game/ui/tema.py a 400x380.
+
 ---
 
 ## [0.12.1] — 2026-04-12
