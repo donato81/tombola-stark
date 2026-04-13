@@ -309,16 +309,16 @@ indicato nella sezione "Testi dei capitoli" della richiesta.
 Titolo: "Introduzione alla Tombola"
 
 Testo (righe):
-- "La Tombola e un classico gioco di societa italiano. L'obiettivo e"
+- "La Tombola è un classico gioco di società italiano. L'obiettivo è"
 - "segnare i numeri estratti sulla propria cartella e dichiarare i premi"
 - "nel giusto ordine, prima degli avversari."
 - ""
-- "In Tombola Stark giochi contro uno o piu bot controllati dal computer."
+- "In Tombola Stark giochi contro uno o più bot controllati dal computer."
 - "Il gioco estrae un numero alla volta dal tabellone, che contiene tutti"
-- "i numeri da 1 a 90. Ogni numero puo essere estratto una sola volta"
+- "i numeri da 1 a 90. Ogni numero può essere estratto una sola volta"
 - "per partita."
 - ""
-- "Vince chi dichiara la Tombola per primo, cioe chi completa tutte e"
+- "Vince chi dichiara la Tombola per primo, cioè chi completa tutte e"
 - "tre le righe della propria cartella."
 
 **Capitolo 2 — La cartella**
@@ -326,15 +326,15 @@ Testo (righe):
 Titolo: "La cartella"
 
 Testo (righe):
-- "La cartella e la tua scheda di gioco. E composta da tre righe e nove"
+- "La cartella è la tua scheda di gioco. È composta da tre righe e nove"
 - "colonne, per un totale di ventisette caselle. Di queste, solo quindici"
 - "contengono numeri: le altre dodici sono vuote."
 - ""
 - "I numeri sono distribuiti per decine: la prima colonna contiene numeri"
-- "tra 1 e 9, la seconda tra 10 e 19, e cosi via fino alla nona colonna"
+- "tra 1 e 9, la seconda tra 10 e 19, e così via fino alla nona colonna"
 - "che contiene numeri tra 80 e 90."
 - ""
-- "Puoi giocare con una sola cartella o con piu cartelle, fino a un"
+- "Puoi giocare con una sola cartella o con più cartelle, fino a un"
 - "massimo di sei. Puoi scegliere il numero di cartelle nella schermata"
 - "di configurazione prima di iniziare la partita. Il gioco ti mostra"
 - "una cartella alla volta: puoi passare da una all'altra con i tasti"
@@ -347,18 +347,18 @@ Titolo: "I premi in ordine"
 Testo (righe):
 - "I premi della Tombola si dichiarano in ordine crescente. Non puoi"
 - "saltare un premio: devi vincere l'ambo prima di poter dichiarare"
-- "il terno, e cosi via."
+- "il terno, e così via."
 - ""
-- "L'ordine dei premi e il seguente:"
+- "L'ordine dei premi è il seguente:"
 - ""
 - "Ambo: due numeri segnati sulla stessa riga."
 - "Terno: tre numeri segnati sulla stessa riga."
 - "Quaterna: quattro numeri segnati sulla stessa riga."
-- "Cinquina: cinque numeri segnati sulla stessa riga, cioe una riga completa."
-- "Tombola: tutti e quindici i numeri segnati, cioe tutte e tre le righe complete."
+- "Cinquina: cinque numeri segnati sulla stessa riga, cioè una riga completa."
+- "Tombola: tutti e quindici i numeri segnati, cioè tutte e tre le righe complete."
 - ""
-- "Ogni premio puo essere vinto una sola volta per partita. Se un bot"
-- "dichiara un premio prima di te, quel premio e perso: non puoi piu"
+- "Ogni premio può essere vinto una sola volta per partita. Se un bot"
+- "dichiara un premio prima di te, quel premio è perso: non puoi più"
 - "dichiararlo. La partita termina quando qualcuno dichiara la Tombola."
 
 **Capitolo 4 — Come si svolge un turno**
@@ -367,7 +367,7 @@ Titolo: "Come si svolge un turno"
 
 Testo (righe):
 - "All'inizio di ogni turno, il gioco estrae automaticamente un numero"
-- "dal tabellone e lo annuncia ad alta voce. Se quel numero e presente"
+- "dal tabellone e lo annuncia ad alta voce. Se quel numero è presente"
 - "su una delle tue cartelle, puoi segnarlo."
 - ""
 - "Hai 60 secondi per trovare il numero sulla tua cartella e segnarlo"
@@ -379,7 +379,7 @@ Testo (righe):
 - "vincente, puoi dichiarare il premio con i tasti F1 (ambo), F2"
 - "(terno), F3 (quaterna), F4 (cinquina) o F5 (tombola). Ricorda:"
 - "i premi vanno dichiarati in ordine. Il gioco segnala automaticamente"
-- "se la dichiarazione non e corretta."
+- "se la dichiarazione non è corretta."
 
 **Capitolo 5 — I bot avversari**
 
@@ -387,7 +387,7 @@ Titolo: "I bot avversari"
 
 Testo (righe):
 - "I bot sono giocatori automatici controllati dal computer. Per"
-- "impostazione predefinita c'e un solo bot, chiamato Bot 1. Puoi"
+- "impostazione predefinita c'è un solo bot, chiamato Bot 1. Puoi"
 - "scegliere di aggiungerne altri nella schermata di configurazione"
 - "prima di iniziare."
 - ""
@@ -396,8 +396,8 @@ Testo (righe):
 - "devi fare nulla per farli giocare."
 - ""
 - "I bot possono vincere i premi prima di te. Se Bot 1 dichiara"
-- "l'ambo prima che tu lo faccia, l'ambo e assegnato a lui e tu non"
-- "puoi piu dichiararlo. Tieni d'occhio i messaggi vocali: il gioco"
+- "l'ambo prima che tu lo faccia, l'ambo è assegnato a lui e tu non"
+- "puoi più dichiararlo. Tieni d'occhio i messaggi vocali: il gioco"
 - "annuncia ogni vittoria dei bot non appena avviene."
 
 ### 7.4 Come aggiungere un capitolo in futuro
