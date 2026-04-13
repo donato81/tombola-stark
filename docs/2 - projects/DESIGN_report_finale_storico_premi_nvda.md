@@ -2,7 +2,7 @@
 type: design
 feature: report_finale_storico_premi_nvda
 agent: Agent-Design
-status: DRAFT
+status: REVIEWED
 version: v0.15.0
 date: 2026-04-13
 report_ref: docs/4 - reports/REPORT_DIAGNOSI_ALFA_2026-04-13.md
@@ -16,7 +16,7 @@ tipo: design
 titolo: Chiusura gap alfa su report finale, storico premi e lettura NVDA dei vincitori
 data_creazione: 2026-04-13
 agente: Agent-Design
-stato: DRAFT
+stato: REVIEWED
 versione_target: v0.15.0
 report_riferimento: docs/4 - reports/REPORT_DIAGNOSI_ALFA_2026-04-13.md
 

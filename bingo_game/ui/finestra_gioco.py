@@ -344,7 +344,7 @@ class PannelloRiepilogoFinale(wx.Panel):
         vincitore = dati.get("vincitore_tombola", "—")
         turni = dati.get("turni_giocati", "?")
         estratti = dati.get("conteggio_estratti", "?")
-        premi = dati.get("premi_gia_assegnati", [])
+        storico: list = dati.get("storico_premi", [])
 
         if vincitore and vincitore != "—":
             self._lbl_vincitore.SetLabel(f"Tombola: {vincitore}")
@@ -356,14 +356,13 @@ class PannelloRiepilogoFinale(wx.Panel):
         self._lbl_estratti.SetLabel(f"Numeri estratti: {estratti} su 90")
 
         self._sizer_premi.Clear(delete_windows=True)
-        for p in premi:
-            if isinstance(p, dict):
-                tipo = p.get("premio", "?")
-                giocatore = p.get("giocatore", "?")
-            else:
-                tipo = getattr(p, "tipo", "?")
-                giocatore = getattr(p, "giocatore", "?")
-            lbl = wx.StaticText(self, label=f"{tipo} — {giocatore}")
+        _seq = ["ambo", "terno", "quaterna", "cinquina", "tombola"]
+        _idx = {t: i for i, t in enumerate(_seq)}
+        ordinato = sorted(storico, key=lambda r: _idx.get(r.get("premio", ""), 99))
+        for record in ordinato:
+            tipo = record.get("premio", "?")
+            giocatore = record.get("giocatore", "?")
+            lbl = wx.StaticText(self, label=f"{tipo.capitalize()} — {giocatore}")
             lbl.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
             self._sizer_premi.Add(lbl, 0, wx.TOP, 2)
 
@@ -1033,12 +1032,18 @@ class FinestraGioco(wx.Frame):
         self._aggiorna_griglie_visive()
 
         if risultato_ver.get("partita_terminata") or risultato_ver.get("tombola_rilevata"):
+            storico_premi = list(getattr(self._partita, "storico_premi", []))
+            numeri_estratti = list(self._partita.tabellone.get_numeri_estratti())
+            riepilogo_umano = self._costruisci_riepilogo_umano(numeri_estratti)
             dati_report = {
                 "turni_giocati": self._turno_corrente,
                 "conteggio_estratti": self._partita.tabellone.get_conteggio_estratti(),
+                "numeri_estratti": numeri_estratti,
+                "storico_premi": storico_premi,
                 "premi_gia_assegnati": list(getattr(self._partita, "premi_gia_assegnati", [])),
                 "vincitore_tombola": self._ottieni_vincitore_tombola(),
                 "giocatori": [g.nome for g in self._partita.giocatori],
+                "riepilogo_umano": riepilogo_umano,
             }
             self._renderer.mostra_report_finale(dati_report)
             self._btn_principale.Disable()
@@ -1053,16 +1058,43 @@ class FinestraGioco(wx.Frame):
         self._avvia_pausa_turno(self._durata_pausa_ms)
 
     def _ottieni_vincitore_tombola(self) -> str:
-        """Restituisce il nome del vincitore tombola, o '—' se non disponibile."""
+        """Restituisce il nome del vincitore tombola leggendo storico_premi."""
         try:
-            for premio_info in getattr(self._partita, "premi_gia_assegnati", []):
-                if hasattr(premio_info, "tipo") and premio_info.tipo == "tombola":
-                    return getattr(premio_info, "giocatore", str(premio_info))
-                if isinstance(premio_info, dict) and premio_info.get("premio") == "tombola":
-                    return premio_info.get("giocatore", "—")
+            storico: list = getattr(self._partita, "storico_premi", [])
+            for record in storico:
+                if isinstance(record, dict) and record.get("premio") == "tombola":
+                    return record.get("giocatore", "—")
         except Exception:
             pass
         return "—"
+
+    def _costruisci_riepilogo_umano(self, numeri_estratti: list) -> dict:
+        """Costruisce statistiche sintetiche per il giocatore umano."""
+        try:
+            from bingo_game.players.giocatore_umano import GiocatoreUmano
+            umano = next(
+                (g for g in self._partita.giocatori if isinstance(g, GiocatoreUmano)),
+                None,
+            )
+            if umano is None:
+                return {}
+            estratti_set = set(numeri_estratti)
+            numeri_cartella: list[int] = []
+            for c in umano.get_cartelle():
+                numeri_cartella.extend(c.get_numeri_cartella())
+            segnati = [n for n in numeri_cartella if n in estratti_set]
+            premi_umano = [
+                r for r in getattr(self._partita, "storico_premi", [])
+                if r.get("id_giocatore") == umano.get_id_giocatore()
+            ]
+            return {
+                "nome": umano.nome,
+                "numeri_cartella": len(numeri_cartella),
+                "numeri_segnati": len(segnati),
+                "premi_vinti": [r.get("premio") for r in premi_umano],
+            }
+        except Exception:
+            return {}
 
     # ------------------------------------------------------------------
     # Pianificazione risposte bot (D-5)

@@ -462,6 +462,93 @@ class TestComandiGiocatoreUmano(unittest.TestCase):
 
         self.assertIsInstance(esito, EsitoAzione)
 
+    # =========================================================================
+    # SEZIONE: Test dettaglio_premi
+    # =========================================================================
+
+    def test_dettaglio_premi_fallback_se_nessun_premio(self) -> None:
+        """dettaglio_premi() ritorna testo di fallback quando storico vuoto."""
+        comandi_sistema = ComandiSistema()
+        partita = comandi_sistema.crea_nuova_partita("Mario", 1, 1)
+        self.assertIsNotNone(partita)
+        comandi = ComandiGiocatoreUmano(partita)
+
+        risultato = comandi.dettaglio_premi()
+
+        self.assertIn("Nessun premio", risultato)
+
+    def test_dettaglio_premi_include_vincitore_e_cartella(self) -> None:
+        """dettaglio_premi() include nome vincitore e cartella dopo un ambo."""
+        from bingo_game.cartella import Cartella
+        from bingo_game.players.giocatore_base import GiocatoreBase
+        from bingo_game.events.eventi_partita import ReclamoVittoria
+        from bingo_game.tabellone import Tabellone
+
+        tabellone = Tabellone()
+        giocatore = GiocatoreBase(nome="Aldo", id_giocatore=1)
+        cartella = Cartella()
+        giocatore.aggiungi_cartella(cartella)
+        partita = Partita(tabellone=tabellone)
+        partita.aggiungi_giocatore(giocatore)
+
+        indice_riga = 0
+        numeri = cartella.get_numeri_riga(indice_riga)
+        giocatore.aggiorna_con_numero(numeri[0])
+        giocatore.aggiorna_con_numero(numeri[1])
+        giocatore.reclamo_turno = ReclamoVittoria.vittoria_di_riga(
+            tipo="ambo",
+            indice_cartella=cartella.indice,
+            indice_riga=indice_riga,
+        )
+        partita.verifica_premi()
+
+        comandi = ComandiGiocatoreUmano(partita)
+        risultato = comandi.dettaglio_premi()
+
+        self.assertIn("Aldo", risultato)
+        self.assertIn("mbo", risultato)  # "Ambo" o "ambo"
+
+    def test_dettaglio_premi_ordine_sequenza_logica(self) -> None:
+        """dettaglio_premi() rispetta la sequenza logica dei premi."""
+        from bingo_game.cartella import Cartella
+        from bingo_game.players.giocatore_base import GiocatoreBase
+        from bingo_game.events.eventi_partita import ReclamoVittoria
+        from bingo_game.tabellone import Tabellone
+
+        tabellone = Tabellone()
+        giocatore = GiocatoreBase(nome="Baldo", id_giocatore=2)
+        cartella = Cartella()
+        giocatore.aggiungi_cartella(cartella)
+        partita = Partita(tabellone=tabellone)
+        partita.aggiungi_giocatore(giocatore)
+
+        # Crea prima un ambo
+        numeri0 = cartella.get_numeri_riga(0)
+        giocatore.aggiorna_con_numero(numeri0[0])
+        giocatore.aggiorna_con_numero(numeri0[1])
+        giocatore.reclamo_turno = ReclamoVittoria.vittoria_di_riga(
+            tipo="ambo", indice_cartella=cartella.indice, indice_riga=0
+        )
+        partita.verifica_premi()
+
+        # Poi un terno su riga 1
+        numeri1 = cartella.get_numeri_riga(1)
+        for n in numeri1[:3]:
+            giocatore.aggiorna_con_numero(n)
+        giocatore.reclamo_turno = ReclamoVittoria.vittoria_di_riga(
+            tipo="terno", indice_cartella=cartella.indice, indice_riga=1
+        )
+        partita.verifica_premi()
+
+        comandi = ComandiGiocatoreUmano(partita)
+        risultato = comandi.dettaglio_premi()
+
+        pos_ambo = risultato.lower().find("ambo")
+        pos_terno = risultato.lower().find("terno")
+        self.assertGreater(pos_ambo, -1)
+        self.assertGreater(pos_terno, -1)
+        self.assertLess(pos_ambo, pos_terno)
+
 
 if __name__ == "__main__":
     unittest.main()

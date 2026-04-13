@@ -203,6 +203,7 @@ class Partita:
         self.premi_gia_assegnati = set()
         self.premi_tipo_chiusi: set = set()
         self.ultimo_premio_evento: Optional[Dict[str, Any]] = None
+        self.storico_premi: List[Dict[str, Any]] = []
         self.fase_turno_corrente: str = "attesa_estrazione"
 
 
@@ -651,13 +652,16 @@ class Partita:
         for tipo, candidati in candidati_per_tipo.items():
             for candidato in candidati:
                 self.premi_gia_assegnati.add(candidato["chiave"])
-                nuovi_eventi.append({
+                evento: Dict[str, Any] = {
                     "giocatore": candidato["giocatore"].get_nome(),
                     "id_giocatore": candidato["giocatore"].get_id_giocatore(),
                     "cartella": candidato["cartella"],
                     "premio": tipo,
                     "riga": candidato["indice_riga"],
-                })
+                    "turno": len(self.tabellone.get_numeri_estratti()),
+                }
+                nuovi_eventi.append(evento)
+                self.storico_premi.append(evento)
             self.premi_tipo_chiusi.add(tipo)
 
         if nuovi_eventi:

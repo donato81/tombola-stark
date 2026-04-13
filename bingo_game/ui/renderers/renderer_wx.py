@@ -135,26 +135,35 @@ class WxRenderer(BaseRenderer):
         Presenta il riepilogo finale della partita.
 
         Chiavi attese: turni_giocati, conteggio_estratti,
-        premi_gia_assegnati, vincitore_tombola, giocatori.
+        storico_premi, vincitore_tombola, giocatori, riepilogo_umano.
         """
         turni = dati_partita.get("turni_giocati", "?")
         estratti = dati_partita.get("conteggio_estratti", "?")
         vincitore = dati_partita.get("vincitore_tombola", "\u2014")
-        premi = dati_partita.get("premi_gia_assegnati", [])
+        storico: list = dati_partita.get("storico_premi", [])
 
         parti = [f"Partita terminata. Turni giocati: {turni}. Numeri estratti: {estratti} su 90."]
         if vincitore and vincitore != "\u2014":
             parti.append(f"Tombola vinta da: {vincitore}.")
-        if premi:
-            lista_premi = []
-            for p in premi:
-                if isinstance(p, dict):
-                    lista_premi.append(f"{p.get('premio', '?')} per {p.get('giocatore', '?')}")
-                else:
-                    tipo = getattr(p, "tipo", "?")
-                    giocat = getattr(p, "giocatore", "?")
-                    lista_premi.append(f"{tipo} per {giocat}")
-            parti.append("Premi assegnati: " + ", ".join(lista_premi) + ".")
+        if storico:
+            _seq = ["ambo", "terno", "quaterna", "cinquina", "tombola"]
+            _idx = {t: i for i, t in enumerate(_seq)}
+            ordinato = sorted(storico, key=lambda r: _idx.get(r.get("premio", ""), 99))
+            lista_premi = [
+                f"{r.get('premio', '?').capitalize()} vinto da {r.get('giocatore', '?')}"
+                for r in ordinato
+            ]
+            parti.append("Premi: " + ", ".join(lista_premi) + ".")
+        riepilogo = dati_partita.get("riepilogo_umano", {})
+        if riepilogo:
+            nome = riepilogo.get("nome", "")
+            segnati = riepilogo.get("numeri_segnati", "?")
+            totali = riepilogo.get("numeri_cartella", "?")
+            premi_u = riepilogo.get("premi_vinti", [])
+            parti.append(
+                f"{nome}: {segnati} su {totali} numeri segnati."
+                + (f" Premi vinti: {', '.join(premi_u)}." if premi_u else "")
+            )
         testo = " ".join(parti)
 
         self._wx_mostra_report_finale(dati_partita)

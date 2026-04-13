@@ -431,6 +431,13 @@ Partita(tabellone: Tabellone, giocatori: Optional[List[GiocatoreBase]] = None)
 
 **Stato iniziale**: `"non_iniziata"`
 
+**Attributi pubblici aggiuntivi (v0.15.0)**:
+- `storico_premi: list[dict[str, Any]]` — lista ordinata degli eventi premio
+  assegnati. Ogni record: `{giocatore, id_giocatore, cartella, premio, riga, turno}`.
+  Vuota a inizio partita; cresce ad ogni chiamata a `verifica_premi()` che
+  individua premi nuovi. Usata da `ComandiGiocatoreUmano.dettaglio_premi()`
+  e dal payload `dati_report` di fine partita.
+
 **Esempio**:
 ```python
 tabellone = Tabellone()
@@ -1907,8 +1914,13 @@ comportamento è pubblico e documentato qui perché è usato esplicitamente nei
 test di regressione e nei renderer per compatibilità con messaggi legacy.
 - `mostra_schermata_configurazione()` riceve uno `StatoConfigurazione`
     costruito a monte; il renderer non decide il passo successivo.
-- `mostra_report_finale()` riceve un dizionario con il riepilogo partita;
-    il refactor verso una struttura tipizzata resta futuro.
+- `mostra_report_finale()` riceve un dizionario con il riepilogo partita.
+    Chiavi attese (v0.15.0): `turni_giocati`, `conteggio_estratti`,
+    `storico_premi` (list[dict]), `numeri_estratti` (list[int]),
+    `vincitore_tombola`, `giocatori`, `riepilogo_umano` (dict).
+    La chiave `premi_gia_assegnati` rimane per retro-compatibilità.
+    Ogni record di `storico_premi` contiene:
+    `giocatore`, `id_giocatore`, `cartella`, `premio`, `riga`, `turno`.
 - `mostra_messaggio_sistema()` presenta testi gia' risolti dal catalogo o dal controller.
 
 **Vincoli di implementazione documentati**:

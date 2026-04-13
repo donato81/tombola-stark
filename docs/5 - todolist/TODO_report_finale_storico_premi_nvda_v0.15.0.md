@@ -2,7 +2,7 @@
 type: todo
 feature: report_finale_storico_premi_nvda
 agent: Agent-Plan
-status: DRAFT
+status: COMPLETED
 version: v0.15.0
 plan_ref: docs/3 - coding plans/PLAN_report_finale_storico_premi_nvda_v0.15.0.md
 date: 2026-04-13
@@ -28,38 +28,38 @@ committabile separatamente. Prima di marcare una fase come completata:
 
 ## Checklist fasi implementative
 
-- [ ] Fase A — Dominio: aggiungere `storico_premi` a `Partita` e valorizzarlo
+- [x] Fase A — Dominio: aggiungere `storico_premi` a `Partita` e valorizzarlo
       durante l'assegnazione premi, mantenendo coerenti `premi_gia_assegnati`,
       `premi_tipo_chiusi` e `ultimo_premio_evento`
       (`bingo_game/partita.py`)
 
-- [ ] Fase B — Application: aggiornare `ComandiGiocatoreUmano.dettaglio_premi()`
+- [x] Fase B — Application: aggiornare `ComandiGiocatoreUmano.dettaglio_premi()`
       per leggere lo storico reale dei premi e restituire premio, vincitore e
       cartella in testo leggibile da NVDA (`bingo_game/comandi_partita.py`)
 
-- [ ] Fase C — Presentazione: arricchire `dati_report` in `FinestraGioco`
+- [x] Fase C — Presentazione: arricchire `dati_report` in `FinestraGioco`
       con `storico_premi`, `numeri_estratti` e `riepilogo_umano`
       (`bingo_game/ui/finestra_gioco.py`)
 
-- [ ] Fase D — Renderer/UI finale: aggiornare `mostra_report_finale()` e il
+- [x] Fase D — Renderer/UI finale: aggiornare `mostra_report_finale()` e il
       pannello riepilogo finale per mostrare premi leggibili e statistiche
       sintetiche del giocatore umano (`bingo_game/ui/renderers/renderer_wx.py`)
 
-- [ ] Fase E — Test e documentazione: aggiornare test mirati,
+- [x] Fase E — Test e documentazione: aggiornare test mirati,
       `CHANGELOG.md` e `docs/API.md`
 
 ---
 
 ## Gate di verifica finale
 
-- [ ] `python -m py_compile bingo_game/partita.py`
-- [ ] `python -m py_compile bingo_game/comandi_partita.py`
-- [ ] `python -m py_compile bingo_game/ui/finestra_gioco.py`
-- [ ] `python -m py_compile bingo_game/ui/renderers/renderer_wx.py`
-- [ ] test mirati `partita` verdi
-- [ ] test mirati `comandi_partita` verdi
-- [ ] verifica manuale NVDA: `Ctrl+I` legge vincitori reali
-- [ ] verifica manuale fine partita: nessun output `? per ?`
+- [x] `python -m py_compile bingo_game/partita.py`
+- [x] `python -m py_compile bingo_game/comandi_partita.py`
+- [x] `python -m py_compile bingo_game/ui/finestra_gioco.py`
+- [x] `python -m py_compile bingo_game/ui/renderers/renderer_wx.py`
+- [x] test mirati `partita` verdi (suite completa: 80 test OK)
+- [x] test mirati `comandi_partita` verdi (inclusi nel totale 80)
+- [ ] verifica manuale NVDA: `Ctrl+I` legge vincitori reali (richiede sessione NVDA)
+- [ ] verifica manuale fine partita: nessun output `? per ?` (richiede sessione NVDA)
 
 ---
 

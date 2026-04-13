@@ -2,7 +2,7 @@
 type: plan
 feature: report_finale_storico_premi_nvda
 agent: Agent-Plan
-status: DRAFT
+status: READY
 version: v0.15.0
 design_ref: docs/2 - projects/DESIGN_report_finale_storico_premi_nvda.md
 date: 2026-04-13
@@ -17,7 +17,7 @@ date: 2026-04-13
 - **Branch**: main
 - **Versione target**: v0.15.0
 - **Commit attesi**: 4
-- **Design di riferimento**: [DESIGN_report_finale_storico_premi_nvda.md](../2%20-%20projects/DESIGN_report_finale_storico_premi_nvda.md) — DRAFT
+- **Design di riferimento**: [DESIGN_report_finale_storico_premi_nvda.md](../2%20-%20projects/DESIGN_report_finale_storico_premi_nvda.md) — REVIEWED
 - **Report di partenza**: [REPORT_DIAGNOSI_ALFA_2026-04-13.md](../4%20-%20reports/REPORT_DIAGNOSI_ALFA_2026-04-13.md)
 
 ---

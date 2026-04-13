@@ -15,8 +15,18 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
   più "panel" generico.
 - G2: aggiunto messaggio di orientamento vocale all'avvio della finestra
   di gioco tramite wx.CallAfter in _imposta_focus_iniziale.
+- G4: `Ctrl+I` (`dettaglio_premi`) ora legge i vincitori reali di ogni premio
+  con testo "Ambo vinto da X, cartella Y." invece della lista di soli tipi.
+- G6: `PannelloRiepilogoFinale` ora visualizza i premi leggibili da `storico_premi`
+  in ordine logico (ambo → tombola), eliminando l'output "? per ?".
 
 ### Added
+- G5: introdotto `Partita.storico_premi: list[dict]` valorizzato in tempo reale
+  durante ogni assegnazione premi; ogni record include `giocatore`, `id_giocatore`,
+  `cartella`, `premio`, `riga`, `turno`.
+- G3: `dati_report` arricchito con `storico_premi`, `numeri_estratti` e
+  `riepilogo_umano` (numeri segnati, premi vinti del giocatore umano).
+  Il testo vocalizzato a fine partita non contiene più stringhe opache.
 - `FinestraGuidaRegole`: nuovo `wx.Dialog` modale con cinque capitoli di regole
   del gioco navigabili (Precedente / Successivo). Apertura con `Ctrl+Shift+H` da
   `FinestraGioco` e da voce menu Guida / pulsante Guida in `FinestraPrincipale`.

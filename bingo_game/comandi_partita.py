@@ -476,17 +476,25 @@ class ComandiGiocatoreUmano:
         """Restituisce testo dettagliato con tutti i premi assegnati e vincitori.
 
         Usato da Ctrl+I in FinestraGioco per vocalizzazione NVDA.
-        Ricostruisce l'elenco dai premi già assegnati nell'ultimo turno non è
-        sufficiente: i dati storici vengono letti dal log implicito di
-        premi_gia_assegnati (set di chiavi) integrato con premi_tipo_chiusi.
+        Legge lo storico reale da storico_premi, in ordine cronologico.
         """
-        premi_chiusi: set = self._partita.premi_tipo_chiusi
-        if not premi_chiusi:
+        storico: list = getattr(self._partita, "storico_premi", [])
+        if not storico:
             return "Nessun premio ancora assegnato."
 
-        # Ricostruisce la lista dei premi in ordine sequenziale
+        # Ordina per sequenza logica dei premi, poi per ordine di inserimento
+        indice_tipo = {t: i for i, t in enumerate(self._SEQUENZA_PREMI)}
+        ordinato = sorted(
+            enumerate(storico),
+            key=lambda x: (indice_tipo.get(x[1].get("premio", ""), 99), x[0]),
+        )
+
         righe = ["Premi assegnati in questa partita:"]
-        for tipo in self._SEQUENZA_PREMI:
-            if tipo in premi_chiusi:
-                righe.append(f"- {tipo}")
+        for _, record in ordinato:
+            tipo = record.get("premio", "?")
+            vincitore = record.get("giocatore", "?")
+            cartella = record.get("cartella", "?")
+            righe.append(
+                f"{tipo.capitalize()} vinto da {vincitore}, cartella {cartella}."
+            )
         return " ".join(righe)

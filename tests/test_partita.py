@@ -1444,3 +1444,90 @@ class TestPartita(unittest.TestCase):
         orig_giocatori = self.partita.get_stato_giocatori()
         stato["giocatori"].clear()
         self.assertEqual(orig_giocatori, self.partita.get_stato_giocatori())
+
+
+    """SEZIONE 7: Test storico_premi"""
+
+    def test_storico_premi_inizialmente_vuoto(self) -> None:
+        """storico_premi deve essere una lista vuota alla creazione della partita."""
+        self.assertIsInstance(self.partita.storico_premi, list)
+        self.assertEqual(self.partita.storico_premi, [])
+
+    def test_storico_premi_cresce_dopo_assegnazione_ambo(self) -> None:
+        """Dopo verifica_premi con un ambo valido, storico_premi ha un elemento."""
+        giocatore = GiocatoreBase(nome="Test", id_giocatore=99)
+        cartella = Cartella()
+        giocatore.aggiungi_cartella(cartella)
+        self.partita.aggiungi_giocatore(giocatore)
+
+        indice_riga = 0
+        numeri_riga = cartella.get_numeri_riga(indice_riga)
+        giocatore.aggiorna_con_numero(numeri_riga[0])
+        giocatore.aggiorna_con_numero(numeri_riga[1])
+        self._assegna_reclamo_riga(giocatore, cartella, indice_riga, "ambo")
+
+        self.partita.verifica_premi()
+
+        self.assertEqual(len(self.partita.storico_premi), 1)
+        record = self.partita.storico_premi[0]
+        self.assertEqual(record["premio"], "ambo")
+        self.assertEqual(record["giocatore"], "Test")
+        self.assertEqual(record["cartella"], cartella.indice)
+
+    def test_storico_premi_record_contiene_turno(self) -> None:
+        """Ogni record in storico_premi include la chiave 'turno'."""
+        giocatore = GiocatoreBase(nome="Test", id_giocatore=88)
+        cartella = Cartella()
+        giocatore.aggiungi_cartella(cartella)
+        self.partita.aggiungi_giocatore(giocatore)
+
+        indice_riga = 0
+        numeri_riga = cartella.get_numeri_riga(indice_riga)
+        giocatore.aggiorna_con_numero(numeri_riga[0])
+        giocatore.aggiorna_con_numero(numeri_riga[1])
+        self._assegna_reclamo_riga(giocatore, cartella, indice_riga, "ambo")
+
+        self.partita.verifica_premi()
+
+        self.assertIn("turno", self.partita.storico_premi[0])
+
+    def test_storico_premi_non_ripete_premio_gia_registrato(self) -> None:
+        """Una seconda chiamata a verifica_premi senza nuovi premi non aggiunge record."""
+        giocatore = GiocatoreBase(nome="Test", id_giocatore=77)
+        cartella = Cartella()
+        giocatore.aggiungi_cartella(cartella)
+        self.partita.aggiungi_giocatore(giocatore)
+
+        indice_riga = 0
+        numeri_riga = cartella.get_numeri_riga(indice_riga)
+        giocatore.aggiorna_con_numero(numeri_riga[0])
+        giocatore.aggiorna_con_numero(numeri_riga[1])
+        self._assegna_reclamo_riga(giocatore, cartella, indice_riga, "ambo")
+
+        self.partita.verifica_premi()
+        len_dopo_prima = len(self.partita.storico_premi)
+
+        # Seconda chiamata con stesso reclamo: già registrato, nessun nuovo record.
+        self.partita.verifica_premi()
+
+        self.assertEqual(len(self.partita.storico_premi), len_dopo_prima)
+
+    def test_storico_premi_coincide_con_ultimo_premio_evento(self) -> None:
+        """L'ultimo elemento di storico_premi coincide con ultimo_premio_evento."""
+        giocatore = GiocatoreBase(nome="Test", id_giocatore=66)
+        cartella = Cartella()
+        giocatore.aggiungi_cartella(cartella)
+        self.partita.aggiungi_giocatore(giocatore)
+
+        indice_riga = 0
+        numeri_riga = cartella.get_numeri_riga(indice_riga)
+        giocatore.aggiorna_con_numero(numeri_riga[0])
+        giocatore.aggiorna_con_numero(numeri_riga[1])
+        self._assegna_reclamo_riga(giocatore, cartella, indice_riga, "ambo")
+
+        self.partita.verifica_premi()
+
+        self.assertIs(
+            self.partita.ultimo_premio_evento,
+            self.partita.storico_premi[-1],
+        )
