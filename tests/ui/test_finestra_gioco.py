@@ -171,5 +171,38 @@ class TestFinestraGiocoSelezioneCartella(unittest.TestCase):
         finestra._pannello_griglia.SetFocus.assert_called_once_with()
 
 
+@unittest.skipIf(wx is None or FinestraGioco is None, "wxPython non disponibile nel test environment")
+class TestFinestraGiocoMostraRiepilogoFinale(unittest.TestCase):
+    def _crea_finestra_stub(self) -> FinestraGioco:
+        finestra = FinestraGioco.__new__(FinestraGioco)
+        finestra._pannello_griglia = Mock()
+        finestra._pannello_tabellone = Mock()
+        finestra._pannello_cartella = Mock()
+        finestra._pannello_riepilogo = Mock()
+        finestra._btn_torna_menu = Mock()
+        finestra.Layout = Mock()
+        finestra.SetTitle = Mock()
+        return finestra
+
+    def test_mostra_riepilogo_finale_mostra_pannello(self) -> None:
+        """mostra_riepilogo_finale deve rendere visibile PannelloRiepilogoFinale."""
+        finestra = self._crea_finestra_stub()
+        dati_campione: dict = {
+            "vincitore_tombola": "Alice",
+            "turni_giocati": 42,
+            "conteggio_estratti": 42,
+            "storico_premi": [],
+        }
+
+        with patch.object(finestra_gioco_module.wx, "CallAfter") as mock_call_after:
+            FinestraGioco.mostra_riepilogo_finale(finestra, dati_campione)
+
+        finestra._pannello_riepilogo.mostra.assert_called_once_with(dati_campione)
+        finestra._pannello_riepilogo.Show.assert_called_once()
+        finestra._pannello_griglia.Hide.assert_called_once()
+        finestra.SetTitle.assert_called_once_with("Tombola Stark — Partita terminata")
+        mock_call_after.assert_called_once_with(finestra._btn_torna_menu.SetFocus)
+
+
 if __name__ == "__main__":
     unittest.main()

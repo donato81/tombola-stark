@@ -1254,6 +1254,11 @@ class FinestraGioco(wx.Frame):
         self._pannello_riepilogo.mostra(dati)
         self._pannello_riepilogo.Show()
         self.Layout()
+        # Aggiorna il titolo della finestra per NVDA
+        self.SetTitle("Tombola Stark — Partita terminata")
+        # Sposta il focus su "Torna al menu principale" affinché NVDA legga
+        # il controllo senza intervento manuale
+        wx.CallAfter(self._btn_torna_menu.SetFocus)
 
     def aggiorna_stato_pulsante(self, primo_turno_eseguito: bool, fase: Optional[str] = None) -> None:
         """Interfaccia per il renderer: aggiorna etichetta pulsante in base alla fase."""
