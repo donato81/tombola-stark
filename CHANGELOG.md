@@ -9,6 +9,13 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Fixed
+- G1: aggiunto SetName semantico a PannelloTabellone, PannelloCartella,
+  PannelloRiepilogoFinale, HeaderBar e pannello radice — NVDA non legge
+  più "panel" generico.
+- G2: aggiunto messaggio di orientamento vocale all'avvio della finestra
+  di gioco tramite wx.CallAfter in _imposta_focus_iniziale.
+
 ### Added
 - `FinestraGuidaRegole`: nuovo `wx.Dialog` modale con cinque capitoli di regole
   del gioco navigabili (Precedente / Successivo). Apertura con `Ctrl+Shift+H` da

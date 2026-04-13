@@ -100,6 +100,7 @@ class PannelloTabellone(wx.Panel):
         super().__init__(parent, style=wx.NO_BORDER)
         # Rimuove TAB_TRAVERSAL: il pannello non partecipa al ciclo focus
         self.SetWindowStyleFlag(self.GetWindowStyleFlag() & ~wx.TAB_TRAVERSAL)
+        self.SetName("Tabellone estrazioni")
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -149,6 +150,7 @@ class PannelloCartella(wx.Panel):
         super().__init__(parent, style=wx.NO_BORDER)
         # Rimuove TAB_TRAVERSAL: il pannello non partecipa al ciclo focus
         self.SetWindowStyleFlag(self.GetWindowStyleFlag() & ~wx.TAB_TRAVERSAL)
+        self.SetName("Cartella giocatore")
         self._build_ui()
         # Stato animazione lampeggio
         self._timer_lampeggio: Optional[wx.Timer] = None
@@ -305,6 +307,7 @@ class PannelloRiepilogoFinale(wx.Panel):
         self._lbl_turni: wx.StaticText
         self._lbl_estratti: wx.StaticText
         self._sizer_premi: wx.BoxSizer
+        self.SetName("Riepilogo finale partita")
         self._build_ui()
         self.Hide()
 
@@ -506,6 +509,7 @@ class HeaderBar(wx.Panel):
         self.SetWindowStyleFlag(self.GetWindowStyleFlag() & ~wx.TAB_TRAVERSAL)
         self.SetBackgroundColour(wx.Colour(COLORE_HEADER_BG))
         self.SetMinSize((-1, ALTEZZA_HEADER))
+        self.SetName("Barra informativa partita")
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -633,6 +637,7 @@ class FinestraGioco(wx.Frame):
 
     def _build_ui(self) -> None:
         self._panel = wx.Panel(self)
+        self._panel.SetName("Area di gioco")
         panel = self._panel
         sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -1414,6 +1419,12 @@ class FinestraGioco(wx.Frame):
         self._dispatch(self._comandi.vai_a_colonna(1))
         self._aggiorna_griglie_visive()
         self._aggiorna_titolo_cartella()
+        wx.CallAfter(
+            self._renderer.mostra_messaggio_sistema,
+            "Sei nella finestra di gioco. "
+            "Premi Inizia partita o Ctrl+Invio per estrarre il primo numero. "
+            "Premi Ctrl+H per la guida ai tasti rapidi.",
+        )
 
     def _on_partita_change(self, *args, **kwargs) -> None:
         """Handler duck-typed per ricevere eventi di stato partita (se supportato).

@@ -824,3 +824,10 @@ MESSAGGI_CONTROLLER: dict[str, str] = {
     CTRL_NUMERI_ESAURITI: "Tutti i 90 numeri sono stati estratti. La partita termina senza vincitore.",
     CTRL_TURNO_FALLITO_GENERICO: "Errore durante l'esecuzione del turno. La partita potrebbe essere terminata.",
 }
+
+# Messaggio di orientamento vocale all'avvio della finestra di gioco (G2)
+BENVENUTO_FINESTRA_GIOCO: str = (
+    "Sei nella finestra di gioco. "
+    "Premi Inizia partita o Ctrl+Invio per estrarre il primo numero. "
+    "Premi Ctrl+H per la guida ai tasti rapidi."
+)

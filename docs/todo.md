@@ -53,6 +53,7 @@ stato: attivo
 - [DESIGN_griglie_visive_dinamiche_v0.11.1.md](2%20-%20projects/DESIGN_griglie_visive_dinamiche_v0.11.1.md)
 - [DESIGN_pulsanti_interattivi_v0.12.0.md](2%20-%20projects/DESIGN_pulsanti_interattivi_v0.12.0.md)
 - [DESIGN_lettura_nvda_stato_premi_v1.2.0.md](2%20-%20projects/DESIGN_lettura_nvda_stato_premi_v1.2.0.md)
+- [DESIGN_report_finale_storico_premi_nvda.md](2%20-%20projects/DESIGN_report_finale_storico_premi_nvda.md)
 - [DESIGN_finestra_aiuto_tasti_rapidi.md](2%20-%20projects/DESIGN_finestra_aiuto_tasti_rapidi.md)
 - [DESIGN_finestra_guida_regole.md](2%20-%20projects/DESIGN_finestra_guida_regole.md)
 
@@ -100,6 +101,7 @@ stato: attivo
 - [PLAN_pulsanti_interattivi_v0.12.0.md](3%20-%20coding%20plans/PLAN_pulsanti_interattivi_v0.12.0.md)
 - [PLAN_fix_tab_navigation_finestra_gioco_v0.12.1.md](3%20-%20coding%20plans/PLAN_fix_tab_navigation_finestra_gioco_v0.12.1.md)
 - [PLAN_lettura_nvda_stato_premi_v1.2.0.md](3%20-%20coding%20plans/PLAN_lettura_nvda_stato_premi_v1.2.0.md)
+- [PLAN_report_finale_storico_premi_nvda_v0.15.0.md](3%20-%20coding%20plans/PLAN_report_finale_storico_premi_nvda_v0.15.0.md)
 - [PLAN_finestra_aiuto_tasti_rapidi_v0.13.0.md](3%20-%20coding%20plans/PLAN_finestra_aiuto_tasti_rapidi_v0.13.0.md)
 - [PLAN_finestra_guida_regole_v0.14.0.md](3%20-%20coding%20plans/PLAN_finestra_guida_regole_v0.14.0.md)
 
@@ -121,6 +123,7 @@ stato: attivo
 - [REPORT_VALIDAZIONE_GRUPPO_C_EVENTI_PARTITA_2026-03-30.md](4%20-%20reports/REPORT_VALIDAZIONE_GRUPPO_C_EVENTI_PARTITA_2026-03-30.md)
 - [REPORT_VALIDAZIONE_GRUPPO_D_ESITO_AZIONE_2026-03-30.md](4%20-%20reports/REPORT_VALIDAZIONE_GRUPPO_D_ESITO_AZIONE_2026-03-30.md)
 - [REPORT_VALIDAZIONE_GRUPPO_E_EVENTI_OUTPUT_UI_2026-03-30.md](4%20-%20reports/REPORT_VALIDAZIONE_GRUPPO_E_EVENTI_OUTPUT_UI_2026-03-30.md)
+- [REPORT_DIAGNOSI_ALFA_2026-04-13.md](4%20-%20reports/REPORT_DIAGNOSI_ALFA_2026-04-13.md)
 - [REPORT_tab_navigation_finestra_gioco.md](4%20-%20reports/REPORT_tab_navigation_finestra_gioco.md)
 
 ### Tasks
@@ -168,6 +171,7 @@ stato: attivo
 - [TODO_pulsanti_interattivi_v0.12.0.md](5%20-%20todolist/TODO_pulsanti_interattivi_v0.12.0.md) — IN_PROGRESS
 - [TODO_fix_tab_navigation_finestra_gioco_v0.12.1.md](5%20-%20todolist/TODO_fix_tab_navigation_finestra_gioco_v0.12.1.md)
 - [TODO_lettura_nvda_stato_premi_v1.2.0.md](5%20-%20todolist/TODO_lettura_nvda_stato_premi_v1.2.0.md)
+- [TODO_report_finale_storico_premi_nvda_v0.15.0.md](5%20-%20todolist/TODO_report_finale_storico_premi_nvda_v0.15.0.md)
 - [TODO_finestra_aiuto_tasti_rapidi_v0.13.0.md](5%20-%20todolist/TODO_finestra_aiuto_tasti_rapidi_v0.13.0.md)
 - [TODO_finestra_guida_regole_v0.14.0.md](5%20-%20todolist/TODO_finestra_guida_regole_v0.14.0.md)
 
