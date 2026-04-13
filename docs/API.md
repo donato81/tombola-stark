@@ -63,6 +63,8 @@ Pausa di gioco (v1.2.0)
 - Comportamento UX chiave: `Ctrl+P` e il pulsante pausa mostrano il tempo residuo della finestra d'azione (se applicabile), impediscono l'estrazione/azione principale mentre `in_pausa == True` e al `riprendi` richiamano il renderer per l'annuncio completo della ripresa.
 - `bingo_game/ui/dialogo_ricerca.py` – `DialogoRicercaNumero` (dialog persistente per ricerca numero; vocalizza i risultati e non utilizza più la chiusura automatica: quando trova risultati rimane aperto, abilita un pulsante `Vai al risultato` e richiede la conferma dell'utente prima di restituire `wx.ID_OK`).
 - `bingo_game/ui/finestra_aiuto_tasti_rapidi.py` – `FinestraAiutoTastiRapidi` (v0.13.0).
+- `bingo_game/ui/finestra_guida_regole.py` – `FinestraGuidaRegole` (v0.14.0).
+- `bingo_game/ui/locales/it_guida.py` – testi localizzati per `FinestraGuidaRegole` (v0.14.0).
 
 ### FinestraAiutoTastiRapidi
 
@@ -74,6 +76,19 @@ Pausa di gioco (v1.2.0)
 - **Focus iniziale**: `wx.TextCtrl` multilinea read-only (leggibile riga per riga con NVDA).
 - **Focus finale**: `PannelloGriglia` di `FinestraGioco` (ripristino deterministico).
 - **Dipendenze**: nessuna dipendenza da dominio, renderer o eventi.
+
+### FinestraGuidaRegole
+
+- **Percorso**: `bingo_game/ui/finestra_guida_regole.py`
+- **Tipo**: `wx.Dialog` (modale)
+- **Scopo**: dialog modale con cinque capitoli di regole navigabili (Precedente / Successivo).
+- **Apertura**: `Ctrl+Shift+H` da `FinestraGioco`; voce menu Guida / pulsante Guida da `FinestraPrincipale`.
+- **Chiusura**: `Escape` o pulsante Chiudi — `EndModal(wx.ID_CANCEL)`.
+- **Focus iniziale**: `wx.TextCtrl` del capitolo 1 (NVDA legge il testo dall'inizio).
+- **Focus al cambio pagina**: `wx.StaticText` titolo capitolo via `wx.CallAfter(SetFocus)` (NVDA annuncia il nuovo titolo).
+- **Focus finale (da FinestraGioco)**: `PannelloGriglia` (ripristino deterministico).
+- **Testi**: `bingo_game/ui/locales/it_guida.py` — `GUIDA_CAPITOLI` (5 capitoli) + `GUIDA_UI` (etichette UI).
+- **Dipendenze**: solo `it_guida`; nessuna dipendenza da dominio, renderer o eventi.
 
 - `bingo_game/comandi_partita.py` – espone `ComandiGiocatoreUmano` come facade per il layer di presentazione.
 

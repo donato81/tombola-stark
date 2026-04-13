@@ -9,7 +9,26 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
-- Pending NVDA smoke test: `FinestraAiutoTastiRapidi` e pronta ma resta in attesa dello smoke test manuale NVDA (chiusura con Escape, annunci e ripristino focus). Non finalizzare `v0.13.0` finche il test non e stato completato e validato.
+### Added
+- `FinestraGuidaRegole`: nuovo `wx.Dialog` modale con cinque capitoli di regole
+  del gioco navigabili (Precedente / Successivo). Apertura con `Ctrl+Shift+H` da
+  `FinestraGioco` e da voce menu Guida / pulsante Guida in `FinestraPrincipale`.
+  Chiusura con `Escape` o pulsante Chiudi; focus iniziale sul `wx.TextCtrl` del
+  capitolo 1; al cambio pagina NVDA legge il titolo del capitolo via `wx.CallAfter`.
+- `bingo_game/ui/locales/it_guida.py`: modulo locale con `GUIDA_CAPITOLI`
+  (5 capitoli, testi definitivi con accenti) e `GUIDA_UI` (etichette pulsanti
+  e template pagina). Struttura `Sequence[tuple[str, tuple[str, ...]]]` + `MappingProxyType`.
+- `finestra_gioco.py`: hotkey `Ctrl+Shift+H` aggiunta (categoria C) per aprire
+  `FinestraGuidaRegole`; hotkey `Ctrl+H` ristretta a `not shift` per evitare
+  conflitto.
+- `finestra_principale.py`: metodo `_on_guida` implementato (sostituisce
+  il placeholder) — apre `FinestraGuidaRegole` in modale.
+- `finestra_aiuto_tasti_rapidi.py`: aggiunta riga `Ctrl+Shift+H` nel testo
+  categoria C, dopo la riga `Ctrl+H`.
+
+---
+
+## [0.13.0] — 2026-04-13
 
 ### Added
 - `FinestraAiutoTastiRapidi`: nuovo `wx.Dialog` modale con elenco statico

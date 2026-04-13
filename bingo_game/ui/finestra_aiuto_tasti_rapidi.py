@@ -72,6 +72,7 @@ Ctrl+E                 — consulta cronologia annunci
 Ctrl+G                 — stato premi sintetico (ultima vittoria e prossimo)
 Ctrl+I                 — dettaglio premi completo (lista vincitori)
 Ctrl+H                 — apri questa guida ai tasti rapidi
+Ctrl+Shift+H           — apri la guida alle regole del gioco
 
 ------------------------------
 NOTA: i tasti Categoria A sono attivi solo quando il focus e sulla griglia.

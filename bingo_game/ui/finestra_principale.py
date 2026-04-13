@@ -214,8 +214,11 @@ class FinestraPrincipale(wx.Frame):
         self._renderer.mostra_messaggio_sistema("Funzione non ancora disponibile.")
 
     def _on_guida(self, event: wx.Event) -> None:
-        _ui_logger.debug("Menu: Guida selezionata (placeholder).")
-        self._renderer.mostra_messaggio_sistema("Funzione non ancora disponibile.")
+        _ui_logger.debug("Menu: Guida alle regole aperta.")
+        from bingo_game.ui.finestra_guida_regole import FinestraGuidaRegole  # noqa: PLC0415
+        dlg = FinestraGuidaRegole(self)
+        dlg.ShowModal()
+        dlg.Destroy()
 
     def _on_esci(self, event: wx.Event) -> None:
         _ui_logger.debug("Menu: Esci selezionato.")

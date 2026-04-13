@@ -874,8 +874,17 @@ class FinestraGioco(wx.Frame):
             return
 
         # Ctrl+H — apri guida tasti rapidi  [Categoria C]
-        if ctrl and key == ord("H"):
+        if ctrl and key == ord("H") and not shift:
             dlg = FinestraAiutoTastiRapidi(self)
+            dlg.ShowModal()
+            dlg.Destroy()
+            self._pannello_griglia.SetFocus()
+            return
+
+        # Ctrl+Shift+H — apri guida alle regole del gioco  [Categoria C]
+        if ctrl and shift and key == ord("H"):
+            from bingo_game.ui.finestra_guida_regole import FinestraGuidaRegole  # noqa: PLC0415
+            dlg = FinestraGuidaRegole(self)
             dlg.ShowModal()
             dlg.Destroy()
             self._pannello_griglia.SetFocus()
