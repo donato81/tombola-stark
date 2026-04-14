@@ -111,18 +111,25 @@ class TestDettaglioPremiConPremi(unittest.TestCase):
         comandi = _crea_comandi(
             premi_tipo_chiusi={"ambo", "terno"},
         )
+        comandi._partita.storico_premi = [
+            {"premio": "ambo", "giocatore": "Bot1", "cartella": 0},
+            {"premio": "terno", "giocatore": "Bot2", "cartella": 1},
+        ]
         testo = comandi.dettaglio_premi()
         self.assertIn("Premi assegnati", testo)
-        self.assertIn("ambo", testo)
-        self.assertIn("terno", testo)
+        self.assertIn("Ambo", testo)
+        self.assertIn("Terno", testo)
 
     def test_non_contiene_premi_non_assegnati(self) -> None:
         comandi = _crea_comandi(
             premi_tipo_chiusi={"ambo"},
         )
+        comandi._partita.storico_premi = [
+            {"premio": "ambo", "giocatore": "Bot1", "cartella": 0},
+        ]
         testo = comandi.dettaglio_premi()
-        self.assertNotIn("terno", testo)
-        self.assertNotIn("quattro", testo)
+        self.assertNotIn("Terno", testo)
+        self.assertNotIn("Quattro", testo)
 
 
 if __name__ == "__main__":

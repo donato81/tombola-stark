@@ -175,7 +175,6 @@ class TestCodiciErrori(unittest.TestCase):
     def test_codici_errori_partita_contenuto(self) -> None:
         attesi = {
             "RECLAMO_GIA_PRESENTE",
-            "RECLAMO_ASSENTE",
             "CARTELLA_NON_TROVATA",
             "RIGA_NON_VALIDA",
             "PREMIO_GIA_ASSEGNATO",

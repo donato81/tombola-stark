@@ -12,7 +12,6 @@ Tutti i valori stringa esadecimali sono compatibili con wx.Colour(hex).
 
 COLORE_HEADER_BG = "#2C3E50"          # Sfondo della barra header di gioco
 COLORE_MENU_BG = "#1A237E"            # Sfondo primario della finestra menu
-COLORE_MENU_BG_2 = "#283593"          # Sfondo secondario/gradiente menu
 COLORE_LOG_BG = "#263238"             # Sfondo del pannello log partita
 COLORE_CONFIGURAZIONE_BG = "#FAFAFA"  # Sfondo finestra configurazione
 
@@ -31,14 +30,9 @@ COLORE_TESTO_ERRORE = "#C62828"    # Testo messaggi di errore
 # ---------------------------------------------------------------------------
 
 COLORE_ACCENT_ROSSO = "#E53935"       # Accento rosso vivo (azioni critiche)
-COLORE_ACCENT_DORATO = "#FFB300"      # Accento dorato (richiamare attenzione)
 COLORE_ACCENT_BLU = "#1565C0"         # Accento blu istituzionale
-COLORE_ACCENT_ARANCIONE = "#E65100"   # Accento arancione (avvisi)
-COLORE_ACCENT_VERDE = "#43A047"       # Accento verde (azioni positive)
-COLORE_VERDE_SCURO = "#2E7D32"        # Verde scuro (conferme, sicurezza)
-COLORE_VERDE_RIPRENDI = "#388E3C"     # Verde pulsante riprendi partita
 COLORE_TITOLO_MENU = "#FFD54F"        # Colore titolo sulla schermata menu
-COLORE_HEADER_ACCENT = "#FFB300"      # Numero estratto nell'header (alias semantico di COLORE_ACCENT_DORATO)
+COLORE_HEADER_ACCENT = "#FFB300"      # Numero estratto nell'header
 
 # ---------------------------------------------------------------------------
 # COLORI — Pulsanti

@@ -8,6 +8,17 @@ try:
         EventoRicercaNumeroInCartelle,
         RisultatoRicercaNumeroInCartella,
     )
+    # Costanti wxPython non disponibili in ambiente headless (senza wx.App).
+    # Impostazione dei valori standard per permettere al test di girare.
+    _WX_CONST_FALLBACK = {
+        "WXK_RETURN": 13,
+        "WXK_ESCAPE": 27,
+        "ID_OK": 5100,
+        "ID_CANCEL": 5101,
+    }
+    for _nome, _valore in _WX_CONST_FALLBACK.items():
+        if not hasattr(wx, _nome):
+            setattr(wx, _nome, _valore)
 except Exception:  # pragma: no cover - ambiente senza wx
     wx = None
     DialogoRicercaNumero = None

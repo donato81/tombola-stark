@@ -38,7 +38,6 @@ Codici_Errori_Ui = Literal[
 Codici_Errori_Partita = Literal[
     # Errori "strutturali" sul reclamo (indici, riferimenti)
     "RECLAMO_GIA_PRESENTE",
-    "RECLAMO_ASSENTE",
     "CARTELLA_NON_TROVATA",
     "RIGA_NON_VALIDA",
     # Esiti di validazione in Partita

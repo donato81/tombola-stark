@@ -1428,14 +1428,6 @@ class Cartella:
         # Ritorna il dizionario con tutte le informazioni globali della cartella
         return stato_cartella
 
-    def stampa_cartella(self) -> str:
-        """Restituisce una rappresentazione testuale della cartella (3 righe, 9 colonne)."""
-        griglia = self.get_griglia_semplice()
-        linee = []
-        for riga in griglia:
-            linee.append(" ".join(str(c) for c in riga))
-        return "\n".join(linee)
-
 
     """metodi innerenti alle verifiche di vittoria, ambo, terno, quaterna, cinquina, tombola."""
 

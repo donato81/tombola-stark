@@ -9,6 +9,27 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Changed
+- Pulizia pre-release alfa: rimosso `bingo_game/utils.py` (file vuoto mai
+  importato), rimosso il metodo `Cartella.stampa_cartella()` (mai chiamato,
+  bypassa il pattern eventi/renderer), rimossa la costante
+  `RECLAMO_ASSENTE` da `bingo_game/events/codici_errori.py` (definita ma mai
+  usata nel codice applicativo), rimosse 6 costanti colore non referenziate da
+  `bingo_game/ui/tema.py` (`COLORE_MENU_BG_2`, `COLORE_ACCENT_DORATO`,
+  `COLORE_VERDE_SCURO`, `COLORE_VERDE_RIPRENDI`, `COLORE_ACCENT_ARANCIONE`,
+  `COLORE_ACCENT_VERDE`).
+
+### Fixed
+- Corretti 6 test falliti in `tests/unit/test_dialogo_ricerca_persistente.py`:
+  le costanti wx (`WXK_RETURN`, `WXK_ESCAPE`, `ID_OK`, `ID_CANCEL`) non erano
+  disponibili in ambiente headless; aggiunti fallback numerici nel blocco try
+  del file di test.
+- Corretti 2 test in `tests/unit/test_comandi_stato_premi.py`:
+  `TestDettaglioPremiConPremi` non popolava `storico_premi` su `Partita` prima
+  di invocare `dettaglio_premi()`, causando il fallimento delle asserzioni;
+  i test ora impostano lo storico correttamente. Adeguata anche la capitalizzazione
+  attesa ("Ambo", "Terno") coerente con il comportamento di `.capitalize()`.
+
 ### Added
 - Spelling cifre doppie post-annuncio estratto (accessibilità NVDA): dopo ogni
   estrazione di un numero a due cifre (10–90), NVDA legge un secondo annuncio
