@@ -16,7 +16,7 @@ from typing import Protocol, runtime_checkable
 try:
     from accessible_output2.outputs.auto import Auto as _Auto
     _AO2_DISPONIBILE = True
-except ImportError:
+except Exception:
     _Auto = None  # type: ignore[assignment]
     _AO2_DISPONIBILE = False
 
@@ -70,8 +70,7 @@ class Vocalizzatore:
             self._backend = _Auto()
         else:
             raise ImportError(
-                "accessible_output2 non è disponibile. "
-                "Installa la dipendenza o inietta un backend esplicito."
+                "accessible_output2 non è disponibile."
             )
 
     def vocalizza_testo(self, testo: str, interrompi: bool = False) -> None:

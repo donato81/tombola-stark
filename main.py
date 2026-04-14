@@ -44,6 +44,13 @@ def main() -> None:
         finestra = FinestraPrincipale(renderer=renderer)
         finestra.Show()
         app.MainLoop()
+    except Exception:
+        import traceback
+        from pathlib import Path
+        crash_path = Path(__file__).parent / "crash_log.txt"
+        with open(crash_path, "w", encoding="utf-8") as f:
+            f.write(traceback.format_exc())
+        raise
     finally:
         GameLogger.shutdown()
 
