@@ -172,6 +172,75 @@ class TestFinestraGiocoSelezioneCartella(unittest.TestCase):
 
 
 @unittest.skipIf(wx is None or FinestraGioco is None, "wxPython non disponibile nel test environment")
+class TestFinestraGiocoAvvioSilenzioso(unittest.TestCase):
+    """Verifica che _imposta_focus_iniziale non vocalizza i dispatch iniziali
+    e che il messaggio di benvenuto venga emesso una sola volta al termine."""
+
+    def _crea_finestra_stub(self) -> FinestraGioco:
+        finestra = FinestraGioco.__new__(FinestraGioco)
+        finestra._avvio_silenzioso = False
+        finestra._renderer = Mock()
+        finestra._comandi = Mock()
+        finestra._comandi.imposta_focus_cartella.return_value = object()
+        finestra._comandi.vai_a_riga.return_value = object()
+        finestra._comandi.vai_a_colonna.return_value = object()
+        finestra._aggiorna_griglie_visive = Mock()
+        finestra._aggiorna_titolo_cartella = Mock()
+        return finestra
+
+    def test_dispatch_silenziato_durante_avvio(self) -> None:
+        """_dispatch non deve delegare al renderer mentre _avvio_silenzioso e True."""
+        finestra = FinestraGioco.__new__(FinestraGioco)
+        finestra._avvio_silenzioso = True
+        finestra._renderer = Mock()
+
+        from bingo_game.events.eventi import EsitoAzione
+        esito = EsitoAzione(ok=True, evento=None)
+        FinestraGioco._dispatch(finestra, esito)
+
+        finestra._renderer.render_esito.assert_not_called()
+
+    def test_dispatch_attivo_quando_non_in_avvio(self) -> None:
+        """_dispatch deve delegare al renderer quando _avvio_silenzioso e False."""
+        finestra = FinestraGioco.__new__(FinestraGioco)
+        finestra._avvio_silenzioso = False
+        finestra._renderer = Mock()
+
+        from bingo_game.events.eventi import EsitoAzione
+        esito = EsitoAzione(ok=True, evento=None)
+        FinestraGioco._dispatch(finestra, esito)
+
+        finestra._renderer.render_esito.assert_called_once_with(esito)
+
+    def test_imposta_focus_iniziale_emette_benvenuto(self) -> None:
+        """_imposta_focus_iniziale deve chiamare mostra_messaggio_sistema una sola volta."""
+        finestra = self._crea_finestra_stub()
+
+        FinestraGioco._imposta_focus_iniziale(finestra)
+
+        finestra._renderer.mostra_messaggio_sistema.assert_called_once()
+        testo_chiamato = finestra._renderer.mostra_messaggio_sistema.call_args[0][0]
+        assert "finestra di gioco" in testo_chiamato.lower()
+
+    def test_imposta_focus_iniziale_ripristina_flag(self) -> None:
+        """Al termine di _imposta_focus_iniziale il flag _avvio_silenzioso deve essere False."""
+        finestra = self._crea_finestra_stub()
+
+        FinestraGioco._imposta_focus_iniziale(finestra)
+
+        assert finestra._avvio_silenzioso is False
+
+    def test_imposta_focus_iniziale_non_usa_callafter(self) -> None:
+        """_imposta_focus_iniziale non deve usare wx.CallAfter per il benvenuto."""
+        finestra = self._crea_finestra_stub()
+
+        with patch.object(finestra_gioco_module.wx, "CallAfter") as mock_call_after:
+            FinestraGioco._imposta_focus_iniziale(finestra)
+
+        mock_call_after.assert_not_called()
+
+
+@unittest.skipIf(wx is None or FinestraGioco is None, "wxPython non disponibile nel test environment")
 class TestFinestraGiocoMostraRiepilogoFinale(unittest.TestCase):
     def _crea_finestra_stub(self) -> FinestraGioco:
         finestra = FinestraGioco.__new__(FinestraGioco)

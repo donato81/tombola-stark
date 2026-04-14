@@ -13,8 +13,12 @@ except Exception:  # pragma: no cover - ambiente senza wx
 class TestFinestraGiocoFocusIniziale(unittest.TestCase):
     def _crea_stub(self) -> "FinestraGioco":
         finestra = FinestraGioco.__new__(FinestraGioco)  # type: ignore[misc]
+        finestra._avvio_silenzioso = False
         finestra._dispatch = Mock()
+        finestra._renderer = Mock()
         finestra._comandi = Mock()
+        finestra._aggiorna_griglie_visive = Mock()
+        finestra._aggiorna_titolo_cartella = Mock()
         return finestra
 
     def test_imposta_focus_iniziale_dispatcha_cartella_1(self) -> None:

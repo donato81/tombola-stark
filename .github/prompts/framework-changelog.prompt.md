@@ -1,3 +1,4 @@
+
 ---
 agent: agent
 description: Aggiunge una voce al FRAMEWORK_CHANGELOG.md sezione [Unreleased].

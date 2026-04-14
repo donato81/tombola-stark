@@ -13,6 +13,7 @@ stato: attivo
 <!-- Link relativi ai file attivi in docs/2 - projects/ -->
 
 - [DESIGN_benvenuto_avvio_partita_nvda.md](2%20-%20projects/DESIGN_benvenuto_avvio_partita_nvda.md)
+- [DESIGN_fix_benvenuto_interrupt_nvda.md](2%20-%20projects/DESIGN_fix_benvenuto_interrupt_nvda.md)
 
 - [DESIGN_pausa_gioco.md](2%20-%20projects/DESIGN_pausa_gioco.md)
 
@@ -64,6 +65,7 @@ stato: attivo
 <!-- Link relativi ai file attivi in docs/3 - coding plans/ -->
 
 - [PLAN_benvenuto_avvio_partita_nvda_v0.12.2.md](3%20-%20coding%20plans/PLAN_benvenuto_avvio_partita_nvda_v0.12.2.md)
+- [PLAN_fix_benvenuto_interrupt_nvda_v0.12.3.md](3%20-%20coding%20plans/PLAN_fix_benvenuto_interrupt_nvda_v0.12.3.md)
 
 - [PLAN_eccezione_dominio_tabellone_v1.0.0.md](3%20-%20coding%20plans/PLAN_eccezione_dominio_tabellone_v1.0.0.md)
 - [PLAN_allineamento_standard_tabellone_v1.0.0.md](3%20-%20coding%20plans/PLAN_allineamento_standard_tabellone_v1.0.0.md)
@@ -112,6 +114,7 @@ stato: attivo
 ### Reports
 
 - [REPORT_ANALISI_benvenuto_non_letto_avvio_partita_2026-04-14.md](4%20-%20reports/REPORT_ANALISI_benvenuto_non_letto_avvio_partita_2026-04-14.md)
+- [REPORT_ANALISI_benvenuto_ancora_muto_2026-04-14.md](4%20-%20reports/REPORT_ANALISI_benvenuto_ancora_muto_2026-04-14.md)
 
 - [REPORT_ANALISI_VALIDAZIONI_2026-03-30.md](4%20-%20reports/REPORT_ANALISI_VALIDAZIONI_2026-03-30.md)
 - [REPORT_DIAGNOSTICA_TEST_2026-03-28.md](4%20-%20reports/REPORT_DIAGNOSTICA_TEST_2026-03-28.md)
@@ -137,6 +140,7 @@ stato: attivo
 <!-- Link relativi ai file attivi in docs/5 - todolist/ -->
 
 - [TODO_benvenuto_avvio_partita_nvda_v0.12.2.md](5%20-%20todolist/TODO_benvenuto_avvio_partita_nvda_v0.12.2.md)
+- [TODO_fix_benvenuto_interrupt_nvda_v0.12.3.md](5%20-%20todolist/TODO_fix_benvenuto_interrupt_nvda_v0.12.3.md)
 
 - [TODO_eccezione_dominio_tabellone_v1.0.0.md](5%20-%20todolist/TODO_eccezione_dominio_tabellone_v1.0.0.md)
 - [TODO_allineamento_standard_tabellone_v1.0.0.md](5%20-%20todolist/TODO_allineamento_standard_tabellone_v1.0.0.md)

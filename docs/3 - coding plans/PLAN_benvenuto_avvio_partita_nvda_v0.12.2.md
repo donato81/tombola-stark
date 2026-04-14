@@ -5,7 +5,7 @@ feature: benvenuto_avvio_partita_nvda
 versione: 0.12.2
 data_creazione: 2026-04-14
 agent: Agent-Plan
-status: DRAFT
+status: DONE
 ---
 
 # PLAN — Benvenuto avvio partita NVDA v0.12.2

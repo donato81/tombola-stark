@@ -13,8 +13,13 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 - G1: aggiunto SetName semantico a PannelloTabellone, PannelloCartella,
   PannelloRiepilogoFinale, HeaderBar e pannello radice — NVDA non legge
   più "panel" generico.
-- G2: aggiunto messaggio di orientamento vocale all'avvio della finestra
-  di gioco tramite wx.CallAfter in _imposta_focus_iniziale.
+- G2: ripristinato annuncio NVDA di benvenuto all'avvio partita:
+  introdotto flag `_avvio_silenzioso` in `FinestraGioco`; i tre dispatch
+  iniziali di posizionamento (cartella/riga/colonna) vengono ora eseguiti
+  in modalità silenziosa, lasciando la coda AO2 pronta per il messaggio
+  orientativo; rimosso il `wx.CallAfter` annidato — `mostra_messaggio_sistema`
+  viene chiamato direttamente al termine di `_imposta_focus_iniziale`
+  (`bingo_game/ui/finestra_gioco.py`).
 - G4: `Ctrl+I` (`dettaglio_premi`) ora legge i vincitori reali di ogni premio
   con testo "Ambo vinto da X, cartella Y." invece della lista di soli tipi.
 - G6: `PannelloRiepilogoFinale` ora visualizza i premi leggibili da `storico_premi`

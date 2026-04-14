@@ -611,6 +611,12 @@ class FinestraGioco(wx.Frame):
         self._ms_residui_pausa: int = 0
         self._avvio_pausa_turno_mono: float = 0.0
 
+        # --- Avvio silenzioso ---
+        # Quando True, _dispatch non invia eventi al renderer.
+        # Usato in _imposta_focus_iniziale per evitare che i tre dispatch
+        # di posizionamento iniziale producano annunci NVDA prima del benvenuto.
+        self._avvio_silenzioso: bool = False
+
         self._build_ui()
         self._bind_finestra()
         self.Centre()
@@ -1393,10 +1399,15 @@ class FinestraGioco(wx.Frame):
         self._lbl_cartella_titolo.SetLabel(f"Cartella {indice + 1} di {totale}")
 
     def _dispatch(self, esito: object) -> None:
-        """Delega l'esito al renderer per visualizzazione e vocalizzazione."""
+        """Delega l'esito al renderer per visualizzazione e vocalizzazione.
+
+        Quando _avvio_silenzioso è True (durante _imposta_focus_iniziale),
+        il dispatch viene saltato per evitare annunci tecnici che coprirebbero
+        il messaggio di benvenuto NVDA all'avvio partita.
+        """
         # EsitoAzione è importato lazy per evitare import circolari
         from bingo_game.events.eventi import EsitoAzione
-        if isinstance(esito, EsitoAzione):
+        if isinstance(esito, EsitoAzione) and not self._avvio_silenzioso:
             self._renderer.render_esito(esito)
 
     def _aggiorna_stato_pulsante(self) -> None:
@@ -1450,14 +1461,22 @@ class FinestraGioco(wx.Frame):
         return None
 
     def _imposta_focus_iniziale(self) -> None:
-        """Imposta il focus di gioco su cartella 1, riga 1, colonna 1 all'avvio."""
+        """Imposta il focus di gioco su cartella 1, riga 1, colonna 1 all'avvio.
+
+        I tre dispatch di posizionamento iniziale vengono eseguiti in modalita
+        silenziosa (_avvio_silenzioso=True) per non saturare la coda NVDA con
+        annunci tecnici prima del messaggio di benvenuto.
+        """
+        self._avvio_silenzioso = True
         self._dispatch(self._comandi.imposta_focus_cartella(1))
         self._dispatch(self._comandi.vai_a_riga(1))
         self._dispatch(self._comandi.vai_a_colonna(1))
+        self._avvio_silenzioso = False
         self._aggiorna_griglie_visive()
         self._aggiorna_titolo_cartella()
-        wx.CallAfter(
-            self._renderer.mostra_messaggio_sistema,
+        # Annuncio orientativo unico: emesso direttamente (senza CallAfter annidato)
+        # per ridurre la latenza e garantire che NVDA lo legga per primo.
+        self._renderer.mostra_messaggio_sistema(
             "Sei nella finestra di gioco. "
             "Premi Inizia partita o Ctrl+Invio per estrarre il primo numero. "
             "Premi Ctrl+H per la guida ai tasti rapidi.",
