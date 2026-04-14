@@ -1,7 +1,7 @@
 ---
 initialized: true
 project_name: "Tombola Stark"
-version: "0.12.1"
+version: "0.13.1-alpha"
 primary_language: "Python"
 secondary_languages: []
 ui_framework: "wxPython"
@@ -25,7 +25,7 @@ screen_reader: "NVDA/JAWS"
 ## Identità
 
 - **Nome**: Tombola Stark
-- **Versione corrente**: 0.9.5
+- **Versione corrente**: 0.13.1-alpha
 - **Descrizione**: Tombola digitale accessibile ai nonvedenti con screen reader.
 
 ## Stack Tecnico
