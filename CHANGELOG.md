@@ -9,7 +9,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
-## [0.13.1-alpha] — 2026-04-14
+## [0.14.0-alpha] — 2026-04-14
 
 ### Changed
 - Pulizia pre-release alfa: rimosso `bingo_game/utils.py` (file vuoto mai
