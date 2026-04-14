@@ -5,7 +5,7 @@ feature: fix_benvenuto_interrupt_nvda
 versione: 0.12.3
 data_creazione: 2026-04-14
 agent: Agent-Plan
-status: DRAFT
+status: READY
 design_ref: docs/2 - projects/DESIGN_fix_benvenuto_interrupt_nvda.md
 report_ref: docs/4 - reports/REPORT_ANALISI_benvenuto_ancora_muto_2026-04-14.md
 ---

@@ -632,8 +632,8 @@ class FinestraGioco(wx.Frame):
             except Exception as e:
                 _ui_logger.debug("Partita.subscribe non disponibile: %s", e)
 
-        # Focus iniziale sulla griglia
-        self._pannello_griglia.SetFocus()
+        # Il focus iniziale viene impostato al termine di _imposta_focus_iniziale,
+        # dopo il messaggio di benvenuto, per ridurre gli annunci NVDA spurii pre-benvenuto.
         wx.CallAfter(self._imposta_focus_iniziale)
 
     # ------------------------------------------------------------------
@@ -1466,6 +1466,9 @@ class FinestraGioco(wx.Frame):
         I tre dispatch di posizionamento iniziale vengono eseguiti in modalita
         silenziosa (_avvio_silenzioso=True) per non saturare la coda NVDA con
         annunci tecnici prima del messaggio di benvenuto.
+        Il focus viene stabilizzato sulla griglia prima del benvenuto; il benvenuto
+        viene emesso in ritardo tramite wx.CallLater per evitare che il gainFocus
+        nativo NVDA tronchi il parlato AO2.
         """
         self._avvio_silenzioso = True
         self._dispatch(self._comandi.imposta_focus_cartella(1))
@@ -1474,12 +1477,15 @@ class FinestraGioco(wx.Frame):
         self._avvio_silenzioso = False
         self._aggiorna_griglie_visive()
         self._aggiorna_titolo_cartella()
-        # Annuncio orientativo unico: emesso direttamente (senza CallAfter annidato)
-        # per ridurre la latenza e garantire che NVDA lo legga per primo.
-        self._renderer.mostra_messaggio_sistema(
+        self._pannello_griglia.SetFocus()
+        wx.CallLater(350, self._annuncia_benvenuto_iniziale)
+
+    def _annuncia_benvenuto_iniziale(self) -> None:
+        """Emette il messaggio di benvenuto orientativo dopo la stabilizzazione del focus."""
+        self._renderer.mostra_messaggio_benvenuto(
             "Sei nella finestra di gioco. "
             "Premi Inizia partita o Ctrl+Invio per estrarre il primo numero. "
-            "Premi Ctrl+H per la guida ai tasti rapidi.",
+            "Premi Ctrl+H per la guida ai tasti rapidi."
         )
 
     def _on_partita_change(self, *args, **kwargs) -> None:

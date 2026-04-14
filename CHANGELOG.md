@@ -10,6 +10,20 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ## [Unreleased]
 
 ### Fixed
+- Fix definitivo benvenuto NVDA (v0.12.4): stabilizzato l'ordine di focus
+  e parlato all'avvio — `SetFocus` eseguito prima del parlato, annuncio
+  differito con `wx.CallLater(350, ...)` e `interrupt=True` per svuotare
+  la coda AO2 prima del messaggio orientativo (file interessato:
+  `bingo_game/ui/finestra_gioco.py`, test aggiornati in
+  `tests/ui/test_finestra_gioco.py`).
+
+- G2-bis: completato ripristino annuncio NVDA di benvenuto all'avvio partita —
+  secondo intervento: aggiunto metodo `mostra_messaggio_benvenuto` in `WxRenderer`
+  che vocalizza con `interrompi=True`, svuotando la coda NVDA prima del messaggio
+  orientativo; rimossa chiamata `SetFocus` dal costruttore di `FinestraGioco` e
+  spostata come ultima istruzione di `_imposta_focus_iniziale`, dopo il benvenuto,
+  per eliminare gli annunci NVDA nativi che coprivano il messaggio
+  (`bingo_game/ui/renderers/renderer_wx.py`, `bingo_game/ui/finestra_gioco.py`).
 - G1: aggiunto SetName semantico a PannelloTabellone, PannelloCartella,
   PannelloRiepilogoFinale, HeaderBar e pannello radice — NVDA non legge
   più "panel" generico.

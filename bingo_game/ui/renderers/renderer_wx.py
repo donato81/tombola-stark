@@ -173,6 +173,17 @@ class WxRenderer(BaseRenderer):
         self._wx_aggiorna_output(testo)
         self._ao2_vocalizza(testo)
 
+    def mostra_messaggio_benvenuto(self, testo: str) -> None:
+        """Vocalizza un messaggio di ingresso finestra con interruzione della coda NVDA.
+
+        Usare esclusivamente per messaggi orientativi all'ingresso in una nuova finestra,
+        dove e necessario interrompere qualsiasi annuncio precedente in coda.
+        NON usare per messaggi normali di gioco.
+        """
+        self._wx_aggiorna_output(testo)
+        self._ultimo_annuncio = testo
+        self._vocalizzatore.vocalizza_testo(testo, interrompi=True)
+
     def annuncia_stato_premi(self, testo: str) -> None:
         """Vocalizza lo stato sintetico dei premi (Ctrl+G — lettura NVDA)."""
         self.mostra_messaggio_sistema(testo)

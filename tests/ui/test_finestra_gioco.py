@@ -174,7 +174,12 @@ class TestFinestraGiocoSelezioneCartella(unittest.TestCase):
 @unittest.skipIf(wx is None or FinestraGioco is None, "wxPython non disponibile nel test environment")
 class TestFinestraGiocoAvvioSilenzioso(unittest.TestCase):
     """Verifica che _imposta_focus_iniziale non vocalizza i dispatch iniziali
-    e che il messaggio di benvenuto venga emesso una sola volta al termine."""
+    e che il messaggio di benvenuto venga emesso tramite helper dedicato con ritardo."""
+
+    def setUp(self) -> None:
+        patcher = patch.object(finestra_gioco_module.wx, "CallLater")
+        self.mock_call_later = patcher.start()
+        self.addCleanup(patcher.stop)
 
     def _crea_finestra_stub(self) -> FinestraGioco:
         finestra = FinestraGioco.__new__(FinestraGioco)
@@ -186,6 +191,7 @@ class TestFinestraGiocoAvvioSilenzioso(unittest.TestCase):
         finestra._comandi.vai_a_colonna.return_value = object()
         finestra._aggiorna_griglie_visive = Mock()
         finestra._aggiorna_titolo_cartella = Mock()
+        finestra._pannello_griglia = Mock()
         return finestra
 
     def test_dispatch_silenziato_durante_avvio(self) -> None:
@@ -212,15 +218,60 @@ class TestFinestraGiocoAvvioSilenzioso(unittest.TestCase):
 
         finestra._renderer.render_esito.assert_called_once_with(esito)
 
-    def test_imposta_focus_iniziale_emette_benvenuto(self) -> None:
-        """_imposta_focus_iniziale deve chiamare mostra_messaggio_sistema una sola volta."""
+    def test_nessun_benvenuto_sincrono(self) -> None:
+        """_imposta_focus_iniziale NON deve chiamare mostra_messaggio_benvenuto direttamente."""
         finestra = self._crea_finestra_stub()
 
         FinestraGioco._imposta_focus_iniziale(finestra)
 
-        finestra._renderer.mostra_messaggio_sistema.assert_called_once()
-        testo_chiamato = finestra._renderer.mostra_messaggio_sistema.call_args[0][0]
+        finestra._renderer.mostra_messaggio_benvenuto.assert_not_called()
+
+    def test_imposta_focus_iniziale_ordine(self) -> None:
+        """SetFocus sulla griglia deve avvenire prima di wx.CallLater nel flusso sincrono."""
+        finestra = self._crea_finestra_stub()
+        call_order: list[str] = []
+        finestra._pannello_griglia.SetFocus.side_effect = lambda: call_order.append("SetFocus")
+        self.mock_call_later.side_effect = lambda *a, **kw: call_order.append("CallLater")
+
+        FinestraGioco._imposta_focus_iniziale(finestra)
+
+        assert call_order == ["SetFocus", "CallLater"], (
+            f"Ordine atteso: SetFocus prima di CallLater, ottenuto: {call_order}"
+        )
+
+    def test_callafter_delay_350(self) -> None:
+        """_imposta_focus_iniziale deve schedulare il benvenuto con wx.CallLater(350, _annuncia_benvenuto_iniziale)."""
+        finestra = self._crea_finestra_stub()
+
+        FinestraGioco._imposta_focus_iniziale(finestra)
+
+        self.mock_call_later.assert_called_once_with(350, finestra._annuncia_benvenuto_iniziale)
+
+    def test_annuncia_benvenuto_chiama_renderer(self) -> None:
+        """_annuncia_benvenuto_iniziale deve chiamare mostra_messaggio_benvenuto con testo orientativo."""
+        finestra = self._crea_finestra_stub()
+
+        FinestraGioco._annuncia_benvenuto_iniziale(finestra)
+
+        finestra._renderer.mostra_messaggio_benvenuto.assert_called_once()
+        testo_chiamato = finestra._renderer.mostra_messaggio_benvenuto.call_args[0][0]
         assert "finestra di gioco" in testo_chiamato.lower()
+
+    def test_imposta_focus_iniziale_non_chiama_messaggio_sistema(self) -> None:
+        """_imposta_focus_iniziale NON deve usare mostra_messaggio_sistema: usa mostra_messaggio_benvenuto."""
+        finestra = self._crea_finestra_stub()
+
+        FinestraGioco._imposta_focus_iniziale(finestra)
+
+        finestra._renderer.mostra_messaggio_sistema.assert_not_called()
+
+    def test_imposta_focus_iniziale_setfocus_sul_pannello_griglia(self) -> None:
+        """_imposta_focus_iniziale deve chiamare SetFocus sul pannello griglia."""
+        finestra = self._crea_finestra_stub()
+
+        FinestraGioco._imposta_focus_iniziale(finestra)
+
+        finestra._pannello_griglia.SetFocus.assert_called_once_with()
 
     def test_imposta_focus_iniziale_ripristina_flag(self) -> None:
         """Al termine di _imposta_focus_iniziale il flag _avvio_silenzioso deve essere False."""
