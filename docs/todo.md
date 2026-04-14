@@ -206,6 +206,16 @@ vocali progressivi. Viene aggiunta una pausa contata tra i turni e i bot dichiar
 la propria risposta con un ritardo simulato realistico invece di registrare il reclamo
 istantaneamente al momento dell'estrazione.
 
+## Spelling cifre doppie nei numeri estratti — 2026-04-14
+Stato: IN PIANIFICAZIONE
+Riferimento report: docs/4 - reports/REPORT_ANALISI_spelling_cifre_doppie_2026-04-14.md
+Riferimento design: docs/2 - projects/DESIGN_spelling_cifre_doppie.md
+Riferimento plan: docs/3 - coding plans/PLAN_spelling_cifre_doppie.md
+Riferimento todo: docs/todo/TODO_spelling_cifre_doppie.md
+Sommario: Aggiunge, subito dopo la lettura intera del numero estratto, lo spelling
+delle singole cifre in forma verbale italiana separata da punti fermi (es. "Sei. Uno.")
+per aumentare la chiarezza dell'annuncio NVDA sui numeri a due cifre (10–90).
+
 ### Task completati
 
 - Eccezione di dominio per numeri esauriti del tabellone

@@ -596,6 +596,14 @@ MESSAGGI_OUTPUT_UI_UMANI: Mapping[Codici_Output_Ui_Umani, tuple[str, ...]] = Map
         "Numero estratto: {numero}.",
     ),
 
+    # Secondo annuncio NVDA dopo la lettura del numero estratto: spelling cifra per cifra.
+    # Emesso solo per numeri a due cifre (10–90).
+    # Placeholder: {decina} = parola verbale della decina, {unita} = parola verbale dell'unità.
+    # Esempio: numero 61 → "Sei. Uno."
+    "LOOP_SPELLING_NUMERO_ESTRATTO": (
+        "{decina}. {unita}.",
+    ),
+
     # Prompt interattivo mostrato dopo ogni estrazione.
     "LOOP_PROMPT_COMANDO": (
         "Comando (p=prosegui  s=segna  c=cartella  v=tabellone  q=esci  ?=aiuto):",
@@ -831,3 +839,18 @@ BENVENUTO_FINESTRA_GIOCO: str = (
     "Premi Inizia partita o Ctrl+Invio per estrarre il primo numero. "
     "Premi Ctrl+H per la guida ai tasti rapidi."
 )
+
+# Mappa verbale delle cifre 0–9 per lo spelling NVDA dei numeri estratti.
+# Usata da finestra_gioco.py per costruire il secondo annuncio cifra per cifra.
+CIFRE_VERBALI: Mapping[int, str] = MappingProxyType({
+    0: "Zero",
+    1: "Uno",
+    2: "Due",
+    3: "Tre",
+    4: "Quattro",
+    5: "Cinque",
+    6: "Sei",
+    7: "Sette",
+    8: "Otto",
+    9: "Nove",
+})

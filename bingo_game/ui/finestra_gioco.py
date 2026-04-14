@@ -71,6 +71,7 @@ from bingo_game.ui.tema import (
 )
 
 from bingo_game.ui.finestra_aiuto_tasti_rapidi import FinestraAiutoTastiRapidi
+from bingo_game.ui.locales.it import CIFRE_VERBALI, MESSAGGI_OUTPUT_UI_UMANI
 from bingo_game.comandi_partita import ComandiSistema, ComandiGiocatoreUmano
 from bingo_game.partita import Partita
 
@@ -86,6 +87,18 @@ _KEY_RETURN: int = getattr(wx, "WXK_RETURN", 13)
 _KEY_F1: int = getattr(wx, "WXK_F1", 340)
 _KEY_F5: int = getattr(wx, "WXK_F5", 344)
 _KEY_F6: int = getattr(wx, "WXK_F6", 345)
+
+
+def _spelling_numero(n: int) -> str:
+    """Restituisce lo spelling verbale italiano delle due cifre di n (10–90) per NVDA.
+
+    Esempio: _spelling_numero(61) → "Sei. Uno."
+             _spelling_numero(70) → "Sette. Zero."
+    """
+    decina = CIFRE_VERBALI[n // 10]
+    unita = CIFRE_VERBALI[n % 10]
+    template = MESSAGGI_OUTPUT_UI_UMANI["LOOP_SPELLING_NUMERO_ESTRATTO"]
+    return template[0].format(decina=decina, unita=unita)
 
 
 class PannelloTabellone(wx.Panel):
@@ -927,6 +940,8 @@ class FinestraGioco(wx.Frame):
             self._turno_corrente += 1
             numero = risultato_est.get("numero_estratto", "?")
             self._renderer.annuncia_numero_estratto(numero, self._turno_corrente)
+            if isinstance(numero, int) and numero >= 10:
+                self._renderer.mostra_messaggio_sistema(_spelling_numero(numero))
             self._aggiorna_griglie_visive()
             self._fase_turno_ui = "attesa_reclami"
             self._aggiorna_stato_pulsante()
@@ -1421,6 +1436,8 @@ class FinestraGioco(wx.Frame):
         numero = risultato.get("numero_estratto", "?")
         premi_nuovi = risultato.get("premi_nuovi", [])
         self._renderer.annuncia_numero_estratto(numero, self._turno_corrente)
+        if isinstance(numero, int) and numero >= 10:
+            self._renderer.mostra_messaggio_sistema(_spelling_numero(numero))
         self._renderer.annuncia_premi_turno(premi_nuovi)
 
     def _apri_ricerca_numero(self) -> None:

@@ -10,6 +10,13 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ## [Unreleased]
 
 ### Added
+- Spelling cifre doppie post-annuncio estratto (accessibilità NVDA): dopo ogni
+  estrazione di un numero a due cifre (10–90), NVDA legge un secondo annuncio
+  separato con le singole cifre in forma verbale italiana (es. "Sei. Uno." per 61,
+  "Cinque. Zero." per 50). La logica è pura e isolata nella funzione
+  `_spelling_numero` di `bingo_game/ui/finestra_gioco.py`; le stringhe verbali
+  risiedono in `CIFRE_VERBALI` e `LOOP_SPELLING_NUMERO_ESTRATTO` in
+  `bingo_game/ui/locales/it.py`.
 - Annuncio posizione focus iniziale dopo il benvenuto NVDA (v0.12.5): dopo il
   messaggio di benvenuto orientativo, un secondo callback differito
   (`wx.CallLater(200, ...)`) invoca `_annuncia_posizione_focus_iniziale`, che
