@@ -1487,6 +1487,11 @@ class FinestraGioco(wx.Frame):
             "Premi Inizia partita o Ctrl+Invio per estrarre il primo numero. "
             "Premi Ctrl+H per la guida ai tasti rapidi."
         )
+        wx.CallLater(200, self._annuncia_posizione_focus_iniziale)
+
+    def _annuncia_posizione_focus_iniziale(self) -> None:
+        """Annuncia la posizione logica iniziale del focus sulla griglia dopo il benvenuto."""
+        self._dispatch(self._comandi.stato_focus())
 
     def _on_partita_change(self, *args, **kwargs) -> None:
         """Handler duck-typed per ricevere eventi di stato partita (se supportato).

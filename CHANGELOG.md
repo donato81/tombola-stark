@@ -9,6 +9,17 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Added
+- Annuncio posizione focus iniziale dopo il benvenuto NVDA (v0.12.5): dopo il
+  messaggio di benvenuto orientativo, un secondo callback differito
+  (`wx.CallLater(200, ...)`) invoca `_annuncia_posizione_focus_iniziale`, che
+  chiama `self._dispatch(self._comandi.stato_focus())` riutilizzando il path
+  event-driven esistente. L'utente sente così la posizione logica iniziale
+  (cartella/riga/colonna) come secondo annuncio separato, senza duplicare
+  testo posizione nel messaggio di benvenuto
+  (`bingo_game/ui/finestra_gioco.py`, test aggiunti in
+  `tests/ui/test_finestra_gioco.py`).
+
 ### Fixed
 - Fix definitivo benvenuto NVDA (v0.12.4): stabilizzato l'ordine di focus
   e parlato all'avvio — `SetFocus` eseguito prima del parlato, annuncio

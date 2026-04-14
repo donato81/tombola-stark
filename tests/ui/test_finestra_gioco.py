@@ -290,8 +290,47 @@ class TestFinestraGiocoAvvioSilenzioso(unittest.TestCase):
 
         mock_call_after.assert_not_called()
 
+    def test_annuncia_benvenuto_schedula_secondo_callafter(self) -> None:
+        """_annuncia_benvenuto_iniziale deve schedulare _annuncia_posizione_focus_iniziale con wx.CallLater."""
+        finestra = self._crea_finestra_stub()
+        finestra._dispatch = Mock()
 
-@unittest.skipIf(wx is None or FinestraGioco is None, "wxPython non disponibile nel test environment")
+        FinestraGioco._annuncia_benvenuto_iniziale(finestra)
+
+        chiamate = self.mock_call_later.call_args_list
+        delay_args = [c[0][0] for c in chiamate]
+        callable_args = [c[0][1] for c in chiamate]
+        assert 200 in delay_args, (
+            f"Atteso delay 200 nelle chiamate CallLater; trovato: {delay_args}"
+        )
+        assert finestra._annuncia_posizione_focus_iniziale in callable_args, (
+            f"Atteso _annuncia_posizione_focus_iniziale nelle chiamate CallLater; trovato: {callable_args}"
+        )
+
+    def test_annuncia_posizione_usa_stato_focus(self) -> None:
+        """_annuncia_posizione_focus_iniziale deve chiamare stato_focus() e passarne l'esito a _dispatch."""
+        finestra = self._crea_finestra_stub()
+        evento_stub = object()
+        finestra._comandi.stato_focus.return_value = evento_stub
+        finestra._dispatch = Mock()
+
+        FinestraGioco._annuncia_posizione_focus_iniziale(finestra)
+
+        finestra._comandi.stato_focus.assert_called_once_with()
+        finestra._dispatch.assert_called_once_with(evento_stub)
+
+    def test_nessun_testo_posizione_in_benvenuto(self) -> None:
+        """Il testo di benvenuto non deve contenere stringhe posizione ('riga', 'colonna') costruite localmente."""
+        finestra = self._crea_finestra_stub()
+        finestra._dispatch = Mock()
+
+        FinestraGioco._annuncia_benvenuto_iniziale(finestra)
+
+        testo = finestra._renderer.mostra_messaggio_benvenuto.call_args[0][0].lower()
+        assert "riga" not in testo, f"Testo benvenuto contiene 'riga': {testo!r}"
+        assert "colonna" not in testo, f"Testo benvenuto contiene 'colonna': {testo!r}"
+
+
 class TestFinestraGiocoMostraRiepilogoFinale(unittest.TestCase):
     def _crea_finestra_stub(self) -> FinestraGioco:
         finestra = FinestraGioco.__new__(FinestraGioco)

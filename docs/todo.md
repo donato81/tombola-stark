@@ -14,6 +14,7 @@ stato: attivo
 
 - [DESIGN_benvenuto_avvio_partita_nvda.md](2%20-%20projects/DESIGN_benvenuto_avvio_partita_nvda.md)
 - [DESIGN_fix_benvenuto_interrupt_nvda.md](2%20-%20projects/DESIGN_fix_benvenuto_interrupt_nvda.md)
+- [DESIGN_annuncio_posizione_focus_post_benvenuto_nvda.md](2%20-%20projects/DESIGN_annuncio_posizione_focus_post_benvenuto_nvda.md)
 
 - [DESIGN_pausa_gioco.md](2%20-%20projects/DESIGN_pausa_gioco.md)
 
@@ -111,6 +112,7 @@ stato: attivo
 - [PLAN_report_finale_storico_premi_nvda_v0.15.0.md](3%20-%20coding%20plans/PLAN_report_finale_storico_premi_nvda_v0.15.0.md)
 - [PLAN_finestra_aiuto_tasti_rapidi_v0.13.0.md](3%20-%20coding%20plans/PLAN_finestra_aiuto_tasti_rapidi_v0.13.0.md)
 - [PLAN_finestra_guida_regole_v0.14.0.md](3%20-%20coding%20plans/PLAN_finestra_guida_regole_v0.14.0.md)
+- [PLAN_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md](3%20-%20coding%20plans/PLAN_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md)
 
 ### Reports
 
@@ -189,6 +191,7 @@ stato: attivo
 - [TODO_report_finale_storico_premi_nvda_v0.15.0.md](5%20-%20todolist/TODO_report_finale_storico_premi_nvda_v0.15.0.md)
 - [TODO_finestra_aiuto_tasti_rapidi_v0.13.0.md](5%20-%20todolist/TODO_finestra_aiuto_tasti_rapidi_v0.13.0.md)
 - [TODO_finestra_guida_regole_v0.14.0.md](5%20-%20todolist/TODO_finestra_guida_regole_v0.14.0.md)
+- [TODO_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md](5%20-%20todolist/TODO_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md)
 
 ### Da fare
 
