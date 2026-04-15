@@ -278,7 +278,9 @@ La cartella `bingo_game/infrastructure/` **non esiste**.
 - **Layer toccati**: Dominio (nuovo modello `Utente`). Infrastructure
   (`UtenteRepository` implementato con persistenza hash). Presentazione
   (due nuove finestre wx, menu aggiornato). Controller (nuovo `AuthService`
-  o estensione del controller esistente).
+  o estensione del controller esistente). `main.py` (aggiornato per
+  inizializzare il database all'avvio dell'applicazione e chiuderlo
+  esplicitamente nel blocco finally, accanto a `GameLogger.shutdown()`).
 - **Layer NON toccati**: `Partita`, `Tabellone`, `Cartella`, `GiocatoreBase`,
   `GiocatoreUmano`, `GiocatoreAutomatico` — nessuna di queste classi viene
   modificata. Il flusso di gioco esistente (FinestraGioco, FinestraConfigurazione)
