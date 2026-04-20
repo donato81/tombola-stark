@@ -54,6 +54,18 @@ L'obiettivo è documentare le interfacce che altri livelli o componenti chiamano
 - `bingo_game/ui/finestra_principale.py` – `FinestraPrincipale` (menu principale; primo frame mostrato all'avvio).
 - `bingo_game/ui/finestra_configurazione.py` – `FinestraConfigurazione` (frame di configurazione partita; componente pubblico di presentazione).
 - `bingo_game/ui/finestra_gioco.py` – `FinestraGioco` (frame principale di gioco; pannello griglia focalizzabile e area annunci).
+
+### PannelloCartella
+
+- **Percorso**: `bingo_game/ui/finestra_gioco.py` (classe `PannelloCartella`)
+- **Costruttore (aggiornato)**:
+    ```python
+    PannelloCartella(..., on_click_numero: Optional[callable] = None)
+    ```
+    - `on_click_numero: Optional[callable] = None`
+        Callback invocato quando l'utente clicca su una cella numerica.
+        Riceve un argomento `int`: il numero sulla cella cliccata.
+        Se `None`, il click viene ignorato silenziosamente.
   
 Pausa di gioco (v1.2.0)
 
@@ -2011,6 +2023,7 @@ FinestraPrincipale(renderer, parent: Optional[wx.Frame] = None)
 - `__init__` ora accetta `finestra_principale: Optional[wx.Frame] = None` e salva `self._finestra_principale`.
 - Aggiunto `_btn_torna_menu` (inizialmente nascosto). Alla fine della partita `_esegui_verifica_premi()` abilita e mostra `_btn_torna_menu` e gli imposta il focus.
 - Nuovo metodo `_on_torna_menu(event)`: esegue `imposta_widget_log(None)`, `Hide()`, `self._finestra_principale.Show()` e `aggiorna_finestra(self._finestra_principale)` per riportare l'utente al menu principale.
+ - Nuovo metodo `_on_click_numero_cartella(numero: int) -> None`: gestisce il click sinistro del mouse su una cella numerica della `PannelloCartella`. La guardia di contesto (stato del turno, pausa, partita terminata) è applicata in questo metodo e delega la segnazione/dispatch al controller/renderer appropriato; è un metodo privato interno della UI e non modifica direttamente il dominio senza passare per il controller.
 
 ## 🔄 Note di Versione
 

@@ -202,6 +202,13 @@ main.py (entry wx) → wx.App → GameController → (EsitoAzione/bool/dict/None
 
 Il package `bingo_game/ui` ora espone non solo renderer (`BaseRenderer`, `WxRenderer`) ma anche i principali frame e dialog di presentazione: `FinestraPrincipale`, `FinestraConfigurazione`, `FinestraGioco` e `DialogoRicercaNumero`.
 
+### Interazione mouse sulla cartella (aggiunto v0.14.1)
+Il PannelloCartella supporta il click sinistro del mouse sulle celle numeriche tramite
+binding EVT_LEFT_DOWN. Il callback `on_click_numero` (iniettato da FinestraGioco)
+viene invocato con il numero corrispondente alla cella cliccata. La logica di guardia
+(fase turno, pausa, partita terminata) è gestita esclusivamente da FinestraGioco._on_click_numero_cartella,
+mantenendo il pannello disaccoppiato dalla logica di gioco.
+
 Nota sul comportamento di `DialogoRicercaNumero`: il dialog è persistente e non effettua più una chiusura automatica al primo esito trovato; invece abilita un pulsante `Vai al risultato` che l'utente deve premere per confermare la navigazione. `FinestraGioco` procede a navigare soltanto se il dialog restituisce `wx.ID_OK` con `_primo_risultato` valorizzato.
 
 1. Il chiamante crea o recupera una `Partita` tramite il controller

@@ -8,6 +8,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ---
 
 ## [Unreleased]
+### Added
+- Segnazione numeri sulla cartella tramite click sinistro del mouse (bingo_game/ui/finestra_gioco.py)
 
 ## [0.14.0-alpha] — 2026-04-14
 

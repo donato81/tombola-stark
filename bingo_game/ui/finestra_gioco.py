@@ -159,7 +159,7 @@ class PannelloCartella(wx.Panel):
     usano colori distinti da tema.py. Dati statici placeholder.
     """
 
-    def __init__(self, parent: wx.Window) -> None:
+    def __init__(self, parent: wx.Window, on_click_numero: Optional[callable] = None) -> None:
         super().__init__(parent, style=wx.NO_BORDER)
         # Rimuove TAB_TRAVERSAL: il pannello non partecipa al ciclo focus
         self.SetWindowStyleFlag(self.GetWindowStyleFlag() & ~wx.TAB_TRAVERSAL)
@@ -171,6 +171,7 @@ class PannelloCartella(wx.Panel):
         self._lampeggio_attivo: bool = False
         self._tick_lampeggio: int = 0
         self._mappa_celle_numero: dict[int, wx.StaticText] = {}
+        self._callback_click: Optional[callable] = on_click_numero
 
     def _build_ui(self) -> None:
         font = wx.Font(
@@ -191,6 +192,7 @@ class PannelloCartella(wx.Panel):
                 cell.SetBackgroundColour(wx.Colour(COLORE_CELLA_CARTELLA_VUOTA))
                 cell.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
                 cell.SetFont(font)
+                cell.Bind(wx.EVT_LEFT_DOWN, self._on_cella_click)
                 sizer.Add(cell, 1, wx.EXPAND)
                 riga.append(cell)
             self._celle.append(riga)
@@ -299,6 +301,21 @@ class PannelloCartella(wx.Panel):
             self._timer_lampeggio.Stop()
             self._timer_lampeggio = None
         self._lampeggio_attivo = False
+
+    def _on_cella_click(self, event: wx.MouseEvent) -> None:
+        """Handler click sinistro su una cella della cartella.
+
+        Identifica il numero corrispondente alla cella cliccata tramite
+        ricerca inversa in _mappa_celle_numero e notifica il callback
+        esterno se impostato. Chiama event.Skip() per non bloccare altri handler.
+        """
+        cella = event.GetEventObject()
+        for numero, widget in self._mappa_celle_numero.items():
+            if widget is cella:
+                if self._callback_click is not None:
+                    self._callback_click(numero)
+                break
+        event.Skip()
 
 
 _N_TICK_LAMPEGGIO: int = 7  # 7 tick × 300ms ≈ 2.1 secondi totali
@@ -716,7 +733,9 @@ class FinestraGioco(wx.Frame):
         self._lbl_cartella_titolo.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
         sizer_cartella_con_titolo.Add(self._lbl_cartella_titolo, 0, wx.BOTTOM | wx.ALIGN_CENTER, 2)
 
-        self._pannello_cartella = PannelloCartella(panel)
+        self._pannello_cartella = PannelloCartella(
+            panel, on_click_numero=self._on_click_numero_cartella
+        )
         sizer_cartella_con_titolo.Add(self._pannello_cartella, 1, wx.EXPAND)
 
         sizer_griglie.Add(sizer_cartella_con_titolo, 1, wx.ALL | wx.EXPAND, 5)
@@ -1595,6 +1614,26 @@ class FinestraGioco(wx.Frame):
     def aggiorna_selezione_cartella(self, numero: int) -> None:
         """Aggiorna l'evidenziazione del pulsante selezione cartella (duck typing per renderer)."""
         self._aggiorna_evidenziazione_selezione(numero)
+
+    def _on_click_numero_cartella(self, numero: int) -> None:
+        """Handler per click sinistro del mouse su un numero della cartella visiva.
+
+        Segnare un numero via mouse ha lo stesso effetto del tasto Spazio:
+        chiama segna_numero() con il numero identificato dalla cella cliccata.
+        Attivo solo durante la fase 'attesa_reclami'; negli altri stati
+        emette un messaggio informativo e non esegue azioni di gioco.
+        """
+        if self._comandi_sistema.is_terminata(self._partita):
+            return
+        if self._in_pausa:
+            return
+        if self._fase_turno_ui != "attesa_reclami":
+            self._renderer.mostra_messaggio_sistema(
+                "Puoi segnare i numeri solo dopo l'estrazione."
+            )
+            return
+        self._dispatch(self._comandi.segna_numero(numero))
+        self._aggiorna_griglie_visive()
 
     # ------------------------------------------------------------------
     # Gruppo 3 — Handler pulsanti premi

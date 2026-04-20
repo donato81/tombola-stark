@@ -12,6 +12,7 @@ stato: attivo
 
 <!-- Link relativi ai file attivi in docs/2 - projects/ -->
 
+- [DESIGN_click_mouse_segnazione](2%20-%20projects/DESIGN_click_mouse_segnazione.md)
 - [DESIGN_benvenuto_avvio_partita_nvda.md](2%20-%20projects/DESIGN_benvenuto_avvio_partita_nvda.md)
 - [DESIGN_fix_benvenuto_interrupt_nvda.md](2%20-%20projects/DESIGN_fix_benvenuto_interrupt_nvda.md)
 - [DESIGN_annuncio_posizione_focus_post_benvenuto_nvda.md](2%20-%20projects/DESIGN_annuncio_posizione_focus_post_benvenuto_nvda.md)
@@ -60,6 +61,10 @@ stato: attivo
 - [DESIGN_report_finale_storico_premi_nvda.md](2%20-%20projects/DESIGN_report_finale_storico_premi_nvda.md)
 - [DESIGN_finestra_aiuto_tasti_rapidi.md](2%20-%20projects/DESIGN_finestra_aiuto_tasti_rapidi.md)
 - [DESIGN_finestra_guida_regole.md](2%20-%20projects/DESIGN_finestra_guida_regole.md)
+- [DESIGN_COSTITUZIONE_ROADMAP_MULTIPLAYER_2026-04-14.md](2%20-%20projects/DESIGN_COSTITUZIONE_ROADMAP_MULTIPLAYER_2026-04-14.md)
+- [DESIGN_01_FASE1_INFRASTRUCTURE_LAYER_2026-04-15.md](2%20-%20projects/DESIGN_01_FASE1_INFRASTRUCTURE_LAYER_2026-04-15.md)
+- [DESIGN_02_FASE2_SISTEMA_UTENTE_2026-04-15.md](2%20-%20projects/DESIGN_02_FASE2_SISTEMA_UTENTE_2026-04-15.md)
+- [DESIGN_03_FASE3_STATISTICHE_GIOCO_2026-04-15.md](2%20-%20projects/DESIGN_03_FASE3_STATISTICHE_GIOCO_2026-04-15.md)
 
 ### Piani
 
@@ -113,6 +118,7 @@ stato: attivo
 - [PLAN_finestra_aiuto_tasti_rapidi_v0.13.0.md](3%20-%20coding%20plans/PLAN_finestra_aiuto_tasti_rapidi_v0.13.0.md)
 - [PLAN_finestra_guida_regole_v0.14.0.md](3%20-%20coding%20plans/PLAN_finestra_guida_regole_v0.14.0.md)
 - [PLAN_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md](3%20-%20coding%20plans/PLAN_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md)
+- [PLAN_click_mouse_segnazione_v0.14.1](3%20-%20coding%20plans/PLAN_click_mouse_segnazione_v0.14.1.md)
 
 ### Reports
 
@@ -192,6 +198,7 @@ stato: attivo
 - [TODO_finestra_aiuto_tasti_rapidi_v0.13.0.md](5%20-%20todolist/TODO_finestra_aiuto_tasti_rapidi_v0.13.0.md)
 - [TODO_finestra_guida_regole_v0.14.0.md](5%20-%20todolist/TODO_finestra_guida_regole_v0.14.0.md)
 - [TODO_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md](5%20-%20todolist/TODO_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md)
+- [TODO_click_mouse_segnazione_v0.14.1](5%20-%20todolist/TODO_click_mouse_segnazione_v0.14.1.md)
 
 ### Da fare
 
