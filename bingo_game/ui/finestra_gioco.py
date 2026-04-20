@@ -72,6 +72,7 @@ from bingo_game.ui.tema import (
 
 from bingo_game.ui.finestra_aiuto_tasti_rapidi import FinestraAiutoTastiRapidi
 from bingo_game.ui.locales.it import CIFRE_VERBALI, MESSAGGI_OUTPUT_UI_UMANI
+from bingo_game.ui.overlay_numero import OverlayNumeroEstratto
 from bingo_game.comandi_partita import ComandiSistema, ComandiGiocatoreUmano
 from bingo_game.partita import Partita
 
@@ -648,6 +649,7 @@ class FinestraGioco(wx.Frame):
         self._avvio_silenzioso: bool = False
 
         self._build_ui()
+        self._overlay_numero = OverlayNumeroEstratto(parent=self)
         self._bind_finestra()
         self.Centre()
 
@@ -819,6 +821,8 @@ class FinestraGioco(wx.Frame):
             pannello = self._pannello_cartella
             if hasattr(pannello, "ferma_lampeggio"):
                 pannello.ferma_lampeggio()
+        if hasattr(self, "_overlay_numero") and self._overlay_numero is not None:
+            self._overlay_numero.Destroy()
         event.Skip()
 
     def _on_pausa(self, event: object) -> None:
@@ -1279,6 +1283,10 @@ class FinestraGioco(wx.Frame):
         """Interfaccia per il renderer: aggiunge riga al log annunci."""
         if self._log_ctrl:
             self._log_ctrl.AppendText(testo + "\n")
+
+    def mostra_overlay_numero(self, numero: int) -> None:
+        """Mostra l'overlay visivo del numero estratto senza alterare il focus."""
+        self._overlay_numero.mostra_numero(numero)
 
     def mostra_riepilogo_finale(self, dati: dict) -> None:
         """Mostra il pannello riepilogo finale e nasconde i pannelli di gioco."""

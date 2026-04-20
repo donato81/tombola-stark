@@ -54,6 +54,7 @@ L'obiettivo è documentare le interfacce che altri livelli o componenti chiamano
 - `bingo_game/ui/finestra_principale.py` – `FinestraPrincipale` (menu principale; primo frame mostrato all'avvio).
 - `bingo_game/ui/finestra_configurazione.py` – `FinestraConfigurazione` (frame di configurazione partita; componente pubblico di presentazione).
 - `bingo_game/ui/finestra_gioco.py` – `FinestraGioco` (frame principale di gioco; pannello griglia focalizzabile e area annunci).
+- `bingo_game/ui/overlay_numero.py` – `OverlayNumeroEstratto` (overlay visivo non modale del numero estratto; solo feedback visivo, nessun impatto su NVDA).
 
 ### PannelloCartella
 
@@ -66,6 +67,16 @@ L'obiettivo è documentare le interfacce che altri livelli o componenti chiamano
         Callback invocato quando l'utente clicca su una cella numerica.
         Riceve un argomento `int`: il numero sulla cella cliccata.
         Se `None`, il click viene ignorato silenziosamente.
+
+### OverlayNumeroEstratto
+
+- **Percorso**: `bingo_game/ui/overlay_numero.py`
+- **Tipo**: `wx.Frame` non modale con `STAY_ON_TOP | FRAME_NO_TASKBAR | FRAME_TOOL_WINDOW | BORDER_NONE`
+- **Scopo**: mostra il numero appena estratto in formato grande per circa 10 secondi come supporto ai giocatori vedenti che non usano screen reader.
+- **Focus**: non riceve mai il focus tastiera; `FinestraGioco` conserva il focus operativo su `PannelloGriglia`.
+- **Chiusura**: automatica via `wx.Timer` ONE_SHOT; la finestra viene anche distrutta da `FinestraGioco._on_close()`.
+- **Metodo pubblico**: `mostra_numero(numero: int) -> None`
+- **Integrazione**: `FinestraGioco.mostra_overlay_numero(numero)` espone il bridge al renderer; `WxRenderer.annuncia_numero_estratto()` attiva l'overlay senza modificare il testo AO2 vocalizzato.
   
 Pausa di gioco (v1.2.0)
 
@@ -1963,7 +1974,7 @@ class WxRenderer(BaseRenderer):
 - mantenere separati i canali `_wx_*` e `_ao2_*` per evitare accoppiamenti impliciti.
 
 **Metodi aggiunti per il ciclo bifasico**:
-- `annuncia_numero_estratto(numero, numero_turno)` — annuncio atomico del numero estratto.
+- `annuncia_numero_estratto(numero, numero_turno)` — annuncio atomico del numero estratto; aggiorna output testuale, header, lampeggio cartella e overlay visivo temporaneo mantenendo invariata la vocalizzazione AO2.
 - `annuncia_premi_turno(premi)` — annuncio atomico dei premi del turno.
 - `annuncia_fase_turno(testo_fase)` — re-announce esplicito della fase UI, usato anche dopo `SetLabel`.
 

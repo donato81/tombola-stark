@@ -3,7 +3,7 @@ type: design
 titolo: Overlay visivo numero estratto (monitor bingo sala)
 data_creazione: 2026-04-20
 agent: Agent-Design
-status: DRAFT
+status: REVIEWED
 feature: overlay_numero_estratto
 ---
 

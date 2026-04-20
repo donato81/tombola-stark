@@ -198,6 +198,7 @@ class WxRenderer(BaseRenderer):
         self._wx_aggiorna_output(testo)
         self._wx_avvia_lampeggio(numero)
         self._wx_aggiorna_header(turno=numero_turno, ultimo_numero=numero)
+        self._wx_mostra_overlay_numero(numero)
         self._ao2_vocalizza(testo)
 
     def annuncia_premi_turno(self, premi: list) -> None:
@@ -816,6 +817,13 @@ class WxRenderer(BaseRenderer):
         pannello = self._finestra._pannello_cartella
         if hasattr(pannello, "avvia_lampeggio"):
             pannello.avvia_lampeggio(numero)
+
+    def _wx_mostra_overlay_numero(self, numero: int) -> None:
+        """Mostra l'overlay visivo del numero estratto se il frame lo espone."""
+        if self._finestra is None:
+            return
+        if hasattr(self._finestra, "mostra_overlay_numero"):
+            self._finestra.mostra_overlay_numero(numero)
 
     def _wx_aggiorna_header(
         self,

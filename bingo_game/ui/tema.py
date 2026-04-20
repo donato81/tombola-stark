@@ -85,6 +85,8 @@ FONT_BTN_PT = 12              # Dimensione testo pulsanti principali
 FONT_BTN_PICCOLO_PT = 11      # Dimensione testo pulsanti secondari / frecce
 FONT_CARTELLA_NUMERO_PT = 14  # Dimensione numeri nelle celle cartella
 FONT_TITOLO_CARTELLA_PT = 13  # Dimensione titolo sopra la cartella
+FONT_OVERLAY_LABEL_PT = 16    # Dimensione etichetta secondaria overlay numero estratto
+FONT_OVERLAY_PT = 72          # Dimensione numero nell'overlay visivo estrazione
 FONT_LOG_PT = 10              # Dimensione testo nel pannello log
 
 FONT_LOG_FAMIGLIA = "Courier New"  # Famiglia monospaziata per il pannello log
@@ -104,6 +106,7 @@ SPAZIATURA_BTN_PICCOLA = 8                      # Spaziatura ridotta tra pulsant
 
 DIMENSIONE_CELLA_TABELLONE = (24, 26)   # Dimensione minima cella griglia tabellone (w, h) in pixel
 DIMENSIONE_CELLA_CARTELLA = (60, 34)    # Dimensione minima cella griglia cartella (w, h) in pixel
+DIMENSIONE_OVERLAY = (260, 180)         # Dimensione dell'overlay visivo numero estratto
 
 DIMENSIONE_FINESTRA_GIOCO = (1000, 700)          # Dimensione finestra principale di gioco
 DIMENSIONE_FINESTRA_PRINCIPALE = (400, 380)      # Dimensione finestra menu principale

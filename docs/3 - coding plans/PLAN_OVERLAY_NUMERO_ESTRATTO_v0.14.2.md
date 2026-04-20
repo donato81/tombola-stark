@@ -1,7 +1,7 @@
 ---
 type: plan
 feature: overlay_numero_estratto
-status: DRAFT
+status: READY
 agent: Agent-Plan
 target_version: 0.14.2
 design_ref: docs/2 - projects/DESIGN_OVERLAY_NUMERO_ESTRATTO.md

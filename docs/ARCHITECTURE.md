@@ -189,6 +189,7 @@ def avvia_partita_sicura(partita: Partita) -> bool:
 | `bingo_game/ui/locales/it.py` | Testi localizzati e codici messaggio riusabili dal layer di presentazione |
 | `bingo_game/ui/renderers/base_renderer.py` | Contratto astratto del layer renderer e stato configurazione |
 | `bingo_game/ui/renderers/renderer_wx.py` | Prima implementazione concreta wx del renderer accessibile |
+| `bingo_game/ui/overlay_numero.py` | Overlay visivo non modale del numero estratto, dedicato al feedback visivo temporaneo |
 | `my_lib/vocalizzatore.py` | Bridge verso il backend di vocalizzazione accessibile |
 | `bingo_game/events/codici_controller.py` | Costanti chiave (`CTRL_*`) per gli esiti controller |
 | `bingo_game/events/codici_loop.py` | Costanti evento residue legate al precedente ciclo interattivo |
@@ -236,6 +237,11 @@ conseguenze principali:
     (`annuncia_numero_estratto`, `annuncia_premi_turno`,
     `annuncia_fase_turno`). Questo consente ai screen reader di guidare
     l'utente attraverso una sequenza di prompt accessibili.
+- Il numero estratto dispone ora anche di un overlay visivo temporaneo
+    (`OverlayNumeroEstratto`) pensato per utenti vedenti senza screen reader:
+    il componente e' strettamente UI-only, non riceve focus e non modifica
+    il testo inoltrato al backend AO2, preservando la congruenza tra
+    annunci accessibili e feedback visuale.
 - È previsto un meccanismo per la dichiarazione manuale di `fine turno`
     (tramite `GiocatoreBase.dichiara_fine_turno()` e la facade
     `ComandiGiocatoreUmano`) che sblocca il passaggio dalla finestra reclami

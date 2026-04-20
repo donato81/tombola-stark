@@ -10,6 +10,7 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ## [Unreleased]
 ### Added
 - Segnazione numeri sulla cartella tramite click sinistro del mouse (bingo_game/ui/finestra_gioco.py)
+- Overlay visivo temporaneo del numero estratto per utenti vedenti senza screen reader (`bingo_game/ui/overlay_numero.py`, integrazione in `bingo_game/ui/finestra_gioco.py` e `bingo_game/ui/renderers/renderer_wx.py`)
 
 ## [0.14.0-alpha] — 2026-04-14
 
