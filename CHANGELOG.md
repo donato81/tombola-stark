@@ -8,6 +8,9 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ---
 
 ## [Unreleased]
+### Fixed
+- Pannello riepilogo finale appare grigio a fine partita: corretto `self.Layout()` → `self._panel.Layout()` (il sizer è sul panel figlio, non sul frame), aggiunti `Hide()` per tutti gli elementi UI che occupavano spazio nel sizer (header, pulsanti, log), aggiunto `self._panel.Refresh()` per ridisegno GDI su Windows, rimosso `wx.CallAfter(SetFocus)` duplicato (`bingo_game/ui/finestra_gioco.py`)
+
 ### Added
 - Segnazione numeri sulla cartella tramite click sinistro del mouse (bingo_game/ui/finestra_gioco.py)
 - Overlay visivo temporaneo del numero estratto per utenti vedenti senza screen reader (`bingo_game/ui/overlay_numero.py`, integrazione in `bingo_game/ui/finestra_gioco.py` e `bingo_game/ui/renderers/renderer_wx.py`)

@@ -1104,7 +1104,7 @@ class FinestraGioco(wx.Frame):
             if self._finestra_principale is not None:
                 self._btn_torna_menu.Enable()
                 self._btn_torna_menu.Show()
-                self.Layout()
+                # D4 — il layout e il focus sono già gestiti in mostra_riepilogo_finale()
                 self._btn_torna_menu.SetFocus()
             return
 
@@ -1337,6 +1337,7 @@ class FinestraGioco(wx.Frame):
 
     def mostra_riepilogo_finale(self, dati: dict) -> None:
         """Mostra il pannello riepilogo finale e nasconde i pannelli di gioco."""
+        # D2 — nascondi tutti gli elementi che occupano spazio nel sizer
         self._pannello_griglia.Hide()
         self._pannello_tabellone.Hide()
         self._pannello_cartella.Hide()
@@ -1346,14 +1347,27 @@ class FinestraGioco(wx.Frame):
         if hasattr(self, "_sizer_selezione"):
             for btn in self._pulsanti_selezione:
                 btn.Hide()
+        if hasattr(self, "_header_bar"):
+            self._header_bar.Hide()
+        self._btn_principale.Hide()
+        self._btn_pausa.Hide()
+        if hasattr(self, "_lbl_cartella_titolo"):
+            self._lbl_cartella_titolo.Hide()
+        if hasattr(self, "_btn_premi"):
+            for btn in self._btn_premi.values():
+                btn.Hide()
+        if hasattr(self, "_lbl_log"):
+            self._lbl_log.Hide()
+        if hasattr(self, "_log_ctrl"):
+            self._log_ctrl.Hide()
         self._pannello_riepilogo.mostra(dati)
         self._pannello_riepilogo.Show()
-        self.Layout()
+        # D1 — Layout() sul panel che possiede il sizer (non sul frame)
+        self._panel.Layout()
+        # D3 — Refresh esplicito per ridisegnare le aree vacate su Windows/GDI
+        self._panel.Refresh()
         # Aggiorna il titolo della finestra per NVDA
         self.SetTitle("Tombola Stark — Partita terminata")
-        # Sposta il focus su "Torna al menu principale" affinché NVDA legga
-        # il controllo senza intervento manuale
-        wx.CallAfter(self._btn_torna_menu.SetFocus)
 
     def aggiorna_stato_pulsante(self, primo_turno_eseguito: bool, fase: Optional[str] = None) -> None:
         """Interfaccia per il renderer: aggiorna etichetta pulsante in base alla fase."""
