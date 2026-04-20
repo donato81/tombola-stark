@@ -61,6 +61,7 @@ from bingo_game.ui.tema import (
     COLORE_BTN_TOMBOLA, COLORE_BTN_TOMBOLA_TESTO, COLORE_BTN_NEUTRO,
     COLORE_BTN_INIZIA, COLORE_BTN_PASSA_TURNO, COLORE_BTN_HO_FINITO, COLORE_BTN_RIPRENDI,
     COLORE_BTN_PAUSA, COLORE_BTN_GRIGIO, COLORE_BTN_DISABILITATO,
+    COLORE_BTN_LAMPEGGIO_A,
     COLORE_LOG_BG, COLORE_TESTO_MUTED, FONT_LOG_PT, FONT_LOG_FAMIGLIA, FONT_LABEL_PT,
     COLORE_CELLA_EVIDENZIATA,
     COLORE_HEADER_BG, FONT_HEADER_PT, ALTEZZA_HEADER, COLORE_HEADER_ACCENT,
@@ -648,6 +649,11 @@ class FinestraGioco(wx.Frame):
         # di posizionamento iniziale producano annunci NVDA prima del benvenuto.
         self._avvio_silenzioso: bool = False
 
+        # --- Lampeggio pulsante "Ho finito" ---
+        self._timer_lampeggio_btn: Optional[wx.Timer] = None
+        self._lampeggio_btn_attivo: bool = False
+        self._tick_lampeggio_btn: int = 0
+
         self._build_ui()
         self._overlay_numero = OverlayNumeroEstratto(parent=self)
         self._bind_finestra()
@@ -821,6 +827,9 @@ class FinestraGioco(wx.Frame):
             pannello = self._pannello_cartella
             if hasattr(pannello, "ferma_lampeggio"):
                 pannello.ferma_lampeggio()
+        if hasattr(self, "_timer_lampeggio_btn") and self._timer_lampeggio_btn is not None:
+            self._timer_lampeggio_btn.Stop()
+            self._timer_lampeggio_btn = None
         if hasattr(self, "_overlay_numero") and self._overlay_numero is not None:
             self._overlay_numero.Destroy()
         event.Skip()
@@ -1257,6 +1266,44 @@ class FinestraGioco(wx.Frame):
             testo = f"Gioco ripreso. Fase: {desc_fase}."
         self._renderer.annuncia_pausa(testo)
 
+    # ------------------------------------------------------------------
+    # Lampeggio pulsante "Ho finito" (fase attesa_reclami)
+    # ------------------------------------------------------------------
+
+    def _avvia_lampeggio_btn(self) -> None:
+        """Avvia il lampeggio del pulsante principale durante la fase attesa_reclami."""
+        if self._lampeggio_btn_attivo:
+            return
+        self._lampeggio_btn_attivo = True
+        self._tick_lampeggio_btn = 0
+        self._timer_lampeggio_btn = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self._on_tick_lampeggio_btn, self._timer_lampeggio_btn)
+        self._timer_lampeggio_btn.Start(500)
+
+    def _ferma_lampeggio_btn(self) -> None:
+        """Ferma il lampeggio del pulsante e ripristina il colore base arancione."""
+        if self._timer_lampeggio_btn is not None:
+            self._timer_lampeggio_btn.Stop()
+            self._timer_lampeggio_btn = None
+        self._lampeggio_btn_attivo = False
+        self._tick_lampeggio_btn = 0
+        if hasattr(self, "_btn_principale"):
+            self._btn_principale.SetBackgroundColour(wx.Colour(COLORE_BTN_HO_FINITO))
+            self._btn_principale.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+            self._btn_principale.Refresh()
+
+    def _on_tick_lampeggio_btn(self, event: wx.TimerEvent) -> None:
+        """Tick del timer lampeggio: alterna sfondo tra arancione e giallo-oro."""
+        if not self._lampeggio_btn_attivo:
+            return
+        self._tick_lampeggio_btn += 1
+        if self._tick_lampeggio_btn % 2 == 1:
+            self._btn_principale.SetBackgroundColour(wx.Colour(COLORE_BTN_LAMPEGGIO_A))
+            self._btn_principale.SetForegroundColour(wx.Colour(COLORE_TESTO_SCURO))
+        else:
+            self._btn_principale.SetBackgroundColour(wx.Colour(COLORE_BTN_HO_FINITO))
+            self._btn_principale.SetForegroundColour(wx.Colour(COLORE_TESTO_CHIARO))
+        self._btn_principale.Refresh()
 
     # ------------------------------------------------------------------
     # Consultazione log  
@@ -1330,6 +1377,7 @@ class FinestraGioco(wx.Frame):
             if hasattr(self, "_btn_premi"):
                 for btn in self._btn_premi.values():
                     btn.Disable()
+            self._ferma_lampeggio_btn()
             self._renderer.annuncia_fase_turno(label)
             return
         if fase == "attesa_reclami":
@@ -1392,6 +1440,11 @@ class FinestraGioco(wx.Frame):
                     btn.SendSizeEvent()
                 else:
                     btn.Disable()
+        # Lampeggio pulsante: avvia in attesa_reclami, ferma negli altri stati.
+        if fase == "attesa_reclami":
+            self._avvia_lampeggio_btn()
+        else:
+            self._ferma_lampeggio_btn()
         # Re-announce esplicito per NVDA (l'etichetta potrebbe non essere riletta automaticamente).
         self._btn_principale.Refresh()
         self._renderer.annuncia_fase_turno(label)

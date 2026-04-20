@@ -66,6 +66,7 @@ stato: attivo
 - [DESIGN_02_FASE2_SISTEMA_UTENTE_2026-04-15.md](2%20-%20projects/DESIGN_02_FASE2_SISTEMA_UTENTE_2026-04-15.md)
 - [DESIGN_03_FASE3_STATISTICHE_GIOCO_2026-04-15.md](2%20-%20projects/DESIGN_03_FASE3_STATISTICHE_GIOCO_2026-04-15.md)
 - [DESIGN_OVERLAY_NUMERO_ESTRATTO.md](2%20-%20projects/DESIGN_OVERLAY_NUMERO_ESTRATTO.md)
+- [DESIGN_lampeggio_btn_pronto_v0.15.0.md](2%20-%20projects/DESIGN_lampeggio_btn_pronto_v0.15.0.md)
 
 ### Piani
 
@@ -121,6 +122,7 @@ stato: attivo
 - [PLAN_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md](3%20-%20coding%20plans/PLAN_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md)
 - [PLAN_click_mouse_segnazione_v0.14.1](3%20-%20coding%20plans/PLAN_click_mouse_segnazione_v0.14.1.md)
 - [PLAN_OVERLAY_NUMERO_ESTRATTO_v0.14.2.md](3%20-%20coding%20plans/PLAN_OVERLAY_NUMERO_ESTRATTO_v0.14.2.md)
+- [PLAN_lampeggio_btn_pronto_v0.15.0.md](3%20-%20coding%20plans/PLAN_lampeggio_btn_pronto_v0.15.0.md)
 
 ### Reports
 
@@ -204,6 +206,7 @@ stato: attivo
 - [TODO_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md](5%20-%20todolist/TODO_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md)
 - [TODO_click_mouse_segnazione_v0.14.1](5%20-%20todolist/TODO_click_mouse_segnazione_v0.14.1.md)
 - [TODO_OVERLAY_NUMERO_ESTRATTO_v0.14.2.md](5%20-%20todolist/TODO_OVERLAY_NUMERO_ESTRATTO_v0.14.2.md)
+- [TODO_lampeggio_btn_pronto_v0.15.0.md](5%20-%20todolist/TODO_lampeggio_btn_pronto_v0.15.0.md) — COMPLETED
 
 ### Da fare
 

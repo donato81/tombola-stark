@@ -45,6 +45,7 @@ COLORE_BTN_GRIGIO = "#757575"        # Sfondo pulsanti secondari grigi
 COLORE_BTN_INIZIA = "#2E7D32"         # "Inizia partita" (verde scuro)
 COLORE_BTN_PASSA_TURNO = "#1565C0"    # "Passa turno" (blu istituzionale)
 COLORE_BTN_HO_FINITO = "#E65100"      # "Ho finito — avvia verifica" (arancione)
+COLORE_BTN_LAMPEGGIO_A = "#FFD54F"    # Lampeggio alt pulsante "Ho finito" (giallo-oro)
 COLORE_BTN_RIPRENDI = "#388E3C"       # "Riprendi" (verde medio)
 
 # ---------------------------------------------------------------------------
