@@ -65,6 +65,7 @@ stato: attivo
 - [DESIGN_01_FASE1_INFRASTRUCTURE_LAYER_2026-04-15.md](2%20-%20projects/DESIGN_01_FASE1_INFRASTRUCTURE_LAYER_2026-04-15.md)
 - [DESIGN_02_FASE2_SISTEMA_UTENTE_2026-04-15.md](2%20-%20projects/DESIGN_02_FASE2_SISTEMA_UTENTE_2026-04-15.md)
 - [DESIGN_03_FASE3_STATISTICHE_GIOCO_2026-04-15.md](2%20-%20projects/DESIGN_03_FASE3_STATISTICHE_GIOCO_2026-04-15.md)
+- [DESIGN_OVERLAY_NUMERO_ESTRATTO.md](2%20-%20projects/DESIGN_OVERLAY_NUMERO_ESTRATTO.md)
 
 ### Piani
 
@@ -119,6 +120,7 @@ stato: attivo
 - [PLAN_finestra_guida_regole_v0.14.0.md](3%20-%20coding%20plans/PLAN_finestra_guida_regole_v0.14.0.md)
 - [PLAN_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md](3%20-%20coding%20plans/PLAN_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md)
 - [PLAN_click_mouse_segnazione_v0.14.1](3%20-%20coding%20plans/PLAN_click_mouse_segnazione_v0.14.1.md)
+- [PLAN_OVERLAY_NUMERO_ESTRATTO_v0.14.2.md](3%20-%20coding%20plans/PLAN_OVERLAY_NUMERO_ESTRATTO_v0.14.2.md)
 
 ### Reports
 
@@ -144,6 +146,8 @@ stato: attivo
 - [REPORT_VALIDAZIONE_GRUPPO_E_EVENTI_OUTPUT_UI_2026-03-30.md](4%20-%20reports/REPORT_VALIDAZIONE_GRUPPO_E_EVENTI_OUTPUT_UI_2026-03-30.md)
 - [REPORT_DIAGNOSI_ALFA_2026-04-13.md](4%20-%20reports/REPORT_DIAGNOSI_ALFA_2026-04-13.md)
 - [REPORT_tab_navigation_finestra_gioco.md](4%20-%20reports/REPORT_tab_navigation_finestra_gioco.md)
+- [REPORT_CLICK_MOUSE_SEGNAZIONE_NUMERI_2026-04-20.md](4%20-%20reports/REPORT_CLICK_MOUSE_SEGNAZIONE_NUMERI_2026-04-20.md)
+- [REPORT_ANALISI_OVERLAY_NUMERO_ESTRATTO_2026-04-20.md](4%20-%20reports/REPORT_ANALISI_OVERLAY_NUMERO_ESTRATTO_2026-04-20.md)
 
 ### Tasks
 
@@ -199,6 +203,7 @@ stato: attivo
 - [TODO_finestra_guida_regole_v0.14.0.md](5%20-%20todolist/TODO_finestra_guida_regole_v0.14.0.md)
 - [TODO_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md](5%20-%20todolist/TODO_annuncio_posizione_focus_post_benvenuto_nvda_v0.12.5.md)
 - [TODO_click_mouse_segnazione_v0.14.1](5%20-%20todolist/TODO_click_mouse_segnazione_v0.14.1.md)
+- [TODO_OVERLAY_NUMERO_ESTRATTO_v0.14.2.md](5%20-%20todolist/TODO_OVERLAY_NUMERO_ESTRATTO_v0.14.2.md)
 
 ### Da fare
 
