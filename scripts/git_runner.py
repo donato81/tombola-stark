@@ -384,7 +384,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     # commit
     p_commit = subparsers.add_parser("commit", help="Esegui git add + commit.")
-    p_commit.add_argument("--message", required=True, help="Messaggio di commit.")
+    p_commit.add_argument("--message", required=False, help="Messaggio di commit.")
     p_commit.add_argument(
         "--push",
         action="store_true",
@@ -395,6 +395,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--paths",
         nargs="*",
         help="Elenco di percorsi da passare a 'git add' (se omesso usa '.')",
+    )
+    p_commit.add_argument(
+        "--message-file",
+        help="Percorso a file che contiene il messaggio di commit (utf-8).",
     )
 
     # push
@@ -428,7 +432,31 @@ def main() -> int:
         if args.subcommand == "status":
             return cmd_status()
         elif args.subcommand == "commit":
-            return cmd_commit(args.message, args.push, args.paths)
+            # Se è fornito --message-file, leggerne il contenuto; altrimenti usare --message
+            message_val = args.message
+            if getattr(args, "message_file", None):
+                try:
+                    with open(args.message_file, "r", encoding="utf-8") as fh:
+                        message_val = fh.read()
+                except Exception as exc:  # noqa: BLE001
+                    print_report(
+                        "COMMIT",
+                        "FAIL",
+                        "",
+                        {},
+                        error_message=f"impossibile leggere file messaggio: {exc}",
+                    )
+                    return 1
+            if not message_val:
+                print_report(
+                    "COMMIT",
+                    "FAIL",
+                    "",
+                    {},
+                    error_message="Nessun messaggio di commit fornito.",
+                )
+                return 1
+            return cmd_commit(message_val, args.push, args.paths)
         elif args.subcommand == "push":
             return cmd_push(args.branch)
         elif args.subcommand == "merge":

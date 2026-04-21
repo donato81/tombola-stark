@@ -1,0 +1,23 @@
+fix(ui): risolve blocco NVDA con ShowWithoutActivating e CallLater
+
+Causa radice: Raise() nell'overlay chiamava SetForegroundWindow() che
+generava EVENT_SYSTEM_FOREGROUND; NVDA intercettava l'evento con
+interrupt implicito cancellando il testo nella coda di sintesi (NVDA
+annunciava "panel" invece del numero estratto).
+
+Modifiche:
+- overlay_numero.py: Show()+Raise() sostituiti con ShowWithoutActivating()
+  (SW_SHOWNOACTIVATE, nessun WM_ACTIVATE, nessun focus event verso NVDA).
+  STAY_ON_TOP garantisce la visibilita visiva senza SetForegroundWindow.
+- renderer_wx.py: import wx spostato fuori da TYPE_CHECKING (necessario
+  per wx.CallLater); CallLater(350ms) separa la vocalizzazione AO2 dalla
+  comparsa dell'overlay come misura difensiva contro race condition NVDA.
+
+Refs: docs/4 - reports/REPORT_DIAGNOSI_NVDA_OVERLAY_RADICE_2026-04-21.md
+
+Prerequisiti verificati:
+- py_compile: exit 0 su entrambi i file
+- import runtime: OK
+- 355 test passing, 0 failed
+- CHANGELOG.md aggiornato
+

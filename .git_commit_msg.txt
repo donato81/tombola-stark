@@ -1,0 +1,8 @@
+fix(ui): rimuove wx.FRAME_NO_ACTIVATE non valido in wxPython 4.2.1
+
+Il flag wx.FRAME_NO_ACTIVATE non esiste in wxPython 4.2.1 e causa
+AttributeError all'avvio della partita, impedendo l'apertura della
+FinestraGioco. La correzione lo rimuove; la vocalizzazione NVDA
+rimane comunque garantita dall'inversione dell'ordine
+_ao2_vocalizza / _wx_mostra_overlay_numero gia presente nel commit
+dddfbe3.

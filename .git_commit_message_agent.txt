@@ -1,0 +1,5 @@
+fix(ui): importa wx a runtime e usa CallLater per overlay NVDA-safe
+
+Parte del fix NVDA descritto nel commit precedente.
+wx spostato fuori da TYPE_CHECKING per wx.CallLater; CallLater(350ms)
+separa la vocalizzazione dall'apertura dell'overlay.
