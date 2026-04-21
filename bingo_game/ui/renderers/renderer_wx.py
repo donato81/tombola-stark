@@ -16,8 +16,10 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any, Optional, Sequence
 
+import wx
+
 if TYPE_CHECKING:
-    import wx
+    pass
 
 from my_lib.vocalizzatore import IVocalizzatore
 from bingo_game.events.codici_messaggi_sistema import SISTEMA_ERRORE_CODICE_MANCANTE
@@ -199,7 +201,7 @@ class WxRenderer(BaseRenderer):
         self._wx_avvia_lampeggio(numero)
         self._wx_aggiorna_header(turno=numero_turno, ultimo_numero=numero)
         self._ao2_vocalizza(testo)
-        self._wx_mostra_overlay_numero(numero)
+        wx.CallLater(350, self._wx_mostra_overlay_numero, numero)
 
     def annuncia_premi_turno(self, premi: list) -> None:
         """Vocalizza i premi assegnati nel turno (o nessun premio)."""

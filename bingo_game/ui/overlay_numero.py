@@ -87,8 +87,7 @@ class OverlayNumeroEstratto(wx.Frame):
         self._posiziona_overlay()
         if self._timer.IsRunning():
             self._timer.Stop()
-        self.Show()
-        self.Raise()
+        self.ShowWithoutActivating()
         self._timer.Start(self._durata_ms, wx.TIMER_ONE_SHOT)
 
     def _posiziona_overlay(self) -> None:
