@@ -10,7 +10,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ## [Unreleased]
 ### Fixed
 - Pannello riepilogo finale appare grigio a fine partita: corretto `self.Layout()` → `self._panel.Layout()` (il sizer è sul panel figlio, non sul frame), aggiunti `Hide()` per tutti gli elementi UI che occupavano spazio nel sizer (header, pulsanti, log), aggiunto `self._panel.Refresh()` per ridisegno GDI su Windows, rimosso `wx.CallAfter(SetFocus)` duplicato (`bingo_game/ui/finestra_gioco.py`)
-- Ripristinata vocalizzazione NVDA durante l'estrazione numero: `_ao2_vocalizza` ora eseguito prima dell'overlay; aggiunto `wx.FRAME_NO_ACTIVATE` all'overlay per evitare il focus stealing (`bingo_game/ui/renderers/renderer_wx.py`, `bingo_game/ui/overlay_numero.py`)
+- Ripristinata vocalizzazione NVDA durante l'estrazione numero: `_ao2_vocalizza` ora eseguito prima dell'overlay per evitare il focus stealing (`bingo_game/ui/renderers/renderer_wx.py`)
+- Rimosso `wx.FRAME_NO_ACTIVATE` dallo stile dell'overlay: attributo inesistente in wxPython 4.2.1 che causava `AttributeError` silenzioso impedendo l'apertura della `FinestraGioco` all'avvio partita (`bingo_game/ui/overlay_numero.py`)
 
 ### Added
 - Segnazione numeri sulla cartella tramite click sinistro del mouse (bingo_game/ui/finestra_gioco.py)
