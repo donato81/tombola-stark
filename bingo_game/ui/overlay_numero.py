@@ -33,6 +33,7 @@ class OverlayNumeroEstratto(wx.Frame):
             wx.STAY_ON_TOP
             | wx.FRAME_NO_TASKBAR
             | wx.FRAME_TOOL_WINDOW
+            | wx.FRAME_NO_ACTIVATE
             | wx.BORDER_NONE
         )
         super().__init__(parent, title="Overlay numero estratto", style=style)

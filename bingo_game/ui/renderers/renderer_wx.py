@@ -198,8 +198,8 @@ class WxRenderer(BaseRenderer):
         self._wx_aggiorna_output(testo)
         self._wx_avvia_lampeggio(numero)
         self._wx_aggiorna_header(turno=numero_turno, ultimo_numero=numero)
-        self._wx_mostra_overlay_numero(numero)
         self._ao2_vocalizza(testo)
+        self._wx_mostra_overlay_numero(numero)
 
     def annuncia_premi_turno(self, premi: list) -> None:
         """Vocalizza i premi assegnati nel turno (o nessun premio)."""
