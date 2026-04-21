@@ -8,6 +8,13 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 ---
 
 ## [Unreleased]
+### Added
+
+### Changed
+
+### Fixed
+
+## [0.14.0] — 2026-04-21
 ### Fixed
 - Pannello riepilogo finale appare grigio a fine partita: corretto `self.Layout()` → `self._panel.Layout()` (il sizer è sul panel figlio, non sul frame), aggiunti `Hide()` per tutti gli elementi UI che occupavano spazio nel sizer (header, pulsanti, log), aggiunto `self._panel.Refresh()` per ridisegno GDI su Windows, rimosso `wx.CallAfter(SetFocus)` duplicato (`bingo_game/ui/finestra_gioco.py`)
 - Ripristinata vocalizzazione NVDA durante l'estrazione numero: `_ao2_vocalizza` ora eseguito prima dell'overlay per evitare il focus stealing (`bingo_game/ui/renderers/renderer_wx.py`)
@@ -630,7 +637,8 @@ e questo progetto aderisce al [Versionamento Semantico](https://semver.org/spec/
 
 *Per i dettagli tecnici completi, consulta la [storia dei commit](https://github.com/donato81/tombola-stark/commits/main) o [`documentations/ARCHITECTURE.md`](documentations/ARCHITECTURE.md).*
 
-[Non Rilasciato]: https://github.com/donato81/tombola-stark/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/donato81/tombola-stark/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/donato81/tombola-stark/releases/tag/v0.14.0
 [0.5.0]: https://github.com/donato81/tombola-stark/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/donato81/tombola-stark/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/donato81/tombola-stark/compare/v0.2.0...v0.3.0

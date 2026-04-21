@@ -15,7 +15,7 @@ from cx_Freeze import setup, Executable
 # ------------------------------------------------------------
 # Cartella di output
 # ------------------------------------------------------------
-OUTPUT_DIR = "build/tombola-stark-0.14.0-alpha"
+OUTPUT_DIR = "build/tombola-stark-0.14.0"
 
 # ------------------------------------------------------------
 # Pacchetti da includere esplicitamente nel build
